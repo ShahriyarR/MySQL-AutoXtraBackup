@@ -40,23 +40,22 @@ class Prepare(GeneralClass):
 
     def prepare_only_full_backup(self):
         if self.recent_full_backup_file() == 0:
-            print("##############################################################################################")
-            print("You have no FULL backups. Please take backup for preparing")
-            print("##############################################################################################")
-
+            print("####################################################################################################")
+            print("You have no FULL backups. First please take FULL backup for preparing - - - - - - - - - - - - - -  #")
+            print("####################################################################################################")
+            exit(0)
         elif self.check_inc_backups() == 0:
-            print("##############################################################################################")
-            print("Preparing Full backup 1 time")
-            print("##############################################################################################")
+            print("################################################################################################")
+            print("Preparing Full backup 1 time - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #")
+            print("################################################################################################")
             time.sleep(3)
             args = '%s %s %s/%s' % (self.backup_tool, self.xtrabck_prepare, self.full_dir, self.recent_full_backup_file())
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
                 print(output[-27:])
-                print("##############################################################################################")
-                print("Preparing Again Full Backup for final usage.  \n"
-                      "It means that you have not got inc backups")
-                print("##############################################################################################")
+                print("################################################################################################")
+                print("Preparing Again Full Backup for final usage. - - - - - - - - - - - - - - - - - - - - - - - - - #")
+                print("################################################################################################")
 
                 args2 = '%s --apply-log %s/%s' % (self.backup_tool, self.full_dir, self.recent_full_backup_file())
                 status2, output2 = subprocess.getstatusoutput(args2)
@@ -76,11 +75,9 @@ class Prepare(GeneralClass):
 
 
         else:
-            print("###############################################################################################")
-            print("Preparing Full backup 1 time. It means that,\n"
-                  " you have got incremental backups and final preparing,\n"
-                  " will occur after preparing all inc backups")
-            print("################################################################################################")
+            print("Preparing Full backup 1 time. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#\n"
+                  "Final prepare,will occur after preparing all inc backups - - - - - - - - - - - - - - - - -  - - - -#")
+            print("####################################################################################################")
             time.sleep(3)
             args = '%s %s %s/%s' % (self.backup_tool, self.xtrabck_prepare, self.full_dir, self.recent_full_backup_file())
             status, output = subprocess.getstatusoutput(args)
@@ -101,29 +98,24 @@ class Prepare(GeneralClass):
     def prepare_inc_full_backups(self):
         if self.check_inc_backups() == 0:
             print("################################################################################################")
-            print("You have no Incremental backups. So will prepare only latest Full backup")
+            print("You have no Incremental backups. So will prepare only latest Full backup - - - - - - - - - - - #")
             print("################################################################################################")
             time.sleep(3)
             self.prepare_only_full_backup()
         else:
-            print("################################################################################################")
-            print("You have Incremental backups. \n"
-                  "Will prepare latest full backup then based on it, will prepare Incs")
-            print("Preparing Full backup: ")
-            print("################################################################################################")
+            print("####################################################################################################")
+            print("You have Incremental backups. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
             time.sleep(3)
             if self.prepare_only_full_backup():
-                print("################################################################################################")
+                print("####################################################################################################")
                 print("Preparing Incs: ")
-                print("################################################################################################")
                 time.sleep(3)
                 list_of_dir = sorted(os.listdir(self.inc_dir))
 
                 for i in list_of_dir:
                     if i != max(os.listdir(self.inc_dir)):
-                        print("########################################################################################")
                         print("Preparing inc backups in sequence. inc backup dir/name is %s" % i)
-                        print("########################################################################################")
+                        print("####################################################################################################")
                         time.sleep(3)
                         args = '%s %s %s/%s --incremental-dir=%s/%s' % (self.backup_tool, self.xtrabck_prepare,
                                                                         self.full_dir, self.recent_full_backup_file(),
@@ -140,9 +132,9 @@ class Prepare(GeneralClass):
                             return False
 
                     else:
-                        print("########################################################################################")
-                        print("Preparing Last Incremental backup, Inc backup dir/name is %s" % i)
-                        print("########################################################################################")
+                        print("####################################################################################################")
+                        print("Preparing last incremental backup, inc backup dir/name is %s" % i)
+                        print("####################################################################################################")
                         time.sleep(3)
                         args2 = '%s --apply-log %s/%s --incremental-dir=%s/%s' % (self.backup_tool,
                                                                                  self.full_dir,
@@ -157,12 +149,10 @@ class Prepare(GeneralClass):
                             print(output2)
                             return False
 
-            print("################################################################################################")
-            print("The end of Preparing Stage.")
-            print("The last step of backup preparing is, \n"
-                  "preparing FULL backup again for final usage")
-            print("Preparing FULL backup Again:")
-            print("################################################################################################")
+            print("####################################################################################################")
+            print("The end of Prepare Process. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
+            print("Preparing FULL backup Again: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #")
+            print("####################################################################################################")
             time.sleep(3)
 
             args3 = '%s --apply-log %s/%s' % (self.backup_tool, self.full_dir, self.recent_full_backup_file())
@@ -184,9 +174,9 @@ class Prepare(GeneralClass):
     def shutdown_mysql(self):
 
         # Shut Down MySQL
-        print("###################################################################################################")
-        print("Shutting Down MySQL server: ")
-        print("###################################################################################################")
+        print("####################################################################################################")
+        print("Shutting Down MySQL server: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
+        print("####################################################################################################")
         time.sleep(3)
         args = self.stop_mysql
         status, output = subprocess.getstatusoutput(args)
@@ -203,30 +193,30 @@ class Prepare(GeneralClass):
     def move_datadir(self):
 
         # Move datadir to new directory
-        print("###################################################################################################")
-        print("Moving MySQL datadir to /tmp/mysql: ")
-        print("###################################################################################################")
+        print("####################################################################################################")
+        print("Moving MySQL datadir to /tmp/mysql: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
+        print("####################################################################################################")
         time.sleep(3)
         if os.path.isdir(self.tmpdir):
             rmdirc = 'rm -rf %s' % self.tmpdir
             status, output = subprocess.getstatusoutput(rmdirc)
 
             if status == 0:
-                print("Emptied /tmp/mysql directory")
+                print("Emptied /tmp/mysql directory ...")
 
                 try:
                     shutil.move(self.datadir, self.tmp)
-                    print("Moved datadir to /tmp/mysql")
+                    print("Moved datadir to /tmp/mysql ...")
                 except shutil.Error as err:
                     print("Error occurred while moving datadir")
                     print(err)
                     return False
 
-                print("Creating an empty data directory")
+                print("Creating an empty data directory ...")
                 makedir = self.mkdir_command
                 status2, output2 = subprocess.getstatusoutput(makedir)
                 if status2 == 0:
-                    print("/var/lib/mysql Created!")
+                    print("/var/lib/mysql Created! ...")
                 else:
                     print("Error while creating datadir")
                     print(output2)
@@ -242,17 +232,17 @@ class Prepare(GeneralClass):
         else:
             try:
                 shutil.move(self.datadir, self.tmp)
-                print("Moved datadir to /tmp/mysql")
+                print("Moved datadir to /tmp/mysql ...")
             except shutil.Error as err:
                 print("Error occurred while moving datadir")
                 print(err)
                 return False
 
-            print("Creating an empty data directory")
+            print("Creating an empty data directory ...")
             makedir = self.mkdir_command
             status2, output2 = subprocess.getstatusoutput(makedir)
             if status2 == 0:
-                print("/var/lib/mysql Created!")
+                print("/var/lib/mysql Created! ...")
                 return True
             else:
                 print("Error while creating datadir")
@@ -269,9 +259,9 @@ class Prepare(GeneralClass):
         status, output = subprocess.getstatusoutput(copy_back)
 
         if status == 0:
-            print("################################################################################################")
-            print("Data copied back successfully!")
-            print("################################################################################################")
+            print("####################################################################################################")
+            print("Data copied back successfully! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #")
+            print("####################################################################################################")
             return True
         else:
             print("Error occurred while copying back data!")
@@ -286,31 +276,31 @@ class Prepare(GeneralClass):
         status, output = subprocess.getstatusoutput(give_chown)
 
         if status == 0:
-            print("################################################################################################")
-            print("New copied-back data now owned by mysql:mysql ")
-            print("################################################################################################")
+            print("####################################################################################################")
+            print("New copied-back data now owned by mysql:mysql - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
+            print("####################################################################################################")
             return True
         else:
-            print("Error occurred while chaning owner!")
+            print("Error occurred while changing owner!")
             print(output)
             return False
 
 
     def start_mysql_func(self):
         # Starting or Bootstrapping(if it is a main NODE) MySQL/Mariadb
-        print("################################################################################################")
+        print("####################################################################################################")
         print("Starting MySQL server choose one of 2 options!: ")
-        print("1. Run bootstrap command - service mysql bootstrap - because this server is main node in MariaDB Galera Cluster")
+        print("1. Run bootstrap command - because this server is main node in MariaDB Galera Cluster")
         print("2. Run start command - service mysql start - for usual usage or for secondary nodes")
         start = int(input("Please choose 1 or 2: "))
-        print("################################################################################################")
+        print("####################################################################################################")
         time.sleep(3)
 
         if start == 1:
             bootstrap = self.mariadb_cluster_bootstrap
             status, output = subprocess.getstatusoutput(bootstrap)
             if status == 0:
-                print("Bootstrapping Node")
+                print("Bootstrapping Node ...")
                 print(output)
                 return True
             else:
@@ -322,7 +312,7 @@ class Prepare(GeneralClass):
             start_command = self.start_mysql
             status, output = subprocess.getstatusoutput(start_command)
             if status == 0:
-                print("Starting MySQL")
+                print("Starting MySQL ...")
                 print(output)
                 return True
             else:
@@ -338,9 +328,9 @@ class Prepare(GeneralClass):
 
     def copy(self):
 
-        print("###################################################################################################")
-        print("Copying Back Already Prepared Final Backup: ")
-        print("###################################################################################################")
+        print("####################################################################################################")
+        print("Copying Back Already Prepared Final Backup: - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
+        print("####################################################################################################")
         time.sleep(3)
         if len(os.listdir(self.datadir)) > 0:
             print("MySQL Datadir is not empty!")
@@ -361,11 +351,11 @@ class Prepare(GeneralClass):
         if self.shutdown_mysql():
             if self.move_datadir():
                 if self.copy():
-                    print("################################################################################################")
+                    print("####################################################################################################")
                     print("All data copied back successfully your MySQL server is UP again. \n"
                             "Congratulations. \n"
                             "Backups are life savers")
-                    print("################################################################################################")
+                    print("####################################################################################################")
                     return True
                 else:
                     print("Error Occurred!")
@@ -380,15 +370,20 @@ class Prepare(GeneralClass):
 
     def prepare_backup_and_copy_back(self):
     # Recovering/Copying Back Prepared Backup
-        print("#####################################################################################################")
-        print("This script is Preparing full/inc backups!")
+        #print("#####################################################################################################")
+        print("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-")
+        print("")
+        print("Preparing full/inc backups!")
         print("What do you want to do?")
-        print("1. Prepare Backups and keep for future usage.NOTE('Once Prepared Backups Can not be prepared Again')")
+        print("1. Prepare Backups and keep for future usage. NOTE('Once Prepared Backups Can not be prepared Again')")
         print("2. Prepare Backups and restore/recover/copy-back immediately")
         print("3. Just copy-back previously prepared backups")
 
         prepare = int(input("Please Choose one of options and type 1 or 2 or 3: "))
-        print("####################################################################################################")
+        print("")
+        print("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-")
+        time.sleep(3)
+        #print("####################################################################################################")
         if prepare == 1:
             self.prepare_inc_full_backups()
         elif prepare == 2:

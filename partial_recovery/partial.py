@@ -1,39 +1,15 @@
 import mysql.connector
-import time
-import configparser
 import os
 import shutil
 import shlex
 import subprocess
 from general_conf.generalops import GeneralClass
-
+from mysql.connector import errorcode
 
 class PartialRecovery(GeneralClass):
 
     def __init__(self):
         GeneralClass.__init__(self)
-
-        # ===========================
-        #  Reading Config File      #
-        # ===========================
-
-        # con = configparser.ConfigParser()
-        # con.read(conf)
-        # bolme = con.sections()
-        #
-        # DB = bolme[0]
-        # self.datadir = con[DB]['datadir']
-        #
-        #
-        # BCK = bolme[1]
-        # self.backupdir = con[BCK]['backupdir']
-        # self.full_dir = self.backupdir + '/full'
-        # self.inc_dir = self.backupdir + '/inc'
-        #
-        #
-        # CM = bolme[2]
-        # self.chown_command = con[CM]['chown_command']
-
 
         # =================================
         # Connecting To MySQL
@@ -109,12 +85,9 @@ class PartialRecovery(GeneralClass):
 
 
     def lock_table(self,database_name, table_name):
-        #query = "select 1 from dual"
         query = "LOCK TABLES %s.%s WRITE" % (database_name, table_name)
         try:
             self.cur.execute(query)
-            # for i in self.cur:
-            #     print(i)
             return True
         except mysql.connector.Error as err:
             print(err)
@@ -141,14 +114,14 @@ class PartialRecovery(GeneralClass):
 
     def give_chown(self, path_to_mysql_database_dir):
         comm = '%s %s' % (self.chown_command, path_to_mysql_database_dir)
-        comm2 = shlex.split(comm)
-        try:
-            fb2 = subprocess.Popen(comm2, stdout=subprocess.PIPE)
-            print(str(fb2.stdout.read()))
+        status, output = subprocess.getstatusoutput(comm)
+
+        if status == 0:
             return True
-        except Exception as err:
-            print(err)
+        else:
+            print("Chown Command Failed!")
             return False
+
 
 
 
@@ -157,9 +130,12 @@ class PartialRecovery(GeneralClass):
         try:
             self.cur.execute(query)
             return True
-        except mysql.connector.Error as err:
-            print(err)
-            return False
+        except mysql.connector.errors.DatabaseError as err:
+            if err.errno == errorcode.ER_IO_READ_ERROR:
+                return True
+            else:
+                False
+
 
     def unlock_tables(self):
         query = "unlock tables"
@@ -173,6 +149,7 @@ class PartialRecovery(GeneralClass):
 
     def final_actions(self):
         # Type Database name of table which you want to restore
+        print("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-")
         database_name = input("Type Database name: ")
 
         # Type name of table which you want to restore
@@ -186,7 +163,9 @@ class PartialRecovery(GeneralClass):
                 if self.copy_ibd_file_back(path_of_ibd_file=path, path_to_mysql_database_dir=path_to_mysql_datadir):
                     if self.give_chown(path_to_mysql_database_dir=path_to_mysql_datadir):
                         if self.import_tablespace(database_name=database_name, table_name=table_name):
-                            self.unlock_tables()
+                            if self.unlock_tables():
+                                print("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-")
+                                print("Table Recovered! ...")
 
 
 

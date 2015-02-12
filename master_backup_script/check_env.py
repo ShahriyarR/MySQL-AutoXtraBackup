@@ -30,10 +30,10 @@ class CheckEnv:
         myadmin = subprocess.Popen(statusargs, stdout=subprocess.PIPE)
 
         if not ('Uptime' in str(myadmin.stdout.read())):
-            print('Server is NOT Up------------------------------------')
+            print('Server is NOT Up+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+')
             return False
         else:
-            print('Server is Up and running--------------------------OK')
+            print('Server is Up and running+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+OK')
             return True
 
 
@@ -41,47 +41,47 @@ class CheckEnv:
         #if not os.path.exists(self.backup_class_obj.mycnf):
         # Testing with MariaDB Galera Cluster
         if not os.path.exists(self.backup_class_obj.maria_cluster_cnf):
-            print('MySQL configuration file path NOT exists------------')
+            print('MySQL configuration file path does NOT exist+-+-+-+-+-+-+-+-+-+')
             return False
         else:
-            print('MySQL configuration file exists-------------------OK')
+            print('MySQL configuration file exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+OK')
             return True
 
 
     def check_mysql_mysql(self):
         if not os.path.exists(self.backup_class_obj.mysql):
-            print('/usr/bin/mysql NOT exists---------------------------')
+            print('/usr/bin/mysql NOT exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+')
             return False
         else:
-            print('/usr/bin/mysql exists-----------------------------OK')
+            print('/usr/bin/mysql exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-OK')
             return True
 
 
     def check_mysql_mysqladmin(self):
         if not os.path.exists(self.backup_class_obj.mysqladmin):
-            print('/usr/bin/mysqladmin NOT exists----------------------')
+            print('/usr/bin/mysqladmin NOT exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-')
             return False
         else:
-            print('/usr/bin/mysqladmin exists------------------------OK')
+            print('/usr/bin/mysqladmin exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK')
             return True
 
 
     def check_mysql_backuptool(self):
         if not os.path.exists(self.backup_class_obj.backup_tool):
-            print('Xtrabackup/Innobackupex NOT exists------------------')
+            print('Xtrabackup/Innobackupex NOT exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-')
             return False
         else:
-            print('Xtrabackup/Innobackupex exists--------------------OK')
+            print('Xtrabackup/Innobackupex exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-OK')
             return True
 
 
     def check_mysql_backupdir(self):
 
         if not (os.path.exists(self.backup_class_obj.backupdir)):
-            print('Main backup directory NOT exists--------------------')
+            print('Main backup directory NOT exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-')
             return False
         else:
-            print('Main backup directory exists----------------------OK')
+            print('Main backup directory exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-OK')
             return True
 
 
@@ -89,16 +89,16 @@ class CheckEnv:
 
         if not (os.path.exists(self.backup_class_obj.full_dir)):
             try:
-                print('Full Backup directory does not exist.---------OK')
-                print('Creating full backup directory...-------------OK')
+                print('Full Backup directory does not exist.+-+-+-+-+-+-+-+-+-+-+-+-OK')
+                print('Creating full backup directory...+-+-+-+-+-+-+-+-+-++-+-+-+-+OK')
                 os.makedirs(self.backup_class_obj.backupdir + '/full')
-                print('Created---------------------------------------OK')
+                print('Created+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK')
                 return True
             except Exception as err:
                 print(err)
                 return False
         else:
-            print("Full Backup directory exists.---------------------OK")
+            print("Full Backup directory exists.+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+OK")
             return True
 
 
@@ -106,8 +106,8 @@ class CheckEnv:
 
         if not (os.path.exists(self.backup_class_obj.inc_dir)):
             try:
-                print('Increment directory does not exist.-----------OK')
-                print('Creating increment backup directory.----------OK')
+                print('Increment directory does not exist.+-+-+-+-+-+-+-+-+-++-+-+-+OK')
+                print('Creating increment backup directory.+-+-+-+-+-+-+-+-+-++-+-+-OK')
                 os.makedirs(self.backup_class_obj.backupdir + '/inc')
                 print('Created')
                 return True
@@ -115,7 +115,7 @@ class CheckEnv:
                 print(err)
                 return False
         else:
-            print('Increment directory exists------------------------OK')
+            print('Increment directory exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK')
             return True
 
 
@@ -143,13 +143,13 @@ class CheckEnv:
             query2 = "grant all on bck.* to 'test_backup'@'127.0.0.1' identified by '12345'"
             query3 = "grant reload on *.* to 'test_backup'@'127.0.0.1'"
             time.sleep(2)
-            print("Creating Test User (test_backup)------------------OK")
+            print("Creating Test User (test_backup)+-+-+-+-+-+-+-+-+-++-+-+-+-+-OK")
             cursor.execute(query2)
             time.sleep(2)
-            print("Giving Grants to Test User------------------------OK")
+            print("Giving Grants to Test User+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK")
             cursor.execute(query3)
             time.sleep(2)
-            print("Creating Test Database (bck)----------------------OK")
+            print("Creating Test Database (bck)+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-OK")
             cursor.execute(query1)
             cursor.close()
             cnx.close()
@@ -192,10 +192,10 @@ class CheckEnv:
 
 
             if env_result:
-                print("Check status: STATUS------------------------------OK")
+                print("Check status: STATUS+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-OK")
                 return env_result
             else:
-                print("Check status: STATUS------------------------------FAILED")
+                print("Check status: STATUS+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-FAILED")
                 return env_result
 
 

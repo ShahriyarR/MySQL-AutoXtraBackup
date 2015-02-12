@@ -9,7 +9,7 @@ def print_version(ctx, param, value):
     if not value or ctx.resilient_parsing:
         return
     click.echo("Developed by Shahriyar Rzayev from Azerbaijan MySQL User Community")
-    click.echo("Link : https://www.facebook.com/groups/mysql.azerbaijan/")
+    click.echo("Link : https://github.com/ShahriyarR/MySQL-AutoXtraBackup")
     click.echo("Email: rzayev.sehriyar@gmail.com")
     click.echo("Based on Percona XtraBackup: https://launchpad.net/percona-xtrabackup")
     click.echo('MySQL-AutoXtrabackup Version 1.0')

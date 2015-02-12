@@ -1,5 +1,3 @@
-# (#!/usr/bin/python3)
-
 #!/usr/local/bin/python3
 
 # Backup script for MySQL DB (using the latest version of Xtrabackup)(tested with MySQL 5.6.12 on Ubuntu 12.04)
@@ -245,9 +243,9 @@ class Backup(GeneralClass):
 
 
             if self.recent_full_backup_file() == 0:
-                print("################################################################")
-                print("You have no backups : Taking very first Full Backup!")
-                print("################################################################")
+                print("###############################################################")
+                print("#You have no backups : Taking very first Full Backup! - - - - #")
+                print("###############################################################")
 
                 time.sleep(3)
 
@@ -255,7 +253,10 @@ class Backup(GeneralClass):
                 if self.mysql_connection_flush_logs():
 
                 # Taking fullbackup
-                    self.full_backup()
+                    if self.full_backup():
+
+                        # Removing old inc backups
+                        self.clean_inc_backup_dir()
 
                 # Copying backups to remote server
                 #self.copy_backup_to_remote_host()
@@ -265,7 +266,7 @@ class Backup(GeneralClass):
 
             elif self.last_full_backup_date() == 1:
                 print("################################################################")
-                print("Your full backup is timeout : Taking new Full Backup!")
+                print("Your full backup is timeout : Taking new Full Backup!- - - - - #")
                 print("################################################################")
 
                 time.sleep(3)
@@ -290,8 +291,8 @@ class Backup(GeneralClass):
 
             else:
                 print("################################################################")
-                print("You have a full backup. ")
-                print("We will take an incremental one based on recent Full Backup")
+                print("You have a full backup. - - - - - - - - - - - - - - - - - - - -#")
+                print("We will take an incremental one based on recent Full Backup - -#")
                 print("################################################################")
 
                 time.sleep(3)
