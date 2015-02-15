@@ -28,18 +28,18 @@ Preparing System
 
     Installing dependencies:
 
-        * yum install openssl openssl-devel zlib zlib-devel
+        yum install openssl openssl-devel zlib zlib-devel
         
     Installing latest XtraBackup:
         
-        * yum install http://www.percona.com/downloads/percona-release/redhat/0.1-3/percona-release-0.1-3.noarch.rpm
-        * yum install percona-xtrabackup
+        yum install http://www.percona.com/downloads/percona-release/redhat/0.1-3/percona-release-0.1-3.noarch.rpm
+        yum install percona-xtrabackup
 
     Installing Python 3 from source:
 
-        * wget https://www.dropbox.com/s/ctnzi65be0conqc/Python-3.3.2.tar.bz2?dl=0
-        * tar -xvf Python-3.3.2.tar.bz2
-        * cd Python-3.3.2
+        wget https://www.dropbox.com/s/ctnzi65be0conqc/Python-3.3.2.tar.bz2?dl=0
+        tar -xvf Python-3.3.2.tar.bz2
+        cd Python-3.3.2
         
         -- Open Setup.dist file and search for zlib, uncomment zlib notes:
         * nano Modules/Setup.dist
@@ -54,14 +54,14 @@ Preparing System
 	            -DUSE_SSL -I$(SSL)/include -I$(SSL)/include/openssl \
                 -L$(SSL)/lib -lssl -lcrypto
                 
-        * ./configure
-        * make
-        * make install
+        ./configure
+        make
+        make install
     
     
     Installing Python 3 packages:
-        * pip3 install click
-        * pip3 install --allow-external mysql-connector-python mysql-connector-python
+        pip3 install click
+        pip3 install --allow-external mysql-connector-python mysql-connector-python
     
 
         
