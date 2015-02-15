@@ -37,7 +37,7 @@ Preparing System
 
     Installing Python 3 from source:
 
-        wget https://www.dropbox.com/s/ctnzi65be0conqc/Python-3.3.2.tar.bz2?dl=0
+        wget https://www.python.org/ftp/python/3.3.2/Python-3.3.2.tar.bz2
         tar -xvf Python-3.3.2.tar.bz2
         cd Python-3.3.2
         
