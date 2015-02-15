@@ -1,13 +1,17 @@
-MySQL-backup
-============
+MySQL-AutoXtrabackup
+====================
 
-MySQL Backup and Prepare (including, per database, full, etc.) script written in Python 3.
-
-Original Developers: Shahriyar Rzayev and Jahangir Shabiyev (/master_backup_script/backuper.py).
+MySQL AutoXtrabackup commandline tool written in Python 3.
 For community from Azerbaijan MySQL User Community: [MySQL Azerbaijan Community](http://mysql.az/about/).
 For any question please ask: [Email](mailto:rzayev.sehriyar@gmail.com)
 
 ===========
+
+Demo Usage Video(is subject to change):
+--------------------------------------
+
+[![autoxtrabackup tool usage demo video](http://img.youtube.com/vi/61aaPgcCi84/0.jpg)](https://www.youtube.com/watch?v=61aaPgcCi84&index=1&list=PL0xSLrZOcI4twnmfzb4jeQ8s9zbIoVk5m)
+
 
 Requirements:
 -------------
@@ -65,26 +69,22 @@ Project Structure:
 ------------------
     
     XtraBackup is powerfull and open-source hot online backup tool  for MySQL from Percona.
-    This script is using XtraBackup for full and incremental backups.
-    Here is directory tree (default location is /home/MySQL-AutoXtraBackup):
+    This script is using XtraBackup for full and incremental backups, also for preparing and recovering taken backups
+    Here is project path tree (default location is /home/MySQL-AutoXtraBackup):
         
-        * backup_dir
-        * master_backup_script
-        * backup_prepare
-        * partial_recovery
-    
-    backup_dir           -- The main folder for storing backups.
-    master_backup_script -- Taking backups from Master server.(Write Server)
-    backup_prepare       -- After taking backups you must prepare it for recovery (when needed). This script will do it automatically.
+        * backup_dir 			-- The main folder for storing backups.
+        * master_backup_script	-- Full and Incremental backup taker script.
+        * backup_prepare		-- Backup prepare and restore script.
+        * partial_recovery		-- Partial table recovery script.
+		* general_conf			-- All-in-one config file's and config reader class folder.
+    	* setup.py				-- Setup file.
+    	* autoxtrabackup.py		-- Commandline Tool provider script.
 
 ============
 
-Partial Table Recovery:
-------------------------
-         
-         partial_recovery -- Which is using already prepared backup and restore selected one table.
-         
 
 Usage:
 -----
-        Clone repository to /home directory and edit bck.conf files reflecting your settings.
+        Clone repository to /home directory -> edit general_conf/bck.conf file reflecting your settings -> install using setup script and use.
+		
+		* Please see Demo Usage Video. The full environment preparing videos will be soon.
