@@ -8,6 +8,7 @@ import os
 import mysql.connector
 import time
 from mysql.connector import errorcode
+import re
 
 
 class CheckEnv:
@@ -125,10 +126,14 @@ class CheckEnv:
 
         # Connection Settings
 
+
+        #user = re.search(r'\-\-password\=(.*)[\s]*',self.backup_class_obj.myuseroption)
+        password = re.search(r'\-\-password\=(.*)[\s]*',self.backup_class_obj.myuseroption)
+
         config = {
 
             'user': 'root',
-            'password': '12345',
+            'password': password.group(1),
             'host': '127.0.0.1',
             'database': 'mysql',
             'raise_on_warnings': True,
@@ -157,7 +162,7 @@ class CheckEnv:
             return True
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                print("Something is wrong with your user name or password")
+                print("Something is wrong with your user name or password!!!")
                 return False
             elif err.errno == errorcode.ER_BAD_DB_ERROR:
                 print("Database does not exists")

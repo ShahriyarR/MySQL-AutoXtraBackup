@@ -113,7 +113,7 @@ class Backup(GeneralClass):
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
                 print(err)
-                print("Something is wrong with your user name or password")
+                print("Something is wrong with your user name or password!!!!!")
                 return False
             elif err.errno == errorcode.ER_BAD_DB_ERROR:
                 print(err)
