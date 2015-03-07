@@ -5,6 +5,7 @@ import shlex
 import subprocess
 from general_conf.generalops import GeneralClass
 from mysql.connector import errorcode
+import re
 
 class PartialRecovery(GeneralClass):
 
@@ -15,11 +16,13 @@ class PartialRecovery(GeneralClass):
         # Connecting To MySQL
         # =================================
 
+        self.password = re.search(r'\-\-password\=(.*)[\s]*',self.myuseroption)
+
         self.config = {
 
             'user': 'root',
-            'password': '12345',
-            'host': '127.0.0.1',
+            'password': self.password.group(1),
+            'host': 'localhost',
             'database': 'bck',
             'raise_on_warnings': True,
 
