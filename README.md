@@ -59,9 +59,19 @@ Preparing System
         make install
     
     
-    Installing Python 3 packages:
-        pip3 install click
-        pip3 install --allow-external mysql-connector-python mysql-connector-python
+    Installing setuptools:
+    
+        wget https://pypi.python.org/packages/source/s/setuptools/setuptools-15.1.tar.gz#md5=10407f6737d8dc37e5310e68c1f1f6ec
+        tar -xvf setuptools-15.1.tar.gz
+        cd setuptools-15.1/
+        python3 setup.py install
+    
+    Installing MySQL-AutoXtrabackup and dependencies:
+        
+        cd /home
+        git clone https://github.com/ShahriyarR/MySQL-AutoXtraBackup.git
+        cd  /home/MySQL-AutoXtraBackup/
+        python3 setup.py install
     
 
         
@@ -88,3 +98,4 @@ Usage:
         Clone repository to /home directory -> edit general_conf/bck.conf file reflecting your settings -> install using setup script and use.
 		
 		* Please see Demo Usage Video. The full environment preparing videos will be soon.
+		
