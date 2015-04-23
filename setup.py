@@ -6,10 +6,10 @@ setup(
     packages=['general_conf', 'backup_prepare', 'partial_recovery', 'master_backup_script'],
     py_modules = ['autoxtrabackup'],
     url='https://github.com/ShahriyarR/MySQL-AutoXtraBackup',
-    license='',
-    author='sh',
+    license='GPL',
+    author='Shahriyar Rzayev',
     author_email='rzayev,sehriyar@gmail.com',
-    description='Python 3 scripts for using Percona Xtrabackup',
+    description='Commandline tool written in Python 3 for using Percona Xtrabackup',
     install_requires=[
         'click>=3.3',
         'mysql-connector-python>=2.0.2',

@@ -39,9 +39,9 @@ class CheckEnv:
 
 
     def check_mysql_conf(self):
-        #if not os.path.exists(self.backup_class_obj.mycnf):
+        if not os.path.exists(self.backup_class_obj.mycnf):
         # Testing with MariaDB Galera Cluster
-        if not os.path.exists(self.backup_class_obj.maria_cluster_cnf):
+        #if not os.path.exists(self.backup_class_obj.maria_cluster_cnf):
             print('MySQL configuration file path does NOT exist+-+-+-+-+-+-+-+-+-+')
             return False
         else:
