@@ -159,14 +159,17 @@ class Backup(GeneralClass):
 
         # Taking Full backup with MySQL (Oracle)
 
-        #args = '%s %s %s %s' % (self.backup_tool, self.myuseroption, self.xtrabck, self.full_dir)
+        args = '%s %s %s %s' % (self.backup_tool,
+                                self.myuseroption,
+                                self.xtrabck,
+                                self.full_dir)
 
         # Testing with MariaDB Galera Clusters
 
-        args = '%s %s %s %s' % (self.backup_tool,
-                                self.myuseroption,
-                                self.maria_xtrabck,
-                                self.full_dir)
+        # args = '%s %s %s %s' % (self.backup_tool,
+        #                         self.myuseroption,
+        #                         self.maria_xtrabck,
+        #                         self.full_dir)
 
         status, output = subprocess.getstatusoutput(args)
         if status == 0:
@@ -188,15 +191,19 @@ class Backup(GeneralClass):
         recent_bck = self.recent_full_backup_file()
         recent_inc = self.recent_inc_backup_file()
 
-        # args = '%s %s %s --incremental %s --incremental-basedir %s/%s' % (
-        #     self.backup_tool, self.myuseroption, self.xtrabck, self.inc_dir, self.full_dir, recent_bck)
-
-        # Testing with MariaDB Galera Cluster
-
         if recent_inc == 0:
+            # Testing with MariaDB Galera Cluster
 
-            args = '%s %s %s --incremental %s --incremental-basedir %s/%s' % (
-                self.backup_tool, self.myuseroption, self.maria_xtrabck, self.inc_dir, self.full_dir, recent_bck)
+            # args = '%s %s %s --incremental %s --incremental-basedir %s/%s' % (
+            #     self.backup_tool, self.myuseroption, self.maria_xtrabck, self.inc_dir, self.full_dir, recent_bck)
+
+            # MySQL(Oracle)
+            args = '%s %s %s --incremental %s --incremental-basedir %s/%s' % (self.backup_tool,
+                                                                              self.myuseroption,
+                                                                              self.xtrabck,
+                                                                              self.inc_dir,
+                                                                              self.full_dir,
+                                                                              recent_bck)
 
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
@@ -209,9 +216,19 @@ class Backup(GeneralClass):
                 return False
 
         else:
+            # Testing with MariaDB Galera Cluster
 
-            args = '%s %s %s --incremental %s --incremental-basedir %s/%s' % (
-                self.backup_tool, self.myuseroption, self.maria_xtrabck, self.inc_dir, self.inc_dir, recent_inc)
+            # args = '%s %s %s --incremental %s --incremental-basedir %s/%s' % (
+            #     self.backup_tool, self.myuseroption, self.maria_xtrabck, self.inc_dir, self.inc_dir, recent_inc)
+
+            # MySQL(Oracle)
+
+            args = '%s %s %s --incremental %s --incremental-basedir %s/%s' % (self.backup_tool,
+                                                                              self.myuseroption,
+                                                                              self.xtrabck,
+                                                                              self.inc_dir,
+                                                                              self.inc_dir,
+                                                                              recent_inc)
 
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
