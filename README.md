@@ -16,10 +16,10 @@ Demo Usage Video(is subject to change):
 Requirements:
 -------------
 
-    * Percona Xtrabackup (latest version)
+    * Percona Xtrabackup (>= 2.2.10)
     * Python 3 (tested version 3.3.2)
-    * Official mysql-connector-python (tested versions 1.1.6, 2.0.2)
-    * Python Click package (tested version 3.3)
+    * Official mysql-connector-python (>= 2.0.2 )
+    * Python Click package (>= 3.3)
 
 ===========
 
@@ -87,15 +87,19 @@ Project Structure:
         * backup_prepare		-- Backup prepare and restore script.
         * partial_recovery		-- Partial table recovery script.
 		* general_conf			-- All-in-one config file's and config reader class folder.
-    	* setup.py				-- Setup file.
+    	* setup.py				-- Setuptools Setup file.
     	* autoxtrabackup.py		-- Commandline Tool provider script.
+    	* /etc/bck.conf         -- Config file will be created from general_conf/bck.conf
 
 ============
 
 
 Usage:
 -----
-        Clone repository to /home directory -> edit general_conf/bck.conf file reflecting your settings -> install using setup script and use.
+        1. Clone repository to local directory. 
+        2. Install using setup script.
+        3. Edit /etc/bck.conf file reflecting your settings and use.
 		
-		* Please see Demo Usage Video. The full environment preparing videos will be soon.
+		
+		* Please see Demo Usage Video.
 		
