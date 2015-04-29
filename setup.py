@@ -1,5 +1,7 @@
 from setuptools import setup
 
+datafiles = [('/etc', ['general_conf/bck.conf'])]
+
 setup(
     name='mysql-autoxtrabackup',
     version='1.0',
@@ -18,4 +20,5 @@ setup(
         [console_scripts]
         autoxtrabackup=autoxtrabackup:all_procedure
     ''',
+    data_files = datafiles,
 )
