@@ -79,8 +79,15 @@ class CheckEnv:
     def check_mysql_backupdir(self):
 
         if not (os.path.exists(self.backup_class_obj.backupdir)):
-            print('Main backup directory NOT exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-')
-            return False
+            try:
+                print('Main backup directory does not exist+-+-+-+-+-+-+-+-+-++-+-+-+-')
+                print('Creating Main Backup folder+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+')
+                os.makedirs(self.backup_class_obj.backupdir)
+                print('Created+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK')
+                return True
+            except Exception as err:
+                print(err)
+                return False
         else:
             print('Main backup directory exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-OK')
             return True

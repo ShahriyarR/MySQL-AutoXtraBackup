@@ -4,7 +4,7 @@ import configparser
 
 class GeneralClass:
 
-    def __init__(self, conf='/home/MySQL-AutoXtraBackup/general_conf/bck.conf'):
+    def __init__(self, conf='general_conf/bck.conf'):
 
         con = configparser.ConfigParser()
         con.read(conf)
