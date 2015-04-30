@@ -1,8 +1,5 @@
 #!/usr/local/bin/python3
 
-# Backup script for MySQL DB (using the latest version of Xtrabackup)(tested with MySQL 5.6.12 on Ubuntu 12.04)
-# Originally developed by Jahangir Shabiyev /
-# Improved and completed by Shahriyar Rzayev / rzayev.sehriyar@gmail.com
 import os
 import configparser
 import subprocess
