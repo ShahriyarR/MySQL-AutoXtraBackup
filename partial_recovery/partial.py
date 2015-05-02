@@ -6,6 +6,7 @@ import subprocess
 from general_conf.generalops import GeneralClass
 from mysql.connector import errorcode
 import re
+from master_backup_script import check_env
 
 class PartialRecovery(GeneralClass):
 
@@ -16,7 +17,7 @@ class PartialRecovery(GeneralClass):
         # Connecting To MySQL
         # =================================
 
-        self.password = re.search(r'\-\-password\=(.*)[\s]*',self.myuseroption)
+        self.password = re.search(r'\-\-password\=(.*)[\s]*', self.myuseroption)
 
         self.config = {
 
@@ -37,11 +38,123 @@ class PartialRecovery(GeneralClass):
         self.cur.close()
 
 
+
+    def check_innodb_file_per_table(self):
+        """
+        Function for checking MySQL innodb_file_per_table option.
+        It is needed for "Transportable Tablespace" concept.
+        :return: True/False
+        """
+
+        query = "select @@global.innodb_file_per_table"
+        try:
+            self.cur.execute(query)
+            for i in self.cur:
+                if i[0] == 1:
+                    print("MySQL per table space enabled!")
+                    return True
+                else:
+                    print("MySQL per table space disabled!")
+                    print("You can not use partial table recovery.")
+                    return False
+            return True
+        except mysql.connector.Error as err:
+            print(err)
+            return False
+
+
+
+    def check_mysql_version(self):
+        """
+        Function for checking MySQL version.
+        Version must be >= 5.6 for using "Transportable Tablespace" concept.
+        :return: True/False
+        """
+
+        query = "select @@version"
+        try:
+            self.cur.execute(query)
+            for i in self.cur:
+                if '5.6' in i[0]:
+                    print("MySQL Version is, %s", i[0])
+                    print("You have correct version of MySQL")
+                    return True
+                else:
+                    print("Your MySQL server is not supported")
+                    print("MySQL version must be >= 5.6")
+                    return False
+            return True
+        except mysql.connector.Error as err:
+            print(err)
+            return False
+
+
+
+    def check_database_exists_on_mysql(self, database_name):
+        """
+        Function check if this table already exists on MySQL datadir directory.(.frm and .ibd files are exist)
+        In other words table is not dropped.
+        :param database_name: Specified database name
+        :return: True/False
+        """
+
+        query = "SELECT count(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = %s" % database_name
+
+        try:
+            self.cur.execute(query)
+            for i in self.cur:
+                if i[0] == 1:
+                    print("Database exists on MySQL")
+                    return True
+                else:
+                    print("Database does not exist")
+                    print("Create Specified Database in MySQL, before restoring single table")
+                    return False
+            return True
+        except mysql.connector.Error as err:
+            print(err)
+            return False
+
+
+    def check_table_exists_on_mysql(self, database_name, table_name):
+        """
+        Function to check if table exists on MySQL.
+        If it is dropped, we will try to extract table create statement from .frm file from backup file.
+        :param database_name: Specified database name
+        :param table_name: Specified table name
+        :return: True/False
+        """
+
+        query = "select count(*) from INFORMATION_SCHEMA.tables " \
+                "where table_schema = %s" \
+                "and table_name =  %s" % (database_name, table_name)
+
+        try:
+            self.cur.execute(query)
+            for i in self.cur:
+                if i[0] == 1:
+                    print("Table exists on MySQL")
+                    return True
+                else:
+                    print("Table does not exist on MySQL")
+                    print("You can not restore table, with not existing tablespace file(.ibd)")
+                    print("Extracting table create statement from .frm file from backup folder")
+                    return False
+            return True
+        except mysql.connector.Error as err:
+            print(err)
+            return False
+
+
+
     def get_table_ibd_file(self, database_name, table_name):
         """
             This function purpose to locate backed up database and table.
              Exactly we are looking for .ibd file.
              .ibd file is a tablespace where table data located.
+        :param database_name: Specified database name
+        :param table_name: Specified table name
+        :return .ibd file full path / False if not exists
         """
 
 
@@ -84,7 +197,8 @@ class PartialRecovery(GeneralClass):
                 for x in find_objects_full_path:
                     return x
         else:
-            print("There is no such Database or Table")
+            print("Sorry, There is no such Database or Table in backup directory")
+            return False
 
 
     def lock_table(self,database_name, table_name):
@@ -161,14 +275,20 @@ class PartialRecovery(GeneralClass):
         path = self.get_table_ibd_file(database_name=database_name, table_name=table_name)
         path_to_mysql_datadir = self.datadir+"/"+database_name
 
-        if self.lock_table(database_name=database_name, table_name=table_name):
-            if self.alter_tablespace(database_name=database_name, table_name=table_name):
-                if self.copy_ibd_file_back(path_of_ibd_file=path, path_to_mysql_database_dir=path_to_mysql_datadir):
-                    if self.give_chown(path_to_mysql_database_dir=path_to_mysql_datadir):
-                        if self.import_tablespace(database_name=database_name, table_name=table_name):
-                            if self.unlock_tables():
-                                print("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-")
-                                print("Table Recovered! ...")
+        obj_check_env = check_env.CheckEnv()
+
+        if path:
+            if obj_check_env.check_mysql_uptime():
+                if self.check_innodb_file_per_table():
+                    if self.check_mysql_version():
+                        if self.lock_table(database_name=database_name, table_name=table_name):
+                            if self.alter_tablespace(database_name=database_name, table_name=table_name):
+                                if self.copy_ibd_file_back(path_of_ibd_file=path, path_to_mysql_database_dir=path_to_mysql_datadir):
+                                    if self.give_chown(path_to_mysql_database_dir=path_to_mysql_datadir):
+                                        if self.import_tablespace(database_name=database_name, table_name=table_name):
+                                            if self.unlock_tables():
+                                                print("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-")
+                                                print("Table Recovered! ...")
 
 
 
