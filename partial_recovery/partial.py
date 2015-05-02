@@ -198,6 +198,7 @@ class PartialRecovery(GeneralClass):
                     return x
         else:
             print("Sorry, There is no such Database or Table in backup directory")
+            print("Or maybe table storage engine is not InnoDB")
             return False
 
 
