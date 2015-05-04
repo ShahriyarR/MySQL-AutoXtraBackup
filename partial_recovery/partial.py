@@ -128,7 +128,7 @@ class PartialRecovery(GeneralClass):
             return False
 
 
-    def check_table_exists_on_mysql(self, database_name, table_name):
+    def check_table_exists_on_mysql(self,path_to_frm_file, database_name, table_name):
         """
         Function to check if table exists on MySQL.
         If it is dropped, we will try to extract table create statement from .frm file from backup file.
@@ -149,14 +149,36 @@ class PartialRecovery(GeneralClass):
                     return True
                 else:
                     print("Table does not exist in MySQL Server.")
-                    print("You can not restore table, with not existing tablespace file(.ibd)")
+                    print("You can not restore table, with not existing tablespace file(.ibd)!")
                     print("We will try to extract table create statement from .frm file, from backup folder")
+                    create = self.run_mysqlfrm_utility(path_to_frm_file=path_to_frm_file)
+                    regex = re.compile(r'((\n)CREATE((?!#).)*ENGINE=\w+)', re.DOTALL)
+                    matches = [m.groups() for m in regex.finditer(create)]
+                    for m in matches:
+                        create_table = m[0]
+                        try:
+                            self.cur.execute(create_table)
+                            print("Table Created from .frm file!")
+                            return True
+                        except mysql.connector.Error as err:
+                            print(err)
+                            return False
                     return False
-            return True
         except mysql.connector.Error as err:
             print(err)
             return False
 
+
+    def run_mysqlfrm_utility(self, path_to_frm_file):
+        command = '/usr/bin/mysqlfrm --diagnostic %s' % path_to_frm_file
+
+        status, output = subprocess.getstatusoutput(command)
+        if status == 0:
+            return output
+            print("Success")
+        else:
+            print("Failed")
+            print(output)
 
 
     def get_table_ibd_file(self, database_name, table_name):
@@ -280,7 +302,7 @@ class PartialRecovery(GeneralClass):
     def final_actions(self):
         # Type Database name of table which you want to restore
 
-        print("+-"*18)
+        print("+-"*40)
         database_name = input("Type Database name: ")
 
         # Type name of table which you want to restore
@@ -288,7 +310,7 @@ class PartialRecovery(GeneralClass):
 
         path = self.get_table_ibd_file(database_name=database_name, table_name=table_name)
         path_to_mysql_datadir = self.datadir+"/"+database_name
-
+        path_to_frm_file = path[:-3]+'frm'
         obj_check_env = check_env.CheckEnv()
 
         if path:
@@ -296,16 +318,16 @@ class PartialRecovery(GeneralClass):
                 if self.check_innodb_file_per_table():
                     if self.check_mysql_version():
                         if self.check_database_exists_on_mysql(database_name=database_name):
-                            if self.check_table_exists_on_mysql(database_name=database_name, table_name=table_name):
+                            if self.check_table_exists_on_mysql(path_to_frm_file=path_to_frm_file, database_name=database_name, table_name=table_name):
                                 if self.lock_table(database_name=database_name, table_name=table_name):
                                     if self.alter_tablespace(database_name=database_name, table_name=table_name):
                                         if self.copy_ibd_file_back(path_of_ibd_file=path, path_to_mysql_database_dir=path_to_mysql_datadir):
                                             if self.give_chown(path_to_mysql_database_dir=path_to_mysql_datadir):
                                                 if self.import_tablespace(database_name=database_name, table_name=table_name):
                                                     if self.unlock_tables():
-                                                        print("+-"*18)
+                                                        print("+-"*40)
 
-                                                        print("Table Recovered! ...")
+                                                        print("Table Recovered! ..."+'-+'*30)
 
 
 

@@ -20,6 +20,7 @@ Requirements:
     * Python 3 (tested version 3.3.2)
     * Official mysql-connector-python (>= 2.0.2 )
     * Python Click package (>= 3.3)
+    * mysql-utilities (>=1.5.4)
 
 ===========
 

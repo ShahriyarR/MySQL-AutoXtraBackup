@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+
 
 
 from general_conf.generalops import GeneralClass
