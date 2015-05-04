@@ -20,5 +20,5 @@ it will extract table create from .frm file and create it before recovery.
 Demo Video
 ----------
 
-[![--partial option usage demo video](http://img.youtube.com/vi/IPnJlWC1U4/0.jpg)](https://www.youtube.com/watch?v=IPnJlWC1U4s&list=PL0xSLrZOcI4twnmfzb4jeQ8s9zbIoVk5m&index=2)
+[![--partial option usage demo video](http://img.youtube.com/vi/IPnJlWC1U4s/0.jpg)](https://www.youtube.com/watch?v=IPnJlWC1U4s&list=PL0xSLrZOcI4twnmfzb4jeQ8s9zbIoVk5m&index=2)
 
