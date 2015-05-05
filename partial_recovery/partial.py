@@ -29,13 +29,23 @@ class PartialRecovery(GeneralClass):
 
         }
 
-        self.cnx = mysql.connector.connect(**self.config)
-        self.cur = self.cnx.cursor()
+        try:
+            self.cnx = mysql.connector.connect(**self.config)
+            self.cur = self.cnx.cursor()
+        except mysql.connector.Error as err:
+            print("MySQL server connection problem. ")
+            print("Check if your MySQL server is up and running or if there is no firewall blocking connection.")
+            print(err)
+            exit(0)
 
 
     def __del__(self):
-        self.cnx.close()
-        self.cur.close()
+
+        try:
+            self.cnx.close()
+            self.cur.close()
+        except Exception:
+            pass
 
 
 
