@@ -320,7 +320,10 @@ class PartialRecovery(GeneralClass):
 
         path = self.get_table_ibd_file(database_name=database_name, table_name=table_name)
         path_to_mysql_datadir = self.datadir+"/"+database_name
-        path_to_frm_file = path[:-3]+'frm'
+
+        if path:
+            path_to_frm_file = path[:-3]+'frm'
+
         obj_check_env = check_env.CheckEnv()
 
         if path:
