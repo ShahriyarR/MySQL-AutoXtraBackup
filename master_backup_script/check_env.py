@@ -152,14 +152,8 @@ class CheckEnv:
             cnx = mysql.connector.connect(**config)
             cursor = cnx.cursor()
             query1 = "create database if not exists bck"
-            query2 = "grant all on bck.* to 'test_backup'@'127.0.0.1' identified by '12345'"
-            query3 = "grant reload on *.* to 'test_backup'@'127.0.0.1'"
-            time.sleep(2)
             print("Creating Test User (test_backup)+-+-+-+-+-+-+-+-+-++-+-+-+-+-OK")
-            cursor.execute(query2)
-            time.sleep(2)
-            print("Giving Grants to Test User+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK")
-            cursor.execute(query3)
+            self.check_mysql_user_exists(cursor=cursor)
             time.sleep(2)
             print("Creating Test Database (bck)+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-OK")
             cursor.execute(query1)
@@ -182,8 +176,104 @@ class CheckEnv:
                 return False
 
 
+    def check_mysql_user_exists(self, cursor):
+        query = "SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = 'test_backup')"
+        grant_query = "grant reload on *.* to 'test_backup'@'127.0.0.1'"
+        try:
+            cursor.execute(query)
+            for i in cursor:
+                if i[0] == 1:
+                    cursor.execute(grant_query)
+                else:
+                    if self.check_mysql_valpass_plugin(cursor=cursor):
+                        passwd = self.generate_mysql_password(cursor=cursor)
+                        create_query = "create user 'test_backup'@'127.0.0.1' identified by %s" % passwd
+                        try:
+                            cursor.execute(create_query)
+                            cursor.execute(grant_query)
+                        except mysql.connector.Error as err:
+                            print(err)
+                            exit(0)
+                    else:
+                        create_query2 = "create user 'test_backup'@'127.0.0.1' identified by '12345'"
+                        try:
+                            cursor.execute(create_query2)
+                            cursor.execute(grant_query)
+                        except mysql.connector.Error as err:
+                            print(err)
+                            exit(0)
+        except mysql.connector.Error as err:
+            print(err)
+            exit(0)
 
 
+
+
+
+
+    def random_password_generator(self, length):
+        """
+        Random Password Generator based on given password length value
+        :param length: Length of generated password.
+        :return: Random Generated Password
+        """
+        import random
+
+        alphabet = "abcdefghijklmnopqrstuvwxyz!@#$%?"
+        upperalphabet = alphabet.upper()
+        pw_len = 8
+        pwlist = []
+
+        for i in range(pw_len//3):
+            pwlist.append(alphabet[random.randrange(len(alphabet))])
+            pwlist.append(upperalphabet[random.randrange(len(upperalphabet))])
+            pwlist.append(str(random.randrange(10)))
+        for i in range(pw_len-len(pwlist)):
+            pwlist.append(alphabet[random.randrange(len(alphabet))])
+
+        random.shuffle(pwlist)
+        pwstring = "".join(pwlist)
+
+        return pwstring
+
+
+
+    def check_mysql_valpass_plugin(self, cursor):
+        """
+        Check if MySQL has password policy via official validate_password plugin.
+        :param: cursor: cursor from mysql connector
+        :return: True/False.
+        """
+        query_plugin = "select plugin_status from information_schema.plugins where plugin_name='validate_password'"
+
+        try:
+            cursor.execute(query_plugin)
+            for i in cursor:
+                if i[0] == 'ACTIVE':
+                    return True
+                else:
+                    return False
+        except mysql.connector.Error as err:
+            print(err)
+            return False
+
+
+
+    def generate_mysql_password(self, cursor):
+        """
+        Check if MySQL has password policy via official validate_password plugin.
+        If it has enabled validate_password plugin learn, password length etc. information for generating random password.
+        :param cursor: cursor from mysql connector
+        :return: Integer (Password Length information) / False if there is no active plugin.
+        """
+        query_password_length = "select @@validate_password_length"
+        try:
+            cursor.execute(query_password_length)
+            for i in cursor:
+                return self.random_password_generator(i[0])
+        except mysql.connector.Error as err:
+            print(err)
+            return False
 
 
     def check_all_env(self):
