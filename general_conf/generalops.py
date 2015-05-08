@@ -38,6 +38,7 @@ class GeneralClass:
             self.full_dir = self.backupdir + '/full'
             self.inc_dir = self.backupdir + '/inc'
             self.backup_tool = con[BCK]['backup_tool']
+            self.archive_dir = con[BCK]['archive_dir']
 
             RM = bolme[2]
             self.remote_conn = con[RM]['remote_conn']

@@ -93,6 +93,23 @@ class CheckEnv:
             return True
 
 
+    def check_mysql_archive_dir(self):
+
+        if not (os.path.exists(self.backup_class_obj.archive_dir)):
+            try:
+                print('Archive backup directory does not exist+-+-+-+-+-+-+-+-+-++-+-+-+-')
+                print('Creating archive folder+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+')
+                os.makedirs(self.backup_class_obj.archive_dir)
+                print('Created+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK')
+                return True
+            except Exception as err:
+                print(err)
+                return False
+        else:
+            print('Archive folder directory exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-OK')
+            return True
+
+
     def check_mysql_fullbackupdir(self):
 
         if not (os.path.exists(self.backup_class_obj.full_dir)):
@@ -178,7 +195,7 @@ class CheckEnv:
 
     def check_mysql_user_exists(self, cursor):
         query = "SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = 'test_backup')"
-        grant_query = "grant reload on *.* to 'test_backup'@'127.0.0.1'"
+        grant_query = "grant reload,usage on *.* to 'test_backup'@'127.0.0.1'"
         try:
             cursor.execute(query)
             for i in cursor:
@@ -288,8 +305,9 @@ class CheckEnv:
                             if self.check_mysql_backupdir():
                                 if self.check_mysql_fullbackupdir():
                                     if self.check_mysql_incbackupdir():
-                                        if self.check_mysql_flush_log_user():
-                                            env_result = True
+                                        if self.check_mysql_archive_dir():
+                                            if self.check_mysql_flush_log_user():
+                                                env_result = True
 
 
 
