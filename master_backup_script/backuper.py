@@ -121,25 +121,25 @@ class Backup(GeneralClass):
                 return False
 
 
-    def create_backup_archives(self):
-
-
-        # Creating .tar.gz archive files of taken backups
-        for i in os.listdir(self.full_dir):
-            rm_dir = self.full_dir + '/' + i
-            if i != max(os.listdir(self.full_dir)):
-                run_tar = "/usr/bin/tar -zcf %s %s %s" % (self.archive_dir+'/'+i+'.tar.gz', self.full_dir, self.inc_dir)
-
-        print("Start to archive previous backups")
-        status, output = subprocess.getstatusoutput(run_tar)
-        if status == 0:
-            print("Old full backup and incremental backups archived!")
-            return True
-        else:
-            print("Archiving FAILED!")
-            time.sleep(5)
-            print(output)
-            return False
+    # def create_backup_archives(self):
+    #
+    #
+    #     # Creating .tar.gz archive files of taken backups
+    #     for i in os.listdir(self.full_dir):
+    #         rm_dir = self.full_dir + '/' + i
+    #         if i != max(os.listdir(self.full_dir)):
+    #             run_tar = "/usr/bin/tar -zcf %s %s %s" % (self.archive_dir+'/'+i+'.tar.gz', self.full_dir, self.inc_dir)
+    #
+    #     print("Start to archive previous backups")
+    #     status, output = subprocess.getstatusoutput(run_tar)
+    #     if status == 0:
+    #         print("Old full backup and incremental backups archived!")
+    #         return True
+    #     else:
+    #         print("Archiving FAILED!")
+    #         time.sleep(5)
+    #         print(output)
+    #         return False
 
 
 
@@ -312,13 +312,13 @@ class Backup(GeneralClass):
                         if self.full_backup():
                         
                             #Archiving backups
-                            if self.create_backup_archives():
+                            #if self.create_backup_archives(): (NOTE -> deactivated backup archiving for this tool)
 
-                                # Removing full backups
-                                self.clean_full_backup_dir()
+                            # Removing full backups
+                            self.clean_full_backup_dir()
 
-                                # Removing inc backups
-                                self.clean_inc_backup_dir()
+                            # Removing inc backups
+                            self.clean_inc_backup_dir()
 
                 # Copying backups to remote server
                 #self.copy_backup_to_remote_host()
