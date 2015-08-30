@@ -1,4 +1,10 @@
-#!/usr/local/bin/python3
+#!/opt/Python-3.3.2/bin/python3
+
+# MySQL Backuper Script using Percona Xtrabackup
+# Originally Developed by
+# Shahriyar Rzayev -> http://www.mysql.az
+# / rzayev.sehriyar@gmail.com / rzayev.shahriyar@yandex.com
+
 
 import os
 import configparser
@@ -176,16 +182,10 @@ class Backup(GeneralClass):
         # Taking Full backup with MySQL (Oracle)
 
         args = '%s %s %s %s' % (self.backup_tool,
-                                self.myuseroption,
-                                self.xtrabck,
-                                self.full_dir)
+                                    self.myuseroption,
+                                    self.xtrabck,
+                                    self.full_dir)
 
-        # Testing with MariaDB Galera Clusters
-
-        # args = '%s %s %s %s' % (self.backup_tool,
-        #                         self.myuseroption,
-        #                         self.maria_xtrabck,
-        #                         self.full_dir)
 
         status, output = subprocess.getstatusoutput(args)
         if status == 0:
@@ -207,14 +207,34 @@ class Backup(GeneralClass):
         recent_bck = self.recent_full_backup_file()
         recent_inc = self.recent_inc_backup_file()
 
+        # Workaround for circular import dependency error in Python
+        from .check_env import CheckEnv
+        check_env_obj = CheckEnv()
+        product_type = check_env_obj.check_mysql_product()
+
+
         if recent_inc == 0:
-            # Testing with MariaDB Galera Cluster
 
-            # args = '%s %s %s --incremental %s --incremental-basedir %s/%s' % (
-            #     self.backup_tool, self.myuseroption, self.maria_xtrabck, self.inc_dir, self.full_dir, recent_bck)
+            # If you have a question why we check whether MariaDB or MySQL installed?
+            # See BUG -> https://bugs.launchpad.net/percona-xtrabackup/+bug/1444541
 
-            # MySQL(Oracle)
-            args = '%s %s %s --incremental %s --incremental-basedir %s/%s' % (self.backup_tool,
+            if product_type == 2:
+
+            # Taking incremental backup with MariaDB. (--incremental-force-scan option will be added for BUG workaround)
+
+                args = '%s %s %s --incremental-force-scan --incremental %s --incremental-basedir %s/%s' % \
+                                                                            (self.backup_tool,
+                                                                              self.myuseroption,
+                                                                              self.xtrabck,
+                                                                              self.inc_dir,
+                                                                              self.full_dir,
+                                                                              recent_bck)
+
+            elif product_type == 3:
+
+
+                args = '%s %s %s --incremental %s --incremental-basedir %s/%s' % \
+                                                                             (self.backup_tool,
                                                                               self.myuseroption,
                                                                               self.xtrabck,
                                                                               self.inc_dir,
@@ -232,19 +252,31 @@ class Backup(GeneralClass):
                 return False
 
         else:
-            # Testing with MariaDB Galera Cluster
 
-            # args = '%s %s %s --incremental %s --incremental-basedir %s/%s' % (
-            #     self.backup_tool, self.myuseroption, self.maria_xtrabck, self.inc_dir, self.inc_dir, recent_inc)
+            if product_type == 2:
 
-            # MySQL(Oracle)
+            # Taking incremental backup with MariaDB. (--incremental-force-scan option will be added for BUG workaround)
 
-            args = '%s %s %s --incremental %s --incremental-basedir %s/%s' % (self.backup_tool,
+                args = '%s %s %s --incremental-force-scan --incremental %s --incremental-basedir %s/%s' % \
+                                                                             (self.backup_tool,
                                                                               self.myuseroption,
                                                                               self.xtrabck,
                                                                               self.inc_dir,
                                                                               self.inc_dir,
                                                                               recent_inc)
+
+            elif product_type == 3:
+
+
+                args = '%s %s %s --incremental %s --incremental-basedir %s/%s' % (self.backup_tool,
+                                                                              self.myuseroption,
+                                                                              self.xtrabck,
+                                                                              self.inc_dir,
+                                                                              self.inc_dir,
+                                                                              recent_inc)
+
+
+
 
             status, output = subprocess.getstatusoutput(args)
             if status == 0:

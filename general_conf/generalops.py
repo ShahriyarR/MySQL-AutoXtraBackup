@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/opt/Python-3.3.2/bin/python3
 
 import configparser
 from os.path import isfile
@@ -24,8 +24,7 @@ class GeneralClass:
             self.myuseroption = con[DB]['useroption']
             self.xtrabck = con[DB]['xtra']
 
-            # Testing with MariaDB Galera Cluster ###############
-            self.maria_xtrabck = con[DB]['xtra_maria']
+
             ######################################################
 
             self.xtrabck_prepare = con[DB]['xtra_prepare']

@@ -3,7 +3,7 @@ MySQL-AutoXtrabackup
 
 MySQL AutoXtrabackup commandline tool written in Python 3.
 For community from Azerbaijan MySQL User Community: [MySQL Azerbaijan Community](http://mysql.az/about/).
-For any question please ask: [Email](mailto:rzayev.sehriyar@gmail.com)
+For any question please ask: [Email](mailto:rzayev.shahriyar@yandex.com)
 
 ===========
 
@@ -54,8 +54,10 @@ Preparing System
         _ssl _ssl.c \
 	            -DUSE_SSL -I$(SSL)/include -I$(SSL)/include/openssl \
                 -L$(SSL)/lib -lssl -lcrypto
-                
-        ./configure
+
+        mkdir /opt/Python-3.3.2
+        ./configure --prefix=/opt/Python-3.3.2
+
         make
         make install
     
@@ -66,6 +68,13 @@ Preparing System
         tar -xvf setuptools-15.1.tar.gz
         cd setuptools-15.1/
         python3 setup.py install
+    
+    Installing pip:
+        
+        wget https://pypi.python.org/packages/source/p/pip/pip-7.1.2.tar.gz#md5=3823d2343d9f3aaab21cf9c917710196
+        tar -xvf pip-7.1.2.tar.gz
+        cd pip-7.1.2
+        python3 setup.py install 
     
     Installing MySQL-AutoXtrabackup and dependencies:
         
@@ -79,7 +88,7 @@ Preparing System
 Project Structure:
 ------------------
     
-    XtraBackup is powerfull and open-source hot online backup tool  for MySQL from Percona.
+    XtraBackup is powerful and open-source hot online backup tool  for MySQL from Percona.
     This script is using XtraBackup for full and incremental backups, also for preparing and recovering taken backups
     Here is project path tree (default location is /home/MySQL-AutoXtraBackup):
         

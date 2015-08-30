@@ -1,7 +1,10 @@
-#!/usr/local/bin/python3
+#!/opt/Python-3.3.2/bin/python3
 
 # Backup Prepare and Copy-Back Script
-# Originally Developed by Shahriyar Rzayev / rzayev.sehriyar@gmail.com
+# Originally Developed by
+# Shahriyar Rzayev -> http://www.mysql.az
+# / rzayev.sehriyar@gmail.com / rzayev.shahriyar@yandex.com
+
 import configparser
 import os
 import shlex
@@ -14,8 +17,6 @@ class Prepare(GeneralClass):
     def __init__(self):
         GeneralClass.__init__(self)
 
-
-
     def recent_full_backup_file(self):
         # Return last full backup dir name
 
@@ -23,7 +24,6 @@ class Prepare(GeneralClass):
             return max(os.listdir(self.full_dir))
         else:
             return 0
-
 
     def check_inc_backups(self):
         # Check for Incremental backups
@@ -72,7 +72,6 @@ class Prepare(GeneralClass):
                 time.sleep(5)
                 print(output)
                 return False
-
 
         else:
             print("Preparing Full backup 1 time. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#\n"

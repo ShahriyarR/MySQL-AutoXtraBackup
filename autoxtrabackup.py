@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/opt/Python-3.3.2/bin/python3
 
 import click
 from master_backup_script.backuper import Backup

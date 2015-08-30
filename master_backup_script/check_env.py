@@ -1,6 +1,4 @@
-# (#!/usr/bin/python3)
-
-#!/usr/local/bin/python3
+#!/opt/Python-3.3.2/bin/python3
 
 import shlex
 import subprocess
@@ -291,6 +289,35 @@ class CheckEnv:
         except mysql.connector.Error as err:
             print(err)
             return False
+
+
+    def check_mysql_product(self):
+        """
+        Check if MariaDB or MySQL installed. We will apply a workaround for MariaDB
+        See related BUG report -> https://bugs.launchpad.net/percona-xtrabackup/+bug/1444541
+        :return: 2 if server is MariaDB / 3 if server is MySQL(other)
+        """
+        check_version = '%s %s ver' % (self.backup_class_obj.mysqladmin, self.backup_class_obj.myuseroption)
+        status, output = subprocess.getstatusoutput(check_version)
+
+        if status == 0:
+            if 'MARIADB' in output.upper():
+                print("!!!!!!!!")
+                print("Installed Server is MariaDB, will use a workaround for LP BUG 1444541.")
+                print("!!!!!!!!")
+                return 2
+            else:
+                print("Installed Server is MySQL, will continue as usual.")
+                return 3
+        else:
+            print("mysqladmin ver command Failed")
+            time.sleep(5)
+            print(output)
+            return False
+
+
+
+
 
 
     def check_all_env(self):
