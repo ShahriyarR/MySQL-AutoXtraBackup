@@ -27,6 +27,9 @@ class Backup(GeneralClass):
     def __init__(self):
         GeneralClass.__init__(self)
 
+        self.password = re.search(r'\-\-password\=(.*)[\s]*', self.myuseroption)
+        self.user = re.search(r'\-\-user\=(.*)[\s]--', self.myuseroption)
+
 
 
     def last_full_backup_date(self):

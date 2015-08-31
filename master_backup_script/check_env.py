@@ -149,13 +149,11 @@ class CheckEnv:
         # Connection Settings
 
 
-        password = re.search(r'\-\-password\=(.*)[\s]*', self.backup_class_obj.myuseroption)
-        user = re.search(r'\-\-user\=(.*)[\s]--', self.backup_class_obj.myuseroption)
 
         config = {
 
-            'user': user.group(1),
-            'password': password.group(1),
+            'user': self.backup_class_obj.user,
+            'password': self.backup_class_obj.password,
             'host': 'localhost',
             'database': 'mysql',
             'raise_on_warnings': True,
@@ -298,7 +296,12 @@ class CheckEnv:
         See related BUG report -> https://bugs.launchpad.net/percona-xtrabackup/+bug/1444541
         :return: 2 if server is MariaDB / 3 if server is MySQL(other)
         """
-        check_version = '%s %s ver' % (self.backup_class_obj.mysqladmin, self.backup_class_obj.myuseroption)
+
+
+        check_version = "%s --user=%s --password='%s' ver" % (self.backup_class_obj.mysqladmin,
+                                                              self.backup_class_obj.user,
+                                                              self.backup_class_obj.password)
+
         status, output = subprocess.getstatusoutput(check_version)
 
         if status == 0:
