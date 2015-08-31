@@ -149,7 +149,6 @@ class CheckEnv:
         # Connection Settings
 
 
-        
         password = re.search(r'\-\-password\=(.*)[\s]*', self.backup_class_obj.myuseroption)
         user = re.search(r'\-\-user\=(.*)[\s]--', self.backup_class_obj.myuseroption)
 
@@ -157,7 +156,7 @@ class CheckEnv:
 
             'user': user.group(1),
             'password': password.group(1),
-            'host': '127.0.0.1',
+            'host': 'localhost',
             'database': 'mysql',
             'raise_on_warnings': True,
 
