@@ -144,17 +144,17 @@ class CheckEnv:
 
     def check_mysql_flush_log_user(self):
 
-       # Creating test Database and user for flushing binary logs.
+        # Creating test Database and user for flushing binary logs.
 
         # Connection Settings
 
 
-        #user = re.search(r'\-\-password\=(.*)[\s]*',self.backup_class_obj.myuseroption)
-        password = re.search(r'\-\-password\=(.*)[\s]*',self.backup_class_obj.myuseroption)
+        password = re.search(r'\-\-password\=(.*)[\s]*', self.backup_class_obj.myuseroption)
+        user = re.search(r'\-\-user\=(.*)[\s]--', self.backup_class_obj.myuseroption)
 
         config = {
 
-            'user': 'root',
+            'user': user.group(1),
             'password': password.group(1),
             'host': '127.0.0.1',
             'database': 'mysql',
