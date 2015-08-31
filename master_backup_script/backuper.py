@@ -7,7 +7,6 @@
 
 
 import os
-import configparser
 import subprocess
 import shlex
 import shutil
@@ -17,6 +16,7 @@ from datetime import datetime
 from mysql.connector import errorcode
 from sys import exit
 from general_conf.generalops import GeneralClass
+import re
 
 
 # Creating Backup class
@@ -179,12 +179,18 @@ class Backup(GeneralClass):
 
     def full_backup(self):
 
+        # Getting User and Password via regex
+
+        password = re.search(r'\-\-password\=(.*)[\s]*', self.myuseroption)
+        user = re.search(r'\-\-user\=(.*)[\s]--', self.myuseroption)
+
         # Taking Full backup with MySQL (Oracle)
 
-        args = '%s %s %s %s' % (self.backup_tool,
-                                    self.myuseroption,
-                                    self.xtrabck,
-                                    self.full_dir)
+        args = "%s --user=%s --password='%s' %s %s" % ( self.backup_tool,
+                                                        user.group(1),
+                                                        password.group(1),
+                                                        self.xtrabck,
+                                                        self.full_dir)
 
         print(args)
         status, output = subprocess.getstatusoutput(args)
