@@ -185,16 +185,11 @@ class Backup(GeneralClass):
 
     def full_backup(self):
 
-        # Getting User and Password via regex
-
-        password = re.search(r'\-\-password\=(.*)[\s]*', self.myuseroption)
-        user = re.search(r'\-\-user\=(.*)[\s]--', self.myuseroption)
-
         # Taking Full backup with MySQL (Oracle)
 
         args = "%s --user=%s --password='%s' %s %s" % ( self.backup_tool,
-                                                        user.group(1),
-                                                        password.group(1),
+                                                        self.user,
+                                                        self.password,
                                                         self.xtrabck,
                                                         self.full_dir)
 
@@ -234,9 +229,10 @@ class Backup(GeneralClass):
 
             # Taking incremental backup with MariaDB. (--incremental-force-scan option will be added for BUG workaround)
 
-                args = '%s %s %s --incremental-force-scan --incremental %s --incremental-basedir %s/%s' % \
+                args = "%s --user=%s --password='%s' %s --incremental-force-scan --incremental %s --incremental-basedir %s/%s" % \
                                                                             (self.backup_tool,
-                                                                              self.myuseroption,
+                                                                              self.user,
+                                                                              self.password,
                                                                               self.xtrabck,
                                                                               self.inc_dir,
                                                                               self.full_dir,
@@ -245,9 +241,10 @@ class Backup(GeneralClass):
             elif product_type == 3:
 
 
-                args = '%s %s %s --incremental %s --incremental-basedir %s/%s' % \
+                args = "%s --user=%s --password='%s' %s --incremental %s --incremental-basedir %s/%s" % \
                                                                              (self.backup_tool,
-                                                                              self.myuseroption,
+                                                                              self.user,
+                                                                              self.password,
                                                                               self.xtrabck,
                                                                               self.inc_dir,
                                                                               self.full_dir,
@@ -269,9 +266,10 @@ class Backup(GeneralClass):
 
             # Taking incremental backup with MariaDB. (--incremental-force-scan option will be added for BUG workaround)
 
-                args = '%s %s %s --incremental-force-scan --incremental %s --incremental-basedir %s/%s' % \
+                args = "%s --user=%s --password='%s' %s --incremental-force-scan --incremental %s --incremental-basedir %s/%s" % \
                                                                              (self.backup_tool,
-                                                                              self.myuseroption,
+                                                                              self.user,
+                                                                              self.password,
                                                                               self.xtrabck,
                                                                               self.inc_dir,
                                                                               self.inc_dir,
@@ -280,8 +278,10 @@ class Backup(GeneralClass):
             elif product_type == 3:
 
 
-                args = '%s %s %s --incremental %s --incremental-basedir %s/%s' % (self.backup_tool,
-                                                                              self.myuseroption,
+                args = "%s --user=%s --password='%s' %s --incremental %s --incremental-basedir %s/%s" % \
+                                                                            (self.backup_tool,
+                                                                              self.user,
+                                                                              self.password,
                                                                               self.xtrabck,
                                                                               self.inc_dir,
                                                                               self.inc_dir,
