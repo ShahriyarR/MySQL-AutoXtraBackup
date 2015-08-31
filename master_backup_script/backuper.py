@@ -186,7 +186,7 @@ class Backup(GeneralClass):
                                     self.xtrabck,
                                     self.full_dir)
 
-
+        print(args)
         status, output = subprocess.getstatusoutput(args)
         if status == 0:
             print(output[-27:])
