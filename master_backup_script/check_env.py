@@ -149,6 +149,7 @@ class CheckEnv:
         # Connection Settings
 
 
+        
         password = re.search(r'\-\-password\=(.*)[\s]*', self.backup_class_obj.myuseroption)
         user = re.search(r'\-\-user\=(.*)[\s]--', self.backup_class_obj.myuseroption)
 

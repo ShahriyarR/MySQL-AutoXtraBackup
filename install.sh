@@ -1,0 +1,1 @@
+/opt/Python-3.3.2/bin/python3 setup.py install

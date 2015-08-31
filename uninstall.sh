@@ -1,0 +1,1 @@
+/opt/Python-3.3.2/bin/pip3 uninstall mysql-autoxtrabackup
