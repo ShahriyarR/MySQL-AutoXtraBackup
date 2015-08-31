@@ -27,8 +27,11 @@ class Backup(GeneralClass):
     def __init__(self):
         GeneralClass.__init__(self)
 
-        self.password = re.search(r'\-\-password\=(.*)[\s]*', self.myuseroption)
-        self.user = re.search(r'\-\-user\=(.*)[\s]--', self.myuseroption)
+        self.password_reg = re.search(r'\-\-password\=(.*)[\s]*', self.myuseroption)
+        self.user_reg = re.search(r'\-\-user\=(.*)[\s]--', self.myuseroption)
+
+        self.password = self.password_reg.group(1)
+        self.user = self.user_reg.group(1)
 
 
 
