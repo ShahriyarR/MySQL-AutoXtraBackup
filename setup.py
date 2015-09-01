@@ -10,7 +10,7 @@ setup(
     url='https://github.com/ShahriyarR/MySQL-AutoXtraBackup',
     license='GPL',
     author='Shahriyar Rzayev',
-    author_email='rzayev,shahriyar@yandex.com',
+    author_email='rzayev.shahriyar@yandex.com',
     description='Commandline tool written in Python 3 for using Percona Xtrabackup',
     install_requires=[
         'click>=3.3',
