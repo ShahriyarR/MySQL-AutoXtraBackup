@@ -16,8 +16,6 @@ class GeneralClass:
             self.mysql = con[DB]['mysql']
             self.mycnf = con[DB]['mycnf']
 
-            # Testing with MariaDB Galera Cluster ###############
-            self.maria_cluster_cnf = con[DB]['maria_cluster_cnf']
             ######################################################
 
             self.mysqladmin = con[DB]['mysqladmin']
@@ -48,6 +46,10 @@ class GeneralClass:
             self.stop_mysql = con[CM]['stop_mysql_command']
             self.mkdir_command = con[CM]['mkdir_command']
             self.chown_command = con[CM]['chown_command']
-            self.mariadb_cluster_bootstrap = con[CM]['mariadb_cluster_bootstrap']
+            self.systemd_start_mysql = con[CM]['systemd_start_mysql']
+            self.systemd_stop_mysql = con[CM]['systemd_stop_mysql']
+            self.systemd_start_mariadb = con[CM]['systemd_start_mariadb']
+            self.systemd_stop_mariadb = con[CM]['systemd_stop_mariadb']
+
         else:
             print("Missing config file : /etc/bck.conf")

@@ -16,6 +16,9 @@ from general_conf.generalops import GeneralClass
 class Prepare(GeneralClass):
     def __init__(self):
         GeneralClass.__init__(self)
+        from master_backup_script.check_env import CheckEnv
+        self.check_env_obj = CheckEnv()
+        self.result = self.check_env_obj.check_systemd_init()
 
     def recent_full_backup_file(self):
         # Return last full backup dir name
@@ -177,14 +180,24 @@ class Prepare(GeneralClass):
         print("Shutting Down MySQL server: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
         print("####################################################################################################")
         time.sleep(3)
-        args = self.stop_mysql
+
+
+        if self.result == 3:
+            args = self.systemd_stop_mariadb
+        elif self.result == 4:
+            args = self.stop_mysql
+        elif self.result == 5:
+            args = self.systemd_stop_mysql
+        elif self.result == 6:
+            args = self.stop_mysql
+
         status, output = subprocess.getstatusoutput(args)
         if status == 0:
             print(output)
             return True
         else:
             print("Could not Shutdown MySQL!")
-            print("Refer to MySQL Error log file, default PATH: /var/lib/mysql/hostname.err")
+            print("Refer to MySQL Error log file")
             print(output)
             return False
 
@@ -248,6 +261,7 @@ class Prepare(GeneralClass):
                 print(output2)
                 return False
 
+
     def run_xtra_copyback(self):
         # Running Xtrabackup with --copy-back option
 
@@ -286,41 +300,33 @@ class Prepare(GeneralClass):
 
 
     def start_mysql_func(self):
-        # Starting or Bootstrapping(if it is a main NODE) MySQL/Mariadb
+        # Starting MySQL/Mariadb
         print("####################################################################################################")
-        print("Starting MySQL server choose one of 2 options!: ")
-        print("1. Run bootstrap command - because this server is main node in MariaDB Galera Cluster")
-        print("2. Run start command - service mysql start - for usual usage or for secondary nodes")
-        start = int(input("Please choose 1 or 2: "))
+        print("Starting MySQL/MariaDB server: ")
         print("####################################################################################################")
         time.sleep(3)
 
-        if start == 1:
-            bootstrap = self.mariadb_cluster_bootstrap
-            status, output = subprocess.getstatusoutput(bootstrap)
-            if status == 0:
-                print("Bootstrapping Node ...")
-                print(output)
-                return True
-            else:
-                print("Error occurred while bootstrapping node!")
-                print(output)
-                return False
+        if self.result == 3:
+            args = self.systemd_start_mariadb
+        elif self.result == 4:
+            args = self.start_mysql
+        elif self.result == 5:
+            args = self.systemd_start_mysql
+        elif self.result == 6:
+            args = self.start_mysql
 
-        elif start == 2:
-            start_command = self.start_mysql
-            status, output = subprocess.getstatusoutput(start_command)
-            if status == 0:
-                print("Starting MySQL ...")
-                print(output)
-                return True
-            else:
-                print("Error occurred while starting MySQL!")
-                print(output)
-                return False
 
+
+
+        start_command = args
+        status, output = subprocess.getstatusoutput(start_command)
+        if status == 0:
+            print("Starting MySQL ...")
+            print(output)
+            return True
         else:
-            print("Please choose 1 or 2")
+            print("Error occurred while starting MySQL!")
+            print(output)
             return False
 
 

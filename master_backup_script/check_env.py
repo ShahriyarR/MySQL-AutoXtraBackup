@@ -320,6 +320,36 @@ class CheckEnv:
             return False
 
 
+    def check_systemd_init(self):
+        """
+        Check if systemd support available for server
+        :return:
+        3 - if server is MariaDB and systemd available.
+        4 - if server is MariaDB and systemd NOT available.
+        5 - if server is MySQL and systemd available.
+        6- is server is MySQL and systemd NOT available.
+        """
+        product_result = self.check_mysql_product()
+        list_dir = []
+        for i in os.listdir('/usr/lib/systemd/system'):
+                list_dir.append(i)
+
+
+        if product_result == 2:
+            if 'mariadb.service' in list_dir:
+                return 3
+            else:
+                return 4
+
+        elif product_result == 3:
+            if 'mysqld.service' in list_dir:
+                return 5
+            else:
+                return 6
+
+
+
+
 
 
 
