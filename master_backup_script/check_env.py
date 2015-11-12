@@ -330,9 +330,16 @@ class CheckEnv:
         6- is server is MySQL and systemd NOT available.
         """
         product_result = self.check_mysql_product()
+        systemd_dir = '/usr/lib/systemd/system'
+
         list_dir = []
-        for i in os.listdir('/usr/lib/systemd/system'):
-                list_dir.append(i)
+
+        if os.path.isdir(systemd_dir):
+
+            for i in os.listdir(systemd_dir):
+                    list_dir.append(i)
+        else:
+            print("There is no /usr/lib/systemd/system folder, Continue")
 
 
         if product_result == 2:
