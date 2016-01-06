@@ -1,1 +1,2 @@
-/opt/Python-3.3.2/bin/python3 setup.py install
+#!/usr/bin/env bash
+/opt/Python3/bin/python3 setup.py install
