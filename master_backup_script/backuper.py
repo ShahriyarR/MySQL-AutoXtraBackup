@@ -79,7 +79,7 @@ class Backup(GeneralClass):
 
 
 
-    def mysql_connection_flush_logs(self, passwd):
+    def mysql_connection_flush_logs(self):
         """
         It is highly recomended to flush binary logs before each full backup for easy maintenance.
         That's why we will execute "flush logs" command before each full backup!
