@@ -25,15 +25,17 @@ import re
 
 class Backup(GeneralClass):
     def __init__(self):
-        GeneralClass.__init__(self)
+
+        #GeneralClass.__init__(self)
+        super(GeneralClass, self).__init__()
+
+        print(self.myuseroption)
 
         self.password_reg = re.search(r'\-\-password\=(.*)[\s]*', self.myuseroption)
         self.user_reg = re.search(r'\-\-user\=(.*)[\s]--', self.myuseroption)
 
         self.password = self.password_reg.group(1)
         self.user = self.user_reg.group(1)
-
-
 
     def last_full_backup_date(self):
         # Finding last full backup date from dir/folder name
@@ -58,7 +60,6 @@ class Backup(GeneralClass):
         else:
             return 0
 
-
     def recent_full_backup_file(self):
         # Return last full backup dir name
 
@@ -67,7 +68,6 @@ class Backup(GeneralClass):
         else:
             return 0
 
-
     def recent_inc_backup_file(self):
         # Return last increment backup dir name
 
@@ -75,9 +75,6 @@ class Backup(GeneralClass):
             return max(os.listdir(self.inc_dir))
         else:
             return 0
-
-
-
 
     def mysql_connection_flush_logs(self):
         """
@@ -103,7 +100,7 @@ class Backup(GeneralClass):
             'user': self.user,
             'password': self.password,
             'host': '127.0.0.1',
-            #'database': 'bck',
+            # 'database': 'bck',
             'raise_on_warnings': True,
 
         }
@@ -131,7 +128,6 @@ class Backup(GeneralClass):
             else:
                 print(err)
                 return False
-
 
     # def create_backup_archives(self):
     #
@@ -163,14 +159,12 @@ class Backup(GeneralClass):
             if i != max(os.listdir(self.full_dir)):
                 shutil.rmtree(rm_dir)
 
-
     def clean_inc_backup_dir(self):
         # Deleting incremental backups after taking new fresh full backup.
 
         for i in os.listdir(self.inc_dir):
             rm_dir = self.inc_dir + '/' + i
             shutil.rmtree(rm_dir)
-
 
     def copy_backup_to_remote_host(self):
         # Copying backup directory to remote server
@@ -182,12 +176,11 @@ class Backup(GeneralClass):
         cp = subprocess.Popen(copy_it, stdout=subprocess.PIPE)
         print(str(cp.stdout.read()))
 
-
     def full_backup(self):
 
         # Taking Full backup with MySQL (Oracle)
 
-        args = "%s %s --user=%s --password='%s'  %s" % ( self.backup_tool,
+        args = "%s %s --user=%s --password='%s'  %s" % (self.backup_tool,
                                                         self.xtrabck,
                                                         self.user,
                                                         self.password,
@@ -203,9 +196,6 @@ class Backup(GeneralClass):
             print(output)
             return False
 
-
-
-
     def inc_backup(self):
 
         # Taking Incremental backup
@@ -218,7 +208,6 @@ class Backup(GeneralClass):
         check_env_obj = CheckEnv()
         product_type = check_env_obj.check_mysql_product()
 
-
         if recent_inc == 0:
 
             # If you have a question why we check whether MariaDB or MySQL installed?
@@ -226,28 +215,27 @@ class Backup(GeneralClass):
 
             if product_type == 2:
 
-            # Taking incremental backup with MariaDB. (--incremental-force-scan option will be added for BUG workaround)
+                # Taking incremental backup with MariaDB. (--incremental-force-scan option will be added for BUG workaround)
 
                 args = "%s %s --user=%s --password='%s' --incremental-force-scan --incremental %s --incremental-basedir %s/%s" % \
-                                                                            ( self.backup_tool,
-                                                                              self.xtrabck,
-                                                                              self.user,
-                                                                              self.password,
-                                                                              self.inc_dir,
-                                                                              self.full_dir,
-                                                                              recent_bck)
+                       (self.backup_tool,
+                        self.xtrabck,
+                        self.user,
+                        self.password,
+                        self.inc_dir,
+                        self.full_dir,
+                        recent_bck)
 
             elif product_type == 3:
 
-
                 args = "%s %s --user=%s --password='%s' --incremental %s --incremental-basedir %s/%s" % \
-                                                                             (self.backup_tool,
-                                                                              self.xtrabck,
-                                                                              self.user,
-                                                                              self.password,
-                                                                              self.inc_dir,
-                                                                              self.full_dir,
-                                                                              recent_bck)
+                       (self.backup_tool,
+                        self.xtrabck,
+                        self.user,
+                        self.password,
+                        self.inc_dir,
+                        self.full_dir,
+                        recent_bck)
 
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
@@ -263,31 +251,27 @@ class Backup(GeneralClass):
 
             if product_type == 2:
 
-            # Taking incremental backup with MariaDB. (--incremental-force-scan option will be added for BUG workaround)
+                # Taking incremental backup with MariaDB. (--incremental-force-scan option will be added for BUG workaround)
 
                 args = "%s %s --user=%s --password='%s' --incremental-force-scan --incremental %s --incremental-basedir %s/%s" % \
-                                                                             (self.backup_tool,
-                                                                              self.xtrabck,
-                                                                              self.user,
-                                                                              self.password,
-                                                                              self.inc_dir,
-                                                                              self.inc_dir,
-                                                                              recent_inc)
+                       (self.backup_tool,
+                        self.xtrabck,
+                        self.user,
+                        self.password,
+                        self.inc_dir,
+                        self.inc_dir,
+                        recent_inc)
 
             elif product_type == 3:
 
-
                 args = "%s %s --user=%s --password='%s'  --incremental %s --incremental-basedir %s/%s" % \
-                                                                            (self.backup_tool,
-                                                                              self.xtrabck,
-                                                                              self.user,
-                                                                              self.password,
-                                                                              self.inc_dir,
-                                                                              self.inc_dir,
-                                                                              recent_inc)
-
-
-
+                       (self.backup_tool,
+                        self.xtrabck,
+                        self.user,
+                        self.password,
+                        self.inc_dir,
+                        self.inc_dir,
+                        recent_inc)
 
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
@@ -299,9 +283,7 @@ class Backup(GeneralClass):
                 print(output)
                 return False
 
-
     def all_backup(self):
-
 
         """
          This function at first checks full backup directory, if it is empty takes full backup.
@@ -317,7 +299,6 @@ class Backup(GeneralClass):
 
         if check_env_obj.check_all_env():
 
-
             if self.recent_full_backup_file() == 0:
                 print("###############################################################")
                 print("#You have no backups : Taking very first Full Backup! - - - - #")
@@ -328,14 +309,13 @@ class Backup(GeneralClass):
                 # Flushing Logs
                 if self.mysql_connection_flush_logs():
 
-                # Taking fullbackup
+                    # Taking fullbackup
                     if self.full_backup():
-
                         # Removing old inc backups
                         self.clean_inc_backup_dir()
 
                 # Copying backups to remote server
-                #self.copy_backup_to_remote_host()
+                # self.copy_backup_to_remote_host()
 
                 # Exiting after taking full backup
                 exit(0)
@@ -350,21 +330,19 @@ class Backup(GeneralClass):
                 # Flushing logs
                 if self.mysql_connection_flush_logs():
 
+                    # Taking fullbackup
+                    if self.full_backup():
+                        # Archiving backups
+                        # if self.create_backup_archives(): (NOTE -> deactivated backup archiving for this tool)
 
-                        # Taking fullbackup
-                        if self.full_backup():
-                        
-                            #Archiving backups
-                            #if self.create_backup_archives(): (NOTE -> deactivated backup archiving for this tool)
+                        # Removing full backups
+                        self.clean_full_backup_dir()
 
-                            # Removing full backups
-                            self.clean_full_backup_dir()
-
-                            # Removing inc backups
-                            self.clean_inc_backup_dir()
+                        # Removing inc backups
+                        self.clean_inc_backup_dir()
 
                 # Copying backups to remote server
-                #self.copy_backup_to_remote_host()
+                # self.copy_backup_to_remote_host()
 
                 # Exiting after taking NEW full backup
                 exit(0)
@@ -381,11 +359,10 @@ class Backup(GeneralClass):
                 self.inc_backup()
 
                 # Copying backups to remote server
-                #self.copy_backup_to_remote_host()
+                # self.copy_backup_to_remote_host()
 
                 # Exiting after taking Incremental backup
                 exit(0)
-
 
 # b = Backup()
 # b.all_backup()
