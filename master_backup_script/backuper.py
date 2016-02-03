@@ -24,18 +24,22 @@ import re
 
 
 class Backup(GeneralClass):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
 
-        #GeneralClass.__init__(self)
-        super(GeneralClass, self).__init__()
+        GeneralClass.__init__(self, *args, **kwargs)
+        #super(GeneralClass, self).__init__()
 
-        print(self.myuseroption)
+        #self.password_reg = re.search(r'\-\-password\=(.*)[\s]--', self.myuseroption)
+        #self.user_reg = re.search(r'\-\-user\=(.*)[\s]--', self.myuseroption)
 
-        self.password_reg = re.search(r'\-\-password\=(.*)[\s]*', self.myuseroption)
-        self.user_reg = re.search(r'\-\-user\=(.*)[\s]--', self.myuseroption)
+        #self.password = self.password_reg.group(1)
+        #self.user = self.user_reg.group(1)
 
-        self.password = self.password_reg.group(1)
-        self.user = self.user_reg.group(1)
+        #self.socket_reg = re.search(r'\-\-socket\=(.*)[\s]*', self.myuseroption)
+        #self.port_reg = re.search(r'\-\-port\=(.*)[\s]--', self.myuseroption)
+
+        #self.socket = self.socket_reg.group(1)
+        #self.port = self.port_reg.group(1)
 
     def last_full_backup_date(self):
         # Finding last full backup date from dir/folder name
@@ -97,11 +101,13 @@ class Backup(GeneralClass):
 
         config = {
 
-            'user': self.user,
-            'password': self.password,
+            'user': self.mysql_user,
+            'password': self.mysql_password,
             'host': '127.0.0.1',
             # 'database': 'bck',
             'raise_on_warnings': True,
+            #'socket': self.socket,
+            'port' : self.mysql_port,
 
         }
 
@@ -182,8 +188,8 @@ class Backup(GeneralClass):
 
         args = "%s %s --user=%s --password='%s'  %s" % (self.backup_tool,
                                                         self.xtrabck,
-                                                        self.user,
-                                                        self.password,
+                                                        self.mysql_user,
+                                                        self.mysql_password,
                                                         self.full_dir)
 
         status, output = subprocess.getstatusoutput(args)
@@ -220,8 +226,8 @@ class Backup(GeneralClass):
                 args = "%s %s --user=%s --password='%s' --incremental-force-scan --incremental %s --incremental-basedir %s/%s" % \
                        (self.backup_tool,
                         self.xtrabck,
-                        self.user,
-                        self.password,
+                        self.mysql_user,
+                        self.mysql_password,
                         self.inc_dir,
                         self.full_dir,
                         recent_bck)
@@ -231,8 +237,8 @@ class Backup(GeneralClass):
                 args = "%s %s --user=%s --password='%s' --incremental %s --incremental-basedir %s/%s" % \
                        (self.backup_tool,
                         self.xtrabck,
-                        self.user,
-                        self.password,
+                        self.mysql_user,
+                        self.mysql_password,
                         self.inc_dir,
                         self.full_dir,
                         recent_bck)
@@ -256,8 +262,8 @@ class Backup(GeneralClass):
                 args = "%s %s --user=%s --password='%s' --incremental-force-scan --incremental %s --incremental-basedir %s/%s" % \
                        (self.backup_tool,
                         self.xtrabck,
-                        self.user,
-                        self.password,
+                        self.mysql_user,
+                        self.mysql_password,
                         self.inc_dir,
                         self.inc_dir,
                         recent_inc)
@@ -267,8 +273,8 @@ class Backup(GeneralClass):
                 args = "%s %s --user=%s --password='%s'  --incremental %s --incremental-basedir %s/%s" % \
                        (self.backup_tool,
                         self.xtrabck,
-                        self.user,
-                        self.password,
+                        self.mysql_user,
+                        self.mysql_password,
                         self.inc_dir,
                         self.inc_dir,
                         recent_inc)

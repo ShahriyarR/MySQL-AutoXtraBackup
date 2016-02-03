@@ -22,6 +22,11 @@ class GeneralClass:
             self.myuseroption = con[DB]['useroption']
             self.xtrabck = con[DB]['xtra']
 
+            self.mysql_user = con[DB]['mysql_user']
+            self.mysql_password = con[DB]['mysql_password']
+            self.mysql_socket = con[DB]['mysql_socket']
+            self.mysql_port = con[DB]['mysql_port']
+
 
             ######################################################
 

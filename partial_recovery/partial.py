@@ -17,15 +17,16 @@ class PartialRecovery(GeneralClass):
         # Connecting To MySQL
         # =================================
 
-        self.password = re.search(r'\-\-password\=(.*)[\s]*', self.myuseroption)
+        #self.password = re.search(r'\-\-password\=(.*)[\s]*', self.myuseroption)
 
         self.config = {
 
-            'user': 'root',
-            'password': self.password.group(1),
+            'user': self.mysql_user,
+            'password': self.mysql_password,
             'host': 'localhost',
-            'database': 'bck',
+            #'database': 'bck',
             'raise_on_warnings': True,
+            'port' : self.mysql_port
 
         }
 
