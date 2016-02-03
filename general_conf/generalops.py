@@ -10,18 +10,15 @@ class GeneralClass:
         if isfile(config):
             con = configparser.ConfigParser()
             con.read(config)
-            bolme = con.sections()
+            categories = con.sections()
 
-            DB = bolme[0]
+            DB = categories[0]
             self.mysql = con[DB]['mysql']
             self.mycnf = con[DB]['mycnf']
 
             ######################################################
 
             self.mysqladmin = con[DB]['mysqladmin']
-            self.myuseroption = con[DB]['useroption']
-            self.xtrabck = con[DB]['xtra']
-
             self.mysql_user = con[DB]['mysql_user']
             self.mysql_password = con[DB]['mysql_password']
             self.mysql_socket = con[DB]['mysql_socket']
@@ -35,18 +32,18 @@ class GeneralClass:
             self.tmpdir = con[DB]['tmpdir']
             self.tmp = con[DB]['tmp']
 
-            BCK = bolme[1]
+            BCK = categories[1]
             self.backupdir = con[BCK]['backupdir']
             self.full_dir = self.backupdir + '/full'
             self.inc_dir = self.backupdir + '/inc'
             self.backup_tool = con[BCK]['backup_tool']
             self.archive_dir = con[BCK]['archive_dir']
 
-            RM = bolme[2]
+            RM = categories[2]
             self.remote_conn = con[RM]['remote_conn']
             self.remote_dir = con[RM]['remote_dir']
 
-            CM = bolme[3]
+            CM = categories[3]
             self.start_mysql = con[CM]['start_mysql_command']
             self.stop_mysql = con[CM]['stop_mysql_command']
             self.mkdir_command = con[CM]['mkdir_command']

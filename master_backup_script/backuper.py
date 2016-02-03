@@ -186,8 +186,10 @@ class Backup(GeneralClass):
 
         # Taking Full backup with MySQL (Oracle)
 
-        args = "%s %s --user=%s --password='%s'  %s" % (self.backup_tool,
-                                                        self.xtrabck,
+        args = "%s --defaults-file=%s  --port=%s --socket=%s --user=%s --password='%s'  %s" % (self.backup_tool,
+                                                        self.mycnf,
+                                                        self.mysql_port,
+                                                        self.mysql_socket,
                                                         self.mysql_user,
                                                         self.mysql_password,
                                                         self.full_dir)
@@ -223,9 +225,11 @@ class Backup(GeneralClass):
 
                 # Taking incremental backup with MariaDB. (--incremental-force-scan option will be added for BUG workaround)
 
-                args = "%s %s --user=%s --password='%s' --incremental-force-scan --incremental %s --incremental-basedir %s/%s" % \
+                args = "%s --defaults-file=%s  --port=%s --socket=%s --user=%s --password='%s' --incremental-force-scan --incremental %s --incremental-basedir %s/%s" % \
                        (self.backup_tool,
-                        self.xtrabck,
+                        self.mycnf,
+                        self.mysql_port,
+                        self.mysql_socket,
                         self.mysql_user,
                         self.mysql_password,
                         self.inc_dir,
@@ -234,9 +238,11 @@ class Backup(GeneralClass):
 
             elif product_type == 3:
 
-                args = "%s %s --user=%s --password='%s' --incremental %s --incremental-basedir %s/%s" % \
+                args = "%s --defaults-file=%s  --port=%s --socket=%s --user=%s --password='%s' --incremental %s --incremental-basedir %s/%s" % \
                        (self.backup_tool,
-                        self.xtrabck,
+                        self.mycnf,
+                        self.mysql_port,
+                        self.mysql_socket,
                         self.mysql_user,
                         self.mysql_password,
                         self.inc_dir,
@@ -259,9 +265,11 @@ class Backup(GeneralClass):
 
                 # Taking incremental backup with MariaDB. (--incremental-force-scan option will be added for BUG workaround)
 
-                args = "%s %s --user=%s --password='%s' --incremental-force-scan --incremental %s --incremental-basedir %s/%s" % \
+                args = "%s --defaults-file=%s  --port=%s --socket=%s --user=%s --password='%s' --incremental-force-scan --incremental %s --incremental-basedir %s/%s" % \
                        (self.backup_tool,
-                        self.xtrabck,
+                        self.mycnf,
+                        self.mysql_port,
+                        self.mysql_socket,
                         self.mysql_user,
                         self.mysql_password,
                         self.inc_dir,
@@ -270,9 +278,11 @@ class Backup(GeneralClass):
 
             elif product_type == 3:
 
-                args = "%s %s --user=%s --password='%s'  --incremental %s --incremental-basedir %s/%s" % \
+                args = "%s --defaults-file=%s  --port=%s --socket=%s --user=%s --password='%s'  --incremental %s --incremental-basedir %s/%s" % \
                        (self.backup_tool,
-                        self.xtrabck,
+                        self.mycnf,
+                        self.mysql_port,
+                        self.mysql_socket,
                         self.mysql_user,
                         self.mysql_password,
                         self.inc_dir,

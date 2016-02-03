@@ -24,7 +24,11 @@ class CheckEnv:
 
     def check_mysql_uptime(self):
 
-        statusargs = '%s %s status' % (self.backup_class_obj.mysqladmin, self.backup_class_obj.myuseroption)
+        statusargs = '%s --user=%s --password=%s --port=%s --socket=%s  status' % (self.backup_class_obj.mysqladmin,
+                                                                                  self.backup_class_obj.mysql_user,
+                                                                                  self.backup_class_obj.mysql_password,
+                                                                                  self.backup_class_obj.mysql_port,
+                                                                                  self.backup_class_obj.mysql_socket)
         statusargs = shlex.split(statusargs)
         myadmin = subprocess.Popen(statusargs, stdout=subprocess.PIPE)
 
@@ -299,9 +303,11 @@ class CheckEnv:
         """
 
 
-        check_version = "%s --user=%s --password='%s' ver" % (self.backup_class_obj.mysqladmin,
-                                                              self.backup_class_obj.user,
-                                                              self.backup_class_obj.password)
+        check_version = "%s --user=%s --password='%s' --socket=%s --port=%s ver" % (self.backup_class_obj.mysqladmin,
+                                                              self.backup_class_obj.mysql_user,
+                                                              self.backup_class_obj.mysql_password,
+                                                              self.backup_class_obj.mysql_socket,
+                                                              self.backup_class_obj.mysql_port)
 
         status, output = subprocess.getstatusoutput(check_version)
 
