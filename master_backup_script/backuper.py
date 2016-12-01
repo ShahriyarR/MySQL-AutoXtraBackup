@@ -182,7 +182,7 @@ class Backup(GeneralClass):
                                                         self.mysql_user,
                                                         self.mysql_password,
                                                         self.full_dir)
-
+        logger.debug("Starting %s", self.backup_tool)
         status, output = subprocess.getstatusoutput(args)
         if status == 0:
             logger.debug(output[-27:])
