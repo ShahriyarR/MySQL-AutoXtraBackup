@@ -1,6 +1,6 @@
 from setuptools import setup
 
-datafiles = [('/etc', ['general_conf/bck.conf'])]
+datafiles = [('//etc', ['general_conf/bck.conf'])]
 
 setup(
     name='mysql-autoxtrabackup',
