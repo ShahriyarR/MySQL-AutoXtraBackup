@@ -25,21 +25,8 @@ import re
 
 class Backup(GeneralClass):
     def __init__(self, *args, **kwargs):
-
+        #Call GeneralClass for storing configuration
         GeneralClass.__init__(self, *args, **kwargs)
-        #super(GeneralClass, self).__init__()
-
-        #self.password_reg = re.search(r'\-\-password\=(.*)[\s]--', self.myuseroption)
-        #self.user_reg = re.search(r'\-\-user\=(.*)[\s]--', self.myuseroption)
-
-        #self.password = self.password_reg.group(1)
-        #self.user = self.user_reg.group(1)
-
-        #self.socket_reg = re.search(r'\-\-socket\=(.*)[\s]*', self.myuseroption)
-        #self.port_reg = re.search(r'\-\-port\=(.*)[\s]--', self.myuseroption)
-
-        #self.socket = self.socket_reg.group(1)
-        #self.port = self.port_reg.group(1)
 
     def last_full_backup_date(self):
         # Finding last full backup date from dir/folder name
