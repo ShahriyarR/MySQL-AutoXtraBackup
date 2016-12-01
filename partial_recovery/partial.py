@@ -8,6 +8,9 @@ from mysql.connector import errorcode
 import re
 from master_backup_script import check_env
 
+import logging
+logger = logging.getLogger(__name__)
+
 class PartialRecovery(GeneralClass):
 
     def __init__(self):
@@ -34,9 +37,9 @@ class PartialRecovery(GeneralClass):
             self.cnx = mysql.connector.connect(**self.config)
             self.cur = self.cnx.cursor()
         except mysql.connector.Error as err:
-            print("MySQL server connection problem. ")
-            print("Check if your MySQL server is up and running or if there is no firewall blocking connection.")
-            print(err)
+            logger.error("MySQL server connection problem. ")
+            logger.error("Check if your MySQL server is up and running or if there is no firewall blocking connection.")
+            logger.error(err)
             exit(0)
 
 
@@ -62,15 +65,15 @@ class PartialRecovery(GeneralClass):
             self.cur.execute(query)
             for i in self.cur:
                 if i[0] == 1:
-                    print("MySQL per table space enabled!")
+                    logger.debug("MySQL per table space enabled!")
                     return True
                 else:
-                    print("MySQL per table space disabled!")
-                    print("You can not use partial table recovery.")
+                    logger.error("MySQL per table space disabled!")
+                    logger.error("You can not use partial table recovery.")
                     return False
             return True
         except mysql.connector.Error as err:
-            print(err)
+            logger.error(err)
             return False
 
 
@@ -87,16 +90,16 @@ class PartialRecovery(GeneralClass):
             self.cur.execute(query)
             for i in self.cur:
                 if '5.6' in i[0]:
-                    print("MySQL Version is, %s" % i[0])
-                    print("You have correct version of MySQL")
+                    logger.debug("MySQL Version is, %s" % i[0])
+                    logger.debug("You have correct version of MySQL")
                     return True
                 else:
-                    print("Your MySQL server is not supported")
-                    print("MySQL version must be >= 5.6")
+                    logger.error("Your MySQL server is not supported")
+                    logger.error("MySQL version must be >= 5.6")
                     return False
             return True
         except mysql.connector.Error as err:
-            print(err)
+            logger.error(err)
             return False
 
 
@@ -115,27 +118,27 @@ class PartialRecovery(GeneralClass):
             self.cur.execute(query)
             for i in self.cur:
                 if i[0] == 1:
-                    print("Database exists on MySQL")
+                    logger.debug("Database exists on MySQL")
                     return True
                 else:
-                    print("Database does not exist in MySQL Server, but there is backed up one on backup directory")
-                    print("Create Specified Database in MySQL Server, before restoring single table.")
+                    logger.error("Database does not exist in MySQL Server, but there is backed up one on backup directory")
+                    logger.error("Create Specified Database in MySQL Server, before restoring single table.")
                     answer = input("We can create it for you do you want? (yes/no): ")
                     if answer == 'yes':
                         try:
                             create_db = "create database %s" % database_name
                             self.cur.execute(create_db)
-                            print("%s database created" % database_name)
+                            logger.debug("%s database created" % database_name)
                             return True
                         except mysql.connector.Error as err:
-                            print(err)
+                            logger.error(err)
                             return False
                     else: #if you type non-yes word
-                        print("Exited!")
+                        logger.error("Exited!")
                         return False
 
         except mysql.connector.Error as err:
-            print(err)
+            logger.error(err)
             return False
 
 
@@ -156,12 +159,12 @@ class PartialRecovery(GeneralClass):
             self.cur.execute(query)
             for i in self.cur:
                 if i[0] == 1:
-                    print("Table exists in MySQL Server.")
+                    logger.debug("Table exists in MySQL Server.")
                     return True
                 else:
-                    print("Table does not exist in MySQL Server.")
-                    print("You can not restore table, with not existing tablespace file(.ibd)!")
-                    print("We will try to extract table create statement from .frm file, from backup folder")
+                    logger.error("Table does not exist in MySQL Server.")
+                    logger.error("You can not restore table, with not existing tablespace file(.ibd)!")
+                    logger.error("We will try to extract table create statement from .frm file, from backup folder")
                     create = self.run_mysqlfrm_utility(path_to_frm_file=path_to_frm_file)
                     regex = re.compile(r'((\n)CREATE((?!#).)*ENGINE=\w+)', re.DOTALL)
                     matches = [m.groups() for m in regex.finditer(create)]
@@ -169,14 +172,14 @@ class PartialRecovery(GeneralClass):
                         create_table = m[0]
                         try:
                             self.cur.execute(create_table)
-                            print("Table Created from .frm file!")
+                            logger.debug("Table Created from .frm file!")
                             return True
                         except mysql.connector.Error as err:
-                            print(err)
+                            logger.error(err)
                             return False
                     return False
         except mysql.connector.Error as err:
-            print(err)
+            logger.error(err)
             return False
 
 
@@ -186,10 +189,10 @@ class PartialRecovery(GeneralClass):
         status, output = subprocess.getstatusoutput(command)
         if status == 0:
             return output
-            print("Success")
+            logger.debug("Success")
         else:
-            print("Failed")
-            print(output)
+            logger.error("Failed")
+            logger.error(output)
 
 
     def get_table_ibd_file(self, database_name, table_name):
@@ -242,8 +245,8 @@ class PartialRecovery(GeneralClass):
                 for x in find_objects_full_path:
                     return x
         else:
-            print("Sorry, There is no such Database or Table in backup directory")
-            print("Or maybe table storage engine is not InnoDB")
+            logger.error("Sorry, There is no such Database or Table in backup directory")
+            logger.error("Or maybe table storage engine is not InnoDB")
             return False
 
 
@@ -253,7 +256,7 @@ class PartialRecovery(GeneralClass):
             self.cur.execute(query)
             return True
         except mysql.connector.Error as err:
-            print(err)
+            logger.error(err)
             return False
 
 
@@ -263,7 +266,7 @@ class PartialRecovery(GeneralClass):
             self.cur.execute(query)
             return True
         except mysql.connector.Error as err:
-            print(err)
+            logger.error(err)
             return False
 
 
@@ -272,7 +275,7 @@ class PartialRecovery(GeneralClass):
             shutil.copy(path_of_ibd_file, path_to_mysql_database_dir)
             return True
         except Exception as err:
-            print(err)
+            logger.error(err)
             return False
 
     def give_chown(self, path_to_mysql_database_dir):
@@ -282,7 +285,7 @@ class PartialRecovery(GeneralClass):
         if status == 0:
             return True
         else:
-            print("Chown Command Failed!")
+            logger.error("Chown Command Failed!")
             return False
 
 
@@ -306,14 +309,14 @@ class PartialRecovery(GeneralClass):
             self.cur.execute(query)
             return True
         except mysql.connector.Error as err:
-            print(err)
+            logger.error(err)
             return False
 
 
     def final_actions(self):
         # Type Database name of table which you want to restore
 
-        print("+-"*40)
+        logger.debug("+-"*40)
         database_name = input("Type Database name: ")
 
         # Type name of table which you want to restore
@@ -339,9 +342,9 @@ class PartialRecovery(GeneralClass):
                                             if self.give_chown(path_to_mysql_database_dir=path_to_mysql_datadir):
                                                 if self.import_tablespace(database_name=database_name, table_name=table_name):
                                                     if self.unlock_tables():
-                                                        print("+-"*40)
+                                                        logger.debug("+-"*40)
 
-                                                        print("Table Recovered! ..."+'-+'*30)
+                                                        logger.debug("Table Recovered! ..."+'-+'*30)
 
 
 

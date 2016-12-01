@@ -18,6 +18,9 @@ from sys import exit
 from general_conf.generalops import GeneralClass
 import re
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 # Creating Backup class
 
@@ -103,7 +106,7 @@ class Backup(GeneralClass):
             cnx = mysql.connector.connect(**config)
             cursor = cnx.cursor()
             query = "flush logs"
-            print("Flushing Binary Logs")
+            logger.debug("Flushing Binary Logs")
             time.sleep(2)
             cursor.execute(query)
             cursor.close()
@@ -111,15 +114,15 @@ class Backup(GeneralClass):
             return True
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                print(err)
-                print("Something is wrong with your user name or password!!!!!")
+                logger.error(err)
+                logger.error("Something is wrong with your user name or password!!!!!")
                 return False
             elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                print(err)
-                print("Database does not exists")
+                logger.error(err)
+                logger.error("Database does not exists")
                 return False
             else:
-                print(err)
+                logger.debug(err)
                 return False
 
     def create_backup_archives(self):
@@ -130,15 +133,15 @@ class Backup(GeneralClass):
             if i != max(os.listdir(self.full_dir)):
                 run_tar = "/usr/bin/tar -zcf %s %s %s" % (self.archive_dir+'/'+i+'.tar.gz', self.full_dir, self.inc_dir)
 
-        print("Start to archive previous backups")
+        logger.debug("Start to archive previous backups")
         status, output = subprocess.getstatusoutput(run_tar)
         if status == 0:
-            print("Old full backup and incremental backups archived!")
+            logger.debug("Old full backup and incremental backups archived!")
             return True
         else:
-            print("Archiving FAILED!")
+            logger.error("Archiving FAILED!")
             time.sleep(5)
-            print(output)
+            logger.error(output)
             return False
 
 
@@ -160,13 +163,13 @@ class Backup(GeneralClass):
 
     def copy_backup_to_remote_host(self):
         # Copying backup directory to remote server
-        print("########################################################################")
-        print("Copying backups to remote server")
-        print("########################################################################")
+        logger.debug("########################################################################")
+        logger.debug("Copying backups to remote server")
+        logger.debug("########################################################################")
         copy_it = 'scp -r %s %s:%s' % (self.backupdir, self.remote_conn, self.remote_dir)
         copy_it = shlex.split(copy_it)
         cp = subprocess.Popen(copy_it, stdout=subprocess.PIPE)
-        print(str(cp.stdout.read()))
+        logger.debug(str(cp.stdout.read()))
 
     def full_backup(self):
 
@@ -182,12 +185,12 @@ class Backup(GeneralClass):
 
         status, output = subprocess.getstatusoutput(args)
         if status == 0:
-            print(output[-27:])
+            logger.debug(output[-27:])
             return True
         else:
-            print("FULL BACKUP FAILED!")
+            logger.error("FULL BACKUP FAILED!")
             time.sleep(5)
-            print(output)
+            logger.error(output)
             return False
 
     def inc_backup(self):
@@ -237,12 +240,12 @@ class Backup(GeneralClass):
 
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
-                print(output[-27:])
+                logger.debug(output[-27:])
                 return True
             else:
-                print("INCREMENT BACKUP FAILED!")
+                logger.error("INCREMENT BACKUP FAILED!")
                 time.sleep(5)
-                print(output)
+                logger.error(output)
                 return False
 
         else:
@@ -277,12 +280,12 @@ class Backup(GeneralClass):
 
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
-                print(output[-27:])
+                logger.debug(output[-27:])
                 return True
             else:
-                print("INCREMENT BACKUP FAILED!")
+                logger.error("INCREMENT BACKUP FAILED!")
                 time.sleep(5)
-                print(output)
+                logger.error(output)
                 return False
 
     def all_backup(self):
@@ -302,9 +305,9 @@ class Backup(GeneralClass):
         if check_env_obj.check_all_env():
 
             if self.recent_full_backup_file() == 0:
-                print("###############################################################")
-                print("#You have no backups : Taking very first Full Backup! - - - - #")
-                print("###############################################################")
+                logger.debug("###############################################################")
+                logger.debug("#You have no backups : Taking very first Full Backup! - - - - #")
+                logger.debug("###############################################################")
 
                 time.sleep(3)
 
@@ -323,9 +326,9 @@ class Backup(GeneralClass):
                 exit(0)
 
             elif self.last_full_backup_date() == 1:
-                print("################################################################")
-                print("Your full backup is timeout : Taking new Full Backup!- - - - - #")
-                print("################################################################")
+                logger.debug("################################################################")
+                logger.debug("Your full backup is timeout : Taking new Full Backup!- - - - - #")
+                logger.debug("################################################################")
 
                 time.sleep(3)
 
@@ -351,10 +354,10 @@ class Backup(GeneralClass):
                 exit(0)
 
             else:
-                print("################################################################")
-                print("You have a full backup. - - - - - - - - - - - - - - - - - - - -#")
-                print("We will take an incremental one based on recent Full Backup - -#")
-                print("################################################################")
+                logger.debug("################################################################")
+                logger.debug("You have a full backup. - - - - - - - - - - - - - - - - - - - -#")
+                logger.debug("We will take an incremental one based on recent Full Backup - -#")
+                logger.debug("################################################################")
 
                 time.sleep(3)
 

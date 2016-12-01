@@ -3,6 +3,9 @@
 import configparser
 from os.path import isfile
 
+import logging
+logger = logging.getLogger(__name__)
+
 class GeneralClass:
 
     def __init__(self, config='/etc/bck.conf'):
@@ -54,4 +57,4 @@ class GeneralClass:
             self.systemd_stop_mariadb = con[CM]['systemd_stop_mariadb']
 
         else:
-            print("Missing config file : /etc/bck.conf")
+            logger.critical("Missing config file : /etc/bck.conf")
