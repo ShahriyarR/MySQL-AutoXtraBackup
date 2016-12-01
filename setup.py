@@ -14,7 +14,7 @@ setup(
     description='Commandline tool written in Python 3 for using Percona Xtrabackup',
     install_requires=[
         'click>=3.3',
-        'mysql-connector-python>=2.0.2',
+        'mysql-connector>=2.0.2',
     ],
     dependency_links = ['https://dev.mysql.com/get/Downloads/Connector-Python/mysql-connector-python-2.1.3.tar.gz'],
     entry_points='''
