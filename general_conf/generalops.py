@@ -40,11 +40,14 @@ class GeneralClass:
             self.full_dir = self.backupdir + '/full'
             self.inc_dir = self.backupdir + '/inc'
             self.backup_tool = con[BCK]['backup_tool']
-            self.archive_dir = con[BCK]['archive_dir']
+            if 'archive_dir' in con[BCK]:
+                self.archive_dir = con[BCK]['archive_dir']
 
             RM = categories[2]
-            self.remote_conn = con[RM]['remote_conn']
-            self.remote_dir = con[RM]['remote_dir']
+            if 'remote_conn' in con[RM]:
+                self.remote_conn = con[RM]['remote_conn']
+            if 'remote_dir' in con[RM]:
+                self.remote_dir = con[RM]['remote_dir']
 
             CM = categories[3]
             self.start_mysql = con[CM]['start_mysql_command']
