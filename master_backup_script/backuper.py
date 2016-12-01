@@ -93,11 +93,11 @@ class Backup(GeneralClass):
 
             'user': self.mysql_user,
             'password': self.mysql_password,
-            'host': '127.0.0.1',
+            #'host': '127.0.0.1',
             # 'database': 'bck',
             'raise_on_warnings': True,
-            #'socket': self.socket,
-            'port' : self.mysql_port,
+            'unix_socket': self.mysql_socket,
+            #'port' : self.mysql_port,
 
         }
 
