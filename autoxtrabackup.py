@@ -34,7 +34,7 @@ def print_version(ctx, param, value):
     click.echo("Link : https://github.com/ShahriyarR/MySQL-AutoXtraBackup")
     click.echo("Email: rzayev.shahriyar@yandex.com")
     click.echo("Based on Percona XtraBackup: https://launchpad.net/percona-xtrabackup")
-    click.echo('MySQL-AutoXtrabackup Version 1.1.1')
+    click.echo('MySQL-AutoXtrabackup Version 1.1.2')
     ctx.exit()
 
 

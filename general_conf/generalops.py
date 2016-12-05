@@ -39,6 +39,10 @@ class GeneralClass:
             self.full_dir = self.backupdir + '/full'
             self.inc_dir = self.backupdir + '/inc'
             self.backup_tool = BCK['backup_tool']
+            if 'full_backup_interval' in BCK:
+                self.full_backup_interval = BCK['full_backup_interval']
+            else:
+                self.full_backup_interval = 86400
             if 'archive_dir' in BCK:
                 self.archive_dir = BCK['archive_dir']
 

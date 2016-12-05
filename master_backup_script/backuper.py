@@ -35,21 +35,12 @@ class Backup(GeneralClass):
         # Finding last full backup date from dir/folder name
 
         max = self.recent_full_backup_file()
-        dir_date_str = max[:4] + '-' + max[5:7] + '-' + max[8:10] + ' ' + max[11:13] + ':' + max[14:16]
-        dir_date = datetime.strptime(dir_date_str, "%Y-%m-%d %H:%M")
-        now = datetime.now().replace(second=0, microsecond=0)
+        dir_date = datetime.strptime(max, "%Y-%m-%d_%H-%M-%S")
+        now = datetime.now()
 
-        # Defining variables for comparison.
+        # Finding if last full backup older than the interval or more from now!
 
-        a = '2013-09-04 15:29'
-        b = '2013-09-03 15:29'
-        a = datetime.strptime(a, "%Y-%m-%d %H:%M")
-        b = datetime.strptime(b, "%Y-%m-%d %H:%M")
-        diff = a - b
-
-        # Finding if last full backup is 1 day or more from now!
-
-        if now - dir_date >= diff:
+        if (now - dir_date).total_seconds() >= self.full_backup_interval:
             return 1
         else:
             return 0
@@ -320,7 +311,7 @@ class Backup(GeneralClass):
                         self.clean_inc_backup_dir()
 
                 # Copying backups to remote server
-                if self.remote_conn and self.remote_dir:
+                if hasattr(self, 'remote_conn') and hasattr(self,'remote_dir') and self.remote_conn and self.remote_dir:
                     self.copy_backup_to_remote_host()
 
                 # Exiting after taking full backup
@@ -349,7 +340,7 @@ class Backup(GeneralClass):
                         self.clean_inc_backup_dir()
 
                 # Copying backups to remote server
-                if self.remote_conn and self.remote_dir:
+                if hasattr(self, 'remote_conn') and hasattr(self,'remote_dir') and self.remote_conn and self.remote_dir:
                     self.copy_backup_to_remote_host()
 
                 # Exiting after taking NEW full backup
@@ -357,7 +348,7 @@ class Backup(GeneralClass):
 
             else:
                 logger.debug("################################################################")
-                logger.debug("You have a full backup. - - - - - - - - - - - - - - - - - - - -#")
+                logger.debug("You have a full backup that is less than %d seconds old. - -#", self.full_backup_interval)
                 logger.debug("We will take an incremental one based on recent Full Backup - -#")
                 logger.debug("################################################################")
 
@@ -367,7 +358,7 @@ class Backup(GeneralClass):
                 self.inc_backup()
 
                 # Copying backups to remote server
-                if self.remote_conn and self.remote_dir:
+                if hasattr(self, 'remote_conn') and hasattr(self,'remote_dir') and self.remote_conn and self.remote_dir:
                     self.copy_backup_to_remote_host()
 
                 # Exiting after taking Incremental backup
