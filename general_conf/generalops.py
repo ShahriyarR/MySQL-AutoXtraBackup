@@ -2,6 +2,7 @@
 
 import configparser
 from os.path import isfile
+import humanfriendly
 
 import logging
 logger = logging.getLogger(__name__)
@@ -40,11 +41,15 @@ class GeneralClass:
             self.inc_dir = self.backupdir + '/inc'
             self.backup_tool = BCK['backup_tool']
             if 'full_backup_interval' in BCK:
-                self.full_backup_interval = BCK['full_backup_interval']
+                self.full_backup_interval = humanfriendly.parse_timespan(BCK['full_backup_interval'])
             else:
                 self.full_backup_interval = 86400
             if 'archive_dir' in BCK:
                 self.archive_dir = BCK['archive_dir']
+            if 'max_archive_size' in BCK:
+                self.max_archive_size = humanfriendly.parse_size(BCK['max_archive_size'])
+            if 'max_archive_duration' in BCK:
+                self.max_archive_duration = humanfriendly.parse_timespan(BCK['max_archive_duration'])
 
             if 'Remote' in con:
                 RM = con['Remote']

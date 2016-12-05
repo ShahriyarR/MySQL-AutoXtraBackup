@@ -31,6 +31,18 @@ class Backup(GeneralClass):
         #Call GeneralClass for storing configuration
         GeneralClass.__init__(self, *args, **kwargs)
 
+    def sorted_ls(self, path):
+        mtime = lambda f: os.stat(os.path.join(path, f)).st_mtime
+        return list(sorted(os.listdir(path), key=mtime))
+
+    def get_directory_size(self, path):
+        total_size = 0
+        for dirpath, dirnames, filenames in os.walk(path):
+            for f in filenames:
+                fp = os.path.join(dirpath, f)
+                total_size += os.path.getsize(fp)
+        return total_size
+
     def last_full_backup_date(self):
         # Finding last full backup date from dir/folder name
 
@@ -121,7 +133,7 @@ class Backup(GeneralClass):
         # Creating .tar.gz archive files of taken backups
         for i in os.listdir(self.full_dir):
             rm_dir = self.full_dir + '/' + i
-            if i != max(os.listdir(self.full_dir)):
+            if len(os.listdir(self.full_dir)) == 1 or i != max(os.listdir(self.full_dir)):
                 run_tar = "/usr/bin/tar -zcf %s %s %s" % (self.archive_dir+'/'+i+'.tar.gz', self.full_dir, self.inc_dir)
 
         logger.debug("Start to archive previous backups")
@@ -135,6 +147,21 @@ class Backup(GeneralClass):
             logger.error(output)
             return False
 
+    def clean_old_archives(self):
+        logger.debug("Starting cleaning of old archives")
+        for archive in self.sorted_ls(self.archive_dir):
+            archive_date = datetime.strptime(archive, "%Y-%m-%d_%H-%M-%S.tar.gz")
+            now = datetime.now()
+
+            # Finding if last full backup older than the interval or more from now!
+
+            if (now - archive_date).total_seconds() >= self.max_archive_duration:
+                logger.debug("Removing archive: " + self.archive_dir+"/"+archive + " due to max archive age")
+                os.remove(self.archive_dir+"/"+archive)
+            elif self.get_directory_size(self.archive_dir) > self.max_archive_size:
+                logger.debug("Removing archive: " + self.archive_dir + "/" + archive +
+                             " due to max archive size")
+                os.remove(self.archive_dir + "/" + archive)
 
 
     def clean_full_backup_dir(self):
@@ -324,15 +351,19 @@ class Backup(GeneralClass):
 
                 time.sleep(3)
 
+                # Archiving backups
+                if self.archive_dir:
+                    if (hasattr(self, 'max_archive_duration') and self.max_archive_duration) or (
+                                hasattr(self, 'max_archive_size') and self.max_archive_size):
+                        self.clean_old_archives()
+                    if not self.create_backup_archives():
+                        exit(0)
+
                 # Flushing logs
                 if self.mysql_connection_flush_logs():
 
                     # Taking fullbackup
                     if self.full_backup():
-                        # Archiving backups
-                        if self.archive_dir:
-                            if not self.create_backup_archives():
-                                exit(0)
                         # Removing full backups
                         self.clean_full_backup_dir()
 
