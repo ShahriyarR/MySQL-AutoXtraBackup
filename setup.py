@@ -4,7 +4,7 @@ datafiles = [('//etc', ['general_conf/bck.conf'])]
 
 setup(
     name='mysql-autoxtrabackup',
-    version='1.1',
+    version='1.1.1',
     packages=['general_conf', 'backup_prepare', 'partial_recovery', 'master_backup_script'],
     py_modules = ['autoxtrabackup'],
     url='https://github.com/ShahriyarR/MySQL-AutoXtraBackup',

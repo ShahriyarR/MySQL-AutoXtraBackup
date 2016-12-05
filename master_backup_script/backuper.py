@@ -320,7 +320,8 @@ class Backup(GeneralClass):
                         self.clean_inc_backup_dir()
 
                 # Copying backups to remote server
-                # self.copy_backup_to_remote_host()
+                if self.remote_conn and self.remote_dir:
+                    self.copy_backup_to_remote_host()
 
                 # Exiting after taking full backup
                 exit(0)
@@ -348,7 +349,8 @@ class Backup(GeneralClass):
                         self.clean_inc_backup_dir()
 
                 # Copying backups to remote server
-                # self.copy_backup_to_remote_host()
+                if self.remote_conn and self.remote_dir:
+                    self.copy_backup_to_remote_host()
 
                 # Exiting after taking NEW full backup
                 exit(0)
@@ -365,7 +367,8 @@ class Backup(GeneralClass):
                 self.inc_backup()
 
                 # Copying backups to remote server
-                # self.copy_backup_to_remote_host()
+                if self.remote_conn and self.remote_dir:
+                    self.copy_backup_to_remote_host()
 
                 # Exiting after taking Incremental backup
                 exit(0)
