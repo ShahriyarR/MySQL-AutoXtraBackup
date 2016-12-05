@@ -5,6 +5,7 @@ from master_backup_script.backuper import Backup
 from backup_prepare.prepare import Prepare
 from partial_recovery.partial import PartialRecovery
 from sys import platform as _platform
+from tendo import singleton
 
 import logging
 import logging.handlers
@@ -23,6 +24,8 @@ else:
 
 # Set syslog for the root logger
 logger.addHandler(handler)
+
+me = singleton.SingleInstance()  # will sys.exit(-1) if other instance is running
 
 def print_version(ctx, param, value):
     if not value or ctx.resilient_parsing:
