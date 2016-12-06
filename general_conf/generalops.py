@@ -7,6 +7,7 @@ import humanfriendly
 import logging
 logger = logging.getLogger(__name__)
 
+
 class GeneralClass:
 
     def __init__(self, config='/etc/bck.conf'):
@@ -36,6 +37,10 @@ class GeneralClass:
             self.tmp = DB['tmp']
 
             BCK = con['Backup']
+            if 'pid_dir' in BCK:
+                self.pid_dir = BCK['pid_dir']
+            else:
+                self.pid_dir = "/tmp/"
             self.backupdir = BCK['backupdir']
             self.full_dir = self.backupdir + '/full'
             self.inc_dir = self.backupdir + '/inc'

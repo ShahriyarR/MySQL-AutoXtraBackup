@@ -4,8 +4,9 @@ import click
 from master_backup_script.backuper import Backup
 from backup_prepare.prepare import Prepare
 from partial_recovery.partial import PartialRecovery
+from general_conf.generalops import GeneralClass
 from sys import platform as _platform
-from tendo import singleton
+import pid
 
 import logging
 import logging.handlers
@@ -25,8 +26,6 @@ else:
 # Set syslog for the root logger
 logger.addHandler(handler)
 
-me = singleton.SingleInstance()  # will sys.exit(-1) if other instance is running
-
 def print_version(ctx, param, value):
     if not value or ctx.resilient_parsing:
         return
@@ -34,7 +33,7 @@ def print_version(ctx, param, value):
     click.echo("Link : https://github.com/ShahriyarR/MySQL-AutoXtraBackup")
     click.echo("Email: rzayev.shahriyar@yandex.com")
     click.echo("Based on Percona XtraBackup: https://launchpad.net/percona-xtrabackup")
-    click.echo('MySQL-AutoXtrabackup Version 1.2.0')
+    click.echo('MySQL-AutoXtrabackup Version 1.3.0')
     ctx.exit()
 
 
@@ -49,22 +48,33 @@ def print_version(ctx, param, value):
 
 def all_procedure(prepare, backup, partial, verbose, log):
     logger.setLevel(log)
-    if(verbose):
+    config = GeneralClass()
+    if (verbose):
         logger.addHandler(logging.StreamHandler())
-    if (not prepare) and (not backup) and (not partial):
-        print("ERROR: you must give an option, run with --help for available options")
-    elif prepare:
-        a = Prepare()
-        a.prepare_backup_and_copy_back()
-        #print("Prepare")
-    elif backup:
-        b = Backup()
-        b.all_backup()
-        #print("Backup")
-    elif partial:
-        c = PartialRecovery()
-        c.final_actions()
-
+    try:
+        with pid.PidFile(piddir=config.pid_dir): # User PidFile for locking to single instance
+            if (not prepare) and (not backup) and (not partial):
+                print("ERROR: you must give an option, run with --help for available options")
+            elif prepare:
+                a = Prepare()
+                a.prepare_backup_and_copy_back()
+                #print("Prepare")
+            elif backup:
+                b = Backup()
+                b.all_backup()
+                #print("Backup")
+            elif partial:
+                c = PartialRecovery()
+                c.final_actions()
+    except pid.PidFileAlreadyLockedError as error:
+        logger.error("Pid file already exists: " + str(error))
+    except pid.PidFileAlreadyRunningError as error:
+        logger.error(error)
+        print(error)
+    except pid.PidFileUnreadableError as error:
+        logger.critical("Pid file can not be read: " + str(error))
+    except pid.PidFileError as error:
+        logger.critical("Generic error with pid file: " + str(error))
 
 
 if __name__ == "__main__":
