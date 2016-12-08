@@ -7,6 +7,9 @@ from partial_recovery.partial import PartialRecovery
 from general_conf.generalops import GeneralClass
 from sys import platform as _platform
 import pid
+import time
+import os
+import humanfriendly
 
 import logging
 import logging.handlers
@@ -51,8 +54,9 @@ def all_procedure(prepare, backup, partial, verbose, log):
     config = GeneralClass()
     if (verbose):
         logger.addHandler(logging.StreamHandler())
+    pid_file = pid.PidFile(piddir=config.pid_dir)
     try:
-        with pid.PidFile(piddir=config.pid_dir): # User PidFile for locking to single instance
+        with pid_file: # User PidFile for locking to single instance
             if (not prepare) and (not backup) and (not partial):
                 print("ERROR: you must give an option, run with --help for available options")
             elif prepare:
@@ -67,14 +71,25 @@ def all_procedure(prepare, backup, partial, verbose, log):
                 c = PartialRecovery()
                 c.final_actions()
     except pid.PidFileAlreadyLockedError as error:
-        logger.error("Pid file already exists: " + str(error))
+        if hasattr(config, 'pid_runtime_warning'):
+            if time.time() - os.stat(pid_file.filename).st_ctime > config.pid_runtime_warning:
+                pid.fh.seek(0)
+                pid_str = pid.fh.read(16).split("\n", 1)[0].strip()
+                logger.critical("Backup (pid: " + pid_str + ") has been running for logger than: "
+                                + str(humanfriendly.format_timespan(config.pid_runtime_warning)))
+        #logger.warn("Pid file already exists: " + str(error))
     except pid.PidFileAlreadyRunningError as error:
-        logger.error(error)
-        print(error)
+        if hasattr(config, 'pid_runtime_warning'):
+            if time.time() - os.stat(pid_file.filename).st_ctime > config.pid_runtime_warning:
+                pid.fh.seek(0)
+                pid_str = pid.fh.read(16).split("\n", 1)[0].strip()
+                logger.critical("Backup (pid: " + pid_str + ") has been running for logger than: "
+                                + str(humanfriendly.format_timespan(config.pid_runtime_warning)))
+        #logger.warn("Pid already running: " + str(error))
     except pid.PidFileUnreadableError as error:
-        logger.critical("Pid file can not be read: " + str(error))
+        logger.warn("Pid file can not be read: " + str(error))
     except pid.PidFileError as error:
-        logger.critical("Generic error with pid file: " + str(error))
+        logger.warn("Generic error with pid file: " + str(error))
 
 
 if __name__ == "__main__":

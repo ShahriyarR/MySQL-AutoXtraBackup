@@ -41,6 +41,8 @@ class GeneralClass:
                 self.pid_dir = BCK['pid_dir']
             else:
                 self.pid_dir = "/tmp/"
+            if 'pid_runtime_warning' in BCK:
+                self.pid_runtime_warning = humanfriendly.parse_timespan(BCK['pid_runtime_warning'])
             self.backupdir = BCK['backupdir']
             self.full_dir = self.backupdir + '/full'
             self.inc_dir = self.backupdir + '/inc'
