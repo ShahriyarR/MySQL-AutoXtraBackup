@@ -25,8 +25,12 @@ class GeneralClass:
             self.mysqladmin = DB['mysqladmin']
             self.mysql_user = DB['mysql_user']
             self.mysql_password = DB['mysql_password']
-            self.mysql_socket = DB['mysql_socket']
-            self.mysql_port = DB['mysql_port']
+            if 'mysql_socket' in DB:
+                self.mysql_socket = DB['mysql_socket']
+            if 'mysql_host' in DB:
+                self.mysql_host = DB['mysql_host']
+            if 'mysql_port' in DB:
+                self.mysql_port = DB['mysql_port']
 
 
             ######################################################
