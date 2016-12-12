@@ -27,11 +27,19 @@ class CheckEnv:
 
     def check_mysql_uptime(self):
 
-        statusargs = '%s --user=%s --password=%s --port=%s --socket=%s  status' % (self.backup_class_obj.mysqladmin,
+        statusargs = '%s --user=%s --password=%s status' % (self.backup_class_obj.mysqladmin,
                                                                                   self.backup_class_obj.mysql_user,
-                                                                                  self.backup_class_obj.mysql_password,
-                                                                                  self.backup_class_obj.mysql_port,
-                                                                                  self.backup_class_obj.mysql_socket)
+                                                                                  self.backup_class_obj.mysql_password)
+
+        if hasattr(self.backup_class_obj, 'mysql_socket'):
+            statusargs += " --socket=%s" %(self.backup_class_obj.mysql_socket)
+        elif hasattr(self.backup_class_obj, 'mysql_host') and hasattr(self.backup_class_obj, 'mysql_port'):
+            statusargs += " --host=%s" % self.backup_class_obj.mysql_host
+            statusargs += " --port=%s" % self.backup_class_obj.mysql_port
+        else:
+            logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
+            return False
+
         statusargs = shlex.split(statusargs)
         myadmin = subprocess.Popen(statusargs, stdout=subprocess.PIPE)
 
@@ -306,11 +314,18 @@ class CheckEnv:
         """
 
 
-        check_version = "%s --user=%s --password='%s' --socket=%s --port=%s ver" % (self.backup_class_obj.mysqladmin,
+        check_version = "%s --user=%s --password='%s' ver" % (self.backup_class_obj.mysqladmin,
                                                               self.backup_class_obj.mysql_user,
-                                                              self.backup_class_obj.mysql_password,
-                                                              self.backup_class_obj.mysql_socket,
-                                                              self.backup_class_obj.mysql_port)
+                                                              self.backup_class_obj.mysql_password)
+
+        if hasattr(self.backup_class_obj, 'mysql_socket'):
+            check_version += " --socket=%s" %(self.backup_class_obj.mysql_socket)
+        elif hasattr(self.backup_class_obj, 'mysql_host') and hasattr(self.backup_class_obj, 'mysql_port'):
+            check_version += " --host=%s" % self.backup_class_obj.mysql_host
+            check_version += " --port=%s" % self.backup_class_obj.mysql_port
+        else:
+            logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
+            return False
 
         status, output = subprocess.getstatusoutput(check_version)
 

@@ -96,13 +96,17 @@ class Backup(GeneralClass):
 
             'user': self.mysql_user,
             'password': self.mysql_password,
-            #'host': '127.0.0.1',
             # 'database': 'bck',
             'raise_on_warnings': True,
-            'unix_socket': self.mysql_socket,
-            #'port' : self.mysql_port,
-
         }
+
+        if hasattr(self, 'mysql_socket'):
+            config['unix_socket'] = self.mysql_socket
+        elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
+            config['host'] = self.mysql_host
+            config['port'] = self.mysql_port
+        else:
+            logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
 
         # Open connection
         try:
@@ -192,14 +196,22 @@ class Backup(GeneralClass):
     def full_backup(self):
 
         # Taking Full backup with MySQL (Oracle)
+        args = "%s --defaults-file=%s --user=%s --password='%s'  %s" % (self.backup_tool,
+                                                                                               self.mycnf,
+                                                                                               self.mysql_user,
+                                                                                               self.mysql_password,
+                                                                                               self.full_dir)
 
-        args = "%s --defaults-file=%s  --port=%s --socket=%s --user=%s --password='%s'  %s" % (self.backup_tool,
-                                                        self.mycnf,
-                                                        self.mysql_port,
-                                                        self.mysql_socket,
-                                                        self.mysql_user,
-                                                        self.mysql_password,
-                                                        self.full_dir)
+        if hasattr(self, 'mysql_socket'):
+            args += " --socket=%s" %(self.mysql_socket)
+        elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
+            args += " --host=%s" % self.mysql_host
+            args += " --port=%s" % self.mysql_port
+        else:
+            logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
+            return False
+
+
         logger.debug("Starting %s", self.backup_tool)
         status, output = subprocess.getstatusoutput(args)
         if status == 0:
@@ -232,11 +244,9 @@ class Backup(GeneralClass):
 
                 # Taking incremental backup with MariaDB. (--incremental-force-scan option will be added for BUG workaround)
 
-                args = "%s --defaults-file=%s  --port=%s --socket=%s --user=%s --password='%s' --incremental-force-scan --incremental %s --incremental-basedir %s/%s" % \
+                args = "%s --defaults-file=%s --user=%s --password='%s' --incremental-force-scan --incremental %s --incremental-basedir %s/%s" % \
                        (self.backup_tool,
                         self.mycnf,
-                        self.mysql_port,
-                        self.mysql_socket,
                         self.mysql_user,
                         self.mysql_password,
                         self.inc_dir,
@@ -245,16 +255,23 @@ class Backup(GeneralClass):
 
             elif product_type == 3:
 
-                args = "%s --defaults-file=%s  --port=%s --socket=%s --user=%s --password='%s' --incremental %s --incremental-basedir %s/%s" % \
+                args = "%s --defaults-file=%s --user=%s --password='%s' --incremental %s --incremental-basedir %s/%s" % \
                        (self.backup_tool,
                         self.mycnf,
-                        self.mysql_port,
-                        self.mysql_socket,
                         self.mysql_user,
                         self.mysql_password,
                         self.inc_dir,
                         self.full_dir,
                         recent_bck)
+
+            if hasattr(self, 'mysql_socket'):
+                args += " --socket=%s" % (self.mysql_socket)
+            elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
+                args += " --host=%s" % self.mysql_host
+                args += " --port=%s" % self.mysql_port
+            else:
+                logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
+                return False
 
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
@@ -272,11 +289,9 @@ class Backup(GeneralClass):
 
                 # Taking incremental backup with MariaDB. (--incremental-force-scan option will be added for BUG workaround)
 
-                args = "%s --defaults-file=%s  --port=%s --socket=%s --user=%s --password='%s' --incremental-force-scan --incremental %s --incremental-basedir %s/%s" % \
+                args = "%s --defaults-file=%s  --user=%s --password='%s' --incremental-force-scan --incremental %s --incremental-basedir %s/%s" % \
                        (self.backup_tool,
                         self.mycnf,
-                        self.mysql_port,
-                        self.mysql_socket,
                         self.mysql_user,
                         self.mysql_password,
                         self.inc_dir,
@@ -285,16 +300,23 @@ class Backup(GeneralClass):
 
             elif product_type == 3:
 
-                args = "%s --defaults-file=%s  --port=%s --socket=%s --user=%s --password='%s'  --incremental %s --incremental-basedir %s/%s" % \
+                args = "%s --defaults-file=%s --user=%s --password='%s'  --incremental %s --incremental-basedir %s/%s" % \
                        (self.backup_tool,
                         self.mycnf,
-                        self.mysql_port,
-                        self.mysql_socket,
                         self.mysql_user,
                         self.mysql_password,
                         self.inc_dir,
                         self.inc_dir,
                         recent_inc)
+
+            if hasattr(self, 'mysql_socket'):
+                args += " --socket=%s" % (self.mysql_socket)
+            elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
+                args += " --host=%s" % self.mysql_host
+                args += " --port=%s" % self.mysql_port
+            else:
+                logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
+                return False
 
             status, output = subprocess.getstatusoutput(args)
             if status == 0:

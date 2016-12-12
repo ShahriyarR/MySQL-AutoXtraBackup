@@ -26,12 +26,18 @@ class PartialRecovery(GeneralClass):
 
             'user': self.mysql_user,
             'password': self.mysql_password,
-            'host': 'localhost',
             #'database': 'bck',
             'raise_on_warnings': True,
-            'port' : self.mysql_port
 
         }
+
+        if hasattr(self, 'mysql_socket'):
+            self.config['unix_socket'] = self.mysql_socket
+        elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
+            self.config['host'] = self.mysql_host
+            self.config['port'] = self.mysql_port
+        else:
+            logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
 
         try:
             self.cnx = mysql.connector.connect(**self.config)
