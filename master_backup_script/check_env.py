@@ -399,9 +399,11 @@ class CheckEnv:
                             if self.check_mysql_backupdir():
                                 if self.check_mysql_fullbackupdir():
                                     if self.check_mysql_incbackupdir():
-                                        if self.check_mysql_archive_dir():
+                                        if hasattr(self.backup_class_obj, 'archive_dir') and self.check_mysql_archive_dir():
                                             #if self.check_mysql_flush_log_user():
-                                                env_result = True
+                                            env_result = True
+                                        else:
+                                            env_result = True
 
 
 
