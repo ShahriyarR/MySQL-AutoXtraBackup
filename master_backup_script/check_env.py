@@ -365,7 +365,6 @@ class CheckEnv:
                     list_dir.append(i)
         else:
             logger.error("There is no /usr/lib/systemd/system folder, Continue")
-            logger.error("There is no /usr/lib/systemd/system folder, Continue")
 
 
         if product_result == 2:

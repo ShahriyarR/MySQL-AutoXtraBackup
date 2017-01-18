@@ -50,31 +50,21 @@ class Prepare(GeneralClass):
             logger.debug("You have no FULL backups. First please take FULL backup for preparing - - - - - - - - - - - - - -  #")
             logger.debug("####################################################################################################")
             exit(0)
+
         elif self.check_inc_backups() == 0:
             logger.debug("################################################################################################")
-            logger.debug("Preparing Full backup 1 time - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #")
+            logger.debug("Preparing Full Backup - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #")
             logger.debug("################################################################################################")
-            time.sleep(3)
-            args = '%s %s %s/%s' % (self.backup_tool, self.xtrabck_prepare, self.full_dir, self.recent_full_backup_file())
+            args = "%s --prepare --target-dir=%s/%s" % \
+                   (self.backup_tool,
+                    self.full_dir,
+                    self.recent_full_backup_file())
             status, output = subprocess.getstatusoutput(args)
+
             if status == 0:
                 logger.debug(output[-27:])
-                logger.debug("################################################################################################")
-                logger.debug("Preparing Again Full Backup for final usage. - - - - - - - - - - - - - - - - - - - - - - - - - #")
-                logger.debug("################################################################################################")
-
-                args2 = '%s --apply-log %s/%s' % (self.backup_tool, self.full_dir, self.recent_full_backup_file())
-                status2, output2 = subprocess.getstatusoutput(args2)
-                if status2 == 0:
-                    logger.debug(output2[-27:])
-                    return True
-                else:
-                    logger.error("FULL BACKUP 2nd PREPARE FAILED!")
-                    time.sleep(5)
-                    logger.error(output2)
-                    return False
             else:
-                logger.error("FULL BACKUP 1st PREPARE FAILED!")
+                logger.error("FULL BACKUP PREPARE FAILED!")
                 time.sleep(5)
                 logger.error(output)
                 return False
@@ -84,7 +74,11 @@ class Prepare(GeneralClass):
                   "Final prepare,will occur after preparing all inc backups - - - - - - - - - - - - - - - - -  - - - -#")
             logger.debug("####################################################################################################")
             time.sleep(3)
-            args = '%s %s %s/%s' % (self.backup_tool, self.xtrabck_prepare, self.full_dir, self.recent_full_backup_file())
+            args = '%s --prepare %s --target-dir=%s/%s' % \
+                                    (self.backup_tool,
+                                     self.xtrabck_prepare,
+                                     self.full_dir,
+                                     self.recent_full_backup_file())
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
                 logger.debug(output[-27:])
@@ -122,9 +116,13 @@ class Prepare(GeneralClass):
                         logger.debug("Preparing inc backups in sequence. inc backup dir/name is %s" % i)
                         logger.debug("####################################################################################################")
                         time.sleep(3)
-                        args = '%s %s %s/%s --incremental-dir=%s/%s' % (self.backup_tool, self.xtrabck_prepare,
-                                                                        self.full_dir, self.recent_full_backup_file(),
-                                                                        self.inc_dir, i)
+                        args = '%s --prepare %s --target-dir=%s/%s --incremental-dir=%s/%s' % \
+                                                                        (self.backup_tool,
+                                                                         self.xtrabck_prepare,
+                                                                         self.full_dir,
+                                                                         self.recent_full_backup_file(),
+                                                                         self.inc_dir,
+                                                                         i)
 
 
                         status, output = subprocess.getstatusoutput(args)
@@ -141,10 +139,12 @@ class Prepare(GeneralClass):
                         logger.debug("Preparing last incremental backup, inc backup dir/name is %s" % i)
                         logger.debug("####################################################################################################")
                         time.sleep(3)
-                        args2 = '%s --apply-log %s/%s --incremental-dir=%s/%s' % (self.backup_tool,
+                        args2 = '%s --prepare --target-dir=%s/%s --incremental-dir=%s/%s' % \
+                                                                                (self.backup_tool,
                                                                                  self.full_dir,
                                                                                  self.recent_full_backup_file(),
-                                                                                 self.inc_dir, i)
+                                                                                 self.inc_dir,
+                                                                                 i)
                         status2, output2 = subprocess.getstatusoutput(args2)
                         if status2 == 0:
                             logger.debug(output2[-27:])
@@ -155,22 +155,9 @@ class Prepare(GeneralClass):
                             return False
 
             logger.debug("####################################################################################################")
-            logger.debug("The end of Prepare Process. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
-            logger.debug("Preparing FULL backup Again: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #")
+            logger.debug("The end of the Prepare Stage. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
             logger.debug("####################################################################################################")
             time.sleep(3)
-
-            args3 = '%s --apply-log %s/%s' % (self.backup_tool, self.full_dir, self.recent_full_backup_file())
-
-            status3, output3 = subprocess.getstatusoutput(args3)
-            if status3 == 0:
-                logger.debug(output3[-27:])
-                return True
-            else:
-                logger.error("Full BACKUP PREPARE FAILED!")
-                time.sleep(5)
-                logger.error(output3)
-                return False
 
     #############################################################################################################
     # COPY-BACK PREPARED BACKUP
