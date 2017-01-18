@@ -196,7 +196,7 @@ class Backup(GeneralClass):
     def full_backup(self):
 
         # Taking Full backup with MySQL (Oracle)
-        args = "%s --defaults-file=%s --user=%s --password='%s'  %s" % (self.backup_tool,
+        args = "%s --defaults-file=%s --user=%s --password='%s'  --target-dir=%s --backup" % (self.backup_tool,
                                                                                                self.mycnf,
                                                                                                self.mysql_user,
                                                                                                self.mysql_password,
