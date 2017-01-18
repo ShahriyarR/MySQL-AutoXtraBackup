@@ -13,6 +13,9 @@ import shutil
 import time
 from general_conf.generalops import GeneralClass
 
+import logging
+logger = logging.getLogger(__name__)
+
 class Prepare(GeneralClass):
     def __init__(self):
         GeneralClass.__init__(self)
@@ -43,53 +46,53 @@ class Prepare(GeneralClass):
 
     def prepare_only_full_backup(self):
         if self.recent_full_backup_file() == 0:
-            print("####################################################################################################")
-            print("You have no FULL backups. First please take FULL backup for preparing - - - - - - - - - - - - - -  #")
-            print("####################################################################################################")
+            logger.debug("####################################################################################################")
+            logger.debug("You have no FULL backups. First please take FULL backup for preparing - - - - - - - - - - - - - -  #")
+            logger.debug("####################################################################################################")
             exit(0)
         elif self.check_inc_backups() == 0:
-            print("################################################################################################")
-            print("Preparing Full backup 1 time - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #")
-            print("################################################################################################")
+            logger.debug("################################################################################################")
+            logger.debug("Preparing Full backup 1 time - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #")
+            logger.debug("################################################################################################")
             time.sleep(3)
             args = '%s %s %s/%s' % (self.backup_tool, self.xtrabck_prepare, self.full_dir, self.recent_full_backup_file())
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
-                print(output[-27:])
-                print("################################################################################################")
-                print("Preparing Again Full Backup for final usage. - - - - - - - - - - - - - - - - - - - - - - - - - #")
-                print("################################################################################################")
+                logger.debug(output[-27:])
+                logger.debug("################################################################################################")
+                logger.debug("Preparing Again Full Backup for final usage. - - - - - - - - - - - - - - - - - - - - - - - - - #")
+                logger.debug("################################################################################################")
 
                 args2 = '%s --apply-log %s/%s' % (self.backup_tool, self.full_dir, self.recent_full_backup_file())
                 status2, output2 = subprocess.getstatusoutput(args2)
                 if status2 == 0:
-                    print(output2[-27:])
+                    logger.debug(output2[-27:])
                     return True
                 else:
-                    print("FULL BACKUP 2nd PREPARE FAILED!")
+                    logger.error("FULL BACKUP 2nd PREPARE FAILED!")
                     time.sleep(5)
-                    print(output2)
+                    logger.error(output2)
                     return False
             else:
-                print("FULL BACKUP 1st PREPARE FAILED!")
+                logger.error("FULL BACKUP 1st PREPARE FAILED!")
                 time.sleep(5)
-                print(output)
+                logger.error(output)
                 return False
 
         else:
-            print("Preparing Full backup 1 time. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#\n"
+            logger.debug("Preparing Full backup 1 time. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#\n"
                   "Final prepare,will occur after preparing all inc backups - - - - - - - - - - - - - - - - -  - - - -#")
-            print("####################################################################################################")
+            logger.debug("####################################################################################################")
             time.sleep(3)
             args = '%s %s %s/%s' % (self.backup_tool, self.xtrabck_prepare, self.full_dir, self.recent_full_backup_file())
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
-                print(output[-27:])
+                logger.debug(output[-27:])
                 return True
             else:
-                print("One time FULL BACKUP PREPARE FAILED!")
+                logger.error("One time FULL BACKUP PREPARE FAILED!")
                 time.sleep(5)
-                print(output)
+                logger.error(output)
                 return False
 
 
@@ -99,25 +102,25 @@ class Prepare(GeneralClass):
 
     def prepare_inc_full_backups(self):
         if self.check_inc_backups() == 0:
-            print("################################################################################################")
-            print("You have no Incremental backups. So will prepare only latest Full backup - - - - - - - - - - - #")
-            print("################################################################################################")
+            logger.debug("################################################################################################")
+            logger.debug("You have no Incremental backups. So will prepare only latest Full backup - - - - - - - - - - - #")
+            logger.debug("################################################################################################")
             time.sleep(3)
             self.prepare_only_full_backup()
         else:
-            print("####################################################################################################")
-            print("You have Incremental backups. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
+            logger.debug("####################################################################################################")
+            logger.debug("You have Incremental backups. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
             time.sleep(3)
             if self.prepare_only_full_backup():
-                print("####################################################################################################")
-                print("Preparing Incs: ")
+                logger.debug("####################################################################################################")
+                logger.debug("Preparing Incs: ")
                 time.sleep(3)
                 list_of_dir = sorted(os.listdir(self.inc_dir))
 
                 for i in list_of_dir:
                     if i != max(os.listdir(self.inc_dir)):
-                        print("Preparing inc backups in sequence. inc backup dir/name is %s" % i)
-                        print("####################################################################################################")
+                        logger.debug("Preparing inc backups in sequence. inc backup dir/name is %s" % i)
+                        logger.debug("####################################################################################################")
                         time.sleep(3)
                         args = '%s %s %s/%s --incremental-dir=%s/%s' % (self.backup_tool, self.xtrabck_prepare,
                                                                         self.full_dir, self.recent_full_backup_file(),
@@ -126,17 +129,17 @@ class Prepare(GeneralClass):
 
                         status, output = subprocess.getstatusoutput(args)
                         if status == 0:
-                            print(output[-27:])
+                            logger.debug(output[-27:])
                         else:
-                            print("Incremental BACKUP PREPARE FAILED!")
+                            logger.error("Incremental BACKUP PREPARE FAILED!")
                             time.sleep(5)
-                            print(output)
+                            logger.error(output)
                             return False
 
                     else:
-                        print("####################################################################################################")
-                        print("Preparing last incremental backup, inc backup dir/name is %s" % i)
-                        print("####################################################################################################")
+                        logger.debug("####################################################################################################")
+                        logger.debug("Preparing last incremental backup, inc backup dir/name is %s" % i)
+                        logger.debug("####################################################################################################")
                         time.sleep(3)
                         args2 = '%s --apply-log %s/%s --incremental-dir=%s/%s' % (self.backup_tool,
                                                                                  self.full_dir,
@@ -144,29 +147,29 @@ class Prepare(GeneralClass):
                                                                                  self.inc_dir, i)
                         status2, output2 = subprocess.getstatusoutput(args2)
                         if status2 == 0:
-                            print(output2[-27:])
+                            logger.debug(output2[-27:])
                         else:
-                            print("Incremental BACKUP PREPARE FAILED!")
+                            logger.error("Incremental BACKUP PREPARE FAILED!")
                             time.sleep(5)
-                            print(output2)
+                            logger.error(output2)
                             return False
 
-            print("####################################################################################################")
-            print("The end of Prepare Process. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
-            print("Preparing FULL backup Again: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #")
-            print("####################################################################################################")
+            logger.debug("####################################################################################################")
+            logger.debug("The end of Prepare Process. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
+            logger.debug("Preparing FULL backup Again: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #")
+            logger.debug("####################################################################################################")
             time.sleep(3)
 
             args3 = '%s --apply-log %s/%s' % (self.backup_tool, self.full_dir, self.recent_full_backup_file())
 
             status3, output3 = subprocess.getstatusoutput(args3)
             if status3 == 0:
-                print(output3[-27:])
+                logger.debug(output3[-27:])
                 return True
             else:
-                print("Full BACKUP PREPARE FAILED!")
+                logger.error("Full BACKUP PREPARE FAILED!")
                 time.sleep(5)
-                print(output3)
+                logger.error(output3)
                 return False
 
     #############################################################################################################
@@ -176,9 +179,9 @@ class Prepare(GeneralClass):
     def shutdown_mysql(self):
 
         # Shut Down MySQL
-        print("####################################################################################################")
-        print("Shutting Down MySQL server: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
-        print("####################################################################################################")
+        logger.debug("####################################################################################################")
+        logger.debug("Shutting Down MySQL server: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
+        logger.debug("####################################################################################################")
         time.sleep(3)
 
 
@@ -193,72 +196,72 @@ class Prepare(GeneralClass):
 
         status, output = subprocess.getstatusoutput(args)
         if status == 0:
-            print(output)
+            logger.debug(output)
             return True
         else:
-            print("Could not Shutdown MySQL!")
-            print("Refer to MySQL Error log file")
-            print(output)
+            logger.deberrorug("Could not Shutdown MySQL!")
+            logger.error("Refer to MySQL Error log file")
+            logger.error(output)
             return False
 
 
     def move_datadir(self):
 
         # Move datadir to new directory
-        print("####################################################################################################")
-        print("Moving MySQL datadir to /tmp/mysql: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
-        print("####################################################################################################")
+        logger.debug("####################################################################################################")
+        logger.debug("Moving MySQL datadir to /tmp/mysql: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
+        logger.debug("####################################################################################################")
         time.sleep(3)
         if os.path.isdir(self.tmpdir):
             rmdirc = 'rm -rf %s' % self.tmpdir
             status, output = subprocess.getstatusoutput(rmdirc)
 
             if status == 0:
-                print("Emptied /tmp/mysql directory ...")
+                logger.debug("Emptied /tmp/mysql directory ...")
 
                 try:
                     shutil.move(self.datadir, self.tmp)
-                    print("Moved datadir to /tmp/mysql ...")
+                    logger.debug("Moved datadir to /tmp/mysql ...")
                 except shutil.Error as err:
-                    print("Error occurred while moving datadir")
-                    print(err)
+                    logger.error("Error occurred while moving datadir")
+                    logger.error(err)
                     return False
 
-                print("Creating an empty data directory ...")
+                logger.debug("Creating an empty data directory ...")
                 makedir = self.mkdir_command
                 status2, output2 = subprocess.getstatusoutput(makedir)
                 if status2 == 0:
-                    print("/var/lib/mysql Created! ...")
+                    logger.debug("/var/lib/mysql Created! ...")
                 else:
-                    print("Error while creating datadir")
-                    print(output2)
+                    logger.error("Error while creating datadir")
+                    logger.error(output2)
                     return False
 
                 return True
 
             else:
-                print("Could not delete /tmp/mysql directory")
-                print(output)
+                logger.error("Could not delete /tmp/mysql directory")
+                logger.error(output)
                 return False
 
         else:
             try:
                 shutil.move(self.datadir, self.tmp)
-                print("Moved datadir to /tmp/mysql ...")
+                logger.debug("Moved datadir to /tmp/mysql ...")
             except shutil.Error as err:
-                print("Error occurred while moving datadir")
-                print(err)
+                logger.error("Error occurred while moving datadir")
+                logger.error(err)
                 return False
 
-            print("Creating an empty data directory ...")
+            logger.debug("Creating an empty data directory ...")
             makedir = self.mkdir_command
             status2, output2 = subprocess.getstatusoutput(makedir)
             if status2 == 0:
-                print("/var/lib/mysql Created! ...")
+                logger.debug("/var/lib/mysql Created! ...")
                 return True
             else:
-                print("Error while creating datadir")
-                print(output2)
+                logger.error("Error while creating datadir")
+                logger.error(output2)
                 return False
 
 
@@ -272,13 +275,13 @@ class Prepare(GeneralClass):
         status, output = subprocess.getstatusoutput(copy_back)
 
         if status == 0:
-            print("####################################################################################################")
-            print("Data copied back successfully! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #")
-            print("####################################################################################################")
+            logger.debug("####################################################################################################")
+            logger.debug("Data copied back successfully! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #")
+            logger.debug("####################################################################################################")
             return True
         else:
-            print("Error occurred while copying back data!")
-            print(output)
+            logger.error("Error occurred while copying back data!")
+            logger.error(output)
             return False
 
 
@@ -289,21 +292,21 @@ class Prepare(GeneralClass):
         status, output = subprocess.getstatusoutput(give_chown)
 
         if status == 0:
-            print("####################################################################################################")
-            print("New copied-back data now owned by mysql:mysql - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
-            print("####################################################################################################")
+            logger.debug("####################################################################################################")
+            logger.debug("New copied-back data now owned by mysql:mysql - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
+            logger.debug("####################################################################################################")
             return True
         else:
-            print("Error occurred while changing owner!")
-            print(output)
+            logger.error("Error occurred while changing owner!")
+            logger.error(output)
             return False
 
 
     def start_mysql_func(self):
         # Starting MySQL/Mariadb
-        print("####################################################################################################")
-        print("Starting MySQL/MariaDB server: ")
-        print("####################################################################################################")
+        logger.debug("####################################################################################################")
+        logger.debug("Starting MySQL/MariaDB server: ")
+        logger.debug("####################################################################################################")
         time.sleep(3)
 
         if self.result == 3:
@@ -321,24 +324,24 @@ class Prepare(GeneralClass):
         start_command = args
         status, output = subprocess.getstatusoutput(start_command)
         if status == 0:
-            print("Starting MySQL ...")
-            print(output)
+            logger.debug("Starting MySQL ...")
+            logger.debug(output)
             return True
         else:
-            print("Error occurred while starting MySQL!")
-            print(output)
+            logger.error("Error occurred while starting MySQL!")
+            logger.error(output)
             return False
 
 
 
     def copy(self):
 
-        print("####################################################################################################")
-        print("Copying Back Already Prepared Final Backup: - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
-        print("####################################################################################################")
+        logger.debug("####################################################################################################")
+        logger.debug("Copying Back Already Prepared Final Backup: - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
+        logger.debug("####################################################################################################")
         time.sleep(3)
         if len(os.listdir(self.datadir)) > 0:
-            print("MySQL Datadir is not empty!")
+            logger.debug("MySQL Datadir is not empty!")
             return False
         else:
             if self.run_xtra_copyback():
@@ -356,14 +359,14 @@ class Prepare(GeneralClass):
         if self.shutdown_mysql():
             if self.move_datadir():
                 if self.copy():
-                    print("####################################################################################################")
-                    print("All data copied back successfully your MySQL server is UP again. \n"
+                    logger.debug("####################################################################################################")
+                    logger.debug("All data copied back successfully your MySQL server is UP again. \n"
                             "Congratulations. \n"
                             "Backups are life savers")
-                    print("####################################################################################################")
+                    logger.debug("####################################################################################################")
                     return True
                 else:
-                    print("Error Occurred!")
+                    logger.error("Error Occurred!")
 
 
 
