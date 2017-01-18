@@ -99,6 +99,10 @@ class PartialRecovery(GeneralClass):
                     logger.debug("MySQL Version is, %s" % i[0])
                     logger.debug("You have correct version of MySQL")
                     return True
+                elif '5.7' in i[0]:
+                    logger.debug("MySQL Version is, %s" % i[0])
+                    logger.debug("You have correct version of MySQL")
+                    return True
                 else:
                     logger.error("Your MySQL server is not supported")
                     logger.error("MySQL version must be >= 5.6")
