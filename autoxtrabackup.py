@@ -54,7 +54,8 @@ def all_procedure(prepare, backup, partial, verbose, log):
     config = GeneralClass()
     if (verbose):
         logger.addHandler(logging.StreamHandler())
-    pid_file = pid.PidFile(piddir=config.pid_dir)
+    if hasattr(config, "pid_dir"):
+        pid_file = pid.PidFile(piddir=config.pid_dir)
     try:
         with pid_file: # User PidFile for locking to single instance
             if (not prepare) and (not backup) and (not partial):
