@@ -209,11 +209,12 @@ class Backup(GeneralClass):
         full_backup_dir = self.create_backup_directory(self.full_dir)
 
         # Taking Full backup with MySQL (Oracle)
-        args = "%s --defaults-file=%s --user=%s --password='%s'  --target-dir=%s --backup" % (self.backup_tool,
-                                                                                               self.mycnf,
-                                                                                               self.mysql_user,
-                                                                                               self.mysql_password,
-                                                                                               full_backup_dir)
+        args = "%s --defaults-file=%s --user=%s --password='%s' " \
+               " --target-dir=%s --backup" % (self.backup_tool,
+                                              self.mycnf,
+                                              self.mysql_user,
+                                              self.mysql_password,
+                                              full_backup_dir)
 
         if hasattr(self, 'mysql_socket'):
             args += " --socket=%s" %(self.mysql_socket)
@@ -248,7 +249,12 @@ class Backup(GeneralClass):
         check_env_obj = CheckEnv()
         product_type = check_env_obj.check_mysql_product()
 
-        if recent_inc == 0:
+        # Creating time-stamped incremental backup directory
+        inc_backup_dir = self.create_backup_directory(self.inc_dir)
+
+        # Checking if there is any incremental backup
+
+        if recent_inc == 0: # If there is no incremental backup
 
             # If you have a question why we check whether MariaDB or MySQL installed?
             # See BUG -> https://bugs.launchpad.net/percona-xtrabackup/+bug/1444541
@@ -257,7 +263,8 @@ class Backup(GeneralClass):
 
                 # Taking incremental backup with MariaDB. (--incremental-force-scan option will be added for BUG workaround)
 
-                args = "%s --defaults-file=%s --user=%s --password='%s' --incremental-force-scan --incremental %s --incremental-basedir %s/%s" % \
+                args = "%s --defaults-file=%s --user=%s --password='%s' " \
+                       "--incremental-force-scan --incremental %s --incremental-basedir %s/%s" % \
                        (self.backup_tool,
                         self.mycnf,
                         self.mysql_user,
@@ -267,13 +274,14 @@ class Backup(GeneralClass):
                         recent_bck)
 
             elif product_type == 3:
-
-                args = "%s --defaults-file=%s --user=%s --password='%s' --incremental %s --incremental-basedir %s/%s" % \
+                # Taking incremental backup with MySQL.
+                args = "%s --defaults-file=%s --user=%s --password='%s' " \
+                       "--target-dir=%s --incremental-basedir=%s/%s --backup" % \
                        (self.backup_tool,
                         self.mycnf,
                         self.mysql_user,
                         self.mysql_password,
-                        self.inc_dir,
+                        inc_backup_dir,
                         self.full_dir,
                         recent_bck)
 
@@ -296,13 +304,14 @@ class Backup(GeneralClass):
                 logger.error(output)
                 return False
 
-        else:
+        else: # If there is already existing incremental backup
 
             if product_type == 2:
 
                 # Taking incremental backup with MariaDB. (--incremental-force-scan option will be added for BUG workaround)
 
-                args = "%s --defaults-file=%s  --user=%s --password='%s' --incremental-force-scan --incremental %s --incremental-basedir %s/%s" % \
+                args = "%s --defaults-file=%s  --user=%s --password='%s' " \
+                       "--incremental-force-scan --incremental %s --incremental-basedir %s/%s" % \
                        (self.backup_tool,
                         self.mycnf,
                         self.mysql_user,
@@ -313,12 +322,13 @@ class Backup(GeneralClass):
 
             elif product_type == 3:
 
-                args = "%s --defaults-file=%s --user=%s --password='%s'  --incremental %s --incremental-basedir %s/%s" % \
+                args = "%s --defaults-file=%s --user=%s --password='%s'  " \
+                       "--target-dir=%s --incremental-basedir=%s/%s --backup" % \
                        (self.backup_tool,
                         self.mycnf,
                         self.mysql_user,
                         self.mysql_password,
-                        self.inc_dir,
+                        inc_backup_dir,
                         self.inc_dir,
                         recent_inc)
 
