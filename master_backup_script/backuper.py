@@ -17,6 +17,8 @@ from mysql.connector import errorcode
 from sys import exit
 from general_conf.generalops import GeneralClass
 import re
+from os.path import join
+from os import makedirs
 
 import logging
 logger = logging.getLogger(__name__)
@@ -56,6 +58,15 @@ class Backup(GeneralClass):
             return 1
         else:
             return 0
+
+    def create_backup_directory(self, directory):
+        new_backup_dir = join(directory, datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
+        try:
+            # Creating backup directory
+            makedirs(new_backup_dir)
+            return new_backup_dir
+        except Exception as err:
+            logger.error("Something went wrong in create_backup_directory(): {}".format(err))
 
     def recent_full_backup_file(self):
         # Return last full backup dir name
@@ -195,12 +206,14 @@ class Backup(GeneralClass):
 
     def full_backup(self):
 
+        full_backup_dir = self.create_backup_directory(self.full_dir)
+
         # Taking Full backup with MySQL (Oracle)
         args = "%s --defaults-file=%s --user=%s --password='%s'  --target-dir=%s --backup" % (self.backup_tool,
                                                                                                self.mycnf,
                                                                                                self.mysql_user,
                                                                                                self.mysql_password,
-                                                                                               self.full_dir)
+                                                                                               full_backup_dir)
 
         if hasattr(self, 'mysql_socket'):
             args += " --socket=%s" %(self.mysql_socket)
