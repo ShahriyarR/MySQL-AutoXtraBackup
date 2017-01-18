@@ -2,7 +2,7 @@ MySQL-AutoXtrabackup
 ====================
 
 MySQL AutoXtrabackup commandline tool written in Python 3.
-For community from Azerbaijan MySQL User Community: [MySQL Azerbaijan Community](http://mysql.az/about/).
+For community from Azerbaijan MySQL User Community: [MySQL Azerbaijan Community](http://mysql.az/).
 For any question please ask: [Email](mailto:rzayev.shahriyar@yandex.com)
 
 ===========
@@ -17,7 +17,7 @@ Requirements:
 -------------
 
     * Percona Xtrabackup (>= 2.2.10)
-    * Python 3 (tested version 3.3.2)
+    * Python 3 (tested version 3.5.3 on CentOS 7)
     * Official mysql-connector-python (>= 2.0.2 )
     * Python Click package (>= 3.3)
     * mysql-utilities (>=1.5.4)
@@ -38,9 +38,9 @@ Preparing System
 
     Installing Python 3 from source:
 
-        wget https://www.python.org/ftp/python/3.3.2/Python-3.3.2.tar.bz2
-        tar -xvf Python-3.3.2.tar.bz2
-        cd Python-3.3.2
+        wget https://www.python.org/ftp/python/3.5.3/Python-3.5.3.tgz
+        tar -xf Python-3.5.3.tgz
+        cd Python-3.5.3
         
         -- Open Setup.dist file and search for zlib, uncomment zlib notes:
         * nano Modules/Setup.dist
@@ -55,9 +55,9 @@ Preparing System
 	            -DUSE_SSL -I$(SSL)/include -I$(SSL)/include/openssl \
                 -L$(SSL)/lib -lssl -lcrypto
 
-        mkdir /opt/Python-3.3.2
-        ./configure --prefix=/opt/Python-3.3.2
-
+        mkdir /opt/Python-3.5.3
+        
+        ./configure --prefix=/opt/Python-3.5.3
         make
         make install
     
@@ -102,6 +102,22 @@ Project Structure:
     	* /etc/bck.conf         -- Config file will be created from general_conf/bck.conf
 
 ============
+
+
+Available Options:
+-----------------
+
+    autoxtrabackup --help
+    Usage: autoxtrabackup [OPTIONS]
+    Options:
+      --prepare                       Prepare/recover backups.
+      --backup                        Take full and incremental backups.
+      --partial                       Recover specified table (partial recovery).
+      --version                       Version information.
+      -v, --verbose                   Be verbose (print to console)
+      -l, --log [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                      Set log level
+      --help                          Show this message and exit.
 
 
 Usage:
