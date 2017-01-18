@@ -155,7 +155,7 @@ class Prepare(GeneralClass):
                             return False
 
             logger.debug("####################################################################################################")
-            logger.debug("The end of the Prepare Stage. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
+            logger.debug("The end of the Prepare Stage. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
             logger.debug("####################################################################################################")
             time.sleep(3)
 
@@ -215,10 +215,10 @@ class Prepare(GeneralClass):
                     return False
 
                 logger.debug("Creating an empty data directory ...")
-                makedir = self.mkdir_command
+                makedir = "mkdir %s" % (self.datadir)
                 status2, output2 = subprocess.getstatusoutput(makedir)
                 if status2 == 0:
-                    logger.debug("/var/lib/mysql Created! ...")
+                    logger.debug("Datadir is Created! ...")
                 else:
                     logger.error("Error while creating datadir")
                     logger.error(output2)
@@ -241,10 +241,10 @@ class Prepare(GeneralClass):
                 return False
 
             logger.debug("Creating an empty data directory ...")
-            makedir = self.mkdir_command
+            makedir = "mkdir %s" % (self.datadir)
             status2, output2 = subprocess.getstatusoutput(makedir)
             if status2 == 0:
-                logger.debug("/var/lib/mysql Created! ...")
+                logger.debug("Datadir is Created! ...")
                 return True
             else:
                 logger.error("Error while creating datadir")
@@ -255,9 +255,11 @@ class Prepare(GeneralClass):
     def run_xtra_copyback(self):
         # Running Xtrabackup with --copy-back option
 
-        copy_back = '%s --copy-back %s/%s' % (self.backup_tool,
-                                                  self.full_dir,
-                                                  self.recent_full_backup_file())
+        copy_back = '%s --copy-back --target-dir=%s/%s --datadir=%s' % \
+                                              (self.backup_tool,
+                                               self.full_dir,
+                                               self.recent_full_backup_file(),
+                                               self.datadir)
 
         status, output = subprocess.getstatusoutput(copy_back)
 
@@ -275,12 +277,12 @@ class Prepare(GeneralClass):
     def giving_chown(self):
         # Changing owner of datadir to mysql:mysql
         time.sleep(3)
-        give_chown = self.chown_command
+        give_chown="%s %s" % (self.chown_command, self.datadir)
         status, output = subprocess.getstatusoutput(give_chown)
 
         if status == 0:
             logger.debug("####################################################################################################")
-            logger.debug("New copied-back data now owned by mysql:mysql - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
+            logger.debug("New copied-back data now owned by specified user! - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
             logger.debug("####################################################################################################")
             return True
         else:

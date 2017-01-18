@@ -194,8 +194,8 @@ class PartialRecovery(GeneralClass):
 
         status, output = subprocess.getstatusoutput(command)
         if status == 0:
-            return output
             logger.debug("Success")
+            return output
         else:
             logger.error("Failed")
             logger.error(output)
