@@ -72,7 +72,6 @@ class GeneralClass:
             CM = con['Commands']
             self.start_mysql = CM['start_mysql_command']
             self.stop_mysql = CM['stop_mysql_command']
-            self.mkdir_command = CM['mkdir_command']
             self.chown_command = CM['chown_command']
             self.systemd_start_mysql = CM['systemd_start_mysql']
             self.systemd_stop_mysql = CM['systemd_stop_mysql']

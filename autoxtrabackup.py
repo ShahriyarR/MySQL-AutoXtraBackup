@@ -52,14 +52,11 @@ def print_version(ctx, param, value):
 def all_procedure(prepare, backup, partial, verbose, log):
     logger.setLevel(log)
     config = GeneralClass()
-    conf = GeneralClass()
+
     if (verbose):
         logger.addHandler(logging.StreamHandler())
-    if hasattr(config, "pid_dir"):
-        pid_file = pid.PidFile(piddir=conf.pid_dir)
-        logger.debug("PID_FILE", pid_file)
-    else:
-        logger.debug("No PID_DIR")
+    pid_file = pid.PidFile(piddir=config.pid_dir)
+
     try:
         with pid_file: # User PidFile for locking to single instance
             if (not prepare) and (not backup) and (not partial):
