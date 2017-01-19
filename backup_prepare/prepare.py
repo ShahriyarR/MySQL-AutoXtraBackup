@@ -55,13 +55,28 @@ class Prepare(GeneralClass):
             logger.debug("################################################################################################")
             logger.debug("Preparing Full Backup - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #")
             logger.debug("################################################################################################")
+
+            # Check if decompression enabled
+            if hasattr(self, 'decompress'):
+                decmp = "%s --decompress=%s --target-dir=%s/%s" % \
+                        (self.backup_tool,
+                         self.decompress,
+                         self.full_dir,
+                         self.recent_full_backup_file())
+                logger.debug("Trying to decompress backup")
+                status, output = subprocess.getstatusoutput(decmp)
+                if status == 0:
+                    logger.debug(output[-27:])
+                    logger.debug("Decompressed")
+                else:
+                    logger.error("FULL BACKUP DECOMPRESSION FAILED!")
+                    time.sleep(5)
+                    logger.error(output)
+
             args = "%s --prepare --target-dir=%s/%s" % \
                    (self.backup_tool,
                     self.full_dir,
                     self.recent_full_backup_file())
-
-            if hasattr(self, 'decompress'):
-                args += " --decompress=%s" % (self.decompress)
 
             status, output = subprocess.getstatusoutput(args)
 
@@ -78,14 +93,31 @@ class Prepare(GeneralClass):
                   "Final prepare,will occur after preparing all inc backups - - - - - - - - - - - - - - - - -  - - - -#")
             logger.debug("####################################################################################################")
             time.sleep(3)
+
+            # Check if decompression enabled, if it is, decompress backup prior prepare
+            if hasattr(self, 'decompress'):
+                decmp = "%s --decompress=%s --target-dir=%s/%s" % \
+                        (self.backup_tool,
+                         self.decompress,
+                         self.full_dir,
+                         self.recent_full_backup_file())
+                logger.debug("Trying to decompress backup")
+                status, output = subprocess.getstatusoutput(decmp)
+                if status == 0:
+                    logger.debug(output[-27:])
+                    logger.debug("Decompressed")
+                else:
+                    logger.error("FULL BACKUP DECOMPRESSION FAILED!")
+                    time.sleep(5)
+                    logger.error(output)
+
+
             args = '%s --prepare %s --target-dir=%s/%s' % \
                                     (self.backup_tool,
                                      self.xtrabck_prepare,
                                      self.full_dir,
                                      self.recent_full_backup_file())
 
-            if hasattr(self, 'decompress'):
-                args += " --decompress=%s" % (self.decompress)
 
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
@@ -124,6 +156,26 @@ class Prepare(GeneralClass):
                         logger.debug("Preparing inc backups in sequence. inc backup dir/name is %s" % i)
                         logger.debug("####################################################################################################")
                         time.sleep(3)
+
+                        # Check if decompression enabled, if it is, decompress backup prior prepare
+                        if hasattr(self, 'decompress'):
+                            decmp = "%s --decompress=%s --target-dir=%s/%s" % \
+                                    (self.backup_tool,
+                                     self.decompress,
+                                     self.inc_dir,
+                                     i)
+                            logger.debug("Trying to decompress backup")
+                            status, output = subprocess.getstatusoutput(decmp)
+                            if status == 0:
+                                logger.debug(output[-27:])
+                                logger.debug("Decompressed")
+                            else:
+                                logger.error("INCREMENTAL BACKUP DECOMPRESSION FAILED!")
+                                time.sleep(5)
+                                logger.error(output)
+
+
+
                         args = '%s --prepare %s --target-dir=%s/%s --incremental-dir=%s/%s' % \
                                                                         (self.backup_tool,
                                                                          self.xtrabck_prepare,
@@ -132,8 +184,6 @@ class Prepare(GeneralClass):
                                                                          self.inc_dir,
                                                                          i)
 
-                        if hasattr(self, 'decompress'):
-                            args += " --decompress=%s" % (self.decompress)
 
 
                         status, output = subprocess.getstatusoutput(args)
@@ -150,6 +200,25 @@ class Prepare(GeneralClass):
                         logger.debug("Preparing last incremental backup, inc backup dir/name is %s" % i)
                         logger.debug("####################################################################################################")
                         time.sleep(3)
+
+                        # Check if decompression enabled, if it is, decompress backup prior prepare
+                        if hasattr(self, 'decompress'):
+                            decmp = "%s --decompress=%s --target-dir=%s/%s" % \
+                                    (self.backup_tool,
+                                     self.decompress,
+                                     self.inc_dir,
+                                     i)
+                            logger.debug("Trying to decompress backup")
+                            status, output = subprocess.getstatusoutput(decmp)
+                            if status == 0:
+                                logger.debug(output[-27:])
+                                logger.debug("Decompressed")
+                            else:
+                                logger.error("INCREMENTAL BACKUP DECOMPRESSION FAILED!")
+                                time.sleep(5)
+                                logger.error(output)
+
+                        
                         args2 = '%s --prepare --target-dir=%s/%s --incremental-dir=%s/%s' % \
                                                                                 (self.backup_tool,
                                                                                  self.full_dir,
@@ -157,8 +226,6 @@ class Prepare(GeneralClass):
                                                                                  self.inc_dir,
                                                                                  i)
 
-                        if hasattr(self, 'decompress'):
-                            args += " --decompress=%s" % (self.decompress)
 
                         status2, output2 = subprocess.getstatusoutput(args2)
                         if status2 == 0:
