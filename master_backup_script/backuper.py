@@ -225,7 +225,7 @@ class Backup(GeneralClass):
             logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
             return False
 
-        # Adding compression support
+        # Adding compression support for full backup
         if hasattr(self, 'compress'):
             args += " --compress=%s" % (self.compress)
         if hasattr(self, 'compress-chunk-size'):
@@ -303,6 +303,16 @@ class Backup(GeneralClass):
                 logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
                 return False
 
+            # Adding compression support for incremental backup
+            if hasattr(self, 'compress'):
+                args += " --compress=%s" % (self.compress)
+            if hasattr(self, 'compress-chunk-size'):
+                args += " --compress-chunk-size=%s" % (self.compress_chunk_size)
+            if hasattr(self, 'compress-threads'):
+                args += " --compress-threads=%s" % (self.compress_threads)
+
+
+
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
                 logger.debug(output[-27:])
@@ -349,6 +359,14 @@ class Backup(GeneralClass):
             else:
                 logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
                 return False
+
+                # Adding compression support for incremental backup
+            if hasattr(self, 'compress'):
+                args += " --compress=%s" % (self.compress)
+            if hasattr(self, 'compress-chunk-size'):
+                args += " --compress-chunk-size=%s" % (self.compress_chunk_size)
+            if hasattr(self, 'compress-threads'):
+                args += " --compress-threads=%s" % (self.compress_threads)
 
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
