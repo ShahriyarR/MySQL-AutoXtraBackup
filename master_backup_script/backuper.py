@@ -225,6 +225,15 @@ class Backup(GeneralClass):
             logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
             return False
 
+        # Adding compression support
+        if hasattr(self, 'compress'):
+            args += " --compress=%s" % (self.compress)
+        if hasattr(self, 'compress-chunk-size'):
+            args += " --compress-chunk-size=%s" % (self.compress_chunk_size)
+        if hasattr(self, 'compress-threads'):
+            args += " --compress-threads=%s" % (self.compress_threads)
+
+
 
         logger.debug("Starting %s", self.backup_tool)
         status, output = subprocess.getstatusoutput(args)

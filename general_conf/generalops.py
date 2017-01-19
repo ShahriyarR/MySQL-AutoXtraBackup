@@ -69,6 +69,16 @@ class GeneralClass:
                 if 'remote_dir' in RM:
                     self.remote_dir = RM['remote_dir']
 
+            COM = con['Compress']
+            if 'compress' in COM:
+                self.compress = COM['compress']
+            if 'compress-chunk-size' in COM:
+                self.compress_chunk_size = COM['compress-chunk-size']
+            if 'compress-threads' in COM:
+                self.compress_threads = COM['compress-threads']
+            if 'decompress' in COM:
+                self.decompress = COM['decompress']
+
             CM = con['Commands']
             self.start_mysql = CM['start_mysql_command']
             self.stop_mysql = CM['stop_mysql_command']
