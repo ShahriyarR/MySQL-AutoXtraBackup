@@ -59,6 +59,10 @@ class Prepare(GeneralClass):
                    (self.backup_tool,
                     self.full_dir,
                     self.recent_full_backup_file())
+
+            if hasattr(self, 'decompress'):
+                args += " --decompress=%s" % (self.decompress)
+
             status, output = subprocess.getstatusoutput(args)
 
             if status == 0:
@@ -79,6 +83,10 @@ class Prepare(GeneralClass):
                                      self.xtrabck_prepare,
                                      self.full_dir,
                                      self.recent_full_backup_file())
+
+            if hasattr(self, 'decompress'):
+                args += " --decompress=%s" % (self.decompress)
+
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
                 logger.debug(output[-27:])
@@ -124,6 +132,9 @@ class Prepare(GeneralClass):
                                                                          self.inc_dir,
                                                                          i)
 
+                        if hasattr(self, 'decompress'):
+                            args += " --decompress=%s" % (self.decompress)
+
 
                         status, output = subprocess.getstatusoutput(args)
                         if status == 0:
@@ -145,6 +156,10 @@ class Prepare(GeneralClass):
                                                                                  self.recent_full_backup_file(),
                                                                                  self.inc_dir,
                                                                                  i)
+
+                        if hasattr(self, 'decompress'):
+                            args += " --decompress=%s" % (self.decompress)
+
                         status2, output2 = subprocess.getstatusoutput(args2)
                         if status2 == 0:
                             logger.debug(output2[-27:])
