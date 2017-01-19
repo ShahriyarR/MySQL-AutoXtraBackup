@@ -218,7 +218,7 @@ class Prepare(GeneralClass):
                                 time.sleep(5)
                                 logger.error(output)
 
-                        
+
                         args2 = '%s --prepare --target-dir=%s/%s --incremental-dir=%s/%s' % \
                                                                                 (self.backup_tool,
                                                                                  self.full_dir,
