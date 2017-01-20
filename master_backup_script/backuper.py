@@ -245,6 +245,7 @@ class Backup(GeneralClass):
         if hasattr(self, 'encrypt-chunk-size'):
             args += " --encrypt-chunk-size=%s" % (self.encrypt_chunk_size)
 
+        logger.debug("The following backup command will be executed %s", args)
 
         logger.debug("Starting %s", self.backup_tool)
         status, output = subprocess.getstatusoutput(args)
@@ -334,6 +335,7 @@ class Backup(GeneralClass):
             if hasattr(self, 'encrypt-chunk-size'):
                 args += " --encrypt-chunk-size=%s" % (self.encrypt_chunk_size)
 
+            logger.debug("The following backup command will be executed %s", args)
 
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
@@ -402,6 +404,7 @@ class Backup(GeneralClass):
             if hasattr(self, 'encrypt-chunk-size'):
                 args += " --encrypt-chunk-size=%s" % (self.encrypt_chunk_size)
 
+            logger.debug("The following backup command will be executed %s", args)
 
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
