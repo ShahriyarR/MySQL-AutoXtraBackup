@@ -56,6 +56,24 @@ class Prepare(GeneralClass):
             logger.debug("Preparing Full Backup - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #")
             logger.debug("################################################################################################")
 
+            # Check if decryption enabled
+            if hasattr(self, 'decrypt'):
+                decr = "%s --decrypt=%s --encrypt-key=%s --target-dir=%s/%s" % \
+                       (self.backup_tool,
+                        self.decrypt,
+                        self.encrypt_key,
+                        self.full_dir,
+                        self.recent_full_backup_file())
+                logger.debug("Trying to decrypt backup")
+                status, output = subprocess.getstatusoutput(decr)
+                if status == 0:
+                    logger.debug(output[-27:])
+                    logger.debug("Decrypted!")
+                else:
+                    logger.error("FULL BACKUP DECRYPT FAILED!")
+                    time.sleep(5)
+                    logger.error(output)
+
             # Check if decompression enabled
             if hasattr(self, 'decompress'):
                 decmp = "%s --decompress=%s --target-dir=%s/%s" % \
@@ -93,6 +111,24 @@ class Prepare(GeneralClass):
                   "Final prepare,will occur after preparing all inc backups - - - - - - - - - - - - - - - - -  - - - -#")
             logger.debug("####################################################################################################")
             time.sleep(3)
+
+            # Check if decryption enabled
+            if hasattr(self, 'decrypt'):
+                decr = "%s --decrypt=%s --encrypt-key=%s --target-dir=%s/%s" % \
+                       (self.backup_tool,
+                        self.decrypt,
+                        self.encrypt_key,
+                        self.full_dir,
+                        self.recent_full_backup_file())
+                logger.debug("Trying to decrypt backup")
+                status, output = subprocess.getstatusoutput(decr)
+                if status == 0:
+                    logger.debug(output[-27:])
+                    logger.debug("Decrypted!")
+                else:
+                    logger.error("FULL BACKUP DECRYPT FAILED!")
+                    time.sleep(5)
+                    logger.error(output)
 
             # Check if decompression enabled, if it is, decompress backup prior prepare
             if hasattr(self, 'decompress'):
@@ -157,6 +193,24 @@ class Prepare(GeneralClass):
                         logger.debug("####################################################################################################")
                         time.sleep(3)
 
+                        # Check if decryption enabled
+                        if hasattr(self, 'decrypt'):
+                            decr = "%s --decrypt=%s --encrypt-key=%s --target-dir=%s/%s" % \
+                                   (self.backup_tool,
+                                    self.decrypt,
+                                    self.encrypt_key,
+                                    self.inc_dir,
+                                    i)
+                            logger.debug("Trying to decrypt backup")
+                            status, output = subprocess.getstatusoutput(decr)
+                            if status == 0:
+                                logger.debug(output[-27:])
+                                logger.debug("Decrypted!")
+                            else:
+                                logger.error("FULL BACKUP DECRYPT FAILED!")
+                                time.sleep(5)
+                                logger.error(output)
+
                         # Check if decompression enabled, if it is, decompress backup prior prepare
                         if hasattr(self, 'decompress'):
                             decmp = "%s --decompress=%s --target-dir=%s/%s" % \
@@ -200,6 +254,24 @@ class Prepare(GeneralClass):
                         logger.debug("Preparing last incremental backup, inc backup dir/name is %s" % i)
                         logger.debug("####################################################################################################")
                         time.sleep(3)
+
+                        # Check if decryption enabled
+                        if hasattr(self, 'decrypt'):
+                            decr = "%s --decrypt=%s --encrypt-key=%s --target-dir=%s/%s" % \
+                                   (self.backup_tool,
+                                    self.decrypt,
+                                    self.encrypt_key,
+                                    self.inc_dir,
+                                    i)
+                            logger.debug("Trying to decrypt backup")
+                            status, output = subprocess.getstatusoutput(decr)
+                            if status == 0:
+                                logger.debug(output[-27:])
+                                logger.debug("Decrypted!")
+                            else:
+                                logger.error("FULL BACKUP DECRYPT FAILED!")
+                                time.sleep(5)
+                                logger.error(output)
 
                         # Check if decompression enabled, if it is, decompress backup prior prepare
                         if hasattr(self, 'decompress'):

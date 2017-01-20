@@ -93,6 +93,8 @@ class GeneralClass:
                 self.encrypt_threads = ENC['encrypt_threads']
             if 'encrypt_chunk_size' in ENC:
                 self.encrypt_chunk_size = ENC['encrypt_chunk_size']
+            if 'decrypt' in BCK:
+                self.decrypt = ENC['decrypt']
 
 
             CM = con['Commands']
