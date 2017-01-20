@@ -72,24 +72,24 @@ class GeneralClass:
             COM = con['Compress']
             if 'compress' in COM:
                 self.compress = COM['compress']
-            if 'compress-chunk-size' in COM:
-                self.compress_chunk_size = COM['compress-chunk-size']
-            if 'compress-threads' in COM:
-                self.compress_threads = COM['compress-threads']
+            if 'compress_chunk_size' in COM:
+                self.compress_chunk_size = COM['compress_chunk_size']
+            if 'compress_threads' in COM:
+                self.compress_threads = COM['compress_threads']
             if 'decompress' in COM:
                 self.decompress = COM['decompress']
 
             ENC = con['Encrypt']
             if 'encrypt' in ENC:
                 self.encrypt = ENC['encrypt']
-            if 'encrypt-key' in ENC:
-                self.encrypt_key = ENC['encrypt-key']
-            if 'encrypt-key-file' in ENC:
-                self.encrypt_key_file = ENC['encrypt-key-file']
-            if 'encrypt-threads' in ENC:
-                self.encrypt_threads = ENC['encrypt-threads']
-            if 'encrypt-chunk-size' in ENC:
-                self.encrypt_chunk_size = ENC['encrypt-chunk-size']
+            if 'encrypt_key' in ENC:
+                self.encrypt_key = ENC['encrypt_key']
+            if 'encrypt_key_file' in ENC:
+                self.encrypt_key_file = ENC['encrypt_key_file']
+            if 'encrypt_threads' in ENC:
+                self.encrypt_threads = ENC['encrypt_threads']
+            if 'encrypt_chunk_size' in ENC:
+                self.encrypt_chunk_size = ENC['encrypt_chunk_size']
 
 
             CM = con['Commands']
