@@ -35,7 +35,7 @@ class GeneralClass:
 
             ######################################################
 
-            self.xtrabck_prepare = DB['xtra_prepare']
+
             self.datadir = DB['datadir']
             self.tmpdir = DB['tmpdir']
             self.tmp = DB['tmp']
@@ -51,6 +51,7 @@ class GeneralClass:
             self.full_dir = self.backupdir + '/full'
             self.inc_dir = self.backupdir + '/inc'
             self.backup_tool = BCK['backup_tool']
+            self.xtrabck_prepare = BCK['xtra_prepare']
             if 'full_backup_interval' in BCK:
                 self.full_backup_interval = humanfriendly.parse_timespan(BCK['full_backup_interval'])
             else:
@@ -80,6 +81,8 @@ class GeneralClass:
                 self.decompress = COM['decompress']
 
             ENC = con['Encrypt']
+            if 'xbcrypt' in ENC:
+                self.xbcrypt = ENC['xbcrypt']
             if 'encrypt' in ENC:
                 self.encrypt = ENC['encrypt']
             if 'encrypt_key' in ENC:

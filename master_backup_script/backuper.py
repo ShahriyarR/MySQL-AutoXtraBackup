@@ -335,8 +335,29 @@ class Backup(GeneralClass):
             if hasattr(self, 'encrypt_chunk_size'):
                 args += " --encrypt-chunk-size=%s" % (self.encrypt_chunk_size)
 
-            logger.debug("The following backup command will be executed %s", args)
 
+            if 'encrypt' in args:
+                logger.debug("Applying workaround for LP #1444255")
+                xbcrypt_command = "%s -d -k %s -a %s -i %s/%s/xtrabackup_checkpoints.xbcrypt " \
+                                  "-o %s/%s/xtrabackup_checkpoints" % \
+                                  (self.xbcrypt,
+                                   self.encrypt_key,
+                                   self.encrypt,
+                                   self.full_dir,
+                                   recent_bck,
+                                   self.full_dir,
+                                   recent_bck)
+                logger.debug("The following xbcrypt command will be executed %s", xbcrypt_command)
+                status, output = subprocess.getstatusoutput(xbcrypt_command)
+                if status == 0:
+                    logger.debug(output[-27:])
+                else:
+                    logger.error("XBCRYPT COMMAND FAILED!")
+                    time.sleep(5)
+                    logger.error(output)
+                    return False
+
+            logger.debug("The following backup command will be executed %s", args)
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
                 logger.debug(output[-27:])
@@ -403,6 +424,28 @@ class Backup(GeneralClass):
                 args += " --encrypt-threads=%s" % (self.encrypt_threads)
             if hasattr(self, 'encrypt_chunk_size'):
                 args += " --encrypt-chunk-size=%s" % (self.encrypt_chunk_size)
+
+
+            if 'encrypt' in args:
+                logger.debug("Applying workaround for LP #1444255")
+                xbcrypt_command = "%s -d -k %s -a %s -i %s/%s/xtrabackup_checkpoints.xbcrypt " \
+                                  "-o %s/%s/xtrabackup_checkpoints" % \
+                                  (self.xbcrypt,
+                                   self.encrypt_key,
+                                   self.encrypt,
+                                   self.inc_dir,
+                                   recent_inc,
+                                   self.inc_dir,
+                                   recent_inc)
+                logger.debug("The following xbcrypt command will be executed %s", xbcrypt_command)
+                status, output = subprocess.getstatusoutput(xbcrypt_command)
+                if status == 0:
+                    logger.debug(output[-27:])
+                else:
+                    logger.error("XBCRYPT COMMAND FAILED!")
+                    time.sleep(5)
+                    logger.error(output)
+                    return False
 
             logger.debug("The following backup command will be executed %s", args)
 
