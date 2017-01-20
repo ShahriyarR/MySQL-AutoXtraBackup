@@ -306,7 +306,7 @@ class Prepare(GeneralClass):
                                                                                  self.inc_dir,
                                                                                  i)
 
-                        logger.debug("Running prepare command -> %s", args)
+                        logger.debug("Running prepare command -> %s", args2)
                         status2, output2 = subprocess.getstatusoutput(args2)
                         if status2 == 0:
                             logger.debug(output2[-27:])
