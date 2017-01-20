@@ -401,7 +401,7 @@ class Backup(GeneralClass):
                 args += " --encrypt-key-file=%s" % (self.encrypt_key_file)
             if hasattr(self, 'encrypt_threads'):
                 args += " --encrypt-threads=%s" % (self.encrypt_threads)
-            if hasattr(self, 'encrypt_chunk-size'):
+            if hasattr(self, 'encrypt_chunk_size'):
                 args += " --encrypt-chunk-size=%s" % (self.encrypt_chunk_size)
 
             logger.debug("The following backup command will be executed %s", args)
