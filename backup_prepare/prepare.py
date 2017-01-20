@@ -65,6 +65,7 @@ class Prepare(GeneralClass):
                         self.full_dir,
                         self.recent_full_backup_file())
                 logger.debug("Trying to decrypt backup")
+                logger.debug("Running decrypt command -> %s", decr)
                 status, output = subprocess.getstatusoutput(decr)
                 if status == 0:
                     logger.debug(output[-27:])
@@ -82,6 +83,7 @@ class Prepare(GeneralClass):
                          self.full_dir,
                          self.recent_full_backup_file())
                 logger.debug("Trying to decompress backup")
+                logger.debug("Running decompress command -> %s", decmp)
                 status, output = subprocess.getstatusoutput(decmp)
                 if status == 0:
                     logger.debug(output[-27:])
@@ -96,6 +98,7 @@ class Prepare(GeneralClass):
                     self.full_dir,
                     self.recent_full_backup_file())
 
+            logger.debug("Running prepare command -> %s", args)
             status, output = subprocess.getstatusoutput(args)
 
             if status == 0:
@@ -121,6 +124,7 @@ class Prepare(GeneralClass):
                         self.full_dir,
                         self.recent_full_backup_file())
                 logger.debug("Trying to decrypt backup")
+                logger.debug("Running decrypt command -> %s", decr)
                 status, output = subprocess.getstatusoutput(decr)
                 if status == 0:
                     logger.debug(output[-27:])
@@ -138,6 +142,7 @@ class Prepare(GeneralClass):
                          self.full_dir,
                          self.recent_full_backup_file())
                 logger.debug("Trying to decompress backup")
+                logger.debug("Running decompress command -> %s", decmp)
                 status, output = subprocess.getstatusoutput(decmp)
                 if status == 0:
                     logger.debug(output[-27:])
@@ -154,7 +159,7 @@ class Prepare(GeneralClass):
                                      self.full_dir,
                                      self.recent_full_backup_file())
 
-
+            logger.debug("Running prepare command -> %s", args)
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
                 logger.debug(output[-27:])
@@ -202,6 +207,7 @@ class Prepare(GeneralClass):
                                     self.inc_dir,
                                     i)
                             logger.debug("Trying to decrypt backup")
+                            logger.debug("Running decrypt command -> %s", decr)
                             status, output = subprocess.getstatusoutput(decr)
                             if status == 0:
                                 logger.debug(output[-27:])
@@ -219,6 +225,7 @@ class Prepare(GeneralClass):
                                      self.inc_dir,
                                      i)
                             logger.debug("Trying to decompress backup")
+                            logger.debug("Running decompress command -> %s", decmp)
                             status, output = subprocess.getstatusoutput(decmp)
                             if status == 0:
                                 logger.debug(output[-27:])
@@ -238,8 +245,7 @@ class Prepare(GeneralClass):
                                                                          self.inc_dir,
                                                                          i)
 
-
-
+                        logger.debug("Running prepare command -> %s", args)
                         status, output = subprocess.getstatusoutput(args)
                         if status == 0:
                             logger.debug(output[-27:])
@@ -264,6 +270,7 @@ class Prepare(GeneralClass):
                                     self.inc_dir,
                                     i)
                             logger.debug("Trying to decrypt backup")
+                            logger.debug("Running decrypt command -> %s", decr)
                             status, output = subprocess.getstatusoutput(decr)
                             if status == 0:
                                 logger.debug(output[-27:])
@@ -281,6 +288,7 @@ class Prepare(GeneralClass):
                                      self.inc_dir,
                                      i)
                             logger.debug("Trying to decompress backup")
+                            logger.debug("Running decompress command -> %s", decmp)
                             status, output = subprocess.getstatusoutput(decmp)
                             if status == 0:
                                 logger.debug(output[-27:])
@@ -298,7 +306,7 @@ class Prepare(GeneralClass):
                                                                                  self.inc_dir,
                                                                                  i)
 
-
+                        logger.debug("Running prepare command -> %s", args)
                         status2, output2 = subprocess.getstatusoutput(args2)
                         if status2 == 0:
                             logger.debug(output2[-27:])
