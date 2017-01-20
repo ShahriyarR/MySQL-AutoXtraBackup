@@ -79,6 +79,19 @@ class GeneralClass:
             if 'decompress' in COM:
                 self.decompress = COM['decompress']
 
+            ENC = con['Encrypt']
+            if 'encrypt' in ENC:
+                self.encrypt = ENC['encrypt']
+            if 'encrypt-key' in ENC:
+                self.encrypt_key = ENC['encrypt-key']
+            if 'encrypt-key-file' in ENC:
+                self.encrypt_key_file = ENC['encrypt-key-file']
+            if 'encrypt-threads' in ENC:
+                self.encrypt_threads = ENC['encrypt-threads']
+            if 'encrypt-chunk-size' in ENC:
+                self.encrypt_chunk_size = ENC['encrypt-chunk-size']
+
+
             CM = con['Commands']
             self.start_mysql = CM['start_mysql_command']
             self.stop_mysql = CM['stop_mysql_command']

@@ -233,6 +233,17 @@ class Backup(GeneralClass):
         if hasattr(self, 'compress-threads'):
             args += " --compress-threads=%s" % (self.compress_threads)
 
+        # Adding encryption support for full backup
+        if hasattr(self, 'encrypt'):
+            args += " --encrypt=%s" % (self.encrypt)
+        if hasattr(self, 'encrypt-key'):
+            args += " --encrypt-key=%s" % (self.encrypt_key)
+        if hasattr(self, 'encrypt-key-file'):
+            args += " --encrypt-key-file=%s" % (self.encrypt_key_file)
+        if hasattr(self, 'encrypt-threads'):
+            args += " --encrypt-threads=%s" % (self.encrypt_threads)
+        if hasattr(self, 'encrypt-chunk-size'):
+            args += " --encrypt-chunk-size=%s" % (self.encrypt_chunk_size)
 
 
         logger.debug("Starting %s", self.backup_tool)
@@ -311,6 +322,17 @@ class Backup(GeneralClass):
             if hasattr(self, 'compress-threads'):
                 args += " --compress-threads=%s" % (self.compress_threads)
 
+            # Adding encryption support for incremental backup
+            if hasattr(self, 'encrypt'):
+                args += " --encrypt=%s" % (self.encrypt)
+            if hasattr(self, 'encrypt-key'):
+                args += " --encrypt-key=%s" % (self.encrypt_key)
+            if hasattr(self, 'encrypt-key-file'):
+                args += " --encrypt-key-file=%s" % (self.encrypt_key_file)
+            if hasattr(self, 'encrypt-threads'):
+                args += " --encrypt-threads=%s" % (self.encrypt_threads)
+            if hasattr(self, 'encrypt-chunk-size'):
+                args += " --encrypt-chunk-size=%s" % (self.encrypt_chunk_size)
 
 
             status, output = subprocess.getstatusoutput(args)
@@ -360,13 +382,26 @@ class Backup(GeneralClass):
                 logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
                 return False
 
-                # Adding compression support for incremental backup
+            # Adding compression support for incremental backup
             if hasattr(self, 'compress'):
                 args += " --compress=%s" % (self.compress)
             if hasattr(self, 'compress-chunk-size'):
                 args += " --compress-chunk-size=%s" % (self.compress_chunk_size)
             if hasattr(self, 'compress-threads'):
                 args += " --compress-threads=%s" % (self.compress_threads)
+
+            # Adding encryption support for incremental backup
+            if hasattr(self, 'encrypt'):
+                args += " --encrypt=%s" % (self.encrypt)
+            if hasattr(self, 'encrypt-key'):
+                args += " --encrypt-key=%s" % (self.encrypt_key)
+            if hasattr(self, 'encrypt-key-file'):
+                args += " --encrypt-key-file=%s" % (self.encrypt_key_file)
+            if hasattr(self, 'encrypt-threads'):
+                args += " --encrypt-threads=%s" % (self.encrypt_threads)
+            if hasattr(self, 'encrypt-chunk-size'):
+                args += " --encrypt-chunk-size=%s" % (self.encrypt_chunk_size)
+
 
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
