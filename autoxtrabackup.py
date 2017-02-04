@@ -1,5 +1,3 @@
-#!/opt/Python-3.3.2/bin/python3
-
 import click
 from master_backup_script.backuper import Backup
 from backup_prepare.prepare import Prepare
@@ -35,8 +33,8 @@ def print_version(ctx, param, value):
     click.echo("Developed by Shahriyar Rzayev from Azerbaijan MUG(http://mysql.az)")
     click.echo("Link : https://github.com/ShahriyarR/MySQL-AutoXtraBackup")
     click.echo("Email: rzayev.shahriyar@yandex.com")
-    click.echo("Based on Percona XtraBackup: https://launchpad.net/percona-xtrabackup")
-    click.echo('MySQL-AutoXtrabackup Version 1.4.1')
+    click.echo("Based on Percona XtraBackup: https://github.com/percona/percona-xtrabackup/")
+    click.echo('MySQL-AutoXtraBackup Version 1.4.1')
     ctx.exit()
 
 
