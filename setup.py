@@ -8,7 +8,7 @@ setup(
     packages=['general_conf', 'backup_prepare', 'partial_recovery', 'master_backup_script'],
     py_modules = ['autoxtrabackup'],
     url='https://github.com/ShahriyarR/MySQL-AutoXtraBackup',
-    license='GPL',
+    license='MIT',
     author='Shahriyar Rzayev',
     author_email='rzayev.shahriyar@yandex.com',
     description='Commandline tool written in Python 3 for using Percona Xtrabackup',
