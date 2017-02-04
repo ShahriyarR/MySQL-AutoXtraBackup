@@ -4,14 +4,14 @@ datafiles = [('//etc', ['general_conf/bck.conf'])]
 
 setup(
     name='mysql-autoxtrabackup',
-    version='1.4.1',
+    version='1.4.2',
     packages=['general_conf', 'backup_prepare', 'partial_recovery', 'master_backup_script'],
     py_modules = ['autoxtrabackup'],
     url='https://github.com/ShahriyarR/MySQL-AutoXtraBackup',
     license='MIT',
     author='Shahriyar Rzayev',
     author_email='rzayev.shahriyar@yandex.com',
-    description='Commandline tool written in Python 3 for using Percona Xtrabackup',
+    description='Commandline tool written in Python 3 for using Percona XtraBackup',
     install_requires=[
         'click>=3.3',
         'mysql-connector>=2.0.2',
