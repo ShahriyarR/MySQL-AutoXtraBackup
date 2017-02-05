@@ -8,6 +8,7 @@ setup(
     packages=['general_conf', 'backup_prepare', 'partial_recovery', 'master_backup_script'],
     py_modules = ['autoxtrabackup'],
     url='https://github.com/ShahriyarR/MySQL-AutoXtraBackup',
+    download_url = 'https://github.com/ShahriyarR/MySQL-AutoXtraBackup/tarball/v1.4.3',
     license='MIT',
     author='Shahriyar Rzayev',
     author_email='rzayev.shahriyar@yandex.com',
