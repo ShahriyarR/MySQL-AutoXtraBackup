@@ -1,26 +1,24 @@
-#!/opt/Python-3.3.2/bin/python3
-
 # Backup Prepare and Copy-Back Script
 # Originally Developed by
 # Shahriyar Rzayev -> http://www.mysql.az
 # / rzayev.sehriyar@gmail.com / rzayev.shahriyar@yandex.com
 
-import configparser
+
 import os
-import shlex
 import subprocess
 import shutil
 import time
 from general_conf.generalops import GeneralClass
+from general_conf.check_env import CheckEnv
 
 import logging
 logger = logging.getLogger(__name__)
 
 class Prepare(GeneralClass):
-    def __init__(self):
-        GeneralClass.__init__(self)
-        from master_backup_script.check_env import CheckEnv
-        self.check_env_obj = CheckEnv()
+    def __init__(self, config="/etc/bck.conf"):
+        self.conf = config
+        GeneralClass.__init__(self, self.conf)
+        self.check_env_obj = CheckEnv(self.conf)
         self.result = self.check_env_obj.check_systemd_init()
 
     def recent_full_backup_file(self):

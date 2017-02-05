@@ -16,7 +16,7 @@ from datetime import datetime
 from mysql.connector import errorcode
 from sys import exit
 from general_conf.generalops import GeneralClass
-import re
+from general_conf.check_env import CheckEnv
 from os.path import join
 from os import makedirs
 
@@ -29,9 +29,10 @@ logger = logging.getLogger(__name__)
 
 
 class Backup(GeneralClass):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, config='/etc/bck.conf'):
+        self.conf = config
         #Call GeneralClass for storing configuration
-        GeneralClass.__init__(self, *args, **kwargs)
+        GeneralClass.__init__(self, self.conf)
 
     def sorted_ls(self, path):
         mtime = lambda f: os.stat(os.path.join(path, f)).st_mtime
@@ -265,8 +266,6 @@ class Backup(GeneralClass):
         recent_bck = self.recent_full_backup_file()
         recent_inc = self.recent_inc_backup_file()
 
-        # Workaround for circular import dependency error in Python
-        from .check_env import CheckEnv
         check_env_obj = CheckEnv()
         product_type = check_env_obj.check_mysql_product()
 
@@ -468,10 +467,9 @@ class Backup(GeneralClass):
          In any other conditions it takes incremental backup.
         """
         # Workaround for circular import dependency error in Python
-        from .check_env import CheckEnv
 
         # Creating object from CheckEnv class
-        check_env_obj = CheckEnv()
+        check_env_obj = CheckEnv(self.conf)
 
         if check_env_obj.check_all_env():
 

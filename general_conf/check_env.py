@@ -4,36 +4,31 @@ import shlex
 import subprocess
 import os
 import time
-
+from general_conf.generalops import GeneralClass
 
 import logging
 logger = logging.getLogger(__name__)
 
 
-class CheckEnv:
+class CheckEnv(GeneralClass):
 
-    def __init__(self):
+    def __init__(self, config='/etc/bck.conf'):
+        self.conf = config
+        GeneralClass.__init__(self, self.conf)
 
-        # Workaround for circular import dependency error in Python
-
-        from .backuper import Backup
-
-        self.backup_class_obj = Backup()
-
-        
 
 
     def check_mysql_uptime(self):
 
-        statusargs = '%s --user=%s --password=%s status' % (self.backup_class_obj.mysqladmin,
-                                                                                  self.backup_class_obj.mysql_user,
-                                                                                  self.backup_class_obj.mysql_password)
+        statusargs = '%s --user=%s --password=%s status' % (self.mysqladmin,
+                                                                                  self.mysql_user,
+                                                                                  self.mysql_password)
 
-        if hasattr(self.backup_class_obj, 'mysql_socket'):
-            statusargs += " --socket=%s" %(self.backup_class_obj.mysql_socket)
-        elif hasattr(self.backup_class_obj, 'mysql_host') and hasattr(self.backup_class_obj, 'mysql_port'):
-            statusargs += " --host=%s" % self.backup_class_obj.mysql_host
-            statusargs += " --port=%s" % self.backup_class_obj.mysql_port
+        if hasattr(self, 'mysql_socket'):
+            statusargs += " --socket=%s" %(self.mysql_socket)
+        elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
+            statusargs += " --host=%s" % self.mysql_host
+            statusargs += " --port=%s" % self.mysql_port
         else:
             logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
             return False
@@ -50,9 +45,9 @@ class CheckEnv:
 
 
     def check_mysql_conf(self):
-        if not os.path.exists(self.backup_class_obj.mycnf):
+        if not os.path.exists(self.mycnf):
         # Testing with MariaDB Galera Cluster
-        #if not os.path.exists(self.backup_class_obj.maria_cluster_cnf):
+        #if not os.path.exists(self.maria_cluster_cnf):
             logger.error('MySQL configuration file path does NOT exist+-+-+-+-+-+-+-+-+-+')
             return False
         else:
@@ -61,7 +56,7 @@ class CheckEnv:
 
 
     def check_mysql_mysql(self):
-        if not os.path.exists(self.backup_class_obj.mysql):
+        if not os.path.exists(self.mysql):
             logger.error('/usr/bin/mysql NOT exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+')
             return False
         else:
@@ -70,7 +65,7 @@ class CheckEnv:
 
 
     def check_mysql_mysqladmin(self):
-        if not os.path.exists(self.backup_class_obj.mysqladmin):
+        if not os.path.exists(self.mysqladmin):
             logger.error('/usr/bin/mysqladmin NOT exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-')
             return False
         else:
@@ -79,7 +74,7 @@ class CheckEnv:
 
 
     def check_mysql_backuptool(self):
-        if not os.path.exists(self.backup_class_obj.backup_tool):
+        if not os.path.exists(self.backup_tool):
             logger.error('Xtrabackup/Innobackupex NOT exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-')
             return False
         else:
@@ -89,11 +84,11 @@ class CheckEnv:
 
     def check_mysql_backupdir(self):
 
-        if not (os.path.exists(self.backup_class_obj.backupdir)):
+        if not (os.path.exists(self.backupdir)):
             try:
                 logger.debug('Main backup directory does not exist+-+-+-+-+-+-+-+-+-++-+-+-+-')
                 logger.debug('Creating Main Backup folder+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+')
-                os.makedirs(self.backup_class_obj.backupdir)
+                os.makedirs(self.backupdir)
                 logger.debug('Created+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK')
                 return True
             except Exception as err:
@@ -106,11 +101,11 @@ class CheckEnv:
 
     def check_mysql_archive_dir(self):
 
-        if not (os.path.exists(self.backup_class_obj.archive_dir)):
+        if not (os.path.exists(self.archive_dir)):
             try:
                 logger.debug('Archive backup directory does not exist+-+-+-+-+-+-+-+-+-++-+-+-+-')
                 logger.debug('Creating archive folder+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+')
-                os.makedirs(self.backup_class_obj.archive_dir)
+                os.makedirs(self.archive_dir)
                 logger.debug('Created+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK')
                 return True
             except Exception as err:
@@ -123,11 +118,11 @@ class CheckEnv:
 
     def check_mysql_fullbackupdir(self):
 
-        if not (os.path.exists(self.backup_class_obj.full_dir)):
+        if not (os.path.exists(self.full_dir)):
             try:
                 logger.debug('Full Backup directory does not exist.+-+-+-+-+-+-+-+-+-+-+-+-OK')
                 logger.debug('Creating full backup directory...+-+-+-+-+-+-+-+-+-++-+-+-+-+OK')
-                os.makedirs(self.backup_class_obj.backupdir + '/full')
+                os.makedirs(self.backupdir + '/full')
                 logger.debug('Created+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK')
                 return True
             except Exception as err:
@@ -140,11 +135,11 @@ class CheckEnv:
 
     def check_mysql_incbackupdir(self):
 
-        if not (os.path.exists(self.backup_class_obj.inc_dir)):
+        if not (os.path.exists(self.inc_dir)):
             try:
                 logger.debug('Increment directory does not exist.+-+-+-+-+-+-+-+-+-++-+-+-+OK')
                 logger.debug('Creating increment backup directory.+-+-+-+-+-+-+-+-+-++-+-+-OK')
-                os.makedirs(self.backup_class_obj.backupdir + '/inc')
+                os.makedirs(self.backupdir + '/inc')
                 logger.debug('Created')
                 return True
             except Exception as err:
@@ -165,8 +160,8 @@ class CheckEnv:
     #
     #     config = {
     #
-    #         'user': self.backup_class_obj.user,
-    #         'password': self.backup_class_obj.password,
+    #         'user': self.user,
+    #         'password': self.password,
     #         'host': 'localhost',
     #         'database': 'mysql',
     #         'raise_on_warnings': True,
@@ -312,15 +307,15 @@ class CheckEnv:
         """
 
 
-        check_version = "%s --user=%s --password='%s' ver" % (self.backup_class_obj.mysqladmin,
-                                                              self.backup_class_obj.mysql_user,
-                                                              self.backup_class_obj.mysql_password)
+        check_version = "%s --user=%s --password='%s' ver" % (self.mysqladmin,
+                                                              self.mysql_user,
+                                                              self.mysql_password)
 
-        if hasattr(self.backup_class_obj, 'mysql_socket'):
-            check_version += " --socket=%s" %(self.backup_class_obj.mysql_socket)
-        elif hasattr(self.backup_class_obj, 'mysql_host') and hasattr(self.backup_class_obj, 'mysql_port'):
-            check_version += " --host=%s" % self.backup_class_obj.mysql_host
-            check_version += " --port=%s" % self.backup_class_obj.mysql_port
+        if hasattr(self, 'mysql_socket'):
+            check_version += " --socket=%s" %(self.mysql_socket)
+        elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
+            check_version += " --host=%s" % self.mysql_host
+            check_version += " --port=%s" % self.mysql_port
         else:
             logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
             return False
@@ -396,7 +391,7 @@ class CheckEnv:
                             if self.check_mysql_backupdir():
                                 if self.check_mysql_fullbackupdir():
                                     if self.check_mysql_incbackupdir():
-                                        if hasattr(self.backup_class_obj, 'archive_dir') and self.check_mysql_archive_dir():
+                                        if hasattr(self, 'archive_dir') and self.check_mysql_archive_dir():
                                             #if self.check_mysql_flush_log_user():
                                             env_result = True
                                         else:

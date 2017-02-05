@@ -34,7 +34,7 @@ def print_version(ctx, param, value):
     click.echo("Link : https://github.com/ShahriyarR/MySQL-AutoXtraBackup")
     click.echo("Email: rzayev.shahriyar@yandex.com")
     click.echo("Based on Percona XtraBackup: https://github.com/percona/percona-xtrabackup/")
-    click.echo('MySQL-AutoXtraBackup Version 1.4.3')
+    click.echo('MySQL-AutoXtraBackup Version 1.4.4')
     ctx.exit()
 
 
@@ -42,12 +42,14 @@ def print_version(ctx, param, value):
 @click.option('--prepare', is_flag=True, help="Prepare/recover backups.")
 @click.option('--backup', is_flag=True, help="Take full and incremental backups.")
 @click.option('--partial', is_flag=True, help="Recover specified table (partial recovery).")
-@click.option('--version', is_flag=True, callback=print_version, expose_value=False, is_eager=True, help="Version information.")
+@click.option('--version', is_flag=True, callback=print_version, expose_value=False,
+              is_eager=True, help="Version information.")
+@click.option('--defaults_file', default='/etc/bck.conf', help="Read options from the given file")
 @click.option('-v', '--verbose', is_flag=True, help="Be verbose (print to console)")
 @click.option('-l', '--log', default='WARNING', type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']),  help="Set log level")
 
 
-def all_procedure(prepare, backup, partial, verbose, log):
+def all_procedure(prepare, backup, partial, verbose, log, defaults_file):
     logger.setLevel(log)
     config = GeneralClass()
 
@@ -57,14 +59,14 @@ def all_procedure(prepare, backup, partial, verbose, log):
 
     try:
         with pid_file: # User PidFile for locking to single instance
-            if (not prepare) and (not backup) and (not partial):
+            if (not prepare) and (not backup) and (not partial) and (not defaults_file):
                 print("ERROR: you must give an option, run with --help for available options")
             elif prepare:
-                a = Prepare()
+                a = Prepare(config=defaults_file)
                 a.prepare_backup_and_copy_back()
                 #print("Prepare")
             elif backup:
-                b = Backup()
+                b = Backup(config=defaults_file)
                 b.all_backup()
                 #print("Backup")
             elif partial:
