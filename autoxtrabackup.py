@@ -39,7 +39,18 @@ def print_version(ctx, param, value):
     ctx.exit()
 
 def check_headers(file):
-    """Check if 5 required headers exist in a file"""
+    """Check if all required headers exist in a file"""
+    config_file = open(file, 'r')
+    file_content = config_file.read()
+
+    config_file.close()
+
+    config_headers = ["MySQL", "Backup", "Encrypt", "Compress", "Commands"]
+
+    if all(headers in file_content for headers in config_headers):
+        return True
+    else:
+        return False
 
 
 def validate_file(file):
@@ -50,11 +61,14 @@ def validate_file(file):
 
     if os.path.isfile(file):
         # filename extension should be .conf
-        pattern = re.compile(r'^.*(conf)*')
+        pattern = re.compile(r'.*\.conf')
 
         if pattern.match(file):
             # Lastly the file should have all 5 required headers
-            check_headers(file)
+            if check_headers(file):
+                print("File is valid.")
+            else:
+                raise ValueError("File is missing one or more configuration headers..")
         else:
             raise ValueError("File extension is not valid..")
     else:
