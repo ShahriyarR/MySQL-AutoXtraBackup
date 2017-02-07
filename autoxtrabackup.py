@@ -6,6 +6,7 @@ from general_conf.generalops import GeneralClass
 from sys import platform as _platform
 import pid
 import time
+import re
 import os
 import humanfriendly
 
@@ -37,6 +38,28 @@ def print_version(ctx, param, value):
     click.echo('MySQL-AutoXtraBackup Version 1.4.4')
     ctx.exit()
 
+def check_headers(file):
+    """Check if 5 required headers exist in a file"""
+
+
+def validate_file(file):
+    """
+    Check for validity of the file given in file path. If file doesn't exist or invalid
+    configuration file, throw error.
+    """
+
+    if os.path.isfile(file):
+        # filename extension should be .conf
+        pattern = re.compile(r'^.*(conf)*')
+
+        if pattern.match(file):
+            # Lastly the file should have all 5 required headers
+            check_headers(file)
+        else:
+            raise ValueError("File extension is not valid..")
+    else:
+        raise FileNotFoundError("Specified file cannot be found..")
+
 
 @click.command()
 @click.option('--prepare', is_flag=True, help="Prepare/recover backups.")
@@ -47,11 +70,11 @@ def print_version(ctx, param, value):
 @click.option('--defaults_file', default='/etc/bck.conf', help="Read options from the given file")
 @click.option('-v', '--verbose', is_flag=True, help="Be verbose (print to console)")
 @click.option('-l', '--log', default='WARNING', type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']),  help="Set log level")
-
-
 def all_procedure(prepare, backup, partial, verbose, log, defaults_file):
     logger.setLevel(log)
     config = GeneralClass()
+
+    validate_file(defaults_file)
 
     if (verbose):
         logger.addHandler(logging.StreamHandler())
