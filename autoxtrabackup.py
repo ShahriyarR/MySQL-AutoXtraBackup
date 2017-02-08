@@ -52,15 +52,11 @@ def check_file_content(file):
                    "systemd_stop_mariadb"]
 
     for header in config_headers:
-        if header in file_content:
-            pass
-        else:
+        if header not in file_content:
             raise KeyError("Mandatory header [%s] doesn't exist in %s" %(header, file))
 
     for key in config_keys:
-        if key in file_content:
-            pass
-        else:
+        if key not in file_content:
             raise KeyError("Mandatory key \'%s\' doesn't exists in %s." %(key, file))
 
     return True
@@ -95,11 +91,11 @@ def validate_file(file):
 @click.option('-v', '--verbose', is_flag=True, help="Be verbose (print to console)")
 @click.option('-l', '--log', default='WARNING', type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']),  help="Set log level")
 def all_procedure(prepare, backup, partial, verbose, log, defaults_file):
+    logger.setLevel(log)
     if verbose:
         logger.addHandler(logging.StreamHandler())
 
     validate_file(defaults_file)
-    logger.setLevel(log)
     config = GeneralClass()
 
     pid_file = pid.PidFile(piddir=config.pid_dir)
