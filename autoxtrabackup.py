@@ -38,19 +38,32 @@ def print_version(ctx, param, value):
     click.echo('MySQL-AutoXtraBackup Version 1.4.4')
     ctx.exit()
 
-def check_headers(file):
-    """Check if all required headers exist in a file"""
+
+def check_file_content(file):
+    """Check if all mandatory headers and keys exist in file"""
     config_file = open(file, 'r')
     file_content = config_file.read()
-
     config_file.close()
 
     config_headers = ["MySQL", "Backup", "Encrypt", "Compress", "Commands"]
+    config_keys = ["mysql", "mycnf", "mysqladmin", "mysql_user", "mysql_password", "datadir", "tmpdir", "tmp", \
+                   "backupdir", "backup_tool", "xtra_prepare", "start_mysql_command", "stop_mysql_command", \
+                   "systemd_start_mysql", "systemd_stop_mysql", "chown_command", "systemd_start_mariadb", \
+                   "systemd_stop_mariadb"]
 
-    if all(headers in file_content for headers in config_headers):
-        return True
-    else:
-        return False
+    for header in config_headers:
+        if header in file_content:
+            pass
+        else:
+            raise KeyError("Mandatory header [%s] doesn't exist in %s" %(header, file))
+
+    for key in config_keys:
+        if key in file_content:
+            pass
+        else:
+            raise KeyError("Mandatory key \'%s\' doesn't exists in %s." %(key, file))
+
+    return True
 
 
 def validate_file(file):
@@ -58,21 +71,18 @@ def validate_file(file):
     Check for validity of the file given in file path. If file doesn't exist or invalid
     configuration file, throw error.
     """
-
     if os.path.isfile(file):
         # filename extension should be .conf
         pattern = re.compile(r'.*\.conf')
 
         if pattern.match(file):
             # Lastly the file should have all 5 required headers
-            if check_headers(file):
-                print("File is valid.")
-            else:
-                raise ValueError("File is missing one or more configuration headers..")
+            if check_file_content(file):
+                return
         else:
-            raise ValueError("File extension is not valid..")
+            raise ValueError("Invalid file extension. Expecting .conf")
     else:
-        raise FileNotFoundError("Specified file cannot be found..")
+        raise FileNotFoundError("Specified file does not exist.")
 
 
 @click.command()
@@ -85,13 +95,13 @@ def validate_file(file):
 @click.option('-v', '--verbose', is_flag=True, help="Be verbose (print to console)")
 @click.option('-l', '--log', default='WARNING', type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']),  help="Set log level")
 def all_procedure(prepare, backup, partial, verbose, log, defaults_file):
+    if verbose:
+        logger.addHandler(logging.StreamHandler())
+
+    validate_file(defaults_file)
     logger.setLevel(log)
     config = GeneralClass()
 
-    validate_file(defaults_file)
-
-    if (verbose):
-        logger.addHandler(logging.StreamHandler())
     pid_file = pid.PidFile(piddir=config.pid_dir)
 
     try:
