@@ -16,129 +16,143 @@ class CheckEnv(GeneralClass):
         self.conf = config
         GeneralClass.__init__(self, self.conf)
 
-
-
     def check_mysql_uptime(self):
 
-        statusargs = '%s --user=%s --password=%s status' % (self.mysqladmin,
-                                                                                  self.mysql_user,
-                                                                                  self.mysql_password)
+        statusargs = '%s --user=%s --password=%s status' % (
+            self.mysqladmin, self.mysql_user, self.mysql_password)
 
         if hasattr(self, 'mysql_socket'):
-            statusargs += " --socket=%s" %(self.mysql_socket)
+            statusargs += " --socket=%s" % (self.mysql_socket)
         elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
             statusargs += " --host=%s" % self.mysql_host
             statusargs += " --port=%s" % self.mysql_port
         else:
-            logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
+            logger.critical(
+                "Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
             return False
 
         statusargs = shlex.split(statusargs)
         myadmin = subprocess.Popen(statusargs, stdout=subprocess.PIPE)
 
         if not ('Uptime' in str(myadmin.stdout.read())):
-            logger.error('Server is NOT Up+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+')
+            logger.error(
+                'Server is NOT Up+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+')
             return False
         else:
-            logger.debug('Server is Up and running+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+OK')
+            logger.debug(
+                'Server is Up and running+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+OK')
             return True
-
 
     def check_mysql_conf(self):
         if not os.path.exists(self.mycnf):
-        # Testing with MariaDB Galera Cluster
-        #if not os.path.exists(self.maria_cluster_cnf):
-            logger.error('MySQL configuration file path does NOT exist+-+-+-+-+-+-+-+-+-+')
+            # Testing with MariaDB Galera Cluster
+            # if not os.path.exists(self.maria_cluster_cnf):
+            logger.error(
+                'MySQL configuration file path does NOT exist+-+-+-+-+-+-+-+-+-+')
             return False
         else:
-            logger.debug('MySQL configuration file exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+OK')
+            logger.debug(
+                'MySQL configuration file exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+OK')
             return True
-
 
     def check_mysql_mysql(self):
         if not os.path.exists(self.mysql):
-            logger.error('/usr/bin/mysql NOT exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+')
+            logger.error(
+                '/usr/bin/mysql NOT exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+')
             return False
         else:
-            logger.debug('/usr/bin/mysql exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-OK')
+            logger.debug(
+                '/usr/bin/mysql exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-OK')
             return True
-
 
     def check_mysql_mysqladmin(self):
         if not os.path.exists(self.mysqladmin):
-            logger.error('/usr/bin/mysqladmin NOT exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-')
+            logger.error(
+                '/usr/bin/mysqladmin NOT exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-')
             return False
         else:
-            logger.debug('/usr/bin/mysqladmin exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK')
+            logger.debug(
+                '/usr/bin/mysqladmin exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK')
             return True
-
 
     def check_mysql_backuptool(self):
         if not os.path.exists(self.backup_tool):
-            logger.error('Xtrabackup/Innobackupex NOT exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-')
+            logger.error(
+                'Xtrabackup/Innobackupex NOT exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-')
             return False
         else:
-            logger.debug('Xtrabackup/Innobackupex exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-OK')
+            logger.debug(
+                'Xtrabackup/Innobackupex exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-OK')
             return True
-
 
     def check_mysql_backupdir(self):
 
         if not (os.path.exists(self.backupdir)):
             try:
-                logger.debug('Main backup directory does not exist+-+-+-+-+-+-+-+-+-++-+-+-+-')
-                logger.debug('Creating Main Backup folder+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+')
+                logger.debug(
+                    'Main backup directory does not exist+-+-+-+-+-+-+-+-+-++-+-+-+-')
+                logger.debug(
+                    'Creating Main Backup folder+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+')
                 os.makedirs(self.backupdir)
-                logger.debug('Created+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK')
+                logger.debug(
+                    'Created+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK')
                 return True
             except Exception as err:
                 logger.error(err)
                 return False
         else:
-            logger.debug('Main backup directory exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-OK')
+            logger.debug(
+                'Main backup directory exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-OK')
             return True
-
 
     def check_mysql_archive_dir(self):
 
         if not (os.path.exists(self.archive_dir)):
             try:
-                logger.debug('Archive backup directory does not exist+-+-+-+-+-+-+-+-+-++-+-+-+-')
-                logger.debug('Creating archive folder+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+')
+                logger.debug(
+                    'Archive backup directory does not exist+-+-+-+-+-+-+-+-+-++-+-+-+-')
+                logger.debug(
+                    'Creating archive folder+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+')
                 os.makedirs(self.archive_dir)
-                logger.debug('Created+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK')
+                logger.debug(
+                    'Created+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK')
                 return True
             except Exception as err:
                 logger.error(err)
                 return False
         else:
-            logger.debug('Archive folder directory exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-OK')
+            logger.debug(
+                'Archive folder directory exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-OK')
             return True
-
 
     def check_mysql_fullbackupdir(self):
 
         if not (os.path.exists(self.full_dir)):
             try:
-                logger.debug('Full Backup directory does not exist.+-+-+-+-+-+-+-+-+-+-+-+-OK')
-                logger.debug('Creating full backup directory...+-+-+-+-+-+-+-+-+-++-+-+-+-+OK')
+                logger.debug(
+                    'Full Backup directory does not exist.+-+-+-+-+-+-+-+-+-+-+-+-OK')
+                logger.debug(
+                    'Creating full backup directory...+-+-+-+-+-+-+-+-+-++-+-+-+-+OK')
                 os.makedirs(self.backupdir + '/full')
-                logger.debug('Created+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK')
+                logger.debug(
+                    'Created+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK')
                 return True
             except Exception as err:
                 logger.error(err)
                 return False
         else:
-            logger.debug("Full Backup directory exists.+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+OK")
+            logger.debug(
+                "Full Backup directory exists.+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+OK")
             return True
-
 
     def check_mysql_incbackupdir(self):
 
         if not (os.path.exists(self.inc_dir)):
             try:
-                logger.debug('Increment directory does not exist.+-+-+-+-+-+-+-+-+-++-+-+-+OK')
-                logger.debug('Creating increment backup directory.+-+-+-+-+-+-+-+-+-++-+-+-OK')
+                logger.debug(
+                    'Increment directory does not exist.+-+-+-+-+-+-+-+-+-++-+-+-+OK')
+                logger.debug(
+                    'Creating increment backup directory.+-+-+-+-+-+-+-+-+-++-+-+-OK')
                 os.makedirs(self.backupdir + '/inc')
                 logger.debug('Created')
                 return True
@@ -146,9 +160,9 @@ class CheckEnv(GeneralClass):
                 logger.error(err)
                 return False
         else:
-            logger.debug('Increment directory exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK')
+            logger.debug(
+                'Increment directory exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK')
             return True
-
 
     # def check_mysql_flush_log_user(self):
     #
@@ -197,7 +211,6 @@ class CheckEnv(GeneralClass):
     #             logger.debug(err)
     #             return False
 
-
     # def check_mysql_user_exists(self, cursor):
     #     query = "SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = 'test_backup')"
     #     grant_query = "grant reload,usage on *.* to 'test_backup'@'127.0.0.1'"
@@ -229,11 +242,6 @@ class CheckEnv(GeneralClass):
     #         logger.debug(err)
     #         exit(0)
 
-
-
-
-
-
     # def random_password_generator(self, length):
     #     """
     #     Random Password Generator based on given password length value
@@ -259,8 +267,6 @@ class CheckEnv(GeneralClass):
     #
     #     return pwstring
 
-
-
     # def check_mysql_valpass_plugin(self, cursor):
     #     """
     #     Check if MySQL has password policy via official validate_password plugin.
@@ -280,8 +286,6 @@ class CheckEnv(GeneralClass):
     #         logger.debug(err)
     #         return False
 
-
-
     # def generate_mysql_password(self, cursor):
     #     """
     #     Check if MySQL has password policy via official validate_password plugin.
@@ -298,7 +302,6 @@ class CheckEnv(GeneralClass):
     #         logger.debug(err)
     #         return False
 
-
     def check_mysql_product(self):
         """
         Check if MariaDB or MySQL installed. We will apply a workaround for MariaDB
@@ -306,18 +309,17 @@ class CheckEnv(GeneralClass):
         :return: 2 if server is MariaDB / 3 if server is MySQL(other)
         """
 
-
-        check_version = "%s --user=%s --password='%s' ver" % (self.mysqladmin,
-                                                              self.mysql_user,
-                                                              self.mysql_password)
+        check_version = "%s --user=%s --password='%s' ver" % (
+            self.mysqladmin, self.mysql_user, self.mysql_password)
 
         if hasattr(self, 'mysql_socket'):
-            check_version += " --socket=%s" %(self.mysql_socket)
+            check_version += " --socket=%s" % (self.mysql_socket)
         elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
             check_version += " --host=%s" % self.mysql_host
             check_version += " --port=%s" % self.mysql_port
         else:
-            logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
+            logger.critical(
+                "Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
             return False
 
         status, output = subprocess.getstatusoutput(check_version)
@@ -325,18 +327,19 @@ class CheckEnv(GeneralClass):
         if status == 0:
             if 'MARIADB' in output.upper():
                 logger.debug("!!!!!!!!")
-                logger.debug("Installed Server is MariaDB, will use a workaround for LP BUG 1444541.")
+                logger.debug(
+                    "Installed Server is MariaDB, will use a workaround for LP BUG 1444541.")
                 logger.debug("!!!!!!!!")
                 return 2
             else:
-                logger.debug("Installed Server is MySQL, will continue as usual.")
+                logger.debug(
+                    "Installed Server is MySQL, will continue as usual.")
                 return 3
         else:
             logger.error("mysqladmin ver command Failed")
             time.sleep(5)
             logger.error(output)
             return False
-
 
     def check_systemd_init(self):
         """
@@ -355,10 +358,10 @@ class CheckEnv(GeneralClass):
         if os.path.isdir(systemd_dir):
 
             for i in os.listdir(systemd_dir):
-                    list_dir.append(i)
+                list_dir.append(i)
         else:
-            logger.error("There is no /usr/lib/systemd/system folder, Continue")
-
+            logger.error(
+                "There is no /usr/lib/systemd/system folder, Continue")
 
         if product_result == 2:
             if 'mariadb.service' in list_dir:
@@ -372,13 +375,6 @@ class CheckEnv(GeneralClass):
             else:
                 return 6
 
-
-
-
-
-
-
-
     def check_all_env(self):
 
         env_result = False
@@ -391,21 +387,22 @@ class CheckEnv(GeneralClass):
                             if self.check_mysql_backupdir():
                                 if self.check_mysql_fullbackupdir():
                                     if self.check_mysql_incbackupdir():
-                                        if hasattr(self, 'archive_dir') and self.check_mysql_archive_dir():
-                                            #if self.check_mysql_flush_log_user():
+                                        if hasattr(
+                                                self, 'archive_dir') and self.check_mysql_archive_dir():
+                                            # if
+                                            # self.check_mysql_flush_log_user():
                                             env_result = True
                                         else:
                                             env_result = True
 
-
-
             if env_result:
-                logger.debug("Check status: STATUS+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-OK")
+                logger.debug(
+                    "Check status: STATUS+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-OK")
                 return env_result
             else:
-                logger.critical("Check status: STATUS+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-FAILED")
+                logger.critical(
+                    "Check status: STATUS+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-FAILED")
                 return env_result
-
 
 
 #

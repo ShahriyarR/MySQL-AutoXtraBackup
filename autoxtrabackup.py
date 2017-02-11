@@ -6,6 +6,7 @@ from general_conf.generalops import GeneralClass
 from sys import platform as _platform
 import pid
 import time
+import re
 import os
 import humanfriendly
 
@@ -14,61 +15,150 @@ import logging.handlers
 
 logger = logging.getLogger('')
 
+
 handler = None
 if _platform == "linux" or _platform == "linux2":
     # linux
     handler = logging.handlers.SysLogHandler(address='/dev/log')
 elif _platform == "darwin":
     # MAC OS X
-    handler = logging.handlers.SysLogHandler(address = '/var/run/syslog')
+    handler = logging.handlers.SysLogHandler(address='/var/run/syslog')
 else:
-    handler = logging.handlers.SysLogHandler(address=('localhost',514))
+    handler = logging.handlers.SysLogHandler(address=('localhost', 514))
 
 # Set syslog for the root logger
 logger.addHandler(handler)
 
+
 def print_version(ctx, param, value):
     if not value or ctx.resilient_parsing:
         return
-    click.echo("Developed by Shahriyar Rzayev from Azerbaijan MUG(http://mysql.az)")
+    click.echo(
+        "Developed by Shahriyar Rzayev from Azerbaijan MUG(http://mysql.az)")
     click.echo("Link : https://github.com/ShahriyarR/MySQL-AutoXtraBackup")
     click.echo("Email: rzayev.shahriyar@yandex.com")
-    click.echo("Based on Percona XtraBackup: https://github.com/percona/percona-xtrabackup/")
-    click.echo('MySQL-AutoXtraBackup Version 1.4.4')
+    click.echo(
+        "Based on Percona XtraBackup: https://github.com/percona/percona-xtrabackup/")
+    click.echo('MySQL-AutoXtraBackup Version: 1.4.5')
     ctx.exit()
+
+
+def check_file_content(file):
+    """Check if all mandatory headers and keys exist in file"""
+    config_file = open(file, 'r')
+    file_content = config_file.read()
+    config_file.close()
+
+    config_headers = ["MySQL", "Backup", "Encrypt", "Compress", "Commands"]
+    config_keys = [
+        "mysql",
+        "mycnf",
+        "mysqladmin",
+        "mysql_user",
+        "mysql_password",
+        "mysql_host",
+        "datadir",
+        "tmpdir",
+        "tmp",
+        "backupdir",
+        "backup_tool",
+        "xtra_prepare",
+        "start_mysql_command",
+        "stop_mysql_command",
+        "systemd_start_mysql",
+        "systemd_stop_mysql",
+        "chown_command",
+        "systemd_start_mariadb",
+        "systemd_stop_mariadb"]
+
+    for header in config_headers:
+        if header not in file_content:
+            raise KeyError(
+                "Mandatory header [%s] doesn't exist in %s" %
+                (header, file))
+
+    for key in config_keys:
+        if key not in file_content:
+            raise KeyError(
+                "Mandatory key \'%s\' doesn't exists in %s." %
+                (key, file))
+
+    return True
+
+
+def validate_file(file):
+    """
+    Check for validity of the file given in file path. If file doesn't exist or invalid
+    configuration file, throw error.
+    """
+    if os.path.isfile(file):
+        # filename extension should be .conf
+        pattern = re.compile(r'.*\.conf')
+
+        if pattern.match(file):
+            # Lastly the file should have all 5 required headers
+            if check_file_content(file):
+                return
+        else:
+            raise ValueError("Invalid file extension. Expecting .conf")
+    else:
+        raise FileNotFoundError("Specified file does not exist.")
 
 
 @click.command()
 @click.option('--prepare', is_flag=True, help="Prepare/recover backups.")
-@click.option('--backup', is_flag=True, help="Take full and incremental backups.")
-@click.option('--partial', is_flag=True, help="Recover specified table (partial recovery).")
-@click.option('--version', is_flag=True, callback=print_version, expose_value=False,
-              is_eager=True, help="Version information.")
-@click.option('--defaults_file', default='/etc/bck.conf', help="Read options from the given file")
-@click.option('-v', '--verbose', is_flag=True, help="Be verbose (print to console)")
-@click.option('-l', '--log', default='WARNING', type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']),  help="Set log level")
-
-
+@click.option(
+    '--backup',
+    is_flag=True,
+    help="Take full and incremental backups.")
+@click.option(
+    '--partial',
+    is_flag=True,
+    help="Recover specified table (partial recovery).")
+@click.option(
+    '--version',
+    is_flag=True,
+    callback=print_version,
+    expose_value=False,
+    is_eager=True,
+    help="Version information.")
+@click.option('--defaults_file', default='/etc/bck.conf',
+              help="Read options from the given file")
+@click.option('-v', '--verbose', is_flag=True,
+              help="Be verbose (print to console)")
+@click.option('-l',
+              '--log',
+              default='WARNING',
+              type=click.Choice(['DEBUG',
+                                 'INFO',
+                                 'WARNING',
+                                 'ERROR',
+                                 'CRITICAL']),
+              help="Set log level")
 def all_procedure(prepare, backup, partial, verbose, log, defaults_file):
     logger.setLevel(log)
-    config = GeneralClass()
-
-    if (verbose):
+    if verbose:
         logger.addHandler(logging.StreamHandler())
+
+    validate_file(defaults_file)
+    config = GeneralClass(defaults_file)
+
     pid_file = pid.PidFile(piddir=config.pid_dir)
 
     try:
-        with pid_file: # User PidFile for locking to single instance
-            if (not prepare) and (not backup) and (not partial) and (not defaults_file):
-                print("ERROR: you must give an option, run with --help for available options")
+        with pid_file:  # User PidFile for locking to single instance
+            if (not prepare) and (not backup) and (
+                    not partial) and (not defaults_file):
+                print(
+                    "ERROR: you must give an option, run with --help for available options")
             elif prepare:
                 a = Prepare(config=defaults_file)
                 a.prepare_backup_and_copy_back()
-                #print("Prepare")
+                # print("Prepare")
             elif backup:
                 b = Backup(config=defaults_file)
                 b.all_backup()
-                #print("Backup")
+                # print("Backup")
             elif partial:
                 c = PartialRecovery()
                 c.final_actions()
@@ -77,16 +167,20 @@ def all_procedure(prepare, backup, partial, verbose, log, defaults_file):
             if time.time() - os.stat(pid_file.filename).st_ctime > config.pid_runtime_warning:
                 pid.fh.seek(0)
                 pid_str = pid.fh.read(16).split("\n", 1)[0].strip()
-                logger.critical("Backup (pid: " + pid_str + ") has been running for logger than: "
-                                + str(humanfriendly.format_timespan(config.pid_runtime_warning)))
+                logger.critical(
+                    "Backup (pid: " + pid_str + ") has been running for logger than: " + str(
+                        humanfriendly.format_timespan(
+                            config.pid_runtime_warning)))
         #logger.warn("Pid file already exists: " + str(error))
     except pid.PidFileAlreadyRunningError as error:
         if hasattr(config, 'pid_runtime_warning'):
             if time.time() - os.stat(pid_file.filename).st_ctime > config.pid_runtime_warning:
                 pid.fh.seek(0)
                 pid_str = pid.fh.read(16).split("\n", 1)[0].strip()
-                logger.critical("Backup (pid: " + pid_str + ") has been running for logger than: "
-                                + str(humanfriendly.format_timespan(config.pid_runtime_warning)))
+                logger.critical(
+                    "Backup (pid: " + pid_str + ") has been running for logger than: " + str(
+                        humanfriendly.format_timespan(
+                            config.pid_runtime_warning)))
         #logger.warn("Pid already running: " + str(error))
     except pid.PidFileUnreadableError as error:
         logger.warn("Pid file can not be read: " + str(error))
