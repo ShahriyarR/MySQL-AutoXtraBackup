@@ -1,5 +1,7 @@
 from setuptools import setup
 
+version = subprocess.check_output(["git", "describe", "--abbrev=0"]).decode().strip()
+
 datafiles = [('//etc', ['general_conf/bck.conf'])]
 
 setup(
@@ -8,7 +10,7 @@ setup(
     packages=['general_conf', 'backup_prepare', 'partial_recovery', 'master_backup_script'],
     py_modules = ['autoxtrabackup'],
     url='https://github.com/ShahriyarR/MySQL-AutoXtraBackup',
-    download_url = 'https://github.com/ShahriyarR/MySQL-AutoXtraBackup/tarball/v1.4.3',
+    download_url = 'https://github.com/ShahriyarR/MySQL-AutoXtraBackup/tarball/%s' % version,
     license='MIT',
     author='Shahriyar Rzayev',
     author_email='rzayev.shahriyar@yandex.com',
