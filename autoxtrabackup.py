@@ -9,7 +9,6 @@ import time
 import re
 import os
 import humanfriendly
-import subprocess
 
 import logging
 import logging.handlers
@@ -29,7 +28,6 @@ else:
 
 # Set syslog for the root logger
 logger.addHandler(handler)
-version = subprocess.check_output(["git", "describe", "--abbrev=0"]).decode().strip()
 
 def print_version(ctx, param, value):
     if not value or ctx.resilient_parsing:
@@ -38,7 +36,7 @@ def print_version(ctx, param, value):
     click.echo("Link : https://github.com/ShahriyarR/MySQL-AutoXtraBackup")
     click.echo("Email: rzayev.shahriyar@yandex.com")
     click.echo("Based on Percona XtraBackup: https://github.com/percona/percona-xtrabackup/")
-    click.echo('MySQL-AutoXtraBackup Version: %s' % version)
+    click.echo('MySQL-AutoXtraBackup Version: 1.4.5')
     ctx.exit()
 
 
