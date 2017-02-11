@@ -27,11 +27,11 @@ logger = logging.getLogger(__name__)
 # Creating Backup class
 
 
-
 class Backup(GeneralClass):
+
     def __init__(self, config='/etc/bck.conf'):
         self.conf = config
-        #Call GeneralClass for storing configuration
+        # Call GeneralClass for storing configuration
         GeneralClass.__init__(self, self.conf)
 
     def sorted_ls(self, path):
@@ -61,13 +61,15 @@ class Backup(GeneralClass):
             return 0
 
     def create_backup_directory(self, directory):
-        new_backup_dir = join(directory, datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
+        new_backup_dir = join(
+            directory, datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
         try:
             # Creating backup directory
             makedirs(new_backup_dir)
             return new_backup_dir
         except Exception as err:
-            logger.error("Something went wrong in create_backup_directory(): {}".format(err))
+            logger.error(
+                "Something went wrong in create_backup_directory(): {}".format(err))
 
     def recent_full_backup_file(self):
         # Return last full backup dir name
@@ -103,7 +105,6 @@ class Backup(GeneralClass):
         # Also create a test database for connection
         # create database bck;
 
-
         config = {
 
             'user': self.mysql_user,
@@ -118,7 +119,8 @@ class Backup(GeneralClass):
             config['host'] = self.mysql_host
             config['port'] = self.mysql_port
         else:
-            logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
+            logger.critical(
+                "Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
 
         # Open connection
         try:
@@ -134,7 +136,8 @@ class Backup(GeneralClass):
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
                 logger.error(err)
-                logger.error("Something is wrong with your user name or password!!!!!")
+                logger.error(
+                    "Something is wrong with your user name or password!!!!!")
                 return False
             elif err.errno == errorcode.ER_BAD_DB_ERROR:
                 logger.error(err)
@@ -149,8 +152,13 @@ class Backup(GeneralClass):
         # Creating .tar.gz archive files of taken backups
         for i in os.listdir(self.full_dir):
             rm_dir = self.full_dir + '/' + i
-            if len(os.listdir(self.full_dir)) == 1 or i != max(os.listdir(self.full_dir)):
-                run_tar = "/usr/bin/tar -zcf %s %s %s" % (self.archive_dir+'/'+i+'.tar.gz', self.full_dir, self.inc_dir)
+            if len(
+                os.listdir(
+                    self.full_dir)) == 1 or i != max(
+                os.listdir(
+                    self.full_dir)):
+                run_tar = "/usr/bin/tar -zcf %s %s %s" % (
+                    self.archive_dir + '/' + i + '.tar.gz', self.full_dir, self.inc_dir)
 
         logger.debug("Start to archive previous backups")
         status, output = subprocess.getstatusoutput(run_tar)
@@ -166,19 +174,29 @@ class Backup(GeneralClass):
     def clean_old_archives(self):
         logger.debug("Starting cleaning of old archives")
         for archive in self.sorted_ls(self.archive_dir):
-            archive_date = datetime.strptime(archive, "%Y-%m-%d_%H-%M-%S.tar.gz")
+            archive_date = datetime.strptime(
+                archive, "%Y-%m-%d_%H-%M-%S.tar.gz")
             now = datetime.now()
 
-            # Finding if last full backup older than the interval or more from now!
+            # Finding if last full backup older than the interval or more from
+            # now!
 
             if (now - archive_date).total_seconds() >= self.max_archive_duration:
-                logger.debug("Removing archive: " + self.archive_dir+"/"+archive + " due to max archive age")
-                os.remove(self.archive_dir+"/"+archive)
-            elif self.get_directory_size(self.archive_dir) > self.max_archive_size:
-                logger.debug("Removing archive: " + self.archive_dir + "/" + archive +
-                             " due to max archive size")
+                logger.debug(
+                    "Removing archive: " +
+                    self.archive_dir +
+                    "/" +
+                    archive +
+                    " due to max archive age")
                 os.remove(self.archive_dir + "/" + archive)
-
+            elif self.get_directory_size(self.archive_dir) > self.max_archive_size:
+                logger.debug(
+                    "Removing archive: " +
+                    self.archive_dir +
+                    "/" +
+                    archive +
+                    " due to max archive size")
+                os.remove(self.archive_dir + "/" + archive)
 
     def clean_full_backup_dir(self):
         # Deleting old full backup after taking new full backup.
@@ -197,10 +215,13 @@ class Backup(GeneralClass):
 
     def copy_backup_to_remote_host(self):
         # Copying backup directory to remote server
-        logger.debug("########################################################################")
+        logger.debug(
+            "########################################################################")
         logger.debug("Copying backups to remote server")
-        logger.debug("########################################################################")
-        copy_it = 'scp -r %s %s:%s' % (self.backupdir, self.remote_conn, self.remote_dir)
+        logger.debug(
+            "########################################################################")
+        copy_it = 'scp -r %s %s:%s' % (self.backupdir,
+                                       self.remote_conn, self.remote_dir)
         copy_it = shlex.split(copy_it)
         cp = subprocess.Popen(copy_it, stdout=subprocess.PIPE)
         logger.debug(str(cp.stdout.read()))
@@ -218,12 +239,13 @@ class Backup(GeneralClass):
                                               full_backup_dir)
 
         if hasattr(self, 'mysql_socket'):
-            args += " --socket=%s" %(self.mysql_socket)
+            args += " --socket=%s" % (self.mysql_socket)
         elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
             args += " --host=%s" % self.mysql_host
             args += " --port=%s" % self.mysql_port
         else:
-            logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
+            logger.critical(
+                "Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
             return False
 
         # Adding compression support for full backup
@@ -274,14 +296,17 @@ class Backup(GeneralClass):
 
         # Checking if there is any incremental backup
 
-        if recent_inc == 0: # If there is no incremental backup
+        if recent_inc == 0:  # If there is no incremental backup
 
             # If you have a question why we check whether MariaDB or MySQL installed?
-            # See BUG -> https://bugs.launchpad.net/percona-xtrabackup/+bug/1444541
+            # See BUG ->
+            # https://bugs.launchpad.net/percona-xtrabackup/+bug/1444541
 
             if product_type == 2:
 
-                # Taking incremental backup with MariaDB. (--incremental-force-scan option will be added for BUG workaround)
+                # Taking incremental backup with MariaDB.
+                # (--incremental-force-scan option will be added for BUG
+                # workaround)
 
                 args = "%s --defaults-file=%s --user=%s --password='%s' " \
                        "--incremental-force-scan --incremental %s --incremental-basedir %s/%s" % \
@@ -311,14 +336,16 @@ class Backup(GeneralClass):
                 args += " --host=%s" % self.mysql_host
                 args += " --port=%s" % self.mysql_port
             else:
-                logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
+                logger.critical(
+                    "Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
                 return False
 
             # Adding compression support for incremental backup
             if hasattr(self, 'compress'):
                 args += " --compress=%s" % (self.compress)
             if hasattr(self, 'compress_chunk_size'):
-                args += " --compress-chunk-size=%s" % (self.compress_chunk_size)
+                args += " --compress-chunk-size=%s" % (
+                    self.compress_chunk_size)
             if hasattr(self, 'compress_threads'):
                 args += " --compress-threads=%s" % (self.compress_threads)
 
@@ -334,7 +361,6 @@ class Backup(GeneralClass):
             if hasattr(self, 'encrypt_chunk_size'):
                 args += " --encrypt-chunk-size=%s" % (self.encrypt_chunk_size)
 
-
             if 'encrypt' in args:
                 logger.debug("Applying workaround for LP #1444255")
                 xbcrypt_command = "%s -d -k %s -a %s -i %s/%s/xtrabackup_checkpoints.xbcrypt " \
@@ -346,7 +372,9 @@ class Backup(GeneralClass):
                                    recent_bck,
                                    self.full_dir,
                                    recent_bck)
-                logger.debug("The following xbcrypt command will be executed %s", xbcrypt_command)
+                logger.debug(
+                    "The following xbcrypt command will be executed %s",
+                    xbcrypt_command)
                 status, output = subprocess.getstatusoutput(xbcrypt_command)
                 if status == 0:
                     logger.debug(output[-27:])
@@ -356,7 +384,8 @@ class Backup(GeneralClass):
                     logger.error(output)
                     return False
 
-            logger.debug("The following backup command will be executed %s", args)
+            logger.debug(
+                "The following backup command will be executed %s", args)
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
                 logger.debug(output[-27:])
@@ -367,11 +396,13 @@ class Backup(GeneralClass):
                 logger.error(output)
                 return False
 
-        else: # If there is already existing incremental backup
+        else:  # If there is already existing incremental backup
 
             if product_type == 2:
 
-                # Taking incremental backup with MariaDB. (--incremental-force-scan option will be added for BUG workaround)
+                # Taking incremental backup with MariaDB.
+                # (--incremental-force-scan option will be added for BUG
+                # workaround)
 
                 args = "%s --defaults-file=%s  --user=%s --password='%s' " \
                        "--incremental-force-scan --incremental %s --incremental-basedir %s/%s" % \
@@ -401,14 +432,16 @@ class Backup(GeneralClass):
                 args += " --host=%s" % self.mysql_host
                 args += " --port=%s" % self.mysql_port
             else:
-                logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
+                logger.critical(
+                    "Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
                 return False
 
             # Adding compression support for incremental backup
             if hasattr(self, 'compress'):
                 args += " --compress=%s" % (self.compress)
             if hasattr(self, 'compress_chunk_size'):
-                args += " --compress_chunk_size=%s" % (self.compress_chunk_size)
+                args += " --compress_chunk_size=%s" % (
+                    self.compress_chunk_size)
             if hasattr(self, 'compress-threads'):
                 args += " --compress_threads=%s" % (self.compress_threads)
 
@@ -424,7 +457,6 @@ class Backup(GeneralClass):
             if hasattr(self, 'encrypt_chunk_size'):
                 args += " --encrypt-chunk-size=%s" % (self.encrypt_chunk_size)
 
-
             if 'encrypt' in args:
                 logger.debug("Applying workaround for LP #1444255")
                 xbcrypt_command = "%s -d -k %s -a %s -i %s/%s/xtrabackup_checkpoints.xbcrypt " \
@@ -436,7 +468,9 @@ class Backup(GeneralClass):
                                    recent_inc,
                                    self.inc_dir,
                                    recent_inc)
-                logger.debug("The following xbcrypt command will be executed %s", xbcrypt_command)
+                logger.debug(
+                    "The following xbcrypt command will be executed %s",
+                    xbcrypt_command)
                 status, output = subprocess.getstatusoutput(xbcrypt_command)
                 if status == 0:
                     logger.debug(output[-27:])
@@ -446,7 +480,8 @@ class Backup(GeneralClass):
                     logger.error(output)
                     return False
 
-            logger.debug("The following backup command will be executed %s", args)
+            logger.debug(
+                "The following backup command will be executed %s", args)
 
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
@@ -459,7 +494,6 @@ class Backup(GeneralClass):
                 return False
 
     def all_backup(self):
-
         """
          This function at first checks full backup directory, if it is empty takes full backup.
          If it is not empty then checks for full backup time.
@@ -474,9 +508,12 @@ class Backup(GeneralClass):
         if check_env_obj.check_all_env():
 
             if self.recent_full_backup_file() == 0:
-                logger.debug("###############################################################")
-                logger.debug("#You have no backups : Taking very first Full Backup! - - - - #")
-                logger.debug("###############################################################")
+                logger.debug(
+                    "###############################################################")
+                logger.debug(
+                    "#You have no backups : Taking very first Full Backup! - - - - #")
+                logger.debug(
+                    "###############################################################")
 
                 time.sleep(3)
 
@@ -489,23 +526,30 @@ class Backup(GeneralClass):
                         self.clean_inc_backup_dir()
 
                 # Copying backups to remote server
-                if hasattr(self, 'remote_conn') and hasattr(self,'remote_dir') and self.remote_conn and self.remote_dir:
+                if hasattr(
+                        self,
+                        'remote_conn') and hasattr(
+                        self,
+                        'remote_dir') and self.remote_conn and self.remote_dir:
                     self.copy_backup_to_remote_host()
 
                 # Exiting after taking full backup
                 exit(0)
 
             elif self.last_full_backup_date() == 1:
-                logger.debug("################################################################")
-                logger.debug("Your full backup is timeout : Taking new Full Backup!- - - - - #")
-                logger.debug("################################################################")
+                logger.debug(
+                    "################################################################")
+                logger.debug(
+                    "Your full backup is timeout : Taking new Full Backup!- - - - - #")
+                logger.debug(
+                    "################################################################")
 
                 time.sleep(3)
 
                 # Archiving backups
                 if self.archive_dir:
                     if (hasattr(self, 'max_archive_duration') and self.max_archive_duration) or (
-                                hasattr(self, 'max_archive_size') and self.max_archive_size):
+                            hasattr(self, 'max_archive_size') and self.max_archive_size):
                         self.clean_old_archives()
                     if not self.create_backup_archives():
                         exit(0)
@@ -522,17 +566,26 @@ class Backup(GeneralClass):
                         self.clean_inc_backup_dir()
 
                 # Copying backups to remote server
-                if hasattr(self, 'remote_conn') and hasattr(self,'remote_dir') and self.remote_conn and self.remote_dir:
+                if hasattr(
+                        self,
+                        'remote_conn') and hasattr(
+                        self,
+                        'remote_dir') and self.remote_conn and self.remote_dir:
                     self.copy_backup_to_remote_host()
 
                 # Exiting after taking NEW full backup
                 exit(0)
 
             else:
-                logger.debug("################################################################")
-                logger.debug("You have a full backup that is less than %d seconds old. - -#", self.full_backup_interval)
-                logger.debug("We will take an incremental one based on recent Full Backup - -#")
-                logger.debug("################################################################")
+                logger.debug(
+                    "################################################################")
+                logger.debug(
+                    "You have a full backup that is less than %d seconds old. - -#",
+                    self.full_backup_interval)
+                logger.debug(
+                    "We will take an incremental one based on recent Full Backup - -#")
+                logger.debug(
+                    "################################################################")
 
                 time.sleep(3)
 
@@ -540,7 +593,11 @@ class Backup(GeneralClass):
                 self.inc_backup()
 
                 # Copying backups to remote server
-                if hasattr(self, 'remote_conn') and hasattr(self,'remote_dir') and self.remote_conn and self.remote_dir:
+                if hasattr(
+                        self,
+                        'remote_conn') and hasattr(
+                        self,
+                        'remote_dir') and self.remote_conn and self.remote_dir:
                     self.copy_backup_to_remote_host()
 
                 # Exiting after taking Incremental backup

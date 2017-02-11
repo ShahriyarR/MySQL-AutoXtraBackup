@@ -32,9 +32,7 @@ class GeneralClass:
             if 'mysql_port' in DB:
                 self.mysql_port = DB['mysql_port']
 
-
             ######################################################
-
 
             self.datadir = DB['datadir']
             self.tmpdir = DB['tmpdir']
@@ -46,22 +44,26 @@ class GeneralClass:
             else:
                 self.pid_dir = "/tmp/"
             if 'pid_runtime_warning' in BCK:
-                self.pid_runtime_warning = humanfriendly.parse_timespan(BCK['pid_runtime_warning'])
+                self.pid_runtime_warning = humanfriendly.parse_timespan(
+                    BCK['pid_runtime_warning'])
             self.backupdir = BCK['backupdir']
             self.full_dir = self.backupdir + '/full'
             self.inc_dir = self.backupdir + '/inc'
             self.backup_tool = BCK['backup_tool']
             self.xtrabck_prepare = BCK['xtra_prepare']
             if 'full_backup_interval' in BCK:
-                self.full_backup_interval = humanfriendly.parse_timespan(BCK['full_backup_interval'])
+                self.full_backup_interval = humanfriendly.parse_timespan(
+                    BCK['full_backup_interval'])
             else:
                 self.full_backup_interval = 86400
             if 'archive_dir' in BCK:
                 self.archive_dir = BCK['archive_dir']
             if 'max_archive_size' in BCK:
-                self.max_archive_size = humanfriendly.parse_size(BCK['max_archive_size'])
+                self.max_archive_size = humanfriendly.parse_size(
+                    BCK['max_archive_size'])
             if 'max_archive_duration' in BCK:
-                self.max_archive_duration = humanfriendly.parse_timespan(BCK['max_archive_duration'])
+                self.max_archive_duration = humanfriendly.parse_timespan(
+                    BCK['max_archive_duration'])
 
             if 'Remote' in con:
                 RM = con['Remote']
@@ -95,7 +97,6 @@ class GeneralClass:
                 self.encrypt_chunk_size = ENC['encrypt_chunk_size']
             if 'decrypt' in ENC:
                 self.decrypt = ENC['decrypt']
-
 
             CM = con['Commands']
             self.start_mysql = CM['start_mysql_command']
