@@ -6,7 +6,7 @@ import subprocess
 from general_conf.generalops import GeneralClass
 from mysql.connector import errorcode
 import re
-from master_backup_script import check_env
+from general_conf import check_env
 
 import logging
 logger = logging.getLogger(__name__)
