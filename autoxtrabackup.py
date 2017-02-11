@@ -47,7 +47,8 @@ def check_file_content(file):
     config_file.close()
 
     config_headers = ["MySQL", "Backup", "Encrypt", "Compress", "Commands"]
-    config_keys = ["mysql", "mycnf", "mysqladmin", "mysql_user", "mysql_password", "datadir", "tmpdir", "tmp", \
+    config_keys = ["mysql", "mycnf", "mysqladmin", "mysql_user", "mysql_password", "mysql_host", \
+                   "datadir", "tmpdir", "tmp", \
                    "backupdir", "backup_tool", "xtra_prepare", "start_mysql_command", "stop_mysql_command", \
                    "systemd_start_mysql", "systemd_stop_mysql", "chown_command", "systemd_start_mariadb", \
                    "systemd_stop_mariadb"]
