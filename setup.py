@@ -1,4 +1,5 @@
 from setuptools import setup
+import subprocess
 
 version = subprocess.check_output(["git", "describe", "--abbrev=0"]).decode().strip()
 

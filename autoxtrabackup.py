@@ -9,6 +9,7 @@ import time
 import re
 import os
 import humanfriendly
+import subprocess
 
 import logging
 import logging.handlers
