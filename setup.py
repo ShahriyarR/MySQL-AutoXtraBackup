@@ -1,15 +1,14 @@
 from setuptools import setup
-from autoxtrabackup import version
 
 datafiles = [('//etc', ['general_conf/bck.conf'])]
 
 setup(
     name='mysql-autoxtrabackup',
-    version=version,
+    version='1.4.4',
     packages=['general_conf', 'backup_prepare', 'partial_recovery', 'master_backup_script'],
     py_modules = ['autoxtrabackup'],
     url='https://github.com/ShahriyarR/MySQL-AutoXtraBackup',
-    download_url = 'https://github.com/ShahriyarR/MySQL-AutoXtraBackup/tarball/%s' % version,
+    download_url = 'https://github.com/ShahriyarR/MySQL-AutoXtraBackup/tarball/v1.4.3',
     license='MIT',
     author='Shahriyar Rzayev',
     author_email='rzayev.shahriyar@yandex.com',
