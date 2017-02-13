@@ -58,31 +58,31 @@ class CheckEnv(GeneralClass):
     def check_mysql_mysql(self):
         if not os.path.exists(self.mysql):
             logger.error(
-                '/usr/bin/mysql NOT exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+')
+                '%s doest NOT exist+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+' % self.mysql)
             return False
         else:
             logger.debug(
-                '/usr/bin/mysql exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-OK')
+                '%s exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-OK' % self.mysql)
             return True
 
     def check_mysql_mysqladmin(self):
         if not os.path.exists(self.mysqladmin):
             logger.error(
-                '/usr/bin/mysqladmin NOT exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-')
+                '%s does NOT exist+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-' % self.mysqladmin)
             return False
         else:
             logger.debug(
-                '/usr/bin/mysqladmin exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK')
+                '%s exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK' % self.mysqladmin)
             return True
 
     def check_mysql_backuptool(self):
         if not os.path.exists(self.backup_tool):
             logger.error(
-                'Xtrabackup/Innobackupex NOT exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-')
+                'Xtrabackup does NOT exist+-+-+-+-+-+-+-+-+-++-+-+-+-+-')
             return False
         else:
             logger.debug(
-                'Xtrabackup/Innobackupex exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-OK')
+                'Xtrabackup exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-OK')
             return True
 
     def check_mysql_backupdir(self):
