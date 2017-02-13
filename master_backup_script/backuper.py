@@ -288,7 +288,7 @@ class Backup(GeneralClass):
         recent_bck = self.recent_full_backup_file()
         recent_inc = self.recent_inc_backup_file()
 
-        check_env_obj = CheckEnv()
+        check_env_obj = CheckEnv(self.conf)
         product_type = check_env_obj.check_mysql_product()
 
         # Creating time-stamped incremental backup directory
