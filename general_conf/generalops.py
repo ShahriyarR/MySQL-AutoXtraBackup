@@ -81,6 +81,8 @@ class GeneralClass:
                 self.compress_threads = COM['compress_threads']
             if 'decompress' in COM:
                 self.decompress = COM['decompress']
+            if 'remove_original' in COM:
+                self.remove_original_comp = COM['remove_original']
 
             ENC = con['Encrypt']
             if 'xbcrypt' in ENC:
@@ -97,6 +99,9 @@ class GeneralClass:
                 self.encrypt_chunk_size = ENC['encrypt_chunk_size']
             if 'decrypt' in ENC:
                 self.decrypt = ENC['decrypt']
+            if 'remove_original' in ENC:
+                self.remove_original_enc = ENC['remove_original']
+                
 
             CM = con['Commands']
             self.start_mysql = CM['start_mysql_command']
