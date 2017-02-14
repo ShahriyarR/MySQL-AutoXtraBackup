@@ -63,12 +63,20 @@ class Prepare(GeneralClass):
 
             # Check if decryption enabled
             if hasattr(self, 'decrypt'):
-                decr = "%s --decrypt=%s --encrypt-key=%s --target-dir=%s/%s" % \
-                       (self.backup_tool,
-                        self.decrypt,
-                        self.encrypt_key,
-                        self.full_dir,
-                        self.recent_full_backup_file())
+                if hasattr(self, 'remove_original_enc') and (self.remove_original_enc):
+                    decr = "%s --decrypt=%s --encrypt-key=%s --target-dir=%s/%s --remove-original" % \
+                           (self.backup_tool,
+                            self.decrypt,
+                            self.encrypt_key,
+                            self.full_dir,
+                            self.recent_full_backup_file())
+                else:
+                    decr = "%s --decrypt=%s --encrypt-key=%s --target-dir=%s/%s" % \
+                            (self.backup_tool,
+                             self.decrypt,
+                             self.encrypt_key,
+                             self.full_dir,
+                             self.recent_full_backup_file())                    
                 logger.debug("Trying to decrypt backup")
                 logger.debug("Running decrypt command -> %s", decr)
                 status, output = subprocess.getstatusoutput(decr)
@@ -82,11 +90,18 @@ class Prepare(GeneralClass):
 
             # Check if decompression enabled
             if hasattr(self, 'decompress'):
-                decmp = "%s --decompress=%s --target-dir=%s/%s" % \
-                        (self.backup_tool,
-                         self.decompress,
-                         self.full_dir,
-                         self.recent_full_backup_file())
+                if hasattr(self, 'remove_original_comp') and (self.remove_original_comp):
+                    decmp = "%s --decompress=%s --target-dir=%s/%s --remove-original" % \
+                            (self.backup_tool,
+                             self.decompress,
+                             self.full_dir,
+                             self.recent_full_backup_file())
+                else:
+                    decmp = "%s --decompress=%s --target-dir=%s/%s --remove-original" % \
+                            (self.backup_tool,
+                             self.decompress,
+                             self.full_dir,
+                             self.recent_full_backup_file())    
                 logger.debug("Trying to decompress backup")
                 logger.debug("Running decompress command -> %s", decmp)
                 status, output = subprocess.getstatusoutput(decmp)
@@ -124,12 +139,20 @@ class Prepare(GeneralClass):
 
             # Check if decryption enabled
             if hasattr(self, 'decrypt'):
-                decr = "%s --decrypt=%s --encrypt-key=%s --target-dir=%s/%s" % \
-                       (self.backup_tool,
-                        self.decrypt,
-                        self.encrypt_key,
-                        self.full_dir,
-                        self.recent_full_backup_file())
+                if hasattr(self, 'remove_original_enc') and (self.remove_original_enc):
+                    decr = "%s --decrypt=%s --encrypt-key=%s --target-dir=%s/%s --remove-original" % \
+                           (self.backup_tool,
+                            self.decrypt,
+                            self.encrypt_key,
+                            self.full_dir,
+                            self.recent_full_backup_file())
+                else:
+                    decr = "%s --decrypt=%s --encrypt-key=%s --target-dir=%s/%s" % \
+                            (self.backup_tool,
+                             self.decrypt,
+                             self.encrypt_key,
+                             self.full_dir,
+                             self.recent_full_backup_file())                    
                 logger.debug("Trying to decrypt backup")
                 logger.debug("Running decrypt command -> %s", decr)
                 status, output = subprocess.getstatusoutput(decr)
@@ -144,11 +167,18 @@ class Prepare(GeneralClass):
             # Check if decompression enabled, if it is, decompress backup prior
             # prepare
             if hasattr(self, 'decompress'):
-                decmp = "%s --decompress=%s --target-dir=%s/%s" % \
-                        (self.backup_tool,
-                         self.decompress,
-                         self.full_dir,
-                         self.recent_full_backup_file())
+                if hasattr(self, 'remove_original_comp') and (self.remove_original_comp):
+                    decmp = "%s --decompress=%s --target-dir=%s/%s --remove-original" % \
+                            (self.backup_tool,
+                             self.decompress,
+                             self.full_dir,
+                             self.recent_full_backup_file())
+                else:
+                    decmp = "%s --decompress=%s --target-dir=%s/%s" % \
+                            (self.backup_tool,
+                             self.decompress,
+                             self.full_dir,
+                             self.recent_full_backup_file())
                 logger.debug("Trying to decompress backup")
                 logger.debug("Running decompress command -> %s", decmp)
                 status, output = subprocess.getstatusoutput(decmp)
@@ -215,12 +245,20 @@ class Prepare(GeneralClass):
 
                         # Check if decryption enabled
                         if hasattr(self, 'decrypt'):
-                            decr = "%s --decrypt=%s --encrypt-key=%s --target-dir=%s/%s" % \
-                                   (self.backup_tool,
-                                    self.decrypt,
-                                    self.encrypt_key,
-                                    self.inc_dir,
-                                    i)
+                            if hasattr(self, 'remove_original_enc') and (self.remove_original_enc):
+                                decr = "%s --decrypt=%s --encrypt-key=%s --target-dir=%s/%s --remove-original" % \
+                                       (self.backup_tool,
+                                        self.decrypt,
+                                        self.encrypt_key,
+                                        self.inc_dir,
+                                        i)
+                            else:
+                                decr = "%s --decrypt=%s --encrypt-key=%s --target-dir=%s/%s" % \
+                                        (self.backup_tool,
+                                         self.decrypt,
+                                         self.encrypt_key,
+                                         self.inc_dir,
+                                         i)                                
                             logger.debug("Trying to decrypt backup")
                             logger.debug("Running decrypt command -> %s", decr)
                             status, output = subprocess.getstatusoutput(decr)
@@ -235,11 +273,18 @@ class Prepare(GeneralClass):
                         # Check if decompression enabled, if it is, decompress
                         # backup prior prepare
                         if hasattr(self, 'decompress'):
-                            decmp = "%s --decompress=%s --target-dir=%s/%s" % \
-                                    (self.backup_tool,
-                                     self.decompress,
-                                     self.inc_dir,
-                                     i)
+                            if hasattr(self, 'remove_original_comp') and (self.remove_original_comp):
+                                decmp = "%s --decompress=%s --target-dir=%s/%s --remove-original" % \
+                                        (self.backup_tool,
+                                         self.decompress,
+                                         self.inc_dir,
+                                         i)
+                            else:
+                                decmp = "%s --decompress=%s --target-dir=%s/%s" % \
+                                        (self.backup_tool,
+                                         self.decompress,
+                                         self.inc_dir,
+                                         i)                                
                             logger.debug("Trying to decompress backup")
                             logger.debug(
                                 "Running decompress command -> %s", decmp)
@@ -283,12 +328,20 @@ class Prepare(GeneralClass):
 
                         # Check if decryption enabled
                         if hasattr(self, 'decrypt'):
-                            decr = "%s --decrypt=%s --encrypt-key=%s --target-dir=%s/%s" % \
-                                   (self.backup_tool,
-                                    self.decrypt,
-                                    self.encrypt_key,
-                                    self.inc_dir,
-                                    i)
+                            if hasattr(self, 'remove_original_enc') and (self.remove_original_enc):
+                                decr = "%s --decrypt=%s --encrypt-key=%s --target-dir=%s/%s --remove-original" % \
+                                       (self.backup_tool,
+                                        self.decrypt,
+                                        self.encrypt_key,
+                                        self.inc_dir,
+                                        i)
+                            else:
+                                decr = "%s --decrypt=%s --encrypt-key=%s --target-dir=%s/%s" % \
+                                                                (self.backup_tool,
+                                                                    self.decrypt,
+                                                                    self.encrypt_key,
+                                                                    self.inc_dir,
+                                                                    i)                                
                             logger.debug("Trying to decrypt backup")
                             logger.debug("Running decrypt command -> %s", decr)
                             status, output = subprocess.getstatusoutput(decr)
@@ -303,11 +356,18 @@ class Prepare(GeneralClass):
                         # Check if decompression enabled, if it is, decompress
                         # backup prior prepare
                         if hasattr(self, 'decompress'):
-                            decmp = "%s --decompress=%s --target-dir=%s/%s" % \
-                                    (self.backup_tool,
-                                     self.decompress,
-                                     self.inc_dir,
-                                     i)
+                            if hasattr(self, 'remove_original_comp') and (self.remove_original_comp):
+                                decmp = "%s --decompress=%s --target-dir=%s/%s --remove-original" % \
+                                        (self.backup_tool,
+                                         self.decompress,
+                                         self.inc_dir,
+                                         i)
+                            else:
+                                decmp = "%s --decompress=%s --target-dir=%s/%s" % \
+                                        (self.backup_tool,
+                                         self.decompress,
+                                         self.inc_dir,
+                                         i)                                
                             logger.debug("Trying to decompress backup")
                             logger.debug(
                                 "Running decompress command -> %s", decmp)
