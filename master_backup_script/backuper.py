@@ -267,7 +267,12 @@ class Backup(GeneralClass):
             args += " --encrypt-threads=%s" % (self.encrypt_threads)
         if hasattr(self, 'encrypt_chunk_size'):
             args += " --encrypt-chunk-size=%s" % (self.encrypt_chunk_size)
-
+        
+        # Checking if extra options were passed:
+        if hasattr(self, 'xtra_options'):
+            args += " "
+            args += self.xtra_options
+            
         logger.debug("The following backup command will be executed %s", args)
 
         logger.debug("Starting %s", self.backup_tool)
@@ -383,7 +388,12 @@ class Backup(GeneralClass):
                     time.sleep(5)
                     logger.error(output)
                     return False
-
+            
+            # Checking if extra options were passed:
+            if hasattr(self, 'xtra_options'):
+                args += " "
+                args += self.xtra_options            
+            
             logger.debug(
                 "The following backup command will be executed %s", args)
             status, output = subprocess.getstatusoutput(args)
@@ -479,7 +489,12 @@ class Backup(GeneralClass):
                     time.sleep(5)
                     logger.error(output)
                     return False
-
+            
+            # Checking if extra options were passed:
+            if hasattr(self, 'xtra_options'):
+                args += " "
+                args += self.xtra_options              
+                
             logger.debug(
                 "The following backup command will be executed %s", args)
 

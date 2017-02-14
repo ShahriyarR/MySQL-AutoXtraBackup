@@ -111,12 +111,17 @@ class Prepare(GeneralClass):
                 else:
                     logger.error("FULL BACKUP DECOMPRESSION FAILED!")
                     time.sleep(5)
-                    logger.error(output)
-
+                    logger.error(output)           
+                    
             args = "%s --prepare --target-dir=%s/%s" % \
                    (self.backup_tool,
                     self.full_dir,
                     self.recent_full_backup_file())
+            
+            # Checking if extra options were passed:
+            if hasattr(self, 'xtra_options'):
+                args += " "
+                args += self.xtra_options             
 
             logger.debug("Running prepare command -> %s", args)
             status, output = subprocess.getstatusoutput(args)
@@ -189,13 +194,20 @@ class Prepare(GeneralClass):
                     logger.error("FULL BACKUP DECOMPRESSION FAILED!")
                     time.sleep(5)
                     logger.error(output)
-
+            
+                         
+                    
             args = '%s --prepare %s --target-dir=%s/%s' % \
                 (self.backup_tool,
                  self.xtrabck_prepare,
                  self.full_dir,
                  self.recent_full_backup_file())
-
+            
+            # Checking if extra options were passed:
+            if hasattr(self, 'xtra_options'):
+                args += " "
+                args += self.xtra_options                
+            
             logger.debug("Running prepare command -> %s", args)
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
@@ -297,7 +309,9 @@ class Prepare(GeneralClass):
                                     "INCREMENTAL BACKUP DECOMPRESSION FAILED!")
                                 time.sleep(5)
                                 logger.error(output)
-
+                        
+                                                   
+                                
                         args = '%s --prepare %s --target-dir=%s/%s --incremental-dir=%s/%s' % \
                             (self.backup_tool,
                              self.xtrabck_prepare,
@@ -305,6 +319,11 @@ class Prepare(GeneralClass):
                              self.recent_full_backup_file(),
                              self.inc_dir,
                              i)
+                        
+                        # Checking if extra options were passed:
+                        if hasattr(self, 'xtra_options'):
+                            args += " "
+                            args += self.xtra_options                          
 
                         logger.debug("Running prepare command -> %s", args)
                         status, output = subprocess.getstatusoutput(args)
@@ -380,13 +399,19 @@ class Prepare(GeneralClass):
                                     "INCREMENTAL BACKUP DECOMPRESSION FAILED!")
                                 time.sleep(5)
                                 logger.error(output)
-
+                                                             
+                        
                         args2 = '%s --prepare --target-dir=%s/%s --incremental-dir=%s/%s' % \
                             (self.backup_tool,
                              self.full_dir,
                              self.recent_full_backup_file(),
                              self.inc_dir,
                              i)
+                        
+                        # Checking if extra options were passed:
+                        if hasattr(self, 'xtra_options'):
+                            args2 += " "
+                            args2 += self.xtra_options                        
 
                         logger.debug("Running prepare command -> %s", args2)
                         status2, output2 = subprocess.getstatusoutput(args2)
