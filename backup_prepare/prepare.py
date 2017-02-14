@@ -410,8 +410,8 @@ class Prepare(GeneralClass):
                         
                         # Checking if extra options were passed:
                         if hasattr(self, 'xtra_options'):
-                            args += " "
-                            args += self.xtra_options                        
+                            args2 += " "
+                            args2 += self.xtra_options                        
 
                         logger.debug("Running prepare command -> %s", args2)
                         status2, output2 = subprocess.getstatusoutput(args2)
