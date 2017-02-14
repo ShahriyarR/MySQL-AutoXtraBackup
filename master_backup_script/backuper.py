@@ -270,6 +270,7 @@ class Backup(GeneralClass):
         
         # Checking if extra options were passed:
         if hasattr(self, 'xtra_options'):
+            args += " "
             args += self.xtra_options
             
         logger.debug("The following backup command will be executed %s", args)
@@ -390,6 +391,7 @@ class Backup(GeneralClass):
             
             # Checking if extra options were passed:
             if hasattr(self, 'xtra_options'):
+                args += " "
                 args += self.xtra_options            
             
             logger.debug(
@@ -490,6 +492,7 @@ class Backup(GeneralClass):
             
             # Checking if extra options were passed:
             if hasattr(self, 'xtra_options'):
+                args += " "
                 args += self.xtra_options              
                 
             logger.debug(

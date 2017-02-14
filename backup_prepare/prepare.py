@@ -120,6 +120,7 @@ class Prepare(GeneralClass):
             
             # Checking if extra options were passed:
             if hasattr(self, 'xtra_options'):
+                args += " "
                 args += self.xtra_options             
 
             logger.debug("Running prepare command -> %s", args)
@@ -204,6 +205,7 @@ class Prepare(GeneralClass):
             
             # Checking if extra options were passed:
             if hasattr(self, 'xtra_options'):
+                args += " "
                 args += self.xtra_options                
             
             logger.debug("Running prepare command -> %s", args)
@@ -320,6 +322,7 @@ class Prepare(GeneralClass):
                         
                         # Checking if extra options were passed:
                         if hasattr(self, 'xtra_options'):
+                            args += " "
                             args += self.xtra_options                          
 
                         logger.debug("Running prepare command -> %s", args)
@@ -407,6 +410,7 @@ class Prepare(GeneralClass):
                         
                         # Checking if extra options were passed:
                         if hasattr(self, 'xtra_options'):
+                            args += " "
                             args += self.xtra_options                        
 
                         logger.debug("Running prepare command -> %s", args2)
