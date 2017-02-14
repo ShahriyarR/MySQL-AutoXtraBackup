@@ -19,9 +19,6 @@ class GeneralClass:
             DB = con['MySQL']
             self.mysql = DB['mysql']
             self.mycnf = DB['mycnf']
-
-            ######################################################
-
             self.mysqladmin = DB['mysqladmin']
             self.mysql_user = DB['mysql_user']
             self.mysql_password = DB['mysql_password']
@@ -31,13 +28,11 @@ class GeneralClass:
                 self.mysql_host = DB['mysql_host']
             if 'mysql_port' in DB:
                 self.mysql_port = DB['mysql_port']
-
-            ######################################################
-
             self.datadir = DB['datadir']
             self.tmpdir = DB['tmpdir']
             self.tmp = DB['tmp']
-
+            
+            
             BCK = con['Backup']
             if 'pid_dir' in BCK:
                 self.pid_dir = BCK['pid_dir']
@@ -51,6 +46,8 @@ class GeneralClass:
             self.inc_dir = self.backupdir + '/inc'
             self.backup_tool = BCK['backup_tool']
             self.xtrabck_prepare = BCK['xtra_prepare']
+            if 'xtra_options' in BCK:
+                self.xtra_options = BCK['xtra_options'] 
             if 'full_backup_interval' in BCK:
                 self.full_backup_interval = humanfriendly.parse_timespan(
                     BCK['full_backup_interval'])
@@ -64,7 +61,8 @@ class GeneralClass:
             if 'max_archive_duration' in BCK:
                 self.max_archive_duration = humanfriendly.parse_timespan(
                     BCK['max_archive_duration'])
-
+                
+                
             if 'Remote' in con:
                 RM = con['Remote']
                 if 'remote_conn' in RM:
