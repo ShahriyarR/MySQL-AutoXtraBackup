@@ -91,39 +91,39 @@ class Backup(GeneralClass):
         """
         It is highly recomended to flush binary logs before each full backup for easy maintenance.
         That's why we will execute "flush logs" command before each full backup!
-        """      
-        
+        """
+
         command_connection = '{} --defaults-file={} -u{} --password={} --host={}'
-        command_execute = ' -e "flush logs"'        
-                    
+        command_execute = ' -e "flush logs"'
+
         # Open connection
         try:
-            
+
             if hasattr(self, 'mysql_socket'):
                 command_connection += ' --socket={}'
                 command_connection += command_execute
                 new_command = command_connection.format(
-                   self.mycnf,
-                   self.mysql,
-                   self.mysql_user,
-                   self.mysql_password,
-                   self.mysql_host,
-                   self.mysql_socket
-               )
+                    self.mycnf,
+                    self.mysql,
+                    self.mysql_user,
+                    self.mysql_password,
+                    self.mysql_host,
+                    self.mysql_socket
+                )
             else:
                 command_connection += ' --port={}'
                 command_connection += command_execute
                 new_command = command_connection.format(
-                               self.mycnf, 
-                               self.mysql,
-                               self.mysql_user,
-                               self.mysql_password,
-                               self.mysql_host,
-                               self.mysql_port
-                            )
+                    self.mycnf,
+                    self.mysql,
+                    self.mysql_user,
+                    self.mysql_password,
+                    self.mysql_host,
+                    self.mysql_port
+                )
             logger.debug("Trying to flush logs")
             status, output = subprocess.getstatusoutput(new_command)
-            
+
             if status == 0:
                 logger.debug("Log flushing completed")
                 return True
@@ -131,8 +131,8 @@ class Backup(GeneralClass):
                 logger.error("Log flushing FAILED!")
                 time.sleep(5)
                 logger.error(output)
-                return False            
-                   
+                return False
+
     def create_backup_archives(self):
         # Creating .tar.gz archive files of taken backups
         for i in os.listdir(self.full_dir):
@@ -252,12 +252,12 @@ class Backup(GeneralClass):
             args += " --encrypt-threads=%s" % (self.encrypt_threads)
         if hasattr(self, 'encrypt_chunk_size'):
             args += " --encrypt-chunk-size=%s" % (self.encrypt_chunk_size)
-        
+
         # Checking if extra options were passed:
         if hasattr(self, 'xtra_options'):
             args += " "
             args += self.xtra_options
-            
+
         logger.debug("The following backup command will be executed %s", args)
 
         logger.debug("Starting %s", self.backup_tool)
@@ -373,12 +373,12 @@ class Backup(GeneralClass):
                     time.sleep(5)
                     logger.error(output)
                     return False
-            
+
             # Checking if extra options were passed:
             if hasattr(self, 'xtra_options'):
                 args += " "
-                args += self.xtra_options            
-            
+                args += self.xtra_options
+
             logger.debug(
                 "The following backup command will be executed %s", args)
             status, output = subprocess.getstatusoutput(args)
@@ -474,12 +474,12 @@ class Backup(GeneralClass):
                     time.sleep(5)
                     logger.error(output)
                     return False
-            
+
             # Checking if extra options were passed:
             if hasattr(self, 'xtra_options'):
                 args += " "
-                args += self.xtra_options              
-                
+                args += self.xtra_options
+
             logger.debug(
                 "The following backup command will be executed %s", args)
 
