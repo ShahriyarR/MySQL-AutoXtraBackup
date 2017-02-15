@@ -133,6 +133,7 @@ class Backup(GeneralClass):
             logger.error(output)
             return False
 
+
     def create_backup_archives(self):
         # Creating .tar.gz archive files of taken backups
         for i in os.listdir(self.full_dir):
