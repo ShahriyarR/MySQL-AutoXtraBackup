@@ -30,7 +30,9 @@ class CheckEnv(GeneralClass):
             logger.critical(
                 "Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
             return False
-
+        
+        logger.debug(
+            "Running mysqladmin command -> %s", statusargs)
         statusargs = shlex.split(statusargs)
         myadmin = subprocess.Popen(statusargs, stdout=subprocess.PIPE)
 
