@@ -132,13 +132,8 @@ class Backup(GeneralClass):
                 time.sleep(5)
                 logger.error(output)
                 return False            
-                
-            
-            
-            
-
+                   
     def create_backup_archives(self):
-
         # Creating .tar.gz archive files of taken backups
         for i in os.listdir(self.full_dir):
             rm_dir = self.full_dir + '/' + i
