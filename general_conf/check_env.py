@@ -311,8 +311,8 @@ class CheckEnv(GeneralClass):
         :return: 2 if server is MariaDB / 3 if server is MySQL(other)
         """
 
-        check_version = "%s --user=%s --password='%s' ver" % (
-            self.mysqladmin, self.mysql_user, self.mysql_password)
+        check_version = "%s --defaults-file=%s --user=%s --password='%s' ver" % (
+            self.mysqladmin, self.mycnf, self.mysql_user, self.mysql_password)
 
         if hasattr(self, 'mysql_socket'):
             check_version += " --socket=%s" % (self.mysql_socket)
