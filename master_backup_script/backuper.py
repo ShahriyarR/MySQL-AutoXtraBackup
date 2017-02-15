@@ -103,8 +103,8 @@ class Backup(GeneralClass):
             command_connection += ' --socket={}'
             command_connection += command_execute
             new_command = command_connection.format(
-                self.mycnf,
                 self.mysql,
+                self.mycnf,
                 self.mysql_user,
                 self.mysql_password,
                 self.mysql_host,
@@ -114,8 +114,8 @@ class Backup(GeneralClass):
             command_connection += ' --port={}'
             command_connection += command_execute
             new_command = command_connection.format(
-                self.mycnf,
                 self.mysql,
+                self.mycnf,
                 self.mysql_user,
                 self.mysql_password,
                 self.mysql_host,
