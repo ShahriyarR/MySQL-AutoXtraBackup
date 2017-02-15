@@ -18,8 +18,8 @@ class CheckEnv(GeneralClass):
 
     def check_mysql_uptime(self):
 
-        statusargs = '%s --user=%s --password=%s status' % (
-            self.mysqladmin, self.mysql_user, self.mysql_password)
+        statusargs = '%s --defaults-file=%s --user=%s --password=%s status' % (
+            self.mysqladmin, self.mycnf, self.mysql_user, self.mysql_password)
 
         if hasattr(self, 'mysql_socket'):
             statusargs += " --socket=%s" % (self.mysql_socket)
