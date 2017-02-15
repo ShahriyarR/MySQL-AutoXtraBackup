@@ -97,41 +97,41 @@ class Backup(GeneralClass):
         command_execute = ' -e "flush logs"'
 
         # Open connection
-        try:
+        
 
-            if hasattr(self, 'mysql_socket'):
-                command_connection += ' --socket={}'
-                command_connection += command_execute
-                new_command = command_connection.format(
-                    self.mycnf,
-                    self.mysql,
-                    self.mysql_user,
-                    self.mysql_password,
-                    self.mysql_host,
-                    self.mysql_socket
-                )
-            else:
-                command_connection += ' --port={}'
-                command_connection += command_execute
-                new_command = command_connection.format(
-                    self.mycnf,
-                    self.mysql,
-                    self.mysql_user,
-                    self.mysql_password,
-                    self.mysql_host,
-                    self.mysql_port
-                )
-            logger.debug("Trying to flush logs")
-            status, output = subprocess.getstatusoutput(new_command)
+        if hasattr(self, 'mysql_socket'):
+            command_connection += ' --socket={}'
+            command_connection += command_execute
+            new_command = command_connection.format(
+                self.mycnf,
+                self.mysql,
+                self.mysql_user,
+                self.mysql_password,
+                self.mysql_host,
+                self.mysql_socket
+            )
+        else:
+            command_connection += ' --port={}'
+            command_connection += command_execute
+            new_command = command_connection.format(
+                self.mycnf,
+                self.mysql,
+                self.mysql_user,
+                self.mysql_password,
+                self.mysql_host,
+                self.mysql_port
+            )
+        logger.debug("Trying to flush logs")
+        status, output = subprocess.getstatusoutput(new_command)
 
-            if status == 0:
-                logger.debug("Log flushing completed")
-                return True
-            else:
-                logger.error("Log flushing FAILED!")
-                time.sleep(5)
-                logger.error(output)
-                return False
+        if status == 0:
+            logger.debug("Log flushing completed")
+            return True
+        else:
+            logger.error("Log flushing FAILED!")
+            time.sleep(5)
+            logger.error(output)
+            return False
 
     def create_backup_archives(self):
         # Creating .tar.gz archive files of taken backups
