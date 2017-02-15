@@ -18,8 +18,8 @@ class CheckEnv(GeneralClass):
 
     def check_mysql_uptime(self):
 
-        statusargs = '%s --user=%s --password=%s status' % (
-            self.mysqladmin, self.mysql_user, self.mysql_password)
+        statusargs = '%s --defaults-file=%s --user=%s --password=%s status' % (
+            self.mysqladmin, self.mycnf, self.mysql_user, self.mysql_password)
 
         if hasattr(self, 'mysql_socket'):
             statusargs += " --socket=%s" % (self.mysql_socket)
@@ -30,7 +30,9 @@ class CheckEnv(GeneralClass):
             logger.critical(
                 "Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
             return False
-
+        
+        logger.debug(
+            "Running mysqladmin command -> %s", statusargs)
         statusargs = shlex.split(statusargs)
         myadmin = subprocess.Popen(statusargs, stdout=subprocess.PIPE)
 

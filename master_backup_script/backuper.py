@@ -91,64 +91,50 @@ class Backup(GeneralClass):
         """
         It is highly recomended to flush binary logs before each full backup for easy maintenance.
         That's why we will execute "flush logs" command before each full backup!
-        Also for security purposes you must create a MySQL user with only RELOAD privilege.
-        I provide eg. create user statement:
-
         """
 
-        # ############################################################
-        # create user 'test_backup'@'127.0.0.1' identified by '12345';
-        # grant all on bck.* to 'test_backup'@'127.0.0.1';
-        # grant reload on *.* to 'test_backup'@'127.0.0.1';
-        # ############################################################
-
-        # Also create a test database for connection
-        # create database bck;
-
-        config = {
-
-            'user': self.mysql_user,
-            'password': self.mysql_password,
-            # 'database': 'bck',
-            'raise_on_warnings': True,
-        }
-
-        if hasattr(self, 'mysql_socket'):
-            config['unix_socket'] = self.mysql_socket
-        elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
-            config['host'] = self.mysql_host
-            config['port'] = self.mysql_port
-        else:
-            logger.critical(
-                "Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
+        command_connection = '{} --defaults-file={} -u{} --password={} --host={}'
+        command_execute = ' -e "flush logs"'
 
         # Open connection
-        try:
-            cnx = mysql.connector.connect(**config)
-            cursor = cnx.cursor()
-            query = "flush logs"
-            logger.debug("Flushing Binary Logs")
-            time.sleep(2)
-            cursor.execute(query)
-            cursor.close()
-            cnx.close()
+        
+
+        if hasattr(self, 'mysql_socket'):
+            command_connection += ' --socket={}'
+            command_connection += command_execute
+            new_command = command_connection.format(
+                self.mysql,
+                self.mycnf,
+                self.mysql_user,
+                self.mysql_password,
+                self.mysql_host,
+                self.mysql_socket
+            )
+        else:
+            command_connection += ' --port={}'
+            command_connection += command_execute
+            new_command = command_connection.format(
+                self.mysql,
+                self.mycnf,
+                self.mysql_user,
+                self.mysql_password,
+                self.mysql_host,
+                self.mysql_port
+            )
+        logger.debug("Trying to flush logs")
+        status, output = subprocess.getstatusoutput(new_command)
+
+        if status == 0:
+            logger.debug("Log flushing completed")
             return True
-        except mysql.connector.Error as err:
-            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                logger.error(err)
-                logger.error(
-                    "Something is wrong with your user name or password!!!!!")
-                return False
-            elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                logger.error(err)
-                logger.error("Database does not exists")
-                return False
-            else:
-                logger.debug(err)
-                return False
+        else:
+            logger.error("Log flushing FAILED!")
+            time.sleep(5)
+            logger.error(output)
+            return False
+
 
     def create_backup_archives(self):
-
         # Creating .tar.gz archive files of taken backups
         for i in os.listdir(self.full_dir):
             rm_dir = self.full_dir + '/' + i
@@ -267,12 +253,12 @@ class Backup(GeneralClass):
             args += " --encrypt-threads=%s" % (self.encrypt_threads)
         if hasattr(self, 'encrypt_chunk_size'):
             args += " --encrypt-chunk-size=%s" % (self.encrypt_chunk_size)
-        
+
         # Checking if extra options were passed:
         if hasattr(self, 'xtra_options'):
             args += " "
             args += self.xtra_options
-            
+
         logger.debug("The following backup command will be executed %s", args)
 
         logger.debug("Starting %s", self.backup_tool)
@@ -388,12 +374,12 @@ class Backup(GeneralClass):
                     time.sleep(5)
                     logger.error(output)
                     return False
-            
+
             # Checking if extra options were passed:
             if hasattr(self, 'xtra_options'):
                 args += " "
-                args += self.xtra_options            
-            
+                args += self.xtra_options
+
             logger.debug(
                 "The following backup command will be executed %s", args)
             status, output = subprocess.getstatusoutput(args)
@@ -489,12 +475,12 @@ class Backup(GeneralClass):
                     time.sleep(5)
                     logger.error(output)
                     return False
-            
+
             # Checking if extra options were passed:
             if hasattr(self, 'xtra_options'):
                 args += " "
-                args += self.xtra_options              
-                
+                args += self.xtra_options
+
             logger.debug(
                 "The following backup command will be executed %s", args)
 
