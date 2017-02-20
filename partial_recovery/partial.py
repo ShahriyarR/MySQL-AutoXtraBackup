@@ -58,6 +58,8 @@ class PartialRecovery(GeneralClass):
         run_command = self.create_mysql_client_command(statement=statement)
 
         logger.debug("Checking if innodb_file_per_table is enabled")
+        logger.debug("Will run following command ->"
+                     "%s", run_command)
         status, output = subprocess.getstatusoutput(run_command)
 
         if status == 0 and output == 1:
