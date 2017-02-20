@@ -137,8 +137,12 @@ def validate_file(file):
               help="Set log level")
 def all_procedure(prepare, backup, partial, verbose, log, defaults_file):
     logger.setLevel(log)
+    formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
+                                  datefmt='%Y-%m-%d %H:%M:%S')
     if verbose:
-        logger.addHandler(logging.StreamHandler())
+        ch = logging.StreamHandler()
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
 
     validate_file(defaults_file)
     config = GeneralClass(defaults_file)
