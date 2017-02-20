@@ -357,7 +357,7 @@ class PartialRecovery(GeneralClass):
         if path:
             path_to_frm_file = path[:-3] + 'frm'
 
-        obj_check_env = check_env.CheckEnv()
+        obj_check_env = check_env.CheckEnv(self.conf)
 
         if path:
             if obj_check_env.check_mysql_uptime():
