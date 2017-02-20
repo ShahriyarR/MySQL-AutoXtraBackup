@@ -1,10 +1,7 @@
-import mysql.connector
 import os
 import shutil
-import shlex
 import subprocess
 from general_conf.generalops import GeneralClass
-from mysql.connector import errorcode
 import re
 from general_conf import check_env
 
@@ -14,50 +11,42 @@ logger = logging.getLogger(__name__)
 
 class PartialRecovery(GeneralClass):
 
-    def __init__(self):
-        GeneralClass.__init__(self)
+    def __init__(self, config='/etc/bck.conf'):
+        self.conf = config
+        GeneralClass.__init__(self, self.conf)
 
-        # =================================
-        # Connecting To MySQL
-        # =================================
 
-        #self.password = re.search(r'\-\-password\=(.*)[\s]*', self.myuseroption)
-
-        self.config = {
-
-            'user': self.mysql_user,
-            'password': self.mysql_password,
-            #'database': 'bck',
-            'raise_on_warnings': True,
-
-        }
+    def create_mysql_client_command(self, statement):
+        command_connection = '{} --defaults-file={} -u{} --password={} --host={}'
+        command_execute = ' -e "{}"'
 
         if hasattr(self, 'mysql_socket'):
-            self.config['unix_socket'] = self.mysql_socket
-        elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
-            self.config['host'] = self.mysql_host
-            self.config['port'] = self.mysql_port
+            command_connection += ' --socket={}'
+            command_connection += command_execute
+            new_command = command_connection.format(
+                self.mysql,
+                self.mycnf,
+                self.mysql_user,
+                self.mysql_password,
+                self.mysql_host,
+                self.mysql_socket,
+                statement
+            )
+            return new_command
         else:
-            logger.critical(
-                "Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
+            command_connection += ' --port={}'
+            command_connection += command_execute
+            new_command = command_connection.format(
+                self.mysql,
+                self.mycnf,
+                self.mysql_user,
+                self.mysql_password,
+                self.mysql_host,
+                self.mysql_port,
+                statement
+            )
+            return new_command
 
-        try:
-            self.cnx = mysql.connector.connect(**self.config)
-            self.cur = self.cnx.cursor()
-        except mysql.connector.Error as err:
-            logger.error("MySQL server connection problem. ")
-            logger.error(
-                "Check if your MySQL server is up and running or if there is no firewall blocking connection.")
-            logger.error(err)
-            exit(0)
-
-    def __del__(self):
-
-        try:
-            self.cnx.close()
-            self.cur.close()
-        except Exception:
-            pass
 
     def check_innodb_file_per_table(self):
         """
@@ -65,22 +54,23 @@ class PartialRecovery(GeneralClass):
         It is needed for "Transportable Tablespace" concept.
         :return: True/False
         """
+        statement = "select @@global.innodb_file_per_table"
+        run_command = self.create_mysql_client_command(statement=statement)
 
-        query = "select @@global.innodb_file_per_table"
-        try:
-            self.cur.execute(query)
-            for i in self.cur:
-                if i[0] == 1:
-                    logger.debug("MySQL per table space enabled!")
-                    return True
-                else:
-                    logger.error("MySQL per table space disabled!")
-                    logger.error("You can not use partial table recovery.")
-                    return False
+        logger.debug("Checking if innodb_file_per_table is enabled")
+        status, output = subprocess.getstatusoutput(run_command)
+
+        if status == 0 and output == 1:
+            logger.debug("innodb_file_per_table is enabled!")
             return True
-        except mysql.connector.Error as err:
-            logger.error(err)
+        elif status == 0 and output == 0:
+            logger.debug("innodb_file_per_table is disabled!")
             return False
+        else:
+            logger.error("Check FAILED!")
+            logger.error(output)
+            return False
+
 
     def check_mysql_version(self):
         """
@@ -88,67 +78,71 @@ class PartialRecovery(GeneralClass):
         Version must be >= 5.6 for using "Transportable Tablespace" concept.
         :return: True/False
         """
+        statement = "select @@version"
+        run_command = self.create_mysql_client_command(statement=statement)
 
-        query = "select @@version"
-        try:
-            self.cur.execute(query)
-            for i in self.cur:
-                if '5.6' in i[0]:
-                    logger.debug("MySQL Version is, %s" % i[0])
-                    logger.debug("You have correct version of MySQL")
-                    return True
-                elif '5.7' in i[0]:
-                    logger.debug("MySQL Version is, %s" % i[0])
-                    logger.debug("You have correct version of MySQL")
-                    return True
-                else:
-                    logger.error("Your MySQL server is not supported")
-                    logger.error("MySQL version must be >= 5.6")
-                    return False
+        logger.debug("Checking MySQL version")
+        status, output = subprocess.getstatusoutput(run_command)
+
+        if status == 0 and ('5.6' in output):
+            logger.debug("MySQL Version is, %s" % output)
+            logger.debug("You have correct version of MySQL")
             return True
-        except mysql.connector.Error as err:
-            logger.error(err)
+        elif status == 0 and ('5.7' in output):
+            logger.debug("MySQL Version is, %s" % output)
+            logger.debug("You have correct version of MySQL")
+            return True
+        elif status == 0 and ('5.7' not in output) and ('5.6' not in output):
+            logger.error("Your MySQL server is not supported")
+            logger.error("MySQL version must be >= 5.6")
             return False
+        else:
+            logger.error("Check FAILED!")
+            logger.error(output)
+            return False
+
 
     def check_database_exists_on_mysql(self, database_name):
         """
-        Function check if this table already exists in MySQL Server.(.frm and .ibd files are exist)
+        Function check if this database already exists in MySQL Server.(.frm and .ibd files are exist)
         In other words database is not dropped. If there is no such database, there is an input for creation.
         :param database_name: Specified database name
         :return: True/False
         """
+        statement = "SELECT count(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '%s'" % database_name
+        run_command = self.create_mysql_client_command(statement=statement)
 
-        query = "SELECT count(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '%s'" % database_name
-
-        try:
-            self.cur.execute(query)
-            for i in self.cur:
-                if i[0] == 1:
-                    logger.debug("Database exists on MySQL")
+        logger.debug("Checking if database exists in MySQL")
+        status, output = subprocess.getstatusoutput(run_command)
+        if status == 0 and output == 1:
+            logger.debug("Database exists!")
+            return True
+        if status == 0 and output == 0:
+            logger.error("There is no such database!")
+            logger.error("Create Specified Database in MySQL Server, before restoring single table")
+            answer = input(
+                "We can create it for you do you want? (yes/no): ")
+            if answer == 'yes':
+                create_db = "create database %s" % database_name
+                run_command = self.create_mysql_client_command(statement=create_db)
+                logger.debug("Creating specified database")
+                status, output = subprocess.getstatusoutput(run_command)
+                if status == 0:
+                    logger.debug("%s database created" % database_name)
                     return True
                 else:
-                    logger.error(
-                        "Database does not exist in MySQL Server, but there is backed up one on backup directory")
-                    logger.error(
-                        "Create Specified Database in MySQL Server, before restoring single table.")
-                    answer = input(
-                        "We can create it for you do you want? (yes/no): ")
-                    if answer == 'yes':
-                        try:
-                            create_db = "create database %s" % database_name
-                            self.cur.execute(create_db)
-                            logger.debug("%s database created" % database_name)
-                            return True
-                        except mysql.connector.Error as err:
-                            logger.error(err)
-                            return False
-                    else:  # if you type non-yes word
-                        logger.error("Exited!")
-                        return False
+                    logger.error("Failed to create database!")
+                    logger.error(output)
+                    return False
+            else: # if you type non-yes word
+                logger.error("Exited!")
+                return False
 
-        except mysql.connector.Error as err:
-            logger.error(err)
+        else:
+            logger.error("Check FAILED!")
+            logger.error(output)
             return False
+
 
     def check_table_exists_on_mysql(
             self,
@@ -163,44 +157,47 @@ class PartialRecovery(GeneralClass):
         :return: True/False
         """
 
-        query = "select count(*) from INFORMATION_SCHEMA.tables " \
+        statement = "select count(*) from INFORMATION_SCHEMA.tables " \
                 "where table_schema = '%s'" \
                 "and table_name =  '%s'" % (database_name, table_name)
 
-        try:
-            self.cur.execute(query)
-            for i in self.cur:
-                if i[0] == 1:
-                    logger.debug("Table exists in MySQL Server.")
+        run_command = self.create_mysql_client_command(statement=statement)
+        logger.debug("Checking if table exists in MySQL Server")
+        status, output = subprocess.getstatusoutput(run_command)
+        if status == 0 and output == 1:
+            logger.debug("Table exists in MySQL Server.")
+            return True
+        elif status == 0 and output == 0:
+            logger.error("Table does not exist in MySQL Server.")
+            logger.error(
+                "You can not restore table, with not existing tablespace file(.ibd)!")
+            logger.error(
+                "We will try to extract table create statement from .frm file, from backup folder")
+            create = self.run_mysqlfrm_utility(
+                path_to_frm_file=path_to_frm_file)
+            regex = re.compile(
+                r'((\n)CREATE((?!#).)*ENGINE=\w+)', re.DOTALL)
+            matches = [m.groups() for m in regex.finditer(create)]
+            for m in matches:
+                create_table = m[0]
+                run_command = self.create_mysql_client_command(statement=create_table)
+                status, output = subprocess.getstatusoutput(run_command)
+                if status == 0:
+                    logger.debug("Table Created from .frm file!")
                     return True
                 else:
-                    logger.error("Table does not exist in MySQL Server.")
-                    logger.error(
-                        "You can not restore table, with not existing tablespace file(.ibd)!")
-                    logger.error(
-                        "We will try to extract table create statement from .frm file, from backup folder")
-                    create = self.run_mysqlfrm_utility(
-                        path_to_frm_file=path_to_frm_file)
-                    regex = re.compile(
-                        r'((\n)CREATE((?!#).)*ENGINE=\w+)', re.DOTALL)
-                    matches = [m.groups() for m in regex.finditer(create)]
-                    for m in matches:
-                        create_table = m[0]
-                        try:
-                            self.cur.execute(create_table)
-                            logger.debug("Table Created from .frm file!")
-                            return True
-                        except mysql.connector.Error as err:
-                            logger.error(err)
-                            return False
+                    logger.error("Failed to create table from .frm file!")
+                    logger.error(output)
                     return False
-        except mysql.connector.Error as err:
-            logger.error(err)
+        else:
+            logger.error("Check FAILED!")
+            logger.error(output)
             return False
+
 
     def run_mysqlfrm_utility(self, path_to_frm_file):
         command = '/usr/bin/mysqlfrm --diagnostic %s' % path_to_frm_file
-
+        logger.debug("Running mysqlfrm tool")
         status, output = subprocess.getstatusoutput(command)
         if status == 0:
             logger.debug("Success")
@@ -269,29 +266,40 @@ class PartialRecovery(GeneralClass):
             return False
 
     def lock_table(self, database_name, table_name):
-        query = "LOCK TABLES %s.%s WRITE" % (database_name, table_name)
-        try:
-            self.cur.execute(query)
+        statement = "LOCK TABLES %s.%s WRITE" % (database_name, table_name)
+        run_command = self.create_mysql_client_command(statement=statement)
+        status, output = subprocess.getstatusoutput(run_command)
+        logger.debug("Applying write lock!")
+        if status == 0:
+            logger.debug("Locked")
             return True
-        except mysql.connector.Error as err:
-            logger.error(err)
+        else:
+            logger.error("Failed to LOCK!")
+            logger.error(output)
             return False
 
+
     def alter_tablespace(self, database_name, table_name):
-        query = "ALTER TABLE %s.%s DISCARD TABLESPACE" % (
+        statement = "ALTER TABLE %s.%s DISCARD TABLESPACE" % (
             database_name, table_name)
-        try:
-            self.cur.execute(query)
+        run_command = self.create_mysql_client_command(statement=statement)
+        status, output = subprocess.getstatusoutput(run_command)
+        logger.debug("Discarding tablespace")
+        if status == 0:
+            logger.debug("Tablespace discarded successfully")
             return True
-        except mysql.connector.Error as err:
-            logger.error(err)
+        else:
+            logger.error("Failed to discard tablespace!")
+            logger.error(output)
             return False
 
     def copy_ibd_file_back(self, path_of_ibd_file, path_to_mysql_database_dir):
         try:
+            logger.debug("Copying .ibd file back")
             shutil.copy(path_of_ibd_file, path_to_mysql_database_dir)
             return True
         except Exception as err:
+            logger.error("Failed to copy .ibd file back")
             logger.error(err)
             return False
 
@@ -306,24 +314,30 @@ class PartialRecovery(GeneralClass):
             return False
 
     def import_tablespace(self, database_name, table_name):
-        query = "ALTER TABLE %s.%s IMPORT TABLESPACE" % (
+        statement = "ALTER TABLE %s.%s IMPORT TABLESPACE" % (
             database_name, table_name)
-        try:
-            self.cur.execute(query)
+        run_command = self.create_mysql_client_command(statement=statement)
+        status, output = subprocess.getstatusoutput(run_command)
+        logger.debug("Importing Tablespace!")
+        if status == 0:
+            logger.debug("Tablespace imported")
             return True
-        except mysql.connector.errors.DatabaseError as err:
-            if err.errno == errorcode.ER_IO_READ_ERROR:
-                return True
-            else:
-                False
+        else:
+            logger.error("Tablespace import FAILED!")
+            logger.error(output)
+            return False
 
     def unlock_tables(self):
-        query = "unlock tables"
-        try:
-            self.cur.execute(query)
+        statement = "unlock tables"
+        run_command = self.create_mysql_client_command(statement=statement)
+        status, output = subprocess.getstatusoutput(run_command)
+        logger.debug("Unlocking tables!")
+        if status == 0:
+            logger.debug("Unlocked!")
             return True
-        except mysql.connector.Error as err:
-            logger.error(err)
+        else:
+            logger.error("Unlocking FAILED!")
+            logger.error(output)
             return False
 
     def final_actions(self):
