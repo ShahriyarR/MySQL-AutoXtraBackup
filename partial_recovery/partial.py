@@ -15,11 +15,7 @@ class PartialRecovery(GeneralClass):
     def __init__(self, config='/etc/bck.conf'):
         self.conf = config
         GeneralClass.__init__(self, self.conf)
-        if shutil.which('mysqlfrm') is None:
-            logger.critical("Could not find mysqlfrm! Please install it or check if it is in PATH")
-            logger.critical("Aborting!")
-            sys.exit(-1)
-
+        
 
     def create_mysql_client_command(self, statement):
         command_connection = '{} --defaults-file={} -u{} --password={} --host={}'
