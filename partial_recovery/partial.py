@@ -62,10 +62,10 @@ class PartialRecovery(GeneralClass):
                      "%s", run_command)
         status, output = subprocess.getstatusoutput(run_command)
 
-        if status == 0 and output[-1] == 1:
+        if status == 0 and int(output[-1]) == 1:
             logger.debug("innodb_file_per_table is enabled!")
             return True
-        elif status == 0 and output[-1] == 0:
+        elif status == 0 and int(output[-1]) == 0:
             logger.debug("innodb_file_per_table is disabled!")
             return False
         else:
