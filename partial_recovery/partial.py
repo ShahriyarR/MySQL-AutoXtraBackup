@@ -120,8 +120,8 @@ class PartialRecovery(GeneralClass):
             logger.debug("Database exists!")
             return True
         if status == 0 and int(output[-1]) == 0:
-            logger.error("There is no such database!")
-            logger.error("Create Specified Database in MySQL Server, before restoring single table")
+            logger.debug("There is no such database!")
+            logger.debug("Create Specified Database in MySQL Server, before restoring single table")
             answer = input(
                 "We can create it for you do you want? (yes/no): ")
             if answer == 'yes':
@@ -170,10 +170,10 @@ class PartialRecovery(GeneralClass):
             logger.debug("Table exists in MySQL Server.")
             return True
         elif status == 0 and int(output[-1]) == 0:
-            logger.error("Table does not exist in MySQL Server.")
-            logger.error(
+            logger.debug("Table does not exist in MySQL Server.")
+            logger.debug(
                 "You can not restore table, with not existing tablespace file(.ibd)!")
-            logger.error(
+            logger.debug(
                 "We will try to extract table create statement from .frm file, from backup folder")
             create = self.run_mysqlfrm_utility(
                 path_to_frm_file=path_to_frm_file)

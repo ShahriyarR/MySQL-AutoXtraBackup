@@ -16,10 +16,9 @@ Demo Usage Video(is subject to change) NOTE: UPDATED!
 Requirements:
 -------------
 
-    * Percona Xtrabackup (>= 2.2.10)
+    * Percona Xtrabackup (>= 2.3.5)
     * Python 3 (tested version 3.5.3 on CentOS 7)
     * Official mysql-connector-python (>= 2.0.2 )
-    * Python Click package (>= 3.3)
     * mysql-utilities (>=1.5.4)
 
 ===========
@@ -62,19 +61,15 @@ Preparing System
         make install
     
     
-    Installing setuptools:
     
-        wget https://pypi.python.org/packages/source/s/setuptools/setuptools-15.1.tar.gz#md5=10407f6737d8dc37e5310e68c1f1f6ec
-        tar -xvf setuptools-15.1.tar.gz
-        cd setuptools-15.1/
-        python3 setup.py install
-    
-    Installing pip:
+    Installing mysql-connector-python and mysql-utilities:
+        #For CentOS 7.
+        wget https://dev.mysql.com/get/Downloads/Connector-Python/mysql-connector-python-2.1.5-1.el7.x86_64.rpm
+        yum install mysql-connector-python-2.1.5-1.el7.x86_64.rpm
         
-        wget https://pypi.python.org/packages/source/p/pip/pip-7.1.2.tar.gz#md5=3823d2343d9f3aaab21cf9c917710196
-        tar -xvf pip-7.1.2.tar.gz
-        cd pip-7.1.2
-        python3 setup.py install 
+        wget wget https://dev.mysql.com/get/Downloads/MySQLGUITools/mysql-utilities-1.6.5-1.el7.noarch.rpm
+        yum install mysql-utilities-1.6.5-1.el7.noarch.rpm
+        
     
     Installing MySQL-AutoXtrabackup and dependencies:
         
@@ -106,14 +101,14 @@ Project Structure:
 
 Available Options:
 -----------------
-
-    autoxtrabackup --help
     Usage: autoxtrabackup [OPTIONS]
+
     Options:
       --prepare                       Prepare/recover backups.
       --backup                        Take full and incremental backups.
       --partial                       Recover specified table (partial recovery).
       --version                       Version information.
+      --defaults_file TEXT            Read options from the given file
       -v, --verbose                   Be verbose (print to console)
       -l, --log [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                       Set log level
