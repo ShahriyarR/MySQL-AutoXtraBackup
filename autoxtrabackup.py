@@ -164,7 +164,7 @@ def all_procedure(prepare, backup, partial, verbose, log, defaults_file):
                 b.all_backup()
                 # print("Backup")
             elif partial:
-                c = PartialRecovery()
+                c = PartialRecovery(config=defaults_file)
                 c.final_actions()
     except pid.PidFileAlreadyLockedError as error:
         if hasattr(config, 'pid_runtime_warning'):
