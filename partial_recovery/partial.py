@@ -308,8 +308,9 @@ class PartialRecovery(GeneralClass):
     def give_chown(self, path_to_mysql_database_dir):
         comm = '%s %s' % (self.chown_command, path_to_mysql_database_dir)
         status, output = subprocess.getstatusoutput(comm)
-
+        logger.debug("Running chown command!")
         if status == 0:
+            logger.debug("Chown command completed")
             return True
         else:
             logger.error("Chown Command Failed!")
