@@ -86,15 +86,15 @@ class PartialRecovery(GeneralClass):
         logger.debug("Checking MySQL version")
         status, output = subprocess.getstatusoutput(run_command)
 
-        if status == 0 and ('5.6' in output):
-            logger.debug("MySQL Version is, %s" % output)
+        if status == 0 and ('5.6' in output[-1]):
+            logger.debug("MySQL Version is, %s" % output[-1])
             logger.debug("You have correct version of MySQL")
             return True
-        elif status == 0 and ('5.7' in output):
-            logger.debug("MySQL Version is, %s" % output)
+        elif status == 0 and ('5.7' in output[-1]):
+            logger.debug("MySQL Version is, %s" % output[-1])
             logger.debug("You have correct version of MySQL")
             return True
-        elif status == 0 and ('5.7' not in output) and ('5.6' not in output):
+        elif status == 0 and ('5.7' not in output[-1]) and ('5.6' not in output[-1]):
             logger.error("Your MySQL server is not supported")
             logger.error("MySQL version must be >= 5.6")
             return False
@@ -116,10 +116,10 @@ class PartialRecovery(GeneralClass):
 
         logger.debug("Checking if database exists in MySQL")
         status, output = subprocess.getstatusoutput(run_command)
-        if status == 0 and output == 1:
+        if status == 0 and int(output[-1]) == 1:
             logger.debug("Database exists!")
             return True
-        if status == 0 and output == 0:
+        if status == 0 and int(output[-1]) == 0:
             logger.error("There is no such database!")
             logger.error("Create Specified Database in MySQL Server, before restoring single table")
             answer = input(
@@ -166,10 +166,10 @@ class PartialRecovery(GeneralClass):
         run_command = self.create_mysql_client_command(statement=statement)
         logger.debug("Checking if table exists in MySQL Server")
         status, output = subprocess.getstatusoutput(run_command)
-        if status == 0 and output == 1:
+        if status == 0 and int(output[-1]) == 1:
             logger.debug("Table exists in MySQL Server.")
             return True
-        elif status == 0 and output == 0:
+        elif status == 0 and int(output[-1]) == 0:
             logger.error("Table does not exist in MySQL Server.")
             logger.error(
                 "You can not restore table, with not existing tablespace file(.ibd)!")
