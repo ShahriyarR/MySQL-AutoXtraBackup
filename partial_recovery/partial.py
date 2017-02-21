@@ -4,6 +4,7 @@ import subprocess
 from general_conf.generalops import GeneralClass
 import re
 from general_conf import check_env
+import sys
 
 import logging
 logger = logging.getLogger(__name__)
@@ -14,6 +15,10 @@ class PartialRecovery(GeneralClass):
     def __init__(self, config='/etc/bck.conf'):
         self.conf = config
         GeneralClass.__init__(self, self.conf)
+        if shutil.which('mysqlfrm') is None:
+            logger.critical("Could not find mysqlfrm! Please install it or check if it is in PATH")
+            logger.critical("Aborting!")
+            sys.exit(-1)
 
 
     def create_mysql_client_command(self, statement):
