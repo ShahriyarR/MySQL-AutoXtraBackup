@@ -7,7 +7,7 @@ For any question please ask: [Email](mailto:rzayev.shahriyar@yandex.com)
 
 ===========
 
-Demo Usage Video(is subject to change) NOTE: UPDATED!
+Demo Usage Video(is subject to change) NOTE: OUTDATED!
 --------------------------------------
 
 [![autoxtrabackup tool usage demo video](http://img.youtube.com/vi/ODfbz1bRKfY/0.jpg)](https://www.youtube.com/watch?v=ODfbz1bRKfY)
