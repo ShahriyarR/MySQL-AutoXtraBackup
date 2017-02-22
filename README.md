@@ -286,7 +286,7 @@ Sample Run results
         2017-02-22 09:35:22 DEBUG    <pid.PidFile object at 0x7f4e4dec40e8> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
         2017-02-22 09:35:22 DEBUG    <pid.PidFile object at 0x7f4e4dec40e8> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
         
-        # Partial recovery of table from dropped database:
+        # Partial recovery of table after dropping database:
         
          > drop database dbtest;
          Query OK, 1 row affected (0.24 sec)
@@ -348,7 +348,7 @@ Sample Run results
         +----+
         6 rows in set (0.00 sec)
         
-        # Partial recovery from dropped table:
+        # Partial recovery after dropping table:
         
         > drop table t1;
         Query OK, 0 rows affected (0.25 sec)
@@ -408,7 +408,7 @@ Sample Run results
         6 rows in set (0.00 sec)
 
         
-        # Partial recovery from deleted table:
+        # Partial recovery after deleting table data:
         
         > delete from t1;
         Query OK, 6 rows affected (0.34 sec)
