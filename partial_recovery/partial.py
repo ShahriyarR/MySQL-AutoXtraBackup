@@ -186,7 +186,9 @@ class PartialRecovery(GeneralClass):
             matches = [m.groups() for m in regex.finditer(create)]
             for m in matches:
                 create_table = m[0]
+                logger.debug("The create table statement %s", create_table)
                 run_command = self.create_mysql_client_command(statement=create_table)
+                logger.debug("The following command will run -> %s", run_command)
                 status, output = subprocess.getstatusoutput(run_command)
                 if status == 0:
                     logger.debug("Table Created from .frm file!")
