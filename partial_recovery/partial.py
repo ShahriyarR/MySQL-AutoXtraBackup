@@ -187,9 +187,7 @@ class PartialRecovery(GeneralClass):
             for m in matches:
                 create_table = m[0]
                 new_create_table = create_table.replace("`","")
-                logger.debug("The create table statement %s", new_create_table)
                 run_command = self.create_mysql_client_command(statement=new_create_table)
-                logger.debug("The following command will run -> %s", run_command)
                 status, output = subprocess.getstatusoutput(run_command)
                 if status == 0:
                     logger.debug("Table Created from .frm file!")
