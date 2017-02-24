@@ -1,0 +1,83 @@
+The structure of configuration file
+===================================
+
+Default file
+------------
+
+The default config file is located /etc/bck.conf The available options
+are divided into optional and primary. Options are quite
+self-explanatory. I have tried to make them similar to existing options
+in XtraBackup and MySQL. Or you can pass another configuration file
+using --defaults\_file option.
+
+::
+
+    [MySQL]
+    mysql=/usr/bin/mysql
+    mycnf=/etc/my.cnf
+    mysqladmin=/usr/bin/mysqladmin
+    mysql_user=root
+    mysql_password=12345
+    #Set either mysql_socket or host and post. If both are set socket is used
+    #mysql_socket=/var/lib/mysql/mysql.sock
+    mysql_host=127.0.0.1
+    mysql_port=3306
+    datadir=/var/lib/mysql
+    tmpdir=/tmp/mysql
+    tmp=/tmp
+
+    [Backup]
+    #Optional: set pid directory
+    pid_dir=/tmp/MySQL-AutoXtraBackup
+    #Optional: set warning if pid of backup us running for longer than X
+    pid_runtime_warning=2 Hours
+    backupdir=/home/backup_dir
+    backup_tool=/usr/bin/xtrabackup
+    xtra_prepare=--apply-log-only
+    #Optional: pass additional options
+    #xtra_options=--binlog-info=ON --galera-info
+    #Optional: set archive and rotation
+    #archive_dir=/home/backup_archives
+    #full_backup_interval=1 day
+    #max_archive_size=100GiB
+    #max_archive_duration=4 Days
+
+    [Compress]
+    #Optional
+    #Enable only if you want to use compression.
+    #compress=quicklz
+    #compress_chunk_size=65536
+    #compress_threads=4
+    #decompress=TRUE
+    #Enable if you want to remove .qp files after decompression.(Not available yet, will be released with XB 2.3.7 and 2.4.6)
+    #remove_original=FALSE
+
+    [Encrypt]
+    #Optional
+    #Enable only if you want to create encrypted backups
+    #xbcrypt=/usr/bin/xbcrypt
+    #encrypt=AES256
+    # Please note that --encrypt-key and --encrypt-key-file are mutually exclusive
+    #encrypt_key='VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K'
+    #encrypt_key_file=/path/to/file/with_encrypt_key
+    #encrypt_threads=4
+    #encrypt_chunk_size=65536
+    #decrypt=AES256
+    #Enable if you want to remove .qp files after decompression.(Not available yet, will be released with XB 2.3.7 and 2.4.6)
+    #remove_original=FALSE
+
+    #Optional remote syncing
+    #[Remote]
+    #remote_conn=root@xxx.xxx.xxx.xxx
+    #remote_dir=/home/sh/Documents
+
+
+    [Commands]
+    start_mysql_command=service mysql start
+    stop_mysql_command=service mysql stop
+    systemd_start_mysql=systemctl start mysqld.service
+    systemd_stop_mysql=systemctl stop mysqld.service
+    systemd_start_mariadb=systemctl start mariadb.service
+    systemd_stop_mariadb=systemctl stop mariadb.service
+    chown_command=chown -R mysql:mysql
+    mariadb_cluster_bootstrap=service mysql bootstrap
