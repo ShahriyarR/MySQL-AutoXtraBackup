@@ -160,7 +160,7 @@ How about incremental backups? Let's take an incremental backup:
     2017-02-24 18:58:27 DEBUG    <pid.PidFile object at 0x7f566623ee08> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
     2017-02-24 18:58:27 DEBUG    <pid.PidFile object at 0x7f566623ee08> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
 
-As you see, the tool first decrypted xtrabackup\_checkpoints.xbcrypt
+As you see, the tool first decrypted ``xtrabackup_checkpoints.xbcrypt``
 file and then took the incremental backup.
 
 
@@ -168,9 +168,9 @@ file and then took the incremental backup.
 Decompressing and Decrypting backups
 ------------------------------------
 
-As you read from Advance Backup features, we took Compressed and
-Encrypted backups. It is time to prepare them. AutoXtraBackup will
-prepare all backups automatically, by first decrypting then
+We took Compressed and Encrypted backups.
+It is time to prepare them.
+AutoXtraBackup will prepare all backups automatically, by first decrypting then
 decompressing step-by-step.
 
 We have 2 incremental backups:
@@ -251,10 +251,11 @@ Let's prepare them:
     2017-02-24 19:08:24 DEBUG    <pid.PidFile object at 0x7faca5716e08> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
 
 That's it. All backups are first decrypted then decompressed and then
-prepared. You can also optionally enable --remove-original option to
-remove .xbcrypt and .qp files from backup directory during prepare
-process. Read about this option here ->
-(--remove-original)[https://www.percona.com/doc/percona-xtrabackup/2.4/xtrabackup\_bin/xbk\_option\_reference.html#cmdoption-xtrabackup-remove-original]
+prepared.
+You can also optionally enable ``--remove-original`` option to
+remove ``.xbcrypt`` and ``.qp`` files from backup directory during prepare
+process. Read about this option here -> `--remove-original <https://www.percona.com/doc/percona-xtrabackup/2.4/xtrabackup_bin/xbk_option_reference.html#cmdoption-xtrabackup-remove-original>`_
+
 
 ::
 
@@ -284,37 +285,40 @@ process. Read about this option here ->
 
 
 
+Restoring single table after drop
+---------------------------------
 
-    Restoring single table after drop
-    ---------------------------------
-
-    Let's explain a bit, how we can restore single table from full backup.
-    This is the part of "Transportable Tablespace" concept which you can
-    read more: `Transportable
+Let's explain a bit, how we can restore single table from full backup?
+This is the part of "Transportable Tablespace" concept which you can read more: `Transportable
     Tablespace <https://dev.mysql.com/doc/refman/5.7/en/tablespace-copying.html>`__
 
-    The basic idea is: 1. Discard available tablespace of table 2. Copy the
-    .ibd file from backup to current database directory 3. Import tablespace
-    4. You have restored the table.
+The basic idea is:
 
-    Previously we have mentioned about that, we can restore single table
-    after deleting data. The situation there, was quite clear because the
-    table structure was available(i.e table was not dropped).
+1. Discard available tablespace of table
+2. Copy the .ibd file from backup to current database directory
+3. Import tablespace
+4. You have restored the table.
 
-    The problem is getting interesting, if table was dropped or even the
-    whole database dropped. We should figure out how to find table structure
-    and create it.
+Previously we have mentioned about that, we can restore single table
+after deleting data. The situation there, was quite clear because the
+table structure was available(i.e table was not dropped).
 
-    The basic plan for this situation is: 1. Find the dropped table
-    structure(i.e create statement) 2. Create dropped table again 3. Discard
-    tablespace of newly created table 4. Copy the .ibd file from backup to
-    current database directory 5. Import tablespace 6. You have restored the
-    table.
+The problem is getting interesting, if table was dropped or even the
+whole database dropped. We should figure out how to find table structure
+and create it.
 
-    I found a way,by using ``mysqlfrm`` tool for extracting create statement
-    from table's .frm file, which is stored in backup directory. So this is
-    also automated. Let's see it in action. We have a dbtest database and t1
-    table:
+The basic plan for this situation is:
+
+1. Find the dropped table structure(i.e create statement)
+2. Create dropped table again
+3. Discard tablespace of newly created table
+4. Copy the .ibd file from backup to current database directory
+5. Import tablespace
+6. You have restored the table.
+
+I found a way,by using ``mysqlfrm`` tool for extracting create statement
+from table's .frm file, which is stored in backup directory. So this is
+also automated. Let's see it in action. We have a dbtest database and t1 table:
 
     ::
 
@@ -326,15 +330,15 @@ process. Read about this option here ->
         +------------------+
         1 row in set (0.02 sec)
 
-    Dropping the database:
+Dropping the database:
 
     ::
 
         > drop database dbtest;
         Query OK, 1 row affected (1.08 sec)
 
-    Trying to restore t1 table: It will figure out that specified database
-    is missing and will prompt to create it.
+
+Trying to restore t1 table: It will figure out that specified database is missing and will prompt to create it.
 
     ::
 
@@ -383,8 +387,7 @@ process. Read about this option here ->
         2017-02-24 19:33:11 DEBUG    <pid.PidFile object at 0x7f7332952e08> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
         2017-02-24 19:33:11 DEBUG    <pid.PidFile object at 0x7f7332952e08> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
 
-    As you noticed, the ``mysqlfrm`` tool did the job and table is restored
-    after drop:
+As you noticed, the ``mysqlfrm`` tool did the job and table is restored after drop:
 
     ::
 

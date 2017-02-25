@@ -56,10 +56,12 @@ Installing Python 3 from source:
     make
     make install
 
-Installing mysql-connector-python and mysql-utilities: #For CentOS 7.
-wget
-https://dev.mysql.com/get/Downloads/Connector-Python/mysql-connector-python-2.1.5-1.el7.x86\_64.rpm
-yum install mysql-connector-python-2.1.5-1.el7.x86\_64.rpm
+Installing mysql-connector-python and mysql-utilities:
+(For CentOS 7).
+::
+
+    wget https://dev.mysql.com/get/Downloads/Connector-Python/mysql-connector-python-2.1.5-1.el7.x86_64.rpm
+    yum install mysql-connector-python-2.1.5-1.el7.x86_64.rpm
 
 ::
 
@@ -69,8 +71,16 @@ yum install mysql-connector-python-2.1.5-1.el7.x86\_64.rpm
 Installing MySQL-AutoXtraBackup
 -------------------------------
 
-Using pip3: pip3 install mysql-autoxtrabackup
+Using pip3:
 
-Installing from source: cd /home git clone
-https://github.com/ShahriyarR/MySQL-AutoXtraBackup.git cd
-/home/MySQL-AutoXtraBackup/ python3 setup.py install
+::
+
+    pip3 install mysql-autoxtrabackup
+
+Installing from source:
+
+::
+
+    cd /home git clone https://github.com/ShahriyarR/MySQL-AutoXtraBackup.git
+    cd /home/MySQL-AutoXtraBackup/
+    python3 setup.py install

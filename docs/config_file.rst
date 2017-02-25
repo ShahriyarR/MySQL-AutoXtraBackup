@@ -1,14 +1,14 @@
 The structure of configuration file
 ===================================
 
-Default file
+Defaults file
 ------------
 
-The default config file is located /etc/bck.conf The available options
-are divided into optional and primary. Options are quite
-self-explanatory. I have tried to make them similar to existing options
-in XtraBackup and MySQL. Or you can pass another configuration file
-using --defaults\_file option.
+The default config file is located /etc/bck.conf.
+The available options are divided into optional and primary.
+Options are quite self-explanatory.
+I have tried to make them similar to existing options in XtraBackup and MySQL.
+You can pass another configuration file using --defaults_file option.
 
 ::
 

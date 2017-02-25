@@ -4,12 +4,10 @@ Basic features
 Backup
 ------
 
-Yes you are right, this tool is for taking backups. It should take care
-for automating this process for you. You can specify the backup
-directory in config file (default /etc/bck.conf) under
-`Backup <#backup>`__ category: For me there is another config file
-prepared here ->
-\`\ ``/home/shahriyar.rzaev/AutoXtrabackup_Configs/ps_5.7_master_bck.conf``
+Yes you are right, this tool is for taking backups.
+It should take care for automating this process for you.
+You can specify the backup directory in config file (default /etc/bck.conf) under [Backup] category.
+For me there is another config file prepared here -> ``/home/shahriyar.rzaev/AutoXtrabackup_Configs/ps_5.7_master_bck.conf``
 
 ::
 
@@ -238,7 +236,8 @@ restore single table as displayed here:
     > delete from t1;
     Query OK, 6 rows affected (0.12 sec)
 
-Restoring single table:
+
+Restoring single table, ``--partial`` must be used for this:
 
 ::
 

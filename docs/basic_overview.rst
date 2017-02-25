@@ -23,14 +23,22 @@ actions. Here is project path tree:
 Available Options
 -----------------
 
-$ autoxtrabackup --help Usage: autoxtrabackup [OPTIONS]
+::
 
-Options: --prepare Prepare/recover backups. --backup Take full and
-incremental backups. --partial Recover specified table (partial
-recovery). --version Version information. --defaults\_file TEXT Read
-options from the given file -v, --verbose Be verbose (print to console)
--l, --log [DEBUG\|INFO\|WARNING\|ERROR\|CRITICAL] Set log level --help
-Show this message and exit.
+    $ autoxtrabackup --help
+    Usage: autoxtrabackup [OPTIONS]
+
+    Options:
+      --prepare                       Prepare/recover backups.
+      --backup                        Take full and incremental backups.
+      --partial                       Recover specified table (partial recovery).
+      --version                       Version information.
+      --defaults_file TEXT            Read options from the given file
+      -v, --verbose                   Be verbose (print to console)
+      -l, --log [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                      Set log level
+      --help                          Show this message and exit.
+
 
 Usage
 -----
