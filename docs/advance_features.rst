@@ -289,8 +289,7 @@ Restoring single table after drop
 ---------------------------------
 
 Let's explain a bit, how we can restore single table from full backup?
-This is the part of "Transportable Tablespace" concept which you can read more: `Transportable
-    Tablespace <https://dev.mysql.com/doc/refman/5.7/en/tablespace-copying.html>`_
+This is the part of "Transportable Tablespace" concept which you can read more: `Transportable Tablespace <https://dev.mysql.com/doc/refman/5.7/en/tablespace-copying.html>`_
 
 The basic idea is:
 
