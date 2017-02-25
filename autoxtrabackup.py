@@ -16,15 +16,17 @@ import logging.handlers
 logger = logging.getLogger('')
 
 
-handler = None
-if _platform == "linux" or _platform == "linux2":
-    # linux
-    handler = logging.handlers.SysLogHandler(address='/dev/log')
-elif _platform == "darwin":
-    # MAC OS X
-    handler = logging.handlers.SysLogHandler(address='/var/run/syslog')
-else:
-    handler = logging.handlers.SysLogHandler(address=('localhost', 514))
+destination_hash = {'linux':'/dev/log', 'linux2':'/var/run/syslog', 'linux2':'/dev/log'}
+
+def address_matcher(p):
+    return destination_hash.get(p, ('localhost', 514))
+
+handler = logging.handlers.SysLogHandler(address=address_matcher(_platform))
+
+#
+# or as a pure function callback
+# handler = logging.handlers.SysLogHandler(address=lambda _platform: destination_hash.get(_platform, ('localhost', 514)))
+# 
 
 # Set syslog for the root logger
 logger.addHandler(handler)
