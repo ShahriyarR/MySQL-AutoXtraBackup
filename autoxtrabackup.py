@@ -38,10 +38,9 @@ def print_version(ctx, param, value):
 
 def check_file_content(file):
     """Check if all mandatory headers and keys exist in file"""
-    config_file = open(file, 'r')
-    file_content = config_file.read()
-    config_file.close()
-
+    with open(file, 'r') as config_file:
+        file_content = config_file.read()
+ 
     config_headers = ["MySQL", "Backup", "Encrypt", "Compress", "Commands"]
     config_keys = [
         "mysql",
