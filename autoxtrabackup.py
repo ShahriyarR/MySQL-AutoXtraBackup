@@ -17,7 +17,11 @@ logger = logging.getLogger('')
 
 
 destinations_hash = {'linux':'/dev/log', 'linux2': '/dev/log', 'darwin':'/var/run/syslog'}
-handler = logging.handlers.SysLogHandler(address=lambda _platform: destinations_hash.get(_platform, ('localhost', 514)))
+
+def address_matcher(plt):
+    return destinations_hash.get(plt, ('localhost', 514))
+
+handler = logging.handlers.SysLogHandler(address=address_matcher(_platform))
 
 # Set syslog for the root logger
 logger.addHandler(handler)
