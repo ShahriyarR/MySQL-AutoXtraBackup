@@ -8,7 +8,7 @@ For any question please ask: [Email](mailto:rzayev.shahriyar@yandex.com)
 Read full documentation here:
 -----------------------------
 
-[MySQL-AutoXtrabackup documentation!](http://mysql-autoxtrabackup.readthedocs.io/en/latest/index.html)
+[**MySQL-AutoXtrabackup documentation!**](http://mysql-autoxtrabackup.readthedocs.io/en/latest/index.html)
 
 
 
