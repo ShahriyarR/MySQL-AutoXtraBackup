@@ -293,10 +293,10 @@ This is the part of "Transportable Tablespace" concept which you can read more: 
 
 The basic idea is:
 
-1. Discard available tablespace of table
-2. Copy the .ibd file from backup to current database directory
-3. Import tablespace
-4. You have restored the table.
+-  Discard available tablespace of table
+-  Copy the .ibd file from backup to current database directory
+-  Import tablespace
+-  You have restored the table.
 
 Previously we have mentioned about that, we can restore single table
 after deleting data. The situation there, was quite clear because the
@@ -308,12 +308,12 @@ and create it.
 
 The basic plan for this situation is:
 
-1. Find the dropped table structure(i.e create statement)
-2. Create dropped table again
-3. Discard tablespace of newly created table
-4. Copy the .ibd file from backup to current database directory
-5. Import tablespace
-6. You have restored the table.
+-  Find the dropped table structure(i.e create statement)
+-  Create dropped table again
+-  Discard tablespace of newly created table
+-  Copy the .ibd file from backup to current database directory
+-  Import tablespace
+-  You have restored the table.
 
 I found a way,by using ``mysqlfrm`` tool for extracting create statement
 from table's .frm file, which is stored in backup directory. So this is
