@@ -76,16 +76,14 @@ class Backup(GeneralClass):
 
         if len(os.listdir(self.full_dir)) > 0:
             return max(os.listdir(self.full_dir))
-        else:
-            return 0
+        return 0
 
     def recent_inc_backup_file(self):
         # Return last increment backup dir name
 
         if len(os.listdir(self.inc_dir)) > 0:
             return max(os.listdir(self.inc_dir))
-        else:
-            return 0
+        return 0
 
     def mysql_connection_flush_logs(self):
         """
