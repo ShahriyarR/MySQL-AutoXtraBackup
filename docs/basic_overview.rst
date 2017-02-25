@@ -20,24 +20,27 @@ actions. Here is project path tree:
     * autoxtrabackup.py     -- Commandline Tool provider script.
     * /etc/bck.conf         -- Config file will be created from general_conf/bck.conf
 
+
 Available Options
 -----------------
 
 ::
 
+
     $ autoxtrabackup --help
     Usage: autoxtrabackup [OPTIONS]
 
     Options:
-      --prepare                       Prepare/recover backups.
-      --backup                        Take full and incremental backups.
-      --partial                       Recover specified table (partial recovery).
-      --version                       Version information.
-      --defaults_file TEXT            Read options from the given file
-      -v, --verbose                   Be verbose (print to console)
-      -l, --log [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+    --prepare                       Prepare/recover backups.
+    --backup                        Take full and incremental backups.
+    --partial                       Recover specified table (partial recovery).
+    --version                       Version information.
+    --defaults_file TEXT            Read options from the given file
+    -v, --verbose                   Be verbose (print to console)
+    -l, --log [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                       Set log level
-      --help                          Show this message and exit.
+    --help                          Show this message and exit.
+
 
 
 Usage
