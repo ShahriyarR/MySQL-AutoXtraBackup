@@ -18,7 +18,7 @@ You can pass another configuration file using ``--defaults_file`` option.
     mysqladmin=/usr/bin/mysqladmin
     mysql_user=root
     mysql_password=12345
-    #Set either mysql_socket or host and post. If both are set socket is used
+    #Set either mysql_socket or host and port. If both are set socket is used
     #mysql_socket=/var/lib/mysql/mysql.sock
     mysql_host=127.0.0.1
     mysql_port=3306
