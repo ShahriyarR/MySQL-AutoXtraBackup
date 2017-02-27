@@ -460,7 +460,7 @@ class Prepare(GeneralClass):
             logger.debug(output)
             return True
         else:
-            logger.deberrorug("Could not Shutdown MySQL!")
+            logger.error("Could not Shutdown MySQL!")
             logger.error("Refer to MySQL Error log file")
             logger.error(output)
             return False
