@@ -16,15 +16,12 @@ import logging.handlers
 logger = logging.getLogger('')
 
 
-handler = None
-if _platform == "linux" or _platform == "linux2":
-    # linux
-    handler = logging.handlers.SysLogHandler(address='/dev/log')
-elif _platform == "darwin":
-    # MAC OS X
-    handler = logging.handlers.SysLogHandler(address='/var/run/syslog')
-else:
-    handler = logging.handlers.SysLogHandler(address=('localhost', 514))
+destinations_hash = {'linux':'/dev/log', 'linux2': '/dev/log', 'darwin':'/var/run/syslog'}
+
+def address_matcher(plt):
+    return destinations_hash.get(plt, ('localhost', 514))
+
+handler = logging.handlers.SysLogHandler(address=address_matcher(_platform))
 
 # Set syslog for the root logger
 logger.addHandler(handler)
@@ -45,10 +42,9 @@ def print_version(ctx, param, value):
 
 def check_file_content(file):
     """Check if all mandatory headers and keys exist in file"""
-    config_file = open(file, 'r')
-    file_content = config_file.read()
-    config_file.close()
-
+    with open(file, 'r') as config_file:
+        file_content = config_file.read()
+ 
     config_headers = ["MySQL", "Backup", "Encrypt", "Compress", "Commands"]
     config_keys = [
         "mysql",
