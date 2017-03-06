@@ -546,12 +546,14 @@ class Backup(GeneralClass):
                 time.sleep(3)
 
                 # Archiving backups
-                if self.archive_dir:
+                if (hasattr(self, 'archive_dir')):
                     if (hasattr(self, 'max_archive_duration') and self.max_archive_duration) or (
                             hasattr(self, 'max_archive_size') and self.max_archive_size):
                         self.clean_old_archives()
                     if not self.create_backup_archives():
                         exit(0)
+                else:
+                    logger.debug("Archiving disabled. Skipping!")
 
                 # Flushing logs
                 if self.mysql_connection_flush_logs():
