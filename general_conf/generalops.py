@@ -61,6 +61,8 @@ class GeneralClass:
             if 'max_archive_duration' in BCK:
                 self.max_archive_duration = humanfriendly.parse_timespan(
                     BCK['max_archive_duration'])
+            if 'partial_list' in BCK:
+                self.partial_list = BCK['partial_list']
                 
                 
             if 'Remote' in con:

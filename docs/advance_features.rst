@@ -163,7 +163,117 @@ How about incremental backups? Let's take an incremental backup:
 As you see, the tool first decrypted ``xtrabackup_checkpoints.xbcrypt``
 file and then took the incremental backup.
 
+Partial backups
+---------------
 
+It is possible to take partial full and incremental backups. The idea is, to take specified table(or database) as full backup,
+then to take incremental backups based on this one table.
+You can achieve this by enabling ``partial_list`` option from config file:
+
+
+::
+
+    [Backup]
+    #Optional: set pid directory
+    pid_dir=/tmp/MySQL-AutoXtraBackup
+    #Optional: set warning if pid of backup us running for longer than X
+    pid_runtime_warning=2 Hours
+    backupdir=/home/backup_dir
+    backup_tool=/usr/bin/xtrabackup
+    xtra_prepare=--apply-log-only
+    #Optional: pass additional options
+    #xtra_options=--binlog-info=ON --galera-info
+    #Optional: set archive and rotation
+    #archive_dir=/home/backup_archives
+    #full_backup_interval=1 day
+    #max_archive_size=100GiB
+    #max_archive_duration=4 Days
+    #Optional WARNING(Enable this if you want to take partial backups). Specify database names or table names.
+    #partial_list=test.t1 test.t2 dbtest
+
+
+Sample run of full backup:
+
+::
+
+    $ sudo autoxtrabackup --backup -v -l DEBUG --defaults_file=/home/shahriyar.rzaev/AutoXtrabackup_Configs/ps_5.7_master_bck.conf
+    2017-03-06 10:51:32 DEBUG    <pid.PidFile object at 0x7f129b9a90e8> entering setup
+    2017-03-06 10:51:32 DEBUG    <pid.PidFile object at 0x7f129b9a90e8> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    2017-03-06 10:51:32 DEBUG    <pid.PidFile object at 0x7f129b9a90e8> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    2017-03-06 10:51:32 DEBUG    Running mysqladmin command -> /home/shahriyar.rzaev/Percona_Servers/5.7.17/bin/mysqladmin --defaults-file=/home/shahriyar.rzaev/sandboxes/rsandbox_Percona-Server-5_7_17/master/my.sandbox.cnf --user=jeffrey --password=msandbox status --host=localhost --port=20192
+    mysqladmin: [Warning] Using a password on the command line interface can be insecure.
+    2017-03-06 10:51:32 DEBUG    Server is Up and running+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+OK
+    2017-03-06 10:51:32 DEBUG    /home/shahriyar.rzaev/Percona_Servers/5.7.17/bin/mysql exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-OK
+    2017-03-06 10:51:32 DEBUG    /home/shahriyar.rzaev/Percona_Servers/5.7.17/bin/mysqladmin exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK
+    2017-03-06 10:51:32 DEBUG    MySQL configuration file exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+OK
+    2017-03-06 10:51:32 DEBUG    Xtrabackup exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-OK
+    2017-03-06 10:51:32 DEBUG    Main backup directory exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-OK
+    2017-03-06 10:51:32 DEBUG    Full Backup directory does not exist.+-+-+-+-+-+-+-+-+-+-+-+-OK
+    2017-03-06 10:51:32 DEBUG    Creating full backup directory...+-+-+-+-+-+-+-+-+-++-+-+-+-+OK
+    2017-03-06 10:51:32 DEBUG    Created+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK
+    2017-03-06 10:51:32 DEBUG    Increment directory does not exist.+-+-+-+-+-+-+-+-+-++-+-+-+OK
+    2017-03-06 10:51:32 DEBUG    Creating increment backup directory.+-+-+-+-+-+-+-+-+-++-+-+-OK
+    2017-03-06 10:51:32 DEBUG    Created
+    2017-03-06 10:51:32 DEBUG    Archive folder directory exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-OK
+    2017-03-06 10:51:32 DEBUG    Check status: STATUS+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-OK
+    2017-03-06 10:51:32 DEBUG    ###############################################################
+    2017-03-06 10:51:32 DEBUG    #You have no backups : Taking very first Full Backup! - - - - #
+    2017-03-06 10:51:32 DEBUG    ###############################################################
+    2017-03-06 10:51:35 DEBUG    Trying to flush logs
+    2017-03-06 10:51:36 DEBUG    Log flushing completed
+    2017-03-06 10:51:36 WARNING  Partial Backup is enabled!
+    2017-03-06 10:51:36 DEBUG    The following backup command will be executed /home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xtrabackup --defaults-file=/home/shahriyar.rzaev/sandboxes/rsandbox_Percona-Server-5_7_17/master/my.sandbox.cnf --user=jeffrey --password='msandbox'  --target-dir=/home/shahriyar.rzaev/backup_dirs/ps_5.7_master//full/2017-03-06_10-51-36 --backup --host=localhost --port=20192 --compress=quicklz --compress-chunk-size=65536 --compress-threads=4 --encrypt=AES256 --encrypt-key='VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K' --encrypt-threads=4 --encrypt-chunk-size=65536 --databases="dbtest.t1"
+    2017-03-06 10:51:36 DEBUG    Starting /home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xtrabackup
+    2017-03-06 10:51:38 DEBUG    0306 10:51:38 completed OK!
+    2017-03-06 10:51:38 DEBUG    <pid.PidFile object at 0x7f129b9a90e8> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    2017-03-06 10:51:38 DEBUG    <pid.PidFile object at 0x7f129b9a90e8> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+
+Notice that backup command has changed (see ``--databases`` option):
+
+::
+
+    /home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xtrabackup
+    --defaults-file=/home/shahriyar.rzaev/sandboxes/rsandbox_Percona-Server-5_7_17/master/my.sandbox.cnf --user=jeffrey --password='msandbox'
+    --target-dir=/home/shahriyar.rzaev/backup_dirs/ps_5.7_master//full/2017-03-06_10-51-36 --backup --host=localhost --port=20192 --compress=quicklz
+    --compress-chunk-size=65536 --compress-threads=4 --encrypt=AES256 --encrypt-key='VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K'
+    --encrypt-threads=4 --encrypt-chunk-size=65536
+    --databases="dbtest.t1"
+
+In the same way you can take incremental backup of this table:
+
+::
+
+    $ sudo autoxtrabackup --backup -v -l DEBUG --defaults_file=/home/shahriyar.rzaev/AutoXtrabackup_Configs/ps_5.7_master_bck.conf
+    2017-03-06 11:59:59 DEBUG    <pid.PidFile object at 0x7fab09cad0e8> entering setup
+    2017-03-06 11:59:59 DEBUG    <pid.PidFile object at 0x7fab09cad0e8> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    2017-03-06 11:59:59 DEBUG    <pid.PidFile object at 0x7fab09cad0e8> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    2017-03-06 11:59:59 DEBUG    Running mysqladmin command -> /home/shahriyar.rzaev/Percona_Servers/5.7.17/bin/mysqladmin --defaults-file=/home/shahriyar.rzaev/sandboxes/rsandbox_Percona-Server-5_7_17/master/my.sandbox.cnf --user=jeffrey --password=msandbox status --host=localhost --port=20192
+    mysqladmin: [Warning] Using a password on the command line interface can be insecure.
+    2017-03-06 11:59:59 DEBUG    Server is Up and running+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+OK
+    2017-03-06 11:59:59 DEBUG    /home/shahriyar.rzaev/Percona_Servers/5.7.17/bin/mysql exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-OK
+    2017-03-06 11:59:59 DEBUG    /home/shahriyar.rzaev/Percona_Servers/5.7.17/bin/mysqladmin exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK
+    2017-03-06 11:59:59 DEBUG    MySQL configuration file exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+OK
+    2017-03-06 11:59:59 DEBUG    Xtrabackup exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-OK
+    2017-03-06 11:59:59 DEBUG    Main backup directory exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-OK
+    2017-03-06 11:59:59 DEBUG    Full Backup directory exists.+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+OK
+    2017-03-06 11:59:59 DEBUG    Increment directory exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK
+    2017-03-06 11:59:59 DEBUG    Archive folder directory exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-OK
+    2017-03-06 11:59:59 DEBUG    Check status: STATUS+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-OK
+    2017-03-06 11:59:59 DEBUG    ################################################################
+    2017-03-06 11:59:59 DEBUG    You have a full backup that is less than 86400 seconds old. - -#
+    2017-03-06 11:59:59 DEBUG    We will take an incremental one based on recent Full Backup - -#
+    2017-03-06 11:59:59 DEBUG    ################################################################
+    2017-03-06 12:00:02 DEBUG    Installed Server is MySQL, will continue as usual.
+    2017-03-06 12:00:02 DEBUG    Applying workaround for LP #1444255
+    2017-03-06 12:00:02 DEBUG    The following xbcrypt command will be executed /home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xbcrypt -d -k 'VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K' -a AES256 -i /home/shahriyar.rzaev/backup_dirs/ps_5.7_master//full/2017-03-06_10-51-36/xtrabackup_checkpoints.xbcrypt -o /home/shahriyar.rzaev/backup_dirs/ps_5.7_master//full/2017-03-06_10-51-36/xtrabackup_checkpoints
+    2017-03-06 12:00:02 DEBUG
+    2017-03-06 12:00:02 WARNING  Partial Backup is enabled!
+    2017-03-06 12:00:02 DEBUG    The following backup command will be executed /home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xtrabackup --defaults-file=/home/shahriyar.rzaev/sandboxes/rsandbox_Percona-Server-5_7_17/master/my.sandbox.cnf --user=jeffrey --password='msandbox' --target-dir=/home/shahriyar.rzaev/backup_dirs/ps_5.7_master//inc/2017-03-06_12-00-02 --incremental-basedir=/home/shahriyar.rzaev/backup_dirs/ps_5.7_master//full/2017-03-06_10-51-36 --backup --host=localhost --port=20192 --compress=quicklz --compress-chunk-size=65536 --compress-threads=4 --encrypt=AES256 --encrypt-key='VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K' --encrypt-threads=4 --encrypt-chunk-size=65536 --databases="dbtest.t1"
+    2017-03-06 12:00:04 DEBUG    0306 12:00:04 completed OK!
+    2017-03-06 12:00:04 DEBUG    <pid.PidFile object at 0x7fab09cad0e8> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    2017-03-06 12:00:04 DEBUG    <pid.PidFile object at 0x7fab09cad0e8> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+
+The prepare process is the same as ordinary prepare, just run autoxtrabackup with ``--prepare`` option, you can even restore this single table using ``--partial`` option.
 
 Decompressing and Decrypting backups
 ------------------------------------
@@ -402,3 +512,4 @@ As you noticed, the ``mysqlfrm`` tool did the job and table is restored after dr
         |  3 |
         +----+
         6 rows in set (0.00 sec)
+
