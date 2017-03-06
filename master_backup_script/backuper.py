@@ -257,6 +257,12 @@ class Backup(GeneralClass):
             args += " "
             args += self.xtra_options
 
+        # Checking if partial recovery list is available
+        if hasattr(self, 'partial_list'):
+            args += " "
+            args += "--databases=%s" % (self.partial_list)
+            logger.warning("Partial Backup is enabled!")
+
         logger.debug("The following backup command will be executed %s", args)
 
         logger.debug("Starting %s", self.backup_tool)
@@ -326,7 +332,7 @@ class Backup(GeneralClass):
                 args += " --port=%s" % self.mysql_port
             else:
                 logger.critical(
-                    "Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
+                    "Neither mysql_socket nor mysql_host and mysql_port are not defined in config!")
                 return False
 
             # Adding compression support for incremental backup
@@ -377,6 +383,12 @@ class Backup(GeneralClass):
             if hasattr(self, 'xtra_options'):
                 args += " "
                 args += self.xtra_options
+
+            # Checking if partial recovery list is available
+            if hasattr(self, 'partial_list'):
+               args += " "
+               args += "--databases=%s" % (self.partial_list)
+               logger.warning("Partial Backup is enabled!")
 
             logger.debug(
                 "The following backup command will be executed %s", args)
@@ -478,6 +490,12 @@ class Backup(GeneralClass):
             if hasattr(self, 'xtra_options'):
                 args += " "
                 args += self.xtra_options
+
+            # Checking if partial recovery list is available
+            if hasattr(self, 'partial_list'):
+               args += " "
+               args += "--databases=%s" % (self.partial_list)
+               logger.warning("Partial Backup is enabled!")
 
             logger.debug(
                 "The following backup command will be executed %s", args)
