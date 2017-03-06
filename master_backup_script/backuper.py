@@ -260,7 +260,7 @@ class Backup(GeneralClass):
         # Checking if partial recovery list is available
         if hasattr(self, 'partial_list'):
             args += " "
-            args += "--databases=%s" % (self.partial_list)
+            args += '--databases="%s"' % (self.partial_list)
             logger.warning("Partial Backup is enabled!")
 
         logger.debug("The following backup command will be executed %s", args)
@@ -387,7 +387,7 @@ class Backup(GeneralClass):
             # Checking if partial recovery list is available
             if hasattr(self, 'partial_list'):
                args += " "
-               args += "--databases=%s" % (self.partial_list)
+               args += '--databases="%s"' % (self.partial_list)
                logger.warning("Partial Backup is enabled!")
 
             logger.debug(
@@ -494,7 +494,7 @@ class Backup(GeneralClass):
             # Checking if partial recovery list is available
             if hasattr(self, 'partial_list'):
                args += " "
-               args += "--databases=%s" % (self.partial_list)
+               args += '--databases="%s"' % (self.partial_list)
                logger.warning("Partial Backup is enabled!")
 
             logger.debug(
