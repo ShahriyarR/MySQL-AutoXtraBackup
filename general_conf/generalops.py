@@ -101,8 +101,12 @@ class GeneralClass:
                 self.remove_original_enc = ENC['remove_original']
 
             XBS = con['Xbstream']
+            if 'xbstream' in XBS:
+                self.xbstream = XBS['xbstream']
             if 'stream' in XBS:
                 self.stream = XBS['stream']
+            if 'xbstream_options' in XBS:
+                self.xbstream_options = XBS['xbstream_options']
 
 
             CM = con['Commands']
