@@ -344,32 +344,32 @@ class Prepare(GeneralClass):
                             "####################################################################################################")
                         time.sleep(3)
 
-                    # Extracting streamed incremental backup prior to executing new incremental backup
+                        # Extracting streamed incremental backup prior to executing new incremental backup
 
-                    if hasattr(self, 'stream') and isfile(
-                                    ("%s/%s/full_backup.stream") % (self.inc_dir, i)):
-                        logger.debug("Using xbstream to extract from full_backup.stream!")
-                        xbstream_command = "%s %s < %s/%s/inc_backup.stream -C %s/%s" % (
-                            self.xbstream,
-                            self.xbstream_options,
-                            self.inc_dir,
-                            i,
-                            self.inc_dir,
-                            i
-                        )
+                        if hasattr(self, 'stream') and isfile(
+                                        ("%s/%s/inc_backup.stream") % (self.inc_dir, i)):
+                            logger.debug("Using xbstream to extract from full_backup.stream!")
+                            xbstream_command = "%s %s < %s/%s/inc_backup.stream -C %s/%s" % (
+                                self.xbstream,
+                                self.xbstream_options,
+                                self.inc_dir,
+                                i,
+                                self.inc_dir,
+                                i
+                            )
 
-                        logger.debug(
-                            "The following xbstream command will be executed %s",
-                            xbstream_command)
+                            logger.debug(
+                                "The following xbstream command will be executed %s",
+                                xbstream_command)
 
-                        status, output = subprocess.getstatusoutput(xbstream_command)
-                        if status == 0:
-                            logger.debug("XBSTREAM command succeeded.")
-                        else:
-                            logger.error("XBSTREAM COMMAND FAILED!")
-                            time.sleep(5)
-                            logger.error(output)
-                            return False
+                            status, output = subprocess.getstatusoutput(xbstream_command)
+                            if status == 0:
+                                logger.debug("XBSTREAM command succeeded.")
+                            else:
+                                logger.error("XBSTREAM COMMAND FAILED!")
+                                time.sleep(5)
+                                logger.error(output)
+                                return False
 
 
                         # Check if decryption enabled
