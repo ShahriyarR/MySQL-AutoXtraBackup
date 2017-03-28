@@ -260,8 +260,14 @@ class Backup(GeneralClass):
         # Checking if partial recovery list is available
         if hasattr(self, 'partial_list'):
             args += " "
-            args += '--databases="%s"' % (self.partial_list)
+            args += '--databases="%s"' % self.partial_list
             logger.warning("Partial Backup is enabled!")
+
+        # Checking if streaming enabled for backups
+        if hasattr(self, 'stream'):
+            args += " "
+            args += '--stream="%s"' % self.stream
+            args += " > %s/full_backup.stream" % full_backup_dir
 
         logger.debug("The following backup command will be executed %s", args)
 
