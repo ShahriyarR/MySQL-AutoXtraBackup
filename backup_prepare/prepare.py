@@ -10,6 +10,7 @@ import shutil
 import time
 from general_conf.generalops import GeneralClass
 from general_conf.check_env import CheckEnv
+from os.path import isfile
 
 import logging
 logger = logging.getLogger(__name__)
@@ -342,6 +343,34 @@ class Prepare(GeneralClass):
                         logger.debug(
                             "####################################################################################################")
                         time.sleep(3)
+
+                    # Extracting streamed incremental backup prior to executing new incremental backup
+
+                    if hasattr(self, 'stream') and isfile(
+                                    ("%s/%s/full_backup.stream") % (self.inc_dir, i)):
+                        logger.debug("Using xbstream to extract from full_backup.stream!")
+                        xbstream_command = "%s %s < %s/%s/inc_backup.stream -C %s/%s" % (
+                            self.xbstream,
+                            self.xbstream_options,
+                            self.inc_dir,
+                            i,
+                            self.inc_dir,
+                            i
+                        )
+
+                        logger.debug(
+                            "The following xbstream command will be executed %s",
+                            xbstream_command)
+
+                        status, output = subprocess.getstatusoutput(xbstream_command)
+                        if status == 0:
+                            logger.debug("XBSTREAM command succeeded.")
+                        else:
+                            logger.error("XBSTREAM COMMAND FAILED!")
+                            time.sleep(5)
+                            logger.error(output)
+                            return False
+
 
                         # Check if decryption enabled
                         if hasattr(self, 'decrypt'):
