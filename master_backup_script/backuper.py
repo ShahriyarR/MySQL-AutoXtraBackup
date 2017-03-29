@@ -537,7 +537,7 @@ class Backup(GeneralClass):
             if hasattr(self, 'stream') and isfile(("%s/%s/inc_backup.stream") % (self.inc_dir, recent_inc)) \
                     and hasattr(self, 'encrypt') \
                     and hasattr(self, 'xbs_decrypt'):
-                logger.debug("Using xbstream to extract and decrypt from full_backup.stream!")
+                logger.debug("Using xbstream to extract and decrypt from inc_backup.stream!")
                 xbstream_command = "%s %s --decrypt=%s --encrypt-key=%s --encrypt-threads=%s " \
                                    "< %s/%s/inc_backup.stream -C %s/%s" % (
                                        self.xbstream,
