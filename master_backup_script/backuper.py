@@ -95,7 +95,7 @@ class Backup(GeneralClass):
         command_execute = ' -e "flush logs"'
 
         # Open connection
-        
+
 
         if hasattr(self, 'mysql_socket'):
             command_connection += ' --socket={}'
@@ -363,9 +363,41 @@ class Backup(GeneralClass):
             if hasattr(self, 'encrypt_chunk_size'):
                 args += " --encrypt-chunk-size=%s" % (self.encrypt_chunk_size)
 
-            # Extracting streamed full backup prior to executing incremental backup
+            # Extract and decrypt streamed full backup prior to executing incremental backup
+            if hasattr(self, 'stream') and isfile(("%s/%s/full_backup.stream") % (self.full_dir, recent_bck))  \
+                                       and hasattr(self, 'encrypt') \
+                                       and hasattr(self, 'xbs_decrypt'):
+                logger.debug("Using xbstream to extract and decrypt from full_backup.stream!")
+                xbstream_command = "%s %s --decrypt=%s --encrypt-key=%s --encrypt-threads=%s " \
+                                   " --encrypt-chunk-size=%s" \
+                                   "< %s/%s/full_backup.stream -C %s/%s" % (
+                                    self.xbstream,
+                                    self.xbstream_options,
+                                    self.decrypt,
+                                    self.encrypt_key,
+                                    self.encrypt_key,
+                                    self.encrypt_chunk_size,
+                                    self.full_dir,
+                                    recent_bck,
+                                    self.full_dir,
+                                    recent_bck
+                                )
 
-            if hasattr(self, 'stream') and isfile(("%s/%s/full_backup.stream") % (self.full_dir, recent_bck)):
+                logger.debug(
+                    "The following xbstream command will be executed %s",
+                    xbstream_command)
+
+                status, output = subprocess.getstatusoutput(xbstream_command)
+                if status == 0:
+                    logger.debug("XBSTREAM command succeeded.")
+                else:
+                    logger.error("XBSTREAM COMMAND FAILED!")
+                    time.sleep(5)
+                    logger.error(output)
+                    return False
+
+            # Extract streamed full backup prior to executing incremental backup
+            elif hasattr(self, 'stream') and isfile(("%s/%s/full_backup.stream") % (self.full_dir, recent_bck)):
                 logger.debug("Using xbstream to extract from full_backup.stream!")
                 xbstream_command = "%s %s < %s/%s/full_backup.stream -C %s/%s" % (
                     self.xbstream,
@@ -389,7 +421,7 @@ class Backup(GeneralClass):
                     logger.error(output)
                     return False
 
-            if 'encrypt' in args:
+            elif 'encrypt' in args:
                 logger.debug("Applying workaround for LP #1444255")
                 xbcrypt_command = "%s -d -k %s -a %s -i %s/%s/xtrabackup_checkpoints.xbcrypt " \
                                   "-o %s/%s/xtrabackup_checkpoints" % \

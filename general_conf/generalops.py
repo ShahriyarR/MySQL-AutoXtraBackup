@@ -107,6 +107,8 @@ class GeneralClass:
                 self.stream = XBS['stream']
             if 'xbstream_options' in XBS:
                 self.xbstream_options = XBS['xbstream_options']
+            if 'xbs_decrypt' in XBS:
+                self.xbs_decrypt = XBS['xbs_decrypt']
 
 
             CM = con['Commands']
