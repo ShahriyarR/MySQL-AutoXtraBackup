@@ -546,7 +546,7 @@ class Backup(GeneralClass):
                                        self.encrypt_key,
                                        self.encrypt_threads,
                                        self.inc_dir,
-                                       recent_bck,
+                                       recent_inc,
                                        self.inc_dir,
                                        recent_inc
                                    )
