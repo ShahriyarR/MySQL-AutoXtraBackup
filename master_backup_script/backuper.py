@@ -369,14 +369,12 @@ class Backup(GeneralClass):
                                        and hasattr(self, 'xbs_decrypt'):
                 logger.debug("Using xbstream to extract and decrypt from full_backup.stream!")
                 xbstream_command = "%s %s --decrypt=%s --encrypt-key=%s --encrypt-threads=%s " \
-                                   " --encrypt-chunk-size=%s" \
                                    "< %s/%s/full_backup.stream -C %s/%s" % (
                                     self.xbstream,
                                     self.xbstream_options,
                                     self.decrypt,
                                     self.encrypt_key,
                                     self.encrypt_threads,
-                                    self.encrypt_chunk_size,
                                     self.full_dir,
                                     recent_bck,
                                     self.full_dir,
