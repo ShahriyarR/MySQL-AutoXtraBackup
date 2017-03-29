@@ -375,7 +375,7 @@ class Backup(GeneralClass):
                                     self.xbstream_options,
                                     self.decrypt,
                                     self.encrypt_key,
-                                    self.encrypt_key,
+                                    self.encrypt_threads,
                                     self.encrypt_chunk_size,
                                     self.full_dir,
                                     recent_bck,
