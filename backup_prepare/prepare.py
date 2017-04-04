@@ -60,6 +60,65 @@ class Prepare(GeneralClass):
             logger.debug(
                 "################################################################################################")
 
+            # Extract and decrypt streamed full backup prior to executing incremental backup
+            if hasattr(self, 'stream') and isfile(("%s/%s/full_backup.stream") %
+                                                          (self.full_dir, self.recent_full_backup_file())) \
+                    and hasattr(self, 'encrypt') \
+                    and hasattr(self, 'xbs_decrypt'):
+                logger.debug("Using xbstream to extract and decrypt from full_backup.stream!")
+                xbstream_command = "%s %s --decrypt=%s --encrypt-key=%s --encrypt-threads=%s " \
+                                   "< %s/%s/full_backup.stream -C %s/%s" % (
+                                       self.xbstream,
+                                       self.xbstream_options,
+                                       self.decrypt,
+                                       self.encrypt_key,
+                                       self.encrypt_threads,
+                                       self.full_dir,
+                                       self.recent_full_backup_file(),
+                                       self.full_dir,
+                                       self.recent_full_backup_file()
+                                   )
+
+                logger.debug(
+                    "The following xbstream command will be executed %s",
+                    xbstream_command)
+
+                status, output = subprocess.getstatusoutput(xbstream_command)
+                if status == 0:
+                    logger.debug("XBSTREAM command succeeded.")
+                else:
+                    logger.error("XBSTREAM COMMAND FAILED!")
+                    time.sleep(5)
+                    logger.error(output)
+                    return False
+
+            # Extract streamed full backup prior to executing incremental backup
+            elif hasattr(self, 'stream') and isfile(("%s/%s/full_backup.stream") %
+                                                            (self.full_dir, self.recent_full_backup_file())):
+                logger.debug("Using xbstream to extract from full_backup.stream!")
+                xbstream_command = "%s %s < %s/%s/full_backup.stream -C %s/%s" % (
+                    self.xbstream,
+                    self.xbstream_options,
+                    self.full_dir,
+                    self.recent_full_backup_file(),
+                    self.full_dir,
+                    self.recent_full_backup_file()
+                )
+
+                logger.debug(
+                    "The following xbstream command will be executed %s",
+                    xbstream_command)
+
+                status, output = subprocess.getstatusoutput(xbstream_command)
+                if status == 0:
+                    logger.debug("XBSTREAM command succeeded.")
+                else:
+                    logger.error("XBSTREAM COMMAND FAILED!")
+                    time.sleep(5)
+                    logger.error(output)
+                    return False
+
+
             # Check if decryption enabled
             if hasattr(self, 'decrypt'):
                 if hasattr(self, 'remove_original_enc') and (self.remove_original_enc):
@@ -344,7 +403,7 @@ class Prepare(GeneralClass):
                             "####################################################################################################")
                         time.sleep(3)
 
-                        # Extracting streamed incremental backup prior to executing new incremental backup
+                        # Extracting streamed incremental backup prior to preparing
 
                         if hasattr(self, 'stream') and isfile(
                                         ("%s/%s/inc_backup.stream") % (self.inc_dir, i)):
