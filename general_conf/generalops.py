@@ -1,5 +1,3 @@
-#!/opt/Python-3.3.2/bin/python3
-
 import configparser
 from os.path import isfile
 import humanfriendly
@@ -101,7 +99,17 @@ class GeneralClass:
                 self.decrypt = ENC['decrypt']
             if 'remove_original' in ENC:
                 self.remove_original_enc = ENC['remove_original']
-                
+
+            XBS = con['Xbstream']
+            if 'xbstream' in XBS:
+                self.xbstream = XBS['xbstream']
+            if 'stream' in XBS:
+                self.stream = XBS['stream']
+            if 'xbstream_options' in XBS:
+                self.xbstream_options = XBS['xbstream_options']
+            if 'xbs_decrypt' in XBS:
+                self.xbs_decrypt = XBS['xbs_decrypt']
+
 
             CM = con['Commands']
             self.start_mysql = CM['start_mysql_command']
