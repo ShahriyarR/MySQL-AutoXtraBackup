@@ -275,7 +275,8 @@ class Backup(GeneralClass):
         logger.debug("Starting %s", self.backup_tool)
         status, output = subprocess.getstatusoutput(args)
         if status == 0:
-            logger.debug(output[-27:])
+            logger.debug(output)
+            #logger.debug(output[-27:])
             return True
         else:
             logger.error("FULL BACKUP FAILED!")
@@ -464,7 +465,8 @@ class Backup(GeneralClass):
                 "The following backup command will be executed %s", args)
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
-                logger.debug(output[-27:])
+                logger.debug(output)
+                #logger.debug(output[-27:])
                 return True
             else:
                 logger.error("INCREMENT BACKUP FAILED!")
@@ -636,7 +638,8 @@ class Backup(GeneralClass):
 
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
-                logger.debug(output[-27:])
+                logger.debug(output)
+                #logger.debug(output[-27:])
                 return True
             else:
                 logger.error("INCREMENT BACKUP FAILED!")
