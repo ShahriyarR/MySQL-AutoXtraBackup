@@ -185,7 +185,8 @@ class Prepare(GeneralClass):
             status, output = subprocess.getstatusoutput(args)
 
             if status == 0:
-                logger.debug(output[-27:])
+                logger.debug(output)
+                #logger.debug(output[-27:])
             else:
                 logger.error("FULL BACKUP PREPARE FAILED!")
                 time.sleep(5)
@@ -269,7 +270,8 @@ class Prepare(GeneralClass):
             logger.debug("Running prepare command -> %s", args)
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
-                logger.debug(output[-27:])
+                logger.debug(output)
+                #logger.debug(output[-27:])
                 return True
             else:
                 logger.error("One time FULL BACKUP PREPARE FAILED!")
@@ -386,7 +388,8 @@ class Prepare(GeneralClass):
                         logger.debug("Running prepare command -> %s", args)
                         status, output = subprocess.getstatusoutput(args)
                         if status == 0:
-                            logger.debug(output[-27:])
+                            logger.debug(output)
+                            #logger.debug(output[-27:])
                         else:
                             logger.error("Incremental BACKUP PREPARE FAILED!")
                             time.sleep(5)
@@ -502,7 +505,8 @@ class Prepare(GeneralClass):
                         logger.debug("Running prepare command -> %s", args2)
                         status2, output2 = subprocess.getstatusoutput(args2)
                         if status2 == 0:
-                            logger.debug(output2[-27:])
+                            logger.debug(output2)
+                            #logger.debug(output2[-27:])
                         else:
                             logger.error("Incremental BACKUP PREPARE FAILED!")
                             time.sleep(5)
