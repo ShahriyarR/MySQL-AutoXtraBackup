@@ -513,3 +513,160 @@ As you noticed, the ``mysqlfrm`` tool did the job and table is restored after dr
         +----+
         6 rows in set (0.00 sec)
 
+
+
+
+Streaming backups - for now only for TEST purposes
+--------------------------------------------------
+
+With recent XtraBackup release, you can decrypt your streamed + encrypted backups on the fly.
+Say, you took full backup as:
+
+    ::
+
+        xtrabackup --defaults-file=/home/shahriyar.rzaev/sandboxes/rsandbox_percona-server-5_7_17/master/my.sandbox.cnf
+        --user=msandbox --password='msandbox'  --target-dir=/home/shahriyar.rzaev/backup_dir/ps_5.7_master/full/2017-04-24_14-43-50
+        --backup --host=127.0.0.1 --port=20192 --compress=quicklz --compress-chunk-size=65536 --compress-threads=4
+        --encrypt=AES256 --encrypt-key='VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K' --encrypt-threads=4
+        --encrypt-chunk-size=65536 --binlog-info=AUTO --stream="xbstream" >
+        /home/shahriyar.rzaev/backup_dir/ps_5.7_master/full/2017-04-24_14-43-50/full_backup.stream
+
+
+As you noticed, there will be ``full_backup.stream`` file  inside full backup directory.
+If you are going to take incremental backup based on full backup you can extract and decrypt streamed backup directly using ``xbstream``:
+
+    ::
+
+        xbstream -x --parallel=100 --decrypt=AES256 --encrypt-key='VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K'
+        --encrypt-threads=4 <
+        /home/shahriyar.rzaev/backup_dir/ps_5.7_master/full/2017-04-24_14-43-50/full_backup.stream -C /home/shahriyar.rzaev/backup_dir/ps_5.7_master/full/2017-04-24_14-43-50
+
+        xtrabackup --defaults-file=/home/shahriyar.rzaev/sandboxes/rsandbox_percona-server-5_7_17/master/my.sandbox.cnf
+        --user=msandbox --password='msandbox' --target-dir=/home/shahriyar.rzaev/backup_dir/ps_5.7_master/inc/2017-04-24_14-44-02
+        --incremental-basedir=/home/shahriyar.rzaev/backup_dir/ps_5.7_master/full/2017-04-24_14-43-50 --backup --host=127.0.0.1
+        --port=20192 --compress=quicklz --compress-chunk-size=65536 --compress-threads=4 --encrypt=AES256
+        --encrypt-key='VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K' --encrypt-threads=4 --encrypt-chunk-size=65536 --binlog-info=AUTO
+        --stream="xbstream" > /home/shahriyar.rzaev/backup_dir/ps_5.7_master/inc/2017-04-24_14-44-02/inc_backup.stream
+
+So based on this, the incremental backup should be treated same way during prepare or for the second incremental backup etc.
+Congratulations, autoxtrabackup will do it for you
+
+
+autoxtrabackup with --dry_run option
+------------------------------------
+
+For testing purposes or just to show what is going on, with autoxtrabackup backup and prepare steps.
+You can append ``--dry_run`` option, to show commands but not to run them.
+Taking 1 full and 1 incremental backup:
+
+    ::
+
+
+        $ autoxtrabackup --backup --dry_run -v -l DEBUG --defaults_file=/home/shahriyar.rzaev/AutoXtrabackup_Configs/ps_5.7_master.conf
+        2017-04-24 15:00:30 DEBUG    <pid.PidFile object at 0x7fa9bcdb3ea8> entering setup
+        2017-04-24 15:00:30 DEBUG    <pid.PidFile object at 0x7fa9bcdb3ea8> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+        2017-04-24 15:00:30 DEBUG    <pid.PidFile object at 0x7fa9bcdb3ea8> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+        2017-04-24 15:00:30 WARNING  Dry run enabled!
+        2017-04-24 15:00:30 DEBUG    Running mysqladmin command -> /home/shahriyar.rzaev/percona-server/5.7.17/bin/mysqladmin --defaults-file=/home/shahriyar.rzaev/sandboxes/rsandbox_percona-server-5_7_17/master/my.sandbox.cnf --user=msandbox --password=msandbox status --host=127.0.0.1 --port=20192
+        mysqladmin: [Warning] Using a password on the command line interface can be insecure.
+        2017-04-24 15:00:30 DEBUG    Server is Up and running+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+OK
+        2017-04-24 15:00:30 DEBUG    /home/shahriyar.rzaev/percona-server/5.7.17/bin/mysql exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-OK
+        2017-04-24 15:00:30 DEBUG    /home/shahriyar.rzaev/percona-server/5.7.17/bin/mysqladmin exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK
+        2017-04-24 15:00:30 DEBUG    MySQL configuration file exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+OK
+        2017-04-24 15:00:30 DEBUG    Xtrabackup exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-OK
+        2017-04-24 15:00:30 DEBUG    Main backup directory exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-OK
+        2017-04-24 15:00:30 DEBUG    Full Backup directory does not exist.+-+-+-+-+-+-+-+-+-+-+-+-OK
+        2017-04-24 15:00:30 DEBUG    Creating full backup directory...+-+-+-+-+-+-+-+-+-++-+-+-+-+OK
+        2017-04-24 15:00:30 DEBUG    Created+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK
+        2017-04-24 15:00:30 DEBUG    Increment directory does not exist.+-+-+-+-+-+-+-+-+-++-+-+-+OK
+        2017-04-24 15:00:30 DEBUG    Creating increment backup directory.+-+-+-+-+-+-+-+-+-++-+-+-OK
+        2017-04-24 15:00:30 DEBUG    Created
+        2017-04-24 15:00:30 DEBUG    Check status: STATUS+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-OK
+        2017-04-24 15:00:30 DEBUG    ###############################################################
+        2017-04-24 15:00:30 DEBUG    #You have no backups : Taking very first Full Backup! - - - - #
+        2017-04-24 15:00:30 DEBUG    ###############################################################
+        2017-04-24 15:00:33 DEBUG    Trying to flush logs
+        2017-04-24 15:00:33 DEBUG    Log flushing completed
+        2017-04-24 15:00:33 WARNING  Streaming is enabled!
+        2017-04-24 15:00:33 DEBUG    The following backup command will be executed /home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xtrabackup --defaults-file=/home/shahriyar.rzaev/sandboxes/rsandbox_percona-server-5_7_17/master/my.sandbox.cnf --user=msandbox --password='msandbox'  --target-dir=/home/shahriyar.rzaev/backup_dir/ps_5.7_master/full/2017-04-24_15-00-33 --backup --host=127.0.0.1 --port=20192 --compress=quicklz --compress-chunk-size=65536 --compress-threads=4 --encrypt=AES256 --encrypt-key='VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K' --encrypt-threads=4 --encrypt-chunk-size=65536 --binlog-info=AUTO --stream="xbstream" > /home/shahriyar.rzaev/backup_dir/ps_5.7_master/full/2017-04-24_15-00-33/full_backup.stream
+        2017-04-24 15:00:33 DEBUG    <pid.PidFile object at 0x7fa9bcdb3ea8> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+        2017-04-24 15:00:33 DEBUG    <pid.PidFile object at 0x7fa9bcdb3ea8> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+
+
+        $ autoxtrabackup --backup --dry_run -v -l DEBUG --defaults_file=/home/shahriyar.rzaev/AutoXtrabackup_Configs/ps_5.7_master.conf
+        2017-04-24 15:00:38 DEBUG    <pid.PidFile object at 0x7f5d73316ea8> entering setup
+        2017-04-24 15:00:38 DEBUG    <pid.PidFile object at 0x7f5d73316ea8> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+        2017-04-24 15:00:38 DEBUG    <pid.PidFile object at 0x7f5d73316ea8> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+        2017-04-24 15:00:38 WARNING  Dry run enabled!
+        2017-04-24 15:00:38 DEBUG    Running mysqladmin command -> /home/shahriyar.rzaev/percona-server/5.7.17/bin/mysqladmin --defaults-file=/home/shahriyar.rzaev/sandboxes/rsandbox_percona-server-5_7_17/master/my.sandbox.cnf --user=msandbox --password=msandbox status --host=127.0.0.1 --port=20192
+        mysqladmin: [Warning] Using a password on the command line interface can be insecure.
+        2017-04-24 15:00:38 DEBUG    Server is Up and running+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+OK
+        2017-04-24 15:00:38 DEBUG    /home/shahriyar.rzaev/percona-server/5.7.17/bin/mysql exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-OK
+        2017-04-24 15:00:38 DEBUG    /home/shahriyar.rzaev/percona-server/5.7.17/bin/mysqladmin exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK
+        2017-04-24 15:00:38 DEBUG    MySQL configuration file exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+OK
+        2017-04-24 15:00:38 DEBUG    Xtrabackup exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-OK
+        2017-04-24 15:00:38 DEBUG    Main backup directory exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-OK
+        2017-04-24 15:00:38 DEBUG    Full Backup directory exists.+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+OK
+        2017-04-24 15:00:38 DEBUG    Increment directory exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK
+        2017-04-24 15:00:38 DEBUG    Check status: STATUS+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-OK
+        2017-04-24 15:00:38 DEBUG    ################################################################
+        2017-04-24 15:00:38 DEBUG    You have a full backup that is less than 86400 seconds old. - -#
+        2017-04-24 15:00:38 DEBUG    We will take an incremental one based on recent Full Backup - -#
+        2017-04-24 15:00:38 DEBUG    ################################################################
+        2017-04-24 15:00:41 DEBUG    Installed Server is MySQL, will continue as usual.
+        2017-04-24 15:00:41 DEBUG    Using xbstream to extract and decrypt from full_backup.stream!
+        2017-04-24 15:00:41 DEBUG    The following xbstream command will be executed /home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xbstream -x --parallel=100 --decrypt=AES256 --encrypt-key='VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K' --encrypt-threads=4 < /home/shahriyar.rzaev/backup_dir/ps_5.7_master/full/2017-04-24_15-00-33/full_backup.stream -C /home/shahriyar.rzaev/backup_dir/ps_5.7_master/full/2017-04-24_15-00-33
+        2017-04-24 15:00:41 WARNING  Streaming is enabled!
+        2017-04-24 15:00:41 DEBUG    The following backup command will be executed /home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xtrabackup --defaults-file=/home/shahriyar.rzaev/sandboxes/rsandbox_percona-server-5_7_17/master/my.sandbox.cnf --user=msandbox --password='msandbox' --target-dir=/home/shahriyar.rzaev/backup_dir/ps_5.7_master/inc/2017-04-24_15-00-41 --incremental-basedir=/home/shahriyar.rzaev/backup_dir/ps_5.7_master/full/2017-04-24_15-00-33 --backup --host=127.0.0.1 --port=20192 --compress=quicklz --compress-chunk-size=65536 --compress-threads=4 --encrypt=AES256 --encrypt-key='VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K' --encrypt-threads=4 --encrypt-chunk-size=65536 --binlog-info=AUTO --stream="xbstream" > /home/shahriyar.rzaev/backup_dir/ps_5.7_master/inc/2017-04-24_15-00-41/inc_backup.stream
+        2017-04-24 15:00:41 DEBUG    <pid.PidFile object at 0x7f5d73316ea8> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+        2017-04-24 15:00:41 DEBUG    <pid.PidFile object at 0x7f5d73316ea8> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+
+Preparing backups:
+
+    ::
+
+
+        $ autoxtrabackup --prepare --dry_run -v -l DEBUG --defaults_file=/home/shahriyar.rzaev/AutoXtrabackup_Configs/ps_5.7_master.conf
+        2017-04-24 15:04:04 DEBUG    <pid.PidFile object at 0x7f357389aea8> entering setup
+        2017-04-24 15:04:04 DEBUG    <pid.PidFile object at 0x7f357389aea8> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+        2017-04-24 15:04:04 DEBUG    <pid.PidFile object at 0x7f357389aea8> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+        2017-04-24 15:04:04 WARNING  Dry run enabled!
+        2017-04-24 15:04:04 WARNING  Do not recover/copy-back in this mode!
+        2017-04-24 15:04:04 DEBUG    Installed Server is MySQL, will continue as usual.
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
+
+        Preparing full/inc backups!
+        What do you want to do?
+        1. Prepare Backups and keep for future usage. NOTE('Once Prepared Backups Can not be prepared Again')
+        2. Prepare Backups and restore/recover/copy-back immediately
+        3. Just copy-back previously prepared backups
+        Please Choose one of options and type 1 or 2 or 3: 1
+
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
+        2017-04-24 15:04:08 DEBUG    ####################################################################################################
+        2017-04-24 15:04:08 DEBUG    You have Incremental backups. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#
+        2017-04-24 15:04:11 DEBUG    Preparing Full backup 1 time. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#
+        Final prepare,will occur after preparing all inc backups - - - - - - - - - - - - - - - - -  - - - -#
+        2017-04-24 15:04:11 DEBUG    ####################################################################################################
+        2017-04-24 15:04:14 DEBUG    Trying to decrypt backup
+        2017-04-24 15:04:14 DEBUG    Running decrypt command -> /home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xtrabackup --decrypt=AES256 --encrypt-key='VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K' --target-dir=/home/shahriyar.rzaev/backup_dir/ps_5.7_master/full/2017-04-24_15-00-33 --remove-original
+        2017-04-24 15:04:14 DEBUG    Trying to decompress backup
+        2017-04-24 15:04:14 DEBUG    Running decompress command -> /home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xtrabackup --decompress=TRUE --target-dir=/home/shahriyar.rzaev/backup_dir/ps_5.7_master/full/2017-04-24_15-00-33 --remove-original
+        2017-04-24 15:04:14 DEBUG    Running prepare command -> /home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xtrabackup --prepare --apply-log-only --target-dir=/home/shahriyar.rzaev/backup_dir/ps_5.7_master/full/2017-04-24_15-00-33 --binlog-info=AUTO
+        2017-04-24 15:04:14 DEBUG    ####################################################################################################
+        2017-04-24 15:04:14 DEBUG    Preparing Incs:
+        2017-04-24 15:04:17 DEBUG    ####################################################################################################
+        2017-04-24 15:04:17 DEBUG    Preparing last incremental backup, inc backup dir/name is 2017-04-24_15-00-41
+        2017-04-24 15:04:17 DEBUG    ####################################################################################################
+        2017-04-24 15:04:20 DEBUG    Using xbstream to extract from full_backup.stream!
+        2017-04-24 15:04:20 DEBUG    The following xbstream command will be executed /home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xbstream -x --parallel=100 < /home/shahriyar.rzaev/backup_dir/ps_5.7_master/inc/2017-04-24_15-00-41/inc_backup.stream -C /home/shahriyar.rzaev/backup_dir/ps_5.7_master/inc/2017-04-24_15-00-41
+        2017-04-24 15:04:20 DEBUG    Trying to decrypt backup
+        2017-04-24 15:04:20 DEBUG    Running decrypt command -> /home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xtrabackup --decrypt=AES256 --encrypt-key='VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K' --target-dir=/home/shahriyar.rzaev/backup_dir/ps_5.7_master/inc/2017-04-24_15-00-41 --remove-original
+        2017-04-24 15:04:20 DEBUG    Trying to decompress backup
+        2017-04-24 15:04:20 DEBUG    Running decompress command -> /home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xtrabackup --decompress=TRUE --target-dir=/home/shahriyar.rzaev/backup_dir/ps_5.7_master/inc/2017-04-24_15-00-41 --remove-original
+        2017-04-24 15:04:20 DEBUG    Running prepare command -> /home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xtrabackup --prepare --target-dir=/home/shahriyar.rzaev/backup_dir/ps_5.7_master/full/2017-04-24_15-00-33 --incremental-dir=/home/shahriyar.rzaev/backup_dir/ps_5.7_master/inc/2017-04-24_15-00-41 --binlog-info=AUTO
+        2017-04-24 15:04:20 DEBUG    ####################################################################################################
+        2017-04-24 15:04:20 DEBUG    The end of the Prepare Stage. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#
+        2017-04-24 15:04:20 DEBUG    ####################################################################################################
+        2017-04-24 15:04:23 DEBUG    <pid.PidFile object at 0x7f357389aea8> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+        2017-04-24 15:04:23 DEBUG    <pid.PidFile object at 0x7f357389aea8> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid

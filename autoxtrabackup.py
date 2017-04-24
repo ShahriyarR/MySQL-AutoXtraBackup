@@ -36,7 +36,7 @@ def print_version(ctx, param, value):
     click.echo("Email: rzayev.shahriyar@yandex.com")
     click.echo(
         "Based on Percona XtraBackup: https://github.com/percona/percona-xtrabackup/")
-    click.echo('MySQL-AutoXtraBackup Version: 1.4.7')
+    click.echo('MySQL-AutoXtraBackup Version: 1.4.8')
     ctx.exit()
 
 
@@ -102,6 +102,7 @@ def validate_file(file):
 
 
 @click.command()
+@click.option('--dry_run', is_flag=True, help="Enable the dry run.")
 @click.option('--prepare', is_flag=True, help="Prepare/recover backups.")
 @click.option(
     '--backup',
@@ -131,7 +132,7 @@ def validate_file(file):
                                  'ERROR',
                                  'CRITICAL']),
               help="Set log level")
-def all_procedure(prepare, backup, partial, verbose, log, defaults_file):
+def all_procedure(prepare, backup, partial, verbose, log, defaults_file, dry_run):
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
@@ -148,20 +149,34 @@ def all_procedure(prepare, backup, partial, verbose, log, defaults_file):
     try:
         with pid_file:  # User PidFile for locking to single instance
             if (not prepare) and (not backup) and (
-                    not partial) and (not defaults_file):
+                    not partial) and (not defaults_file) and (not dry_run):
                 print(
                     "ERROR: you must give an option, run with --help for available options")
             elif prepare:
-                a = Prepare(config=defaults_file)
-                a.prepare_backup_and_copy_back()
+                if not dry_run:
+                    a = Prepare(config=defaults_file)
+                    a.prepare_backup_and_copy_back()
+                else:
+                    logger.warning("Dry run enabled!")
+                    logger.warning("Do not recover/copy-back in this mode!")
+                    a = Prepare(config=defaults_file, dry_run=1)
+                    a.prepare_backup_and_copy_back()
                 # print("Prepare")
             elif backup:
-                b = Backup(config=defaults_file)
-                b.all_backup()
+                if not dry_run:
+                    b = Backup(config=defaults_file)
+                    b.all_backup()
+                else:
+                    logger.warning("Dry run enabled!")
+                    b = Backup(config=defaults_file, dry_run=1)
+                    b.all_backup()
                 # print("Backup")
             elif partial:
-                c = PartialRecovery(config=defaults_file)
-                c.final_actions()
+                if not dry_run:
+                    c = PartialRecovery(config=defaults_file)
+                    c.final_actions()
+                else:
+                    logger.critical("Dry run is not implemented for partial recovery!")
     except pid.PidFileAlreadyLockedError as error:
         if hasattr(config, 'pid_runtime_warning'):
             if time.time() - os.stat(pid_file.filename).st_ctime > config.pid_runtime_warning:

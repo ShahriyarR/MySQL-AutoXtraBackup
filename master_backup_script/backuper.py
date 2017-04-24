@@ -29,8 +29,9 @@ logger = logging.getLogger(__name__)
 
 class Backup(GeneralClass):
 
-    def __init__(self, config='/etc/bck.conf'):
+    def __init__(self, config='/etc/bck.conf', dry_run=0):
         self.conf = config
+        self.dry = dry_run
         # Call GeneralClass for storing configuration
         GeneralClass.__init__(self, self.conf)
 
@@ -272,17 +273,19 @@ class Backup(GeneralClass):
 
         logger.debug("The following backup command will be executed %s", args)
 
-        logger.debug("Starting %s", self.backup_tool)
-        status, output = subprocess.getstatusoutput(args)
-        if status == 0:
-            logger.debug(output)
-            #logger.debug(output[-27:])
-            return True
-        else:
-            logger.error("FULL BACKUP FAILED!")
-            time.sleep(5)
-            logger.error(output)
-            return False
+        if self.dry == 0:
+            logger.debug("Starting %s", self.backup_tool)
+            status, output = subprocess.getstatusoutput(args)
+            if status == 0:
+                logger.debug(output)
+                #logger.debug(output[-27:])
+                return True
+            else:
+                logger.error("FULL BACKUP FAILED!")
+                time.sleep(5)
+                logger.error(output)
+                return False
+
 
     def inc_backup(self):
 
@@ -365,7 +368,7 @@ class Backup(GeneralClass):
                 args += " --encrypt-chunk-size=%s" % (self.encrypt_chunk_size)
 
             # Extract and decrypt streamed full backup prior to executing incremental backup
-            if hasattr(self, 'stream') and isfile(("%s/%s/full_backup.stream") % (self.full_dir, recent_bck))  \
+            if hasattr(self, 'stream') \
                                        and hasattr(self, 'encrypt') \
                                        and hasattr(self, 'xbs_decrypt'):
                 logger.debug("Using xbstream to extract and decrypt from full_backup.stream!")
@@ -385,18 +388,18 @@ class Backup(GeneralClass):
                 logger.debug(
                     "The following xbstream command will be executed %s",
                     xbstream_command)
-
-                status, output = subprocess.getstatusoutput(xbstream_command)
-                if status == 0:
-                    logger.debug("XBSTREAM command succeeded.")
-                else:
-                    logger.error("XBSTREAM COMMAND FAILED!")
-                    time.sleep(5)
-                    logger.error(output)
-                    return False
+                if self.dry == 0 and isfile(("%s/%s/full_backup.stream") % (self.full_dir, recent_bck)):
+                    status, output = subprocess.getstatusoutput(xbstream_command)
+                    if status == 0:
+                        logger.debug("XBSTREAM command succeeded.")
+                    else:
+                        logger.error("XBSTREAM COMMAND FAILED!")
+                        time.sleep(5)
+                        logger.error(output)
+                        return False
 
             # Extract streamed full backup prior to executing incremental backup
-            elif hasattr(self, 'stream') and isfile(("%s/%s/full_backup.stream") % (self.full_dir, recent_bck)):
+            elif hasattr(self, 'stream'):
                 logger.debug("Using xbstream to extract from full_backup.stream!")
                 xbstream_command = "%s %s < %s/%s/full_backup.stream -C %s/%s" % (
                     self.xbstream,
@@ -411,14 +414,15 @@ class Backup(GeneralClass):
                     "The following xbstream command will be executed %s",
                 xbstream_command)
 
-                status, output = subprocess.getstatusoutput(xbstream_command)
-                if status == 0:
-                    logger.debug("XBSTREAM command succeeded.")
-                else:
-                    logger.error("XBSTREAM COMMAND FAILED!")
-                    time.sleep(5)
-                    logger.error(output)
-                    return False
+                if self.dry == 0 and isfile(("%s/%s/full_backup.stream") % (self.full_dir, recent_bck)):
+                    status, output = subprocess.getstatusoutput(xbstream_command)
+                    if status == 0:
+                        logger.debug("XBSTREAM command succeeded.")
+                    else:
+                        logger.error("XBSTREAM COMMAND FAILED!")
+                        time.sleep(5)
+                        logger.error(output)
+                        return False
 
             elif 'encrypt' in args:
                 logger.debug("Applying workaround for LP #1444255")
@@ -434,14 +438,16 @@ class Backup(GeneralClass):
                 logger.debug(
                     "The following xbcrypt command will be executed %s",
                     xbcrypt_command)
-                status, output = subprocess.getstatusoutput(xbcrypt_command)
-                if status == 0:
-                    logger.debug(output[-27:])
-                else:
-                    logger.error("XBCRYPT COMMAND FAILED!")
-                    time.sleep(5)
-                    logger.error(output)
-                    return False
+
+                if self.dry == 0:
+                    status, output = subprocess.getstatusoutput(xbcrypt_command)
+                    if status == 0:
+                        logger.debug(output[-27:])
+                    else:
+                        logger.error("XBCRYPT COMMAND FAILED!")
+                        time.sleep(5)
+                        logger.error(output)
+                        return False
 
             # Checking if extra options were passed:
             if hasattr(self, 'xtra_options'):
@@ -463,16 +469,17 @@ class Backup(GeneralClass):
 
             logger.debug(
                 "The following backup command will be executed %s", args)
-            status, output = subprocess.getstatusoutput(args)
-            if status == 0:
-                logger.debug(output)
-                #logger.debug(output[-27:])
-                return True
-            else:
-                logger.error("INCREMENT BACKUP FAILED!")
-                time.sleep(5)
-                logger.error(output)
-                return False
+            if self.dry == 0:
+                status, output = subprocess.getstatusoutput(args)
+                if status == 0:
+                    logger.debug(output)
+                    #logger.debug(output[-27:])
+                    return True
+                else:
+                    logger.error("INCREMENT BACKUP FAILED!")
+                    time.sleep(5)
+                    logger.error(output)
+                    return False
 
         else:  # If there is already existing incremental backup
 
@@ -536,7 +543,7 @@ class Backup(GeneralClass):
                 args += " --encrypt-chunk-size=%s" % (self.encrypt_chunk_size)
 
             # Extract and decrypt streamed full backup prior to executing incremental backup
-            if hasattr(self, 'stream') and isfile(("%s/%s/inc_backup.stream") % (self.inc_dir, recent_inc)) \
+            if hasattr(self, 'stream') \
                     and hasattr(self, 'encrypt') \
                     and hasattr(self, 'xbs_decrypt'):
                 logger.debug("Using xbstream to extract and decrypt from inc_backup.stream!")
@@ -556,19 +563,19 @@ class Backup(GeneralClass):
                 logger.debug(
                     "The following xbstream command will be executed %s",
                     xbstream_command)
-
-                status, output = subprocess.getstatusoutput(xbstream_command)
-                if status == 0:
-                    logger.debug("XBSTREAM command succeeded.")
-                else:
-                    logger.error("XBSTREAM COMMAND FAILED!")
-                    time.sleep(5)
-                    logger.error(output)
-                    return False
+                if self.dry == 0 and isfile(("%s/%s/inc_backup.stream") % (self.inc_dir, recent_inc)):
+                    status, output = subprocess.getstatusoutput(xbstream_command)
+                    if status == 0:
+                        logger.debug("XBSTREAM command succeeded.")
+                    else:
+                        logger.error("XBSTREAM COMMAND FAILED!")
+                        time.sleep(5)
+                        logger.error(output)
+                        return False
 
             # Extracting streamed incremental backup prior to executing new incremental backup
 
-            elif hasattr(self, 'stream') and isfile(("%s/%s/inc_backup.stream") % (self.full_dir, recent_bck)):
+            elif hasattr(self, 'stream'):
                 logger.debug("Using xbstream to extract from inc_backup.stream!")
                 xbstream_command = "%s %s < %s/%s/inc_backup.stream -C %s/%s" % (
                     self.xbstream,
@@ -583,14 +590,15 @@ class Backup(GeneralClass):
                     "The following xbstream command will be executed %s",
                     xbstream_command)
 
-                status, output = subprocess.getstatusoutput(xbstream_command)
-                if status == 0:
-                    logger.debug("XBSTREAM command succeeded.")
-                else:
-                    logger.error("XBSTREAM COMMAND FAILED!")
-                    time.sleep(5)
-                    logger.error(output)
-                    return False
+                if self.dry == 0 and isfile(("%s/%s/inc_backup.stream") % (self.full_dir, recent_bck)):
+                    status, output = subprocess.getstatusoutput(xbstream_command)
+                    if status == 0:
+                        logger.debug("XBSTREAM command succeeded.")
+                    else:
+                        logger.error("XBSTREAM COMMAND FAILED!")
+                        time.sleep(5)
+                        logger.error(output)
+                        return False
 
             elif 'encrypt' in args:
                 logger.debug("Applying workaround for LP #1444255")
@@ -606,14 +614,15 @@ class Backup(GeneralClass):
                 logger.debug(
                     "The following xbcrypt command will be executed %s",
                     xbcrypt_command)
-                status, output = subprocess.getstatusoutput(xbcrypt_command)
-                if status == 0:
-                    logger.debug(output[-27:])
-                else:
-                    logger.error("XBCRYPT COMMAND FAILED!")
-                    time.sleep(5)
-                    logger.error(output)
-                    return False
+                if self.dry == 0:
+                    status, output = subprocess.getstatusoutput(xbcrypt_command)
+                    if status == 0:
+                        logger.debug(output[-27:])
+                    else:
+                        logger.error("XBCRYPT COMMAND FAILED!")
+                        time.sleep(5)
+                        logger.error(output)
+                        return False
 
             # Checking if extra options were passed:
             if hasattr(self, 'xtra_options'):
@@ -636,16 +645,17 @@ class Backup(GeneralClass):
             logger.debug(
                 "The following backup command will be executed %s", args)
 
-            status, output = subprocess.getstatusoutput(args)
-            if status == 0:
-                logger.debug(output)
-                #logger.debug(output[-27:])
-                return True
-            else:
-                logger.error("INCREMENT BACKUP FAILED!")
-                time.sleep(5)
-                logger.error(output)
-                return False
+            if self.dry == 0:
+                status, output = subprocess.getstatusoutput(args)
+                if status == 0:
+                    logger.debug(output)
+                    #logger.debug(output[-27:])
+                    return True
+                else:
+                    logger.error("INCREMENT BACKUP FAILED!")
+                    time.sleep(5)
+                    logger.error(output)
+                    return False
 
     def all_backup(self):
         """
