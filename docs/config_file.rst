@@ -18,7 +18,7 @@ You can pass another configuration file using ``--defaults_file`` option.
     mysqladmin=/usr/bin/mysqladmin
     mysql_user=root
     mysql_password=12345
-    #Set either mysql_socket or host and port. If both are set socket is used
+    #Set either mysql_socket or host and post. If both are set socket is used
     #mysql_socket=/var/lib/mysql/mysql.sock
     mysql_host=127.0.0.1
     mysql_port=3306
@@ -41,6 +41,8 @@ You can pass another configuration file using ``--defaults_file`` option.
     #full_backup_interval=1 day
     #max_archive_size=100GiB
     #max_archive_duration=4 Days
+    #Optional WARNING(Enable this if you want to take partial backups). Specify database names or table names.
+    #partial_list=test.t1 test.t2 dbtest
 
     [Compress]
     #Optional
@@ -65,6 +67,16 @@ You can pass another configuration file using ``--defaults_file`` option.
     #decrypt=AES256
     #Enable if you want to remove .qp files after decompression.(Not available yet, will be released with XB 2.3.7 and 2.4.6)
     #remove_original=FALSE
+
+    [Xbstream]
+    #EXPERIMENTAL
+    # Enable this, if you want to stream your backups
+    #xbstream=/usr/bin/xbstream
+    #stream=xbstream
+    #xbstream_options=-x --parallel=100
+    #xbs_decrypt=1
+    # WARN, enable this, if you want to stream your backups to remote host
+    #remote_stream=ssh xxx.xxx.xxx.xxx
 
     #Optional remote syncing
     #[Remote]

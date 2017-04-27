@@ -66,7 +66,7 @@ Installing mysql-connector-python and mysql-utilities:
 
 ::
 
-    wget wget https://dev.mysql.com/get/Downloads/MySQLGUITools/mysql-utilities-1.6.5-1.el7.noarch.rpm
+    wget https://dev.mysql.com/get/Downloads/MySQLGUITools/mysql-utilities-1.6.5-1.el7.noarch.rpm
     yum install mysql-utilities-1.6.5-1.el7.noarch.rpm
 
 Installing MySQL-AutoXtraBackup

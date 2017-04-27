@@ -31,15 +31,17 @@ Available Options
     Usage: autoxtrabackup [OPTIONS]
 
     Options:
-    --prepare                       Prepare/recover backups.
-    --backup                        Take full and incremental backups.
-    --partial                       Recover specified table (partial recovery).
-    --version                       Version information.
-    --defaults_file TEXT            Read options from the given file
-    -v, --verbose                   Be verbose (print to console)
-    -l, --log [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+      --dry_run                       Enable the dry run.
+      --prepare                       Prepare/recover backups.
+      --backup                        Take full and incremental backups.
+      --partial                       Recover specified table (partial recovery).
+      --version                       Version information.
+      --defaults_file TEXT            Read options from the given file
+      -v, --verbose                   Be verbose (print to console)
+      -l, --log [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                       Set log level
-    --help                          Show this message and exit.
+      --help                          Show this message and exit.
+
 
 
 
@@ -49,4 +51,4 @@ Usage
 ::
 
     1. Install it
-    2. Edit /etc/bck.conf file reflecting your environment and use.
+    2. Edit /etc/bck.conf file to reflect your environment and use.
