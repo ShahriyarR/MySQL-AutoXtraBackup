@@ -258,6 +258,11 @@ class Backup(GeneralClass):
             args += " "
             args += self.xtra_options
 
+        # Checking if extra backup options were passed:
+        if hasattr(self, 'xtra_backup'):
+            args += " "
+            args += self.xtra_backup
+
         # Checking if partial recovery list is available
         if hasattr(self, 'partial_list'):
             args += " "
@@ -454,6 +459,11 @@ class Backup(GeneralClass):
                 args += " "
                 args += self.xtra_options
 
+            # Checking if extra backup options were passed:
+            if hasattr(self, 'xtra_backup'):
+                args += " "
+                args += self.xtra_backup
+
             # Checking if partial recovery list is available
             if hasattr(self, 'partial_list'):
                args += " "
@@ -628,6 +638,11 @@ class Backup(GeneralClass):
             if hasattr(self, 'xtra_options'):
                 args += " "
                 args += self.xtra_options
+
+            # Checking if extra backup options were passed:
+            if hasattr(self, 'xtra_backup'):
+                args += " "
+                args += self.xtra_backup
 
             # Checking if partial recovery list is available
             if hasattr(self, 'partial_list'):

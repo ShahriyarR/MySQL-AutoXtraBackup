@@ -44,6 +44,10 @@ class GeneralClass:
             self.inc_dir = self.backupdir + '/inc'
             self.backup_tool = BCK['backup_tool']
             self.xtrabck_prepare = BCK['xtra_prepare']
+            if 'xtra_backup' in BCK:
+                self.xtra_backup = BCK['xtra_backup']
+            if 'xtra_prepare_options' in BCK:
+                self.xtra_prepare_options = BCK['xtra_prepare_options']
             if 'xtra_options' in BCK:
                 self.xtra_options = BCK['xtra_options'] 
             if 'full_backup_interval' in BCK:
