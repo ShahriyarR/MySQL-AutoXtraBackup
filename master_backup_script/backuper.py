@@ -300,7 +300,6 @@ class Backup(GeneralClass):
         recent_inc = self.recent_inc_backup_file()
 
         check_env_obj = CheckEnv(self.conf)
-        product_type = check_env_obj.check_mysql_product()
 
         # Creating time-stamped incremental backup directory
         inc_backup_dir = self.create_backup_directory(self.inc_dir)
