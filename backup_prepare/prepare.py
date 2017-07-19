@@ -23,7 +23,6 @@ class Prepare(GeneralClass):
         self.dry = dry_run
         GeneralClass.__init__(self, self.conf)
         self.check_env_obj = CheckEnv(self.conf)
-        self.result = self.check_env_obj.check_systemd_init()
         # If prepare_tool option enabled in config, make backup_tool to use this.
         if hasattr(self, 'prepare_tool'):
             self.backup_tool = self.prepare_tool
@@ -178,6 +177,7 @@ class Prepare(GeneralClass):
                         time.sleep(5)
                         logger.error(output)
                     
+            # Actual prepare command goes here
             args = "%s --prepare --target-dir=%s/%s" % \
                    (self.backup_tool,
                     self.full_dir,
@@ -270,7 +270,7 @@ class Prepare(GeneralClass):
                         logger.error(output)
             
                          
-                    
+            # Actual prepare command goes here
             args = '%s --prepare %s --target-dir=%s/%s' % \
                 (self.backup_tool,
                  self.xtrabck_prepare,
@@ -396,7 +396,7 @@ class Prepare(GeneralClass):
                                     logger.error(output)
                         
                                                    
-                                
+                        # Actual prepare command goes here
                         args = '%s --prepare %s --target-dir=%s/%s --incremental-dir=%s/%s' % \
                             (self.backup_tool,
                              self.xtrabck_prepare,
@@ -576,14 +576,7 @@ class Prepare(GeneralClass):
             "####################################################################################################")
         time.sleep(3)
 
-        if self.result == 3:
-            args = self.systemd_stop_mariadb
-        elif self.result == 4:
-            args = self.stop_mysql
-        elif self.result == 5:
-            args = self.systemd_stop_mysql
-        elif self.result == 6:
-            args = self.stop_mysql
+        args = self.stop_mysql
 
         status, output = subprocess.getstatusoutput(args)
         if status == 0:
@@ -601,7 +594,7 @@ class Prepare(GeneralClass):
         logger.debug(
             "####################################################################################################")
         logger.debug(
-            "Moving MySQL datadir to /tmp/mysql: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
+            "Moving MySQL datadir to {}  - - - - - - - - - - - - - - - - - - - - - - - - - - - -#".format(self.tmpdir))
         logger.debug(
             "####################################################################################################")
         time.sleep(3)
@@ -610,11 +603,11 @@ class Prepare(GeneralClass):
             status, output = subprocess.getstatusoutput(rmdirc)
 
             if status == 0:
-                logger.debug("Emptied /tmp/mysql directory ...")
+                logger.debug("Emptied {} directory ...".format(self.tmpdir))
 
                 try:
-                    shutil.move(self.datadir, self.tmp)
-                    logger.debug("Moved datadir to /tmp/mysql ...")
+                    shutil.move(self.datadir, self.tmpdir)
+                    logger.debug("Moved datadir to {} ...".format(self.tmpdir))
                 except shutil.Error as err:
                     logger.error("Error occurred while moving datadir")
                     logger.error(err)
@@ -633,14 +626,14 @@ class Prepare(GeneralClass):
                 return True
 
             else:
-                logger.error("Could not delete /tmp/mysql directory")
+                logger.error("Could not delete {} directory".format(self.tmpdir))
                 logger.error(output)
                 return False
 
         else:
             try:
-                shutil.move(self.datadir, self.tmp)
-                logger.debug("Moved datadir to /tmp/mysql ...")
+                shutil.move(self.datadir, self.tmpdir)
+                logger.debug("Moved datadir to {} ...".format(self.tmpdir))
             except shutil.Error as err:
                 logger.error("Error occurred while moving datadir")
                 logger.error(err)
@@ -682,7 +675,7 @@ class Prepare(GeneralClass):
             return False
 
     def giving_chown(self):
-        # Changing owner of datadir to mysql:mysql
+        # Changing owner of datadir to given user:group
         time.sleep(3)
         give_chown = "%s %s" % (self.chown_command, self.datadir)
         status, output = subprocess.getstatusoutput(give_chown)
@@ -701,7 +694,7 @@ class Prepare(GeneralClass):
             return False
 
     def start_mysql_func(self):
-        # Starting MySQL/Mariadb
+        # Starting MySQL
         logger.debug(
             "####################################################################################################")
         logger.debug("Starting MySQL/MariaDB server: ")
@@ -709,15 +702,7 @@ class Prepare(GeneralClass):
             "####################################################################################################")
         time.sleep(3)
 
-        if self.result == 3:
-            args = self.systemd_start_mariadb
-        elif self.result == 4:
-            args = self.start_mysql
-        elif self.result == 5:
-            args = self.systemd_start_mysql
-        elif self.result == 6:
-            args = self.start_mysql
-
+        args = self.start_mysql
         start_command = args
         status, output = subprocess.getstatusoutput(start_command)
         if status == 0:
@@ -730,7 +715,13 @@ class Prepare(GeneralClass):
             return False
 
     def copy(self):
-
+        """
+        Function for running:
+          xtrabackup --copy-back
+          giving chown to datadir
+          starting mysql
+        :return: True if succeeded. Error if failed
+        """
         logger.debug(
             "####################################################################################################")
         logger.debug(
@@ -749,17 +740,18 @@ class Prepare(GeneralClass):
                     else:
                         "Error Occurred!"
 
-    def copy_back(self):
-
+    def copy_back_action(self):
+        """
+        Function for complete recover/copy-back actions
+        :return: True if succeeded. Error if failed.
+        """
         if self.shutdown_mysql():
             if self.move_datadir():
                 if self.copy():
                     logger.debug(
                         "####################################################################################################")
-                    logger.debug(
-                        "All data copied back successfully your MySQL server is UP again. \n"
-                        "Congratulations. \n"
-                        "Backups are life savers")
+                    logger.debug("All data copied back successfully. ")
+                    logger.debug("Your MySQL server is UP again")
                     logger.debug(
                         "####################################################################################################")
                     return True
@@ -767,7 +759,7 @@ class Prepare(GeneralClass):
                     logger.error("Error Occurred!")
 
     ##########################################################################
-    # FINAL FUNCTION FOR CALL: PREPARE/PREPARE AND COPY-BACK/COPY-BACK
+    # FINAL FUNCTION FOR CALL: prepare_backup_and_copy_back()
     ##########################################################################
 
     def prepare_backup_and_copy_back(self):
@@ -792,17 +784,13 @@ class Prepare(GeneralClass):
         elif prepare == 2:
             self.prepare_inc_full_backups()
             if self.dry == 0:
-                self.copy_back()
+                self.copy_back_action()
             else:
                 logger.critical("Dry run is not implemented for copy-back/recovery actions!")
         elif prepare == 3:
             if self.dry == 0:
-                self.copy_back()
+                self.copy_back_action()
             else:
                 logger.critical("Dry run is not implemented for copy-back/recovery actions!")
         else:
             print("Please type 1 or 2 or 3 and nothing more!")
-
-
-# a = Prepare()
-# a.prepare_backup_and_copy_back()

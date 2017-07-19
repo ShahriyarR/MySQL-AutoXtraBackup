@@ -27,8 +27,8 @@ class GeneralClass:
             if 'mysql_port' in DB:
                 self.mysql_port = DB['mysql_port']
             self.datadir = DB['datadir']
-            self.tmpdir = DB['tmpdir']
-            self.tmp = DB['tmp']
+            # self.tmpdir = DB['tmpdir']
+            # self.tmp = DB['tmp']
             
             
             BCK = con['Backup']
@@ -36,6 +36,7 @@ class GeneralClass:
                 self.pid_dir = BCK['pid_dir']
             else:
                 self.pid_dir = "/tmp/"
+            self.tmpdir = BCK['tmpdir']
             if 'pid_runtime_warning' in BCK:
                 self.pid_runtime_warning = humanfriendly.parse_timespan(
                     BCK['pid_runtime_warning'])
@@ -121,10 +122,6 @@ class GeneralClass:
             self.start_mysql = CM['start_mysql_command']
             self.stop_mysql = CM['stop_mysql_command']
             self.chown_command = CM['chown_command']
-            self.systemd_start_mysql = CM['systemd_start_mysql']
-            self.systemd_stop_mysql = CM['systemd_stop_mysql']
-            self.systemd_start_mariadb = CM['systemd_start_mariadb']
-            self.systemd_stop_mariadb = CM['systemd_stop_mariadb']
 
         else:
             logger.critical("Missing config file : /etc/bck.conf")
