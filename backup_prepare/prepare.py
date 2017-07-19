@@ -750,10 +750,8 @@ class Prepare(GeneralClass):
                 if self.copy():
                     logger.debug(
                         "####################################################################################################")
-                    logger.debug(
-                        "All data copied back successfully your MySQL server is UP again. \n"
-                        "Congratulations. \n"
-                        "Backups are life savers")
+                    logger.debug("All data copied back successfully. ")
+                    logger.debug("Your MySQL server is UP again")
                     logger.debug(
                         "####################################################################################################")
                     return True
