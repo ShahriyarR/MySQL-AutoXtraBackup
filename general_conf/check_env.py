@@ -167,78 +167,78 @@ class CheckEnv(GeneralClass):
             return True
 
 
-    def check_mysql_product(self):
-        """
-        Check if MariaDB or MySQL installed. We will apply a workaround for MariaDB
-        See related BUG report -> https://bugs.launchpad.net/percona-xtrabackup/+bug/1444541
-        :return: 2 if server is MariaDB / 3 if server is MySQL(other)
-        """
-
-        check_version = "%s --defaults-file=%s --user=%s --password='%s' ver" % (
-            self.mysqladmin, self.mycnf, self.mysql_user, self.mysql_password)
-
-        if hasattr(self, 'mysql_socket'):
-            check_version += " --socket=%s" % (self.mysql_socket)
-        elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
-            check_version += " --host=%s" % self.mysql_host
-            check_version += " --port=%s" % self.mysql_port
-        else:
-            logger.critical(
-                "Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
-            return False
-
-        status, output = subprocess.getstatusoutput(check_version)
-
-        if status == 0:
-            if 'MARIADB' in output.upper():
-                logger.debug("!!!!!!!!")
-                logger.debug(
-                    "Installed Server is MariaDB, will use a workaround for LP BUG 1444541.")
-                logger.debug("!!!!!!!!")
-                return 2
-            else:
-                logger.debug(
-                    "Installed Server is MySQL, will continue as usual.")
-                return 3
-        else:
-            logger.error("mysqladmin ver command Failed")
-            time.sleep(5)
-            logger.error(output)
-            return False
-
-    def check_systemd_init(self):
-        """
-        Check if systemd support available for server
-        :return:
-        3 - if server is MariaDB and systemd available.
-        4 - if server is MariaDB and systemd NOT available.
-        5 - if server is MySQL and systemd available.
-        6- is server is MySQL and systemd NOT available.
-        """
-        product_result = self.check_mysql_product()
-        systemd_dir = '/usr/lib/systemd/system'
-
-        list_dir = []
-
-        if os.path.isdir(systemd_dir):
-
-            for i in os.listdir(systemd_dir):
-                list_dir.append(i)
-        else:
-            logger.error(
-                "There is no /usr/lib/systemd/system folder, Continue")
-
-        if product_result == 2:
-            if 'mariadb.service' in list_dir:
-                return 3
-            else:
-                return 4
-
-        elif product_result == 3:
-            if 'mysqld.service' in list_dir:
-                return 5
-            else:
-                return 6
+    # def check_mysql_product(self):
+    #     """
+    #     Check if MariaDB or MySQL installed. We will apply a workaround for MariaDB
+    #     See related BUG report -> https://bugs.launchpad.net/percona-xtrabackup/+bug/1444541
+    #     :return: 2 if server is MariaDB / 3 if server is MySQL(other)
+    #     """
+    #
+    #     check_version = "%s --defaults-file=%s --user=%s --password='%s' ver" % (
+    #         self.mysqladmin, self.mycnf, self.mysql_user, self.mysql_password)
+    #
+    #     if hasattr(self, 'mysql_socket'):
+    #         check_version += " --socket=%s" % (self.mysql_socket)
+    #     elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
+    #         check_version += " --host=%s" % self.mysql_host
+    #         check_version += " --port=%s" % self.mysql_port
+    #     else:
+    #         logger.critical(
+    #             "Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
+    #         return False
+    #
+    #     status, output = subprocess.getstatusoutput(check_version)
+    #
+    #     if status == 0:
+    #         if 'MARIADB' in output.upper():
+    #             logger.debug("!!!!!!!!")
+    #             logger.debug(
+    #                 "Installed Server is MariaDB, will use a workaround for LP BUG 1444541.")
+    #             logger.debug("!!!!!!!!")
+    #             return 2
+    #         else:
+    #             logger.debug(
+    #                 "Installed Server is MySQL, will continue as usual.")
+    #             return 3
+    #     else:
+    #         logger.error("mysqladmin ver command Failed")
+    #         time.sleep(5)
+    #         logger.error(output)
+    #         return False
+    #
+    # def check_systemd_init(self):
+    #     """
+    #     Check if systemd support available for server
+    #     :return:
+    #     3 - if server is MariaDB and systemd available.
+    #     4 - if server is MariaDB and systemd NOT available.
+    #     5 - if server is MySQL and systemd available.
+    #     6- is server is MySQL and systemd NOT available.
+    #     """
+    #     product_result = self.check_mysql_product()
+    #     systemd_dir = '/usr/lib/systemd/system'
+    #
+    #     list_dir = []
+    #
+    #     if os.path.isdir(systemd_dir):
+    #
+    #         for i in os.listdir(systemd_dir):
+    #             list_dir.append(i)
+    #     else:
+    #         logger.error(
+    #             "There is no /usr/lib/systemd/system folder, Continue")
+    #
+    #     if product_result == 2:
+    #         if 'mariadb.service' in list_dir:
+    #             return 3
+    #         else:
+    #             return 4
+    #
+    #     elif product_result == 3:
+    #         if 'mysqld.service' in list_dir:
+    #             return 5
+    #         else:
+    #             return 6
 
     def check_all_env(self):
 
