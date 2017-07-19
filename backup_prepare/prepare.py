@@ -24,6 +24,9 @@ class Prepare(GeneralClass):
         GeneralClass.__init__(self, self.conf)
         self.check_env_obj = CheckEnv(self.conf)
         self.result = self.check_env_obj.check_systemd_init()
+        # If prepare_tool option enabled in config, make backup_tool to use this.
+        if hasattr(self, 'prepare_tool'):
+            self.backup_tool = self.prepare_tool
 
     def recent_full_backup_file(self):
         # Return last full backup dir name
