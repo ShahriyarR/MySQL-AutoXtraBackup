@@ -61,11 +61,7 @@ def check_file_content(file):
         "xtra_prepare",
         "start_mysql_command",
         "stop_mysql_command",
-        "systemd_start_mysql",
-        "systemd_stop_mysql",
-        "chown_command",
-        "systemd_start_mariadb",
-        "systemd_stop_mariadb"]
+        "chown_command"]
 
     for header in config_headers:
         if header not in file_content:
