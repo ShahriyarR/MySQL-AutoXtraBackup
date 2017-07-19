@@ -55,7 +55,6 @@ def check_file_content(file):
         "mysql_host",
         "datadir",
         "tmpdir",
-        "tmp",
         "backupdir",
         "backup_tool",
         "xtra_prepare",
