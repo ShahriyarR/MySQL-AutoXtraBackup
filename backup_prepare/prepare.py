@@ -594,7 +594,7 @@ class Prepare(GeneralClass):
         logger.debug(
             "####################################################################################################")
         logger.debug(
-            "Moving MySQL datadir to /tmp/mysql: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
+            "Moving MySQL datadir to /tmp/mysql_datadirs  - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
         logger.debug(
             "####################################################################################################")
         time.sleep(3)
@@ -603,7 +603,7 @@ class Prepare(GeneralClass):
             status, output = subprocess.getstatusoutput(rmdirc)
 
             if status == 0:
-                logger.debug("Emptied /tmp/mysql directory ...")
+                logger.debug("Emptied /tmp/mysql_datadirs directory ...")
 
                 try:
                     shutil.move(self.datadir, self.tmpdir)
@@ -626,14 +626,14 @@ class Prepare(GeneralClass):
                 return True
 
             else:
-                logger.error("Could not delete /tmp/mysql directory")
+                logger.error("Could not delete /tmp/mysql_datadirs directory")
                 logger.error(output)
                 return False
 
         else:
             try:
                 shutil.move(self.datadir, self.tmpdir)
-                logger.debug("Moved datadir to /tmp/mysql ...")
+                logger.debug("Moved datadir to /tmp/mysql_datadirs ...")
             except shutil.Error as err:
                 logger.error("Error occurred while moving datadir")
                 logger.error(err)
