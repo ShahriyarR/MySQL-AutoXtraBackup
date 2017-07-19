@@ -121,10 +121,6 @@ class GeneralClass:
             self.start_mysql = CM['start_mysql_command']
             self.stop_mysql = CM['stop_mysql_command']
             self.chown_command = CM['chown_command']
-            self.systemd_start_mysql = CM['systemd_start_mysql']
-            self.systemd_stop_mysql = CM['systemd_stop_mysql']
-            self.systemd_start_mariadb = CM['systemd_start_mariadb']
-            self.systemd_stop_mariadb = CM['systemd_stop_mariadb']
 
         else:
             logger.critical("Missing config file : /etc/bck.conf")

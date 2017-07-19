@@ -215,7 +215,7 @@ class Backup(GeneralClass):
 
         full_backup_dir = self.create_backup_directory(self.full_dir)
 
-        # Taking Full backup with MySQL (Oracle)
+        # Taking Full backup
         args = "%s --defaults-file=%s --user=%s --password='%s' " \
                " --target-dir=%s --backup" % (self.backup_tool,
                                               self.mycnf,
@@ -309,37 +309,16 @@ class Backup(GeneralClass):
 
         if recent_inc == 0:  # If there is no incremental backup
 
-            # If you have a question why we check whether MariaDB or MySQL installed?
-            # See BUG ->
-            # https://bugs.launchpad.net/percona-xtrabackup/+bug/1444541
-
-            if product_type == 2:
-
-                # Taking incremental backup with MariaDB.
-                # (--incremental-force-scan option will be added for BUG
-                # workaround)
-
-                args = "%s --defaults-file=%s --user=%s --password='%s' " \
-                       "--incremental-force-scan --incremental %s --incremental-basedir %s/%s" % \
-                       (self.backup_tool,
-                        self.mycnf,
-                        self.mysql_user,
-                        self.mysql_password,
-                        self.inc_dir,
-                        self.full_dir,
-                        recent_bck)
-
-            elif product_type == 3:
-                # Taking incremental backup with MySQL.
-                args = "%s --defaults-file=%s --user=%s --password='%s' " \
-                       "--target-dir=%s --incremental-basedir=%s/%s --backup" % \
-                       (self.backup_tool,
-                        self.mycnf,
-                        self.mysql_user,
-                        self.mysql_password,
-                        inc_backup_dir,
-                        self.full_dir,
-                        recent_bck)
+            # Taking incremental backup.
+            args = "%s --defaults-file=%s --user=%s --password='%s' " \
+                   "--target-dir=%s --incremental-basedir=%s/%s --backup" % \
+                   (self.backup_tool,
+                    self.mycnf,
+                    self.mysql_user,
+                    self.mysql_password,
+                    inc_backup_dir,
+                    self.full_dir,
+                    recent_bck)
 
             if hasattr(self, 'mysql_socket'):
                 args += " --socket=%s" % (self.mysql_socket)
@@ -493,33 +472,15 @@ class Backup(GeneralClass):
 
         else:  # If there is already existing incremental backup
 
-            if product_type == 2:
-
-                # Taking incremental backup with MariaDB.
-                # (--incremental-force-scan option will be added for BUG
-                # workaround)
-
-                args = "%s --defaults-file=%s  --user=%s --password='%s' " \
-                       "--incremental-force-scan --incremental %s --incremental-basedir %s/%s" % \
-                       (self.backup_tool,
-                        self.mycnf,
-                        self.mysql_user,
-                        self.mysql_password,
-                        self.inc_dir,
-                        self.inc_dir,
-                        recent_inc)
-
-            elif product_type == 3:
-
-                args = "%s --defaults-file=%s --user=%s --password='%s'  " \
-                       "--target-dir=%s --incremental-basedir=%s/%s --backup" % \
-                       (self.backup_tool,
-                        self.mycnf,
-                        self.mysql_user,
-                        self.mysql_password,
-                        inc_backup_dir,
-                        self.inc_dir,
-                        recent_inc)
+            args = "%s --defaults-file=%s --user=%s --password='%s'  " \
+                   "--target-dir=%s --incremental-basedir=%s/%s --backup" % \
+                   (self.backup_tool,
+                    self.mycnf,
+                    self.mysql_user,
+                    self.mysql_password,
+                    inc_backup_dir,
+                    self.inc_dir,
+                    recent_inc)
 
             if hasattr(self, 'mysql_socket'):
                 args += " --socket=%s" % (self.mysql_socket)
