@@ -27,8 +27,8 @@ class GeneralClass:
             if 'mysql_port' in DB:
                 self.mysql_port = DB['mysql_port']
             self.datadir = DB['datadir']
-            self.tmpdir = DB['tmpdir']
-            self.tmp = DB['tmp']
+            # self.tmpdir = DB['tmpdir']
+            # self.tmp = DB['tmp']
             
             
             BCK = con['Backup']
@@ -36,6 +36,7 @@ class GeneralClass:
                 self.pid_dir = BCK['pid_dir']
             else:
                 self.pid_dir = "/tmp/"
+            self.tmpdir = BCK['tmpdir']
             if 'pid_runtime_warning' in BCK:
                 self.pid_runtime_warning = humanfriendly.parse_timespan(
                     BCK['pid_runtime_warning'])

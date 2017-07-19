@@ -606,7 +606,7 @@ class Prepare(GeneralClass):
                 logger.debug("Emptied /tmp/mysql directory ...")
 
                 try:
-                    shutil.move(self.datadir, self.tmp)
+                    shutil.move(self.datadir, self.tmpdir)
                     logger.debug("Moved datadir to /tmp/mysql ...")
                 except shutil.Error as err:
                     logger.error("Error occurred while moving datadir")
@@ -632,7 +632,7 @@ class Prepare(GeneralClass):
 
         else:
             try:
-                shutil.move(self.datadir, self.tmp)
+                shutil.move(self.datadir, self.tmpdir)
                 logger.debug("Moved datadir to /tmp/mysql ...")
             except shutil.Error as err:
                 logger.error("Error occurred while moving datadir")
