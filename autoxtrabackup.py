@@ -101,6 +101,8 @@ def validate_file(file):
                 return
         else:
             raise ValueError("Invalid file extension. Expecting .conf")
+    elif len(file)==0:
+        raise ValueError("defaults_file parameter value is empty.")
     else:
         raise FileNotFoundError("Specified file does not exist.")
 
@@ -144,52 +146,61 @@ def all_procedure(prepare, backup, partial, verbose, log, defaults_file):
         ch.setFormatter(formatter)
         logger.addHandler(ch)
 
-    validate_file(defaults_file)
-    config = GeneralClass(defaults_file)
-
-    pid_file = pid.PidFile(piddir=config.pid_dir)
-
     try:
-        with pid_file:  # User PidFile for locking to single instance
-            if (not prepare) and (not backup) and (
-                    not partial) and (not defaults_file):
-                print(
-                    "ERROR: you must give an option, run with --help for available options")
-            elif prepare:
-                a = Prepare(config=defaults_file)
-                a.prepare_backup_and_copy_back()
-                # print("Prepare")
-            elif backup:
-                b = Backup(config=defaults_file)
-                b.all_backup()
-                # print("Backup")
-            elif partial:
-                c = PartialRecovery(config=defaults_file)
-                c.final_actions()
-    except pid.PidFileAlreadyLockedError as error:
-        if hasattr(config, 'pid_runtime_warning'):
-            if time.time() - os.stat(pid_file.filename).st_ctime > config.pid_runtime_warning:
-                pid.fh.seek(0)
-                pid_str = pid.fh.read(16).split("\n", 1)[0].strip()
-                logger.critical(
-                    "Backup (pid: " + pid_str + ") has been running for logger than: " + str(
-                        humanfriendly.format_timespan(
-                            config.pid_runtime_warning)))
-        #logger.warn("Pid file already exists: " + str(error))
-    except pid.PidFileAlreadyRunningError as error:
-        if hasattr(config, 'pid_runtime_warning'):
-            if time.time() - os.stat(pid_file.filename).st_ctime > config.pid_runtime_warning:
-                pid.fh.seek(0)
-                pid_str = pid.fh.read(16).split("\n", 1)[0].strip()
-                logger.critical(
-                    "Backup (pid: " + pid_str + ") has been running for logger than: " + str(
-                        humanfriendly.format_timespan(
-                            config.pid_runtime_warning)))
-        #logger.warn("Pid already running: " + str(error))
-    except pid.PidFileUnreadableError as error:
-        logger.warn("Pid file can not be read: " + str(error))
-    except pid.PidFileError as error:
-        logger.warn("Generic error with pid file: " + str(error))
+        validate_file(defaults_file)
+    except ValueError as e:
+        print(e)
+    except FileNotFoundError as e:
+        print(e)
+    except KeyError as e:
+        print(e)
+    else:
+
+        config = GeneralClass(defaults_file)
+
+        pid_file = pid.PidFile(piddir=config.pid_dir)
+
+        try:
+            with pid_file:  # User PidFile for locking to single instance
+                if (not prepare) and (not backup) and (
+                        not partial) and (not defaults_file):
+                    print(
+                        "ERROR: you must give an option, run with --help for available options")
+                elif prepare:
+                    a = Prepare(config=defaults_file)
+                    a.prepare_backup_and_copy_back()
+                    # print("Prepare")
+                elif backup:
+                    b = Backup(config=defaults_file)
+                    b.all_backup()
+                    # print("Backup")
+                elif partial:
+                    c = PartialRecovery(config=defaults_file)
+                    c.final_actions()
+        except pid.PidFileAlreadyLockedError as error:
+            if hasattr(config, 'pid_runtime_warning'):
+                if time.time() - os.stat(pid_file.filename).st_ctime > config.pid_runtime_warning:
+                    pid.fh.seek(0)
+                    pid_str = pid.fh.read(16).split("\n", 1)[0].strip()
+                    logger.critical(
+                        "Backup (pid: " + pid_str + ") has been running for logger than: " + str(
+                            humanfriendly.format_timespan(
+                                config.pid_runtime_warning)))
+            #logger.warn("Pid file already exists: " + str(error))
+        except pid.PidFileAlreadyRunningError as error:
+            if hasattr(config, 'pid_runtime_warning'):
+                if time.time() - os.stat(pid_file.filename).st_ctime > config.pid_runtime_warning:
+                    pid.fh.seek(0)
+                    pid_str = pid.fh.read(16).split("\n", 1)[0].strip()
+                    logger.critical(
+                        "Backup (pid: " + pid_str + ") has been running for logger than: " + str(
+                            humanfriendly.format_timespan(
+                                config.pid_runtime_warning)))
+            #logger.warn("Pid already running: " + str(error))
+        except pid.PidFileUnreadableError as error:
+            logger.warn("Pid file can not be read: " + str(error))
+        except pid.PidFileError as error:
+            logger.warn("Generic error with pid file: " + str(error))
 
 
 if __name__ == "__main__":
