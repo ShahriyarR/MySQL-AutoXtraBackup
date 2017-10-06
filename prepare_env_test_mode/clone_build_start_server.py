@@ -36,7 +36,7 @@ class CloneBuildStartServer:
     @staticmethod
     def clone_ps_server_from_conf(git_cmd, test_path):
         # Clone PS server[the value coming from config file]
-        clone_cmd = "git clone {} {}"
+        clone_cmd = "git clone {} {}/PS-5.7-trunk"
         status, output = subprocess.getstatusoutput(clone_cmd.format(git_cmd, test_path))
         if status == 0:
             logger.debug("PS cloned ready to build")
