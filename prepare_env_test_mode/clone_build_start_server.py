@@ -51,7 +51,7 @@ class CloneBuildStartServer:
         # Building server from source
         # For this purpose; I am going to use build_5.x_debug.sh script from percona-qa
         saved_path = os.getcwd()
-        # Specify here the cloned PS path; for me it is PS-5.7-trunk
+        # Specify here the cloned PS path; for me it is PS-5.7-trunk(which I have hard coded in method above)
         new_path = "{}/PS-5.7-trunk"
         os.chdir(new_path.format(test_path))
         build_cmd = "{}/percona-qa/build_5.x_debug.sh"
