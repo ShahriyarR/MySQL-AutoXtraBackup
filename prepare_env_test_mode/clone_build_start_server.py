@@ -23,7 +23,7 @@ class CloneBuildStartServer:
     @staticmethod
     def clone_percona_qa(test_path):
         # Clone percona-qa repo for using existing bash scripts
-        clone_cmd = "git clone https://github.com/Percona-QA/percona-qa.git {}"
+        clone_cmd = "git clone https://github.com/Percona-QA/percona-qa.git {}/percona-qa"
         status, output = subprocess.getstatusoutput(clone_cmd.format(test_path))
         if status == 0:
             logger.debug("percona-qa ready to use")
