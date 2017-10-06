@@ -127,7 +127,13 @@ def validate_file(file):
                                  'ERROR',
                                  'CRITICAL']),
               help="Set log level")
-def all_procedure(prepare, backup, partial, verbose, log, defaults_file, dry_run):
+@click.option(
+    '--test_mode',
+    is_flag=True,
+    help="Enable test mode.[It will clone, build, start the PS server, take backup, prepare and recover]")
+
+
+def all_procedure(prepare, backup, partial, verbose, log, defaults_file, dry_run, test_mode):
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
@@ -147,7 +153,10 @@ def all_procedure(prepare, backup, partial, verbose, log, defaults_file, dry_run
                     not partial) and (not defaults_file) and (not dry_run):
                 print(
                     "ERROR: you must give an option, run with --help for available options")
-            elif prepare:
+            elif test_mode:
+                # TODO: do staff here to implement all in one things
+                pass
+            elif prepare and not test_mode:
                 if not dry_run:
                     a = Prepare(config=defaults_file)
                     a.prepare_backup_and_copy_back()
@@ -157,7 +166,7 @@ def all_procedure(prepare, backup, partial, verbose, log, defaults_file, dry_run
                     a = Prepare(config=defaults_file, dry_run=1)
                     a.prepare_backup_and_copy_back()
                 # print("Prepare")
-            elif backup:
+            elif backup and not test_mode:
                 if not dry_run:
                     b = Backup(config=defaults_file)
                     b.all_backup()
@@ -193,9 +202,9 @@ def all_procedure(prepare, backup, partial, verbose, log, defaults_file, dry_run
                             config.pid_runtime_warning)))
         #logger.warn("Pid already running: " + str(error))
     except pid.PidFileUnreadableError as error:
-        logger.warn("Pid file can not be read: " + str(error))
+        logger.warning("Pid file can not be read: " + str(error))
     except pid.PidFileError as error:
-        logger.warn("Generic error with pid file: " + str(error))
+        logger.warning("Generic error with pid file: " + str(error))
 
 
 if __name__ == "__main__":

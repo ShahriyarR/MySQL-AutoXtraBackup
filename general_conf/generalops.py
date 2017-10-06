@@ -123,5 +123,9 @@ class GeneralClass:
             self.stop_mysql = CM['stop_mysql_command']
             self.chown_command = CM['chown_command']
 
+            TEST = con['TestConf']
+            self.gitcmd = TEST['gitcmd']
+            self.testpath = TEST['testpath']
+
         else:
             logger.critical("Missing config file : /etc/bck.conf")
