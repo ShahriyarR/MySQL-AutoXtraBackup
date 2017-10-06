@@ -16,6 +16,9 @@ class CloneBuildStartServer:
         # Creating needed path here
         t_obj = TestModeConfCheck()
         t_obj.check_test_path(t_obj.testpath)
+        self.testpath = t_obj.testpath
+
+
 
     @staticmethod
     def clone_percona_qa(test_path):
