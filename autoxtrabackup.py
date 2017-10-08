@@ -45,7 +45,7 @@ def check_file_content(file):
     with open(file, 'r') as config_file:
         file_content = config_file.read()
  
-    config_headers = ["MySQL", "Backup", "Encrypt", "Compress", "Commands"]
+    config_headers = ["MySQL", "Backup", "Encrypt", "Compress", "Commands", "TestConf"]
     config_keys = [
         "mysql",
         "mycnf",
@@ -132,7 +132,6 @@ def validate_file(file):
     is_flag=True,
     help="Enable test mode.[It will clone, build, start the PS server, take backup, prepare and recover]")
 
-
 def all_procedure(prepare, backup, partial, verbose, log, defaults_file, dry_run, test_mode):
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
@@ -190,7 +189,7 @@ def all_procedure(prepare, backup, partial, verbose, log, defaults_file, dry_run
                     "Backup (pid: " + pid_str + ") has been running for logger than: " + str(
                         humanfriendly.format_timespan(
                             config.pid_runtime_warning)))
-        #logger.warn("Pid file already exists: " + str(error))
+        # logger.warn("Pid file already exists: " + str(error))
     except pid.PidFileAlreadyRunningError as error:
         if hasattr(config, 'pid_runtime_warning'):
             if time.time() - os.stat(pid_file.filename).st_ctime > config.pid_runtime_warning:
@@ -200,7 +199,7 @@ def all_procedure(prepare, backup, partial, verbose, log, defaults_file, dry_run
                     "Backup (pid: " + pid_str + ") has been running for logger than: " + str(
                         humanfriendly.format_timespan(
                             config.pid_runtime_warning)))
-        #logger.warn("Pid already running: " + str(error))
+        # logger.warn("Pid already running: " + str(error))
     except pid.PidFileUnreadableError as error:
         logger.warning("Pid file can not be read: " + str(error))
     except pid.PidFileError as error:

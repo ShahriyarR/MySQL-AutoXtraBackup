@@ -6,3 +6,8 @@ clb_obj = CloneBuildStartServer()
 @pytest.fixture()
 def return_clone_obj():
     return clb_obj
+
+@pytest.fixture()
+def return_basedir():
+    basedir = clb_obj.get_basedir()
+    return basedir

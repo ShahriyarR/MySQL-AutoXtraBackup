@@ -15,16 +15,13 @@ class CloneBuildStartServer:
 
         # Creating needed path here
         t_obj = TestModeConfCheck()
-        t_obj.check_test_path(t_obj.testpath)
-        self.testpath = t_obj.testpath
+        if t_obj.check_test_path(t_obj.testpath):
+            self.testpath = t_obj.testpath
 
-
-
-    @staticmethod
-    def clone_percona_qa(test_path):
+    def clone_percona_qa(self):
         # Clone percona-qa repo for using existing bash scripts
         clone_cmd = "git clone https://github.com/Percona-QA/percona-qa.git {}/percona-qa"
-        status, output = subprocess.getstatusoutput(clone_cmd.format(test_path))
+        status, output = subprocess.getstatusoutput(clone_cmd.format(self.testpath))
         if status == 0:
             logger.debug("percona-qa ready to use")
             return True
@@ -33,11 +30,11 @@ class CloneBuildStartServer:
             logger.error(output)
             return False
 
-    @staticmethod
-    def clone_ps_server_from_conf(git_cmd, test_path):
+
+    def clone_ps_server_from_conf(self):
         # Clone PS server[the value coming from config file]
         clone_cmd = "git clone {} {}/PS-5.7-trunk"
-        status, output = subprocess.getstatusoutput(clone_cmd.format(git_cmd, test_path))
+        status, output = subprocess.getstatusoutput(clone_cmd.format(self.git_cmd, self.testpath))
         if status == 0:
             logger.debug("PS cloned ready to build")
             return True
@@ -46,16 +43,15 @@ class CloneBuildStartServer:
             logger.error(output)
             return False
 
-    @staticmethod
-    def build_server(test_path):
+    def build_server(self):
         # Building server from source
         # For this purpose; I am going to use build_5.x_debug.sh script from percona-qa
         saved_path = os.getcwd()
         # Specify here the cloned PS path; for me it is PS-5.7-trunk(which I have hard coded in method above)
         new_path = "{}/PS-5.7-trunk"
-        os.chdir(new_path.format(test_path))
+        os.chdir(new_path.format(self.testpath))
         build_cmd = "{}/percona-qa/build_5.x_debug.sh"
-        status, output = subprocess.getstatusoutput(build_cmd.format(test_path))
+        status, output = subprocess.getstatusoutput(build_cmd.format(self.testpath))
         if status == 0:
             logger.debug("PS build succeeded")
             os.chdir(saved_path)
@@ -66,11 +62,10 @@ class CloneBuildStartServer:
             os.chdir(saved_path)
             return False
 
-    @staticmethod
-    def get_basedir(test_path):
+    def get_basedir(self):
         # Method for getting PS basedir path
         cmd = 'ls -1td {}/PS* | grep -v ".tar" | grep PS[0-9]'
-        status, output = subprocess.getstatusoutput(cmd.format(test_path))
+        status, output = subprocess.getstatusoutput(cmd.format(self.testpath))
         if status == 0:
             logger.debug("Could get PS basedir path returning...")
             return output
@@ -79,14 +74,13 @@ class CloneBuildStartServer:
             logger.error(output)
             return False
 
-    @staticmethod
-    def prepare_startup(basedir_path, test_path):
+    def prepare_startup(self, basedir_path):
         # Method for calling startup.sh file from percona-qa folder
         saved_path = os.getcwd()
         os.chdir(basedir_path)
 
         startup_cmd = "{}/percona-qa/startup.sh"
-        status, output = subprocess.getstatusoutput(startup_cmd.format(test_path))
+        status, output = subprocess.getstatusoutput(startup_cmd.format(self.testpath))
         if status == 0:
             logger.debug("Running startup.sh succeeded")
             os.chdir(saved_path)
@@ -109,3 +103,4 @@ class CloneBuildStartServer:
             logger.error("Server start failed")
             logger.error(output)
             return False
+

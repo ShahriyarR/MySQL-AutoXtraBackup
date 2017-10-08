@@ -28,3 +28,5 @@ class TestModeConfCheck(GeneralClass):
             except Exception as err:
                 logger.error(err)
                 return False
+        else:
+            return True
