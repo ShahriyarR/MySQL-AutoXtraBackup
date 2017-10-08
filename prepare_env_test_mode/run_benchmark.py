@@ -1,7 +1,6 @@
 from general_conf.generalops import GeneralClass
 from prepare_env_test_mode.clone_build_start_server import CloneBuildStartServer
 import subprocess
-import shlex
 import logging
 logger = logging.getLogger(__name__)
 
@@ -16,34 +15,12 @@ class RunBenchmark:
         self.basedir = CloneBuildStartServer().get_basedir()
 
     def get_sock(self):
-        # Get socket connection path from PS basedir
+        # Get socket connection path from PS basedir(Pythonic way)
         file_name = "{}/cl_noprompt_nobinary"
         with open(file_name.format(self.basedir)) as config:
             sock_file = config.read().split()[3]
 
         return sock_file
-
-        # sock_cmd = "cat {}/cl_noprompt_nobinary | awk '{print $4}'"
-        # #status, output = subprocess.getstatusoutput(sock_cmd.format(self.basedir))
-        # try:
-        #     process = subprocess.Popen(shlex.split(sock_cmd.format(self.basedir)),
-        #                                stdout=subprocess.PIPE,
-        #                                stdin=subprocess.PIPE,
-        #                                stderr=subprocess.PIPE)
-        #     output, error = process.communicate()
-        #     print(output)
-        #     print(error)
-        #     return output
-        # except Exception as err:
-        #     print(err)
-        #     return False
-        # # if status == 0:
-        # #     logger.debug("Could get socket connection")
-        # #     return output
-        # # else:
-        # #     logger.error("Socket info failed!")
-        # #     logger.error(output)
-        # #     return False
 
     def get_mysql_conn(self):
         # Get mysql client connection
@@ -60,7 +37,7 @@ class RunBenchmark:
     def create_db(self, db_name):
         # Creating DB using mysql client
         conn = self.get_mysql_conn()
-        sql = "{} -e 'create database {}'"
+        sql = "{} -e 'create database {} if not exists'"
         status, output = subprocess.getstatusoutput(sql.format(conn, db_name))
         if status == 0:
             logger.debug("Given DB is created!")
