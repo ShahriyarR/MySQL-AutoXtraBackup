@@ -74,7 +74,6 @@ class RunBenchmark:
 
         if status == 0:
             logger.debug("Sysbench succeeded!")
-            print(output)
             return True
         else:
             logger.error("Failed to run sysbench")
