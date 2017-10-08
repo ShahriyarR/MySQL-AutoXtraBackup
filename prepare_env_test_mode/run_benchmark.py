@@ -1,6 +1,7 @@
 from general_conf.generalops import GeneralClass
 from prepare_env_test_mode.clone_build_start_server import CloneBuildStartServer
 import subprocess
+import shlex
 import logging
 logger = logging.getLogger(__name__)
 
@@ -16,15 +17,23 @@ class RunBenchmark:
 
     def get_sock(self):
         # Get socket connection path from PS basedir
-        sock_cmd = '''cat {}/cl_noprompt_nobinary | awk "{print $4}"'''
-        status, output = subprocess.getstatusoutput(sock_cmd.format(self.basedir))
-        if status == 0:
-            logger.debug("Could get socket connection")
-            return output
-        else:
-            logger.error("Socket info failed!")
-            logger.error(output)
+        sock_cmd = "cat {}/cl_noprompt_nobinary | awk '{print $4}'"
+        #status, output = subprocess.getstatusoutput(sock_cmd.format(self.basedir))
+        try:
+            process = subprocess.Popen(shlex.split(sock_cmd))
+            output, error = process.communicate()
+        except Exception as err:
+            print(err)
             return False
+        else:
+            return True
+        # if status == 0:
+        #     logger.debug("Could get socket connection")
+        #     return output
+        # else:
+        #     logger.error("Socket info failed!")
+        #     logger.error(output)
+        #     return False
 
     def get_mysql_conn(self):
         # Get mysql client connection
