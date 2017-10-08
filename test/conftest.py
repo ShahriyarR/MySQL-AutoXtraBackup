@@ -1,5 +1,6 @@
 import pytest
 from prepare_env_test_mode.clone_build_start_server import CloneBuildStartServer
+from prepare_env_test_mode.run_benchmark import RunBenchmark
 
 clb_obj = CloneBuildStartServer()
 
@@ -11,3 +12,10 @@ def return_clone_obj():
 def return_basedir():
     basedir = clb_obj.get_basedir()
     return basedir
+
+rb_obj = RunBenchmark()
+
+@pytest.fixture()
+def return_run_benchmark_obj():
+    return rb_obj
+

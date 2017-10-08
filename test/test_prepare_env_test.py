@@ -3,7 +3,7 @@ import pytest
 @pytest.mark.usefixtures("return_clone_obj")
 class TestBackupTestMode:
     """
-    Tests for prepare_env_test_mode module
+    Tests for clone_build_start_server.py module
     """
 
     def test_clone_percona_qa(self, return_clone_obj):
