@@ -113,12 +113,16 @@ class CloneBuildStartServer:
     @staticmethod
     def wipe_server_all(basedir_path):
         # Method for calling "all" script which is created inside PS basedir
-        all_cmd = "{}/all"
-        status, output = subprocess.getstatusoutput(all_cmd.format(basedir_path))
+        saved_path = os.getcwd()
+        os.chdir(basedir_path)
+        all_cmd = "all"
+        status, output = subprocess.getstatusoutput(all_cmd)
         if status == 0:
             logger.debug("Server wiped for fresh start!")
+            os.chdir(saved_path)
             return True
         else:
             logger.error("All script run failed")
             logger.error(output)
+            os.chdir(saved_path)
             return False

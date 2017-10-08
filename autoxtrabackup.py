@@ -157,7 +157,7 @@ def all_procedure(prepare, backup, partial, verbose, log, defaults_file, dry_run
                 sys.exit(-1)
             elif test_mode:
                 # TODO: do staff here to implement all in one things for running test mode
-                logger.warning("Enabled Test Mode")
+                logger.warning("Enabled Test Mode!!!")
                 logger.debug("Starting Test Mode")
                 RunnerTestMode().all_runner()
             elif prepare and not test_mode:
