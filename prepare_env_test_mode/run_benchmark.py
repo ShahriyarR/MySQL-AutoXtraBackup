@@ -20,7 +20,7 @@ class RunBenchmark:
         sock_cmd = "cat {}/cl_noprompt_nobinary | awk '{print $4}'"
         #status, output = subprocess.getstatusoutput(sock_cmd.format(self.basedir))
         try:
-            process = subprocess.Popen(shlex.split(sock_cmd))
+            process = subprocess.Popen(shlex.split(sock_cmd.format(self.basedir)))
             output, error = process.communicate()
         except Exception as err:
             print(err)
