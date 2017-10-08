@@ -17,10 +17,13 @@ class RunBenchmark:
 
     def get_sock(self):
         # Get socket connection path from PS basedir
-        sock_cmd = "cat {}/cl_noprompt_nobinary | awk '\{print $4\}'"
+        sock_cmd = "cat {}/cl_noprompt_nobinary | awk '{print $4}'"
         #status, output = subprocess.getstatusoutput(sock_cmd.format(self.basedir))
         try:
-            process = subprocess.Popen(shlex.split(sock_cmd.format(self.basedir)), stdout=None, stdin=None, stderr=None)
+            process = subprocess.Popen(shlex.split(sock_cmd.format(self.basedir)),
+                                       stdout=subprocess.PIPE,
+                                       stdin=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
             output, error = process.communicate()
             print(output)
             return output
