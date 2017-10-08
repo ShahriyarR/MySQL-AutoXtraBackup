@@ -17,26 +17,33 @@ class RunBenchmark:
 
     def get_sock(self):
         # Get socket connection path from PS basedir
-        sock_cmd = "cat {}/cl_noprompt_nobinary | awk '{print $4}'"
-        #status, output = subprocess.getstatusoutput(sock_cmd.format(self.basedir))
-        try:
-            process = subprocess.Popen(shlex.split(sock_cmd.format(self.basedir)),
-                                       stdout=subprocess.PIPE,
-                                       stdin=subprocess.PIPE,
-                                       stderr=subprocess.PIPE)
-            output, error = process.communicate()
-            print(output)
-            return output
-        except Exception as err:
-            print(err)
-            return False
-        # if status == 0:
-        #     logger.debug("Could get socket connection")
+        file_name = "{}/cl_noprompt_nobinary"
+        with open(file_name.format(self.basedir)) as config:
+            sock_file = config.read().split()[3]
+
+        return sock_file
+
+        # sock_cmd = "cat {}/cl_noprompt_nobinary | awk '{print $4}'"
+        # #status, output = subprocess.getstatusoutput(sock_cmd.format(self.basedir))
+        # try:
+        #     process = subprocess.Popen(shlex.split(sock_cmd.format(self.basedir)),
+        #                                stdout=subprocess.PIPE,
+        #                                stdin=subprocess.PIPE,
+        #                                stderr=subprocess.PIPE)
+        #     output, error = process.communicate()
+        #     print(output)
+        #     print(error)
         #     return output
-        # else:
-        #     logger.error("Socket info failed!")
-        #     logger.error(output)
+        # except Exception as err:
+        #     print(err)
         #     return False
+        # # if status == 0:
+        # #     logger.debug("Could get socket connection")
+        # #     return output
+        # # else:
+        # #     logger.error("Socket info failed!")
+        # #     logger.error(output)
+        # #     return False
 
     def get_mysql_conn(self):
         # Get mysql client connection
