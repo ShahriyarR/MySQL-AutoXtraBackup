@@ -1,6 +1,6 @@
 import pytest
 
-@pytest.mark.usefixtures("return_clone_obj", "return_basedir")
+@pytest.mark.usefixtures("return_clone_obj")
 class TestBackupTestMode:
     """
     Tests for prepare_env_test_mode module
@@ -15,10 +15,12 @@ class TestBackupTestMode:
     def test_build_server(self, return_clone_obj):
         assert return_clone_obj.build_server() == True
 
+    @pytest.mark.usefixtures("return_basedir")
     def test_prepare_startup(self, return_clone_obj, return_basedir):
         basedir = return_basedir
         assert return_clone_obj.prepare_startup(basedir_path=basedir) == True
 
+    @pytest.mark.usefixtures("return_basedir")
     def test_start_server(self, return_clone_obj, return_basedir):
         basedir = return_basedir
         assert return_clone_obj.start_server(basedir_path=basedir)
