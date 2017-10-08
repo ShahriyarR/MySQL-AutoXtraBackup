@@ -37,7 +37,7 @@ class RunBenchmark:
     def create_db(self, db_name):
         # Creating DB using mysql client
         conn = self.get_mysql_conn()
-        sql = "{} -e 'create database {} if not exists'"
+        sql = "{} -e 'create database if not exists {} '"
         status, output = subprocess.getstatusoutput(sql.format(conn, db_name))
         if status == 0:
             logger.debug("Given DB is created!")
