@@ -21,27 +21,33 @@ class CloneBuildStartServer:
     def clone_percona_qa(self):
         # Clone percona-qa repo for using existing bash scripts
         clone_cmd = "git clone https://github.com/Percona-QA/percona-qa.git {}/percona-qa"
-        status, output = subprocess.getstatusoutput(clone_cmd.format(self.testpath))
-        if status == 0:
-            logger.debug("percona-qa ready to use")
-            return True
+        if not os.path.exists("{}/percona-qa".format(self.testpath)):
+            status, output = subprocess.getstatusoutput(clone_cmd.format(self.testpath))
+            if status == 0:
+                logger.debug("percona-qa ready to use")
+                return True
+            else:
+                logger.error("Cloning percona-qa repo failed")
+                logger.error(output)
+                return False
         else:
-            logger.error("Cloning percona-qa repo failed")
-            logger.error(output)
-            return False
+            return True
 
 
     def clone_ps_server_from_conf(self):
         # Clone PS server[the value coming from config file]
         clone_cmd = "git clone {} {}/PS-5.7-trunk"
-        status, output = subprocess.getstatusoutput(clone_cmd.format(self.git_cmd, self.testpath))
-        if status == 0:
-            logger.debug("PS cloned ready to build")
-            return True
+        if not os.path.exists("{}/PS-5.7-trunk"):
+            status, output = subprocess.getstatusoutput(clone_cmd.format(self.git_cmd, self.testpath))
+            if status == 0:
+                logger.debug("PS cloned ready to build")
+                return True
+            else:
+                logger.error("Cloning PS failed")
+                logger.error(output)
+                return False
         else:
-            logger.error("Cloning PS failed")
-            logger.error(output)
-            return False
+            return True
 
     def build_server(self):
         # Building server from source
@@ -104,3 +110,15 @@ class CloneBuildStartServer:
             logger.error(output)
             return False
 
+    @staticmethod
+    def wipe_server_all(basedir_path):
+        # Method for calling "all" script which is created inside PS basedir
+        all_cmd = "{}/all"
+        status, output = subprocess.getstatusoutput(all_cmd.format(basedir_path))
+        if status == 0:
+            logger.debug("Server wiped for fresh start!")
+            return True
+        else:
+            logger.error("All script run failed")
+            logger.error(output)
+            return False

@@ -3,6 +3,7 @@ from master_backup_script.backuper import Backup
 from backup_prepare.prepare import Prepare
 from partial_recovery.partial import PartialRecovery
 from general_conf.generalops import GeneralClass
+from prepare_env_test_mode.runner_test_mode import RunnerTestMode
 from sys import platform as _platform
 import pid
 import time
@@ -11,6 +12,7 @@ import os
 import humanfriendly
 import logging
 import logging.handlers
+import sys
 
 
 logger = logging.getLogger('')
@@ -149,12 +151,15 @@ def all_procedure(prepare, backup, partial, verbose, log, defaults_file, dry_run
     try:
         with pid_file:  # User PidFile for locking to single instance
             if (not prepare) and (not backup) and (
-                    not partial) and (not defaults_file) and (not dry_run):
-                print(
-                    "ERROR: you must give an option, run with --help for available options")
+                    not partial) and (not defaults_file) and (not dry_run) and (not test_mode):
+                print("ERROR: you must give an option, run with --help for available options")
+                logger.critical("Aborting!")
+                sys.exit(-1)
             elif test_mode:
-                # TODO: do staff here to implement all in one things
-                pass
+                # TODO: do staff here to implement all in one things for running test mode
+                logger.warning("Enabled Test Mode")
+                logger.debug("Starting Test Mode")
+                RunnerTestMode.all_runner()
             elif prepare and not test_mode:
                 if not dry_run:
                     a = Prepare(config=defaults_file)

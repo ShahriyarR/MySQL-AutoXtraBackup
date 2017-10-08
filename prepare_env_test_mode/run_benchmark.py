@@ -50,6 +50,7 @@ class RunBenchmark:
     def run_sysbench(self):
         # Running sysbench here; The parameters hard coded here, should figure out how to pass them also
         # TODO: make sysbench run with dynamic values
+        # TODO: make sysbench different possible kind of runs
 
         # Created sysbench DB
         db_name = "sysbench_test_db"
