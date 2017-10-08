@@ -12,7 +12,7 @@ class RunBenchmark:
 
     def __init__(self):
         self.testpath = GeneralClass().testpath
-        self.basedir = CloneBuildStartServer.get_basedir()
+        self.basedir = CloneBuildStartServer().get_basedir()
 
     def get_sock(self):
         # Get socket connection path from PS basedir
