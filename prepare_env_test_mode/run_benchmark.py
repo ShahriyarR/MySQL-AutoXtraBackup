@@ -22,11 +22,11 @@ class RunBenchmark:
         try:
             process = subprocess.Popen(shlex.split(sock_cmd.format(self.basedir)))
             output, error = process.communicate()
+            print(output)
+            return output
         except Exception as err:
             print(err)
             return False
-        else:
-            return True
         # if status == 0:
         #     logger.debug("Could get socket connection")
         #     return output
