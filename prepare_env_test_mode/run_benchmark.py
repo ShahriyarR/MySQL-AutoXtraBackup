@@ -18,7 +18,7 @@ class RunBenchmark:
         # Get socket connection path from PS basedir(Pythonic way)
         file_name = "{}/cl_noprompt_nobinary"
         with open(file_name.format(self.basedir)) as config:
-            sock_file = config.read().split()[3]
+            sock_file = config.read().split()[3][1:]
 
         return sock_file
 
