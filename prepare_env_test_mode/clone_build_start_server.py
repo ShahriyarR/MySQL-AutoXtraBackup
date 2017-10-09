@@ -135,8 +135,8 @@ class CloneBuildStartServer:
         saved_path = os.getcwd()
         os.chdir(basedir_path)
         all_cmd = "./all_no_cl"
-        status, output = subprocess.getstatusoutput(all_cmd)
         logger.debug("Using all_no_cl script here...")
+        status, output = subprocess.getstatusoutput(all_cmd)
         if status == 0:
             logger.debug("Server wiped for fresh start!")
             os.chdir(saved_path)
