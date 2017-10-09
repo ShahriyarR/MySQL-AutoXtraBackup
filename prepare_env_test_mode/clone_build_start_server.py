@@ -23,6 +23,7 @@ class CloneBuildStartServer:
         # Clone percona-qa repo for using existing bash scripts
         clone_cmd = "git clone https://github.com/Percona-QA/percona-qa.git {}/percona-qa"
         if not os.path.exists("{}/percona-qa".format(self.testpath)):
+            logger.debug("Started to clone percona-qa...")
             status, output = subprocess.getstatusoutput(clone_cmd.format(self.testpath))
             if status == 0:
                 logger.debug("percona-qa ready to use")
@@ -39,6 +40,7 @@ class CloneBuildStartServer:
         # Clone PS server[the value coming from config file]
         clone_cmd = "git clone {} {}/PS-5.7-trunk"
         if not os.path.exists("{}/PS-5.7-trunk".format(self.testpath)):
+            logger.debug("Started to clone Percona Server...")
             status, output = subprocess.getstatusoutput(clone_cmd.format(self.git_cmd, self.testpath))
             if status == 0:
                 logger.debug("PS cloned ready to build")
@@ -58,6 +60,7 @@ class CloneBuildStartServer:
         new_path = "{}/PS-5.7-trunk"
         os.chdir(new_path.format(self.testpath))
         build_cmd = "{}/percona-qa/build_5.x_debug.sh"
+        logger.debug("Started to build Percon Server from source...")
         status, output = subprocess.getstatusoutput(build_cmd.format(self.testpath))
         if status == 0:
             logger.debug("PS build succeeded")
@@ -71,6 +74,7 @@ class CloneBuildStartServer:
 
     def get_basedir(self):
         # Method for getting PS basedir path
+        logger.debug("Trying to get basedir path...")
         for root, dirs, files in os.walk(self.testpath):
             for dir_name in dirs:
                 obj = re.search('PS[0-9]', dir_name)
@@ -98,6 +102,7 @@ class CloneBuildStartServer:
         os.chdir(basedir_path)
 
         startup_cmd = "{}/percona-qa/startup.sh"
+        logger.debug("Started to run startup.sh file...")
         status, output = subprocess.getstatusoutput(startup_cmd.format(self.testpath))
         if status == 0:
             logger.debug("Running startup.sh succeeded")
@@ -113,6 +118,7 @@ class CloneBuildStartServer:
     def start_server(basedir_path):
         # Method for calling start script which is created inside PS basedir
         start_cmd = "{}/start"
+        logger.debug("Using start script here...")
         status, output = subprocess.getstatusoutput(start_cmd.format(basedir_path))
         if status == 0:
             logger.debug("Server started!")
@@ -129,6 +135,7 @@ class CloneBuildStartServer:
         os.chdir(basedir_path)
         all_cmd = "./all_no_cl"
         status, output = subprocess.getstatusoutput(all_cmd)
+        logger.debug("Using all_no_cl script here...")
         if status == 0:
             logger.debug("Server wiped for fresh start!")
             os.chdir(saved_path)
