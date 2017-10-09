@@ -27,3 +27,8 @@ class TestBackupTestMode:
     def test_start_server(self, return_clone_obj, return_basedir):
         basedir = return_basedir
         assert return_clone_obj.start_server(basedir_path=basedir)
+
+    @pytest.mark.usefixtures("return_basedir")
+    def test_wipe_server_all(self, return_clone_obj, return_basedir):
+        basedir = return_basedir
+        assert return_clone_obj.wipe_server_all(basedir_path=basedir) == True
