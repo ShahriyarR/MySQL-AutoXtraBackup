@@ -70,15 +70,23 @@ class CloneBuildStartServer:
 
     def get_basedir(self):
         # Method for getting PS basedir path
-        cmd = 'ls -1td {}/PS* | grep -v ".tar" | grep PS[0-9]'
-        status, output = subprocess.getstatusoutput(cmd.format(self.testpath))
-        if status == 0:
-            logger.debug("Could get PS basedir path returning...")
-            return output
-        else:
-            logger.error("Could not get PS basedir path failed...")
-            logger.error(output)
-            return False
+        for root, dirs, files in os.walk(self.testpath):
+            if 'PS' in dirs:
+                logger.debug("Could get PS basedir path returning...")
+                return dirs
+
+        logger.error("Could not get PS basedir path failed...")
+        return False
+
+        # cmd = 'ls -1td {}/PS* | grep -v ".tar" | grep PS[0-9]'
+        # status, output = subprocess.getstatusoutput(cmd.format(self.testpath))
+        # if status == 0:
+        #     logger.debug("Could get PS basedir path returning...")
+        #     return output
+        # else:
+        #     logger.error("Could not get PS basedir path failed...")
+        #     logger.error(output)
+        #     return False
 
     def prepare_startup(self, basedir_path):
         # Method for calling startup.sh file from percona-qa folder
