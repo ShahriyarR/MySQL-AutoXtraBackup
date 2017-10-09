@@ -16,6 +16,7 @@ class RunBenchmark:
 
     def get_sock(self):
         # Get socket connection path from PS basedir(Pythonic way)
+        logger.debug("Trying to get socket file...")
         file_name = "{}/cl_noprompt_nobinary"
         with open(file_name.format(self.basedir)) as config:
             sock_file = config.read().split()[3][2:]
@@ -24,10 +25,11 @@ class RunBenchmark:
 
     def get_mysql_conn(self):
         # Get mysql client connection
+        logger.debug("Trying to get mysql client connection...")
         get_conn = "cat {}/cl_noprompt_nobinary"
         status, output = subprocess.getstatusoutput(get_conn.format(self.basedir))
         if status == 0:
-            logger.debug("Here is the mysql client!")
+            logger.debug("Could get mysql client")
             return output
         else:
             logger.error("Failed to get mysql client connection")
@@ -38,9 +40,10 @@ class RunBenchmark:
         # Creating DB using mysql client
         conn = self.get_mysql_conn()
         sql = "{} -e 'create database if not exists {} '"
+        logger.debug("Trying to create DB...")
         status, output = subprocess.getstatusoutput(sql.format(conn, db_name))
         if status == 0:
-            logger.debug("Given DB is created!")
+            logger.debug("Given DB is created")
             return True
         else:
             logger.error("Failed to create DB")
@@ -50,6 +53,7 @@ class RunBenchmark:
     def run_sysbench(self):
         # Running sysbench here; The parameters hard coded here, should figure out how to pass them also
         # TODO: make sysbench run with dynamic values
+        # TODO: make sysbench different possible kind of runs
 
         # Created sysbench DB
         db_name = "sysbench_test_db"
@@ -65,6 +69,8 @@ class RunBenchmark:
               "--threads={} " \
               "--db-driver=mysql " \
               "--mysql-socket={} prepare"
+
+        logger.debug("Started to run Sysbench...")
 
         status, output = subprocess.getstatusoutput(sysbench_cmd.format(1000,
                                                                         100,
