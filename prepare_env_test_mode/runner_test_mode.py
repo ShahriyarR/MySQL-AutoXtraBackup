@@ -11,13 +11,13 @@ class RunnerTestMode:
         self.basedir = self.clone_obj.get_basedir()
 
     def all_runner(self):
-        if ('PS' in self.basedir) and (os.path.isfile("{}/all".format(self.basedir))):
+        if self.basedir and (os.path.isfile("{}/all_no_cl".format(self.basedir))):
             if self.clone_obj.wipe_server_all(self.basedir):
                 if RunBenchmark().run_sysbench():
                     # Take backup/prepare and recover here
                     pass
 
-        elif 'PS' not in self.basedir:
+        else:
             if self.clone_obj.clone_percona_qa():
                 if self.clone_obj.clone_ps_server_from_conf():
                     if self.clone_obj.build_server():
