@@ -71,11 +71,12 @@ class CloneBuildStartServer:
     def get_basedir(self):
         # Method for getting PS basedir path
         for root, dirs, files in os.walk(self.testpath):
-            if 'PS' in dirs:
-                logger.debug("Could get PS basedir path returning...")
-                basedir_path = "{}/{}"
-                print(basedir_path)
-                return basedir_path.format(self.testpath, dirs)
+            for dir in dirs:
+                if 'PS' in dir:
+                    logger.debug("Could get PS basedir path returning...")
+                    basedir_path = "{}/{}"
+                    print(basedir_path)
+                    return basedir_path.format(self.testpath, dirs)
 
         logger.warning("Could not get PS basedir path...")
         return False
