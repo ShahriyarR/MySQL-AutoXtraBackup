@@ -2,6 +2,7 @@ from prepare_env_test_mode.test_check_env import TestModeConfCheck
 from general_conf.generalops import GeneralClass
 import subprocess
 import os
+import re
 import logging
 logger = logging.getLogger(__name__)
 
@@ -71,12 +72,13 @@ class CloneBuildStartServer:
     def get_basedir(self):
         # Method for getting PS basedir path
         for root, dirs, files in os.walk(self.testpath):
-            for dir in dirs:
-                if 'PS' in dir:
+            for dir_name in dirs:
+                obj = re.search('PS[0-9]]', dir_name)
+                if obj:
                     logger.debug("Could get PS basedir path returning...")
                     basedir_path = "{}/{}"
-                    print(basedir_path.format(self.testpath, dir))
-                    return basedir_path.format(self.testpath, dir)
+                    print(basedir_path.format(self.testpath, dir_name))
+                    return basedir_path.format(self.testpath, dir_name)
 
         logger.warning("Could not get PS basedir path...")
         return False
