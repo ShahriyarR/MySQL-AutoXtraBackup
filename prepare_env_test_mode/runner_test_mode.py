@@ -21,7 +21,8 @@ class RunnerTestMode:
             if self.clone_obj.clone_percona_qa():
                 if self.clone_obj.clone_ps_server_from_conf():
                     if self.clone_obj.build_server():
-                        if self.clone_obj.prepare_startup():
-                            if self.clone_obj.start_server():
+                        base_dir = self.clone_obj.get_basedir()
+                        if self.clone_obj.prepare_startup(basedir_path=base_dir):
+                            if self.clone_obj.start_server(basedir_path=base_dir):
                                 # Take backup/prepare and recover here
                                 pass

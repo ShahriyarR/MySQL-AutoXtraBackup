@@ -75,7 +75,7 @@ class CloneBuildStartServer:
                 logger.debug("Could get PS basedir path returning...")
                 return dirs
 
-        logger.warning("Could not get PS basedir path failed...")
+        logger.warning("Could not get PS basedir path...")
         return False
 
         # cmd = 'ls -1td {}/PS* | grep -v ".tar" | grep PS[0-9]'
