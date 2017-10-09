@@ -73,7 +73,8 @@ class CloneBuildStartServer:
         for root, dirs, files in os.walk(self.testpath):
             if 'PS' in dirs:
                 logger.debug("Could get PS basedir path returning...")
-                return dirs
+                basedir_path = "{}/{}"
+                return basedir_path.format(self.testpath, dirs)
 
         logger.warning("Could not get PS basedir path...")
         return False
