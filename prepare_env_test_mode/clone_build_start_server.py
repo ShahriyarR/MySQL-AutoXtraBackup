@@ -73,7 +73,7 @@ class CloneBuildStartServer:
         # Method for getting PS basedir path
         for root, dirs, files in os.walk(self.testpath):
             for dir_name in dirs:
-                obj = re.search('PS[0-9]]', dir_name)
+                obj = re.search('PS[0-9]', dir_name)
                 if obj:
                     logger.debug("Could get PS basedir path returning...")
                     basedir_path = "{}/{}"
