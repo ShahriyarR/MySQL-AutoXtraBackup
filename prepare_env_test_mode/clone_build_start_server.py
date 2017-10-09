@@ -84,6 +84,7 @@ class CloneBuildStartServer:
                     return basedir_path.format(self.testpath, dir_name)
 
         logger.warning("Could not get PS basedir path...")
+        logger.debug("It looks like you should build server first...")
         return False
 
         # cmd = 'ls -1td {}/PS* | grep -v ".tar" | grep PS[0-9]'
