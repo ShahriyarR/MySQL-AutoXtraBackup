@@ -7,13 +7,13 @@ class TestBackupTestMode:
     """
 
     def test_clone_percona_qa(self, return_clone_obj):
-        assert return_clone_obj.clone_percona_qa() == True
+        assert return_clone_obj.clone_percona_qa() is True
 
     def test_clone_ps_server_from_conf(self, return_clone_obj):
-        assert return_clone_obj.clone_ps_server_from_conf() == True
+        assert return_clone_obj.clone_ps_server_from_conf() is True
 
     def test_build_server(self, return_clone_obj):
-        assert return_clone_obj.build_server() == True
+        assert return_clone_obj.build_server() is True
 
     def test_get_basedir(self, return_clone_obj):
         assert 'PS' in return_clone_obj.get_basedir()
@@ -21,7 +21,7 @@ class TestBackupTestMode:
     @pytest.mark.usefixtures("return_basedir")
     def test_prepare_startup(self, return_clone_obj, return_basedir):
         basedir = return_basedir
-        assert return_clone_obj.prepare_startup(basedir_path=basedir) == True
+        assert return_clone_obj.prepare_startup(basedir_path=basedir) is True
 
     @pytest.mark.usefixtures("return_basedir")
     def test_start_server(self, return_clone_obj, return_basedir):
@@ -31,7 +31,7 @@ class TestBackupTestMode:
     @pytest.mark.usefixtures("return_basedir")
     def test_wipe_server_all(self, return_clone_obj, return_basedir):
         basedir = return_basedir
-        assert return_clone_obj.wipe_server_all(basedir_path=basedir) == True
+        assert return_clone_obj.wipe_server_all(basedir_path=basedir) is True
 
     def test_get_xb_packages(self, return_clone_obj):
         url_2_4 = "http://jenkins.percona.com/view/QA/job/qa.pxb24.build/BUILD_TYPE=debug,label_exp=centos7-64/lastSuccessfulBuild/artifact/target/percona-xtrabackup-2.4.x-debug.tar.gz"
