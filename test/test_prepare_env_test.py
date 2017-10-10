@@ -32,3 +32,9 @@ class TestBackupTestMode:
     def test_wipe_server_all(self, return_clone_obj, return_basedir):
         basedir = return_basedir
         assert return_clone_obj.wipe_server_all(basedir_path=basedir) == True
+
+    def test_get_xb_packages(self, return_clone_obj):
+        url_2_4 = "http://jenkins.percona.com/view/QA/job/qa.pxb24.build/BUILD_TYPE=debug,label_exp=centos7-64/lastSuccessfulBuild/artifact/target/percona-xtrabackup-2.4.x-debug.tar.gz"
+        url_2_3 = "http://jenkins.percona.com/view/QA/job/qa.pxb23.build/BUILD_TYPE=debug,label_exp=centos7-64/lastSuccessfulBuild/artifact/target/percona-xtrabackup-2.3.x-debug.tar.gz"
+        assert return_clone_obj.get_xb_packages(url_2_4[-37:], url_2_4) is True
+        assert return_clone_obj.get_xb_packages(url_2_3[-37:], url_2_3) is True
