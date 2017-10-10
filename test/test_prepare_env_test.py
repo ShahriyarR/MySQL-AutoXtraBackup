@@ -38,3 +38,9 @@ class TestBackupTestMode:
         url_2_3 = "http://jenkins.percona.com/view/QA/job/qa.pxb23.build/BUILD_TYPE=debug,label_exp=centos7-64/lastSuccessfulBuild/artifact/target/percona-xtrabackup-2.3.x-debug.tar.gz"
         assert return_clone_obj.get_xb_packages(url_2_4[-37:], url_2_4) is True
         assert return_clone_obj.get_xb_packages(url_2_3[-37:], url_2_3) is True
+
+    def test_extract_xb_archive(self, return_clone_obj):
+        archive_2_4 = "percona-xtrabackup-2.4.x-debug.tar.gz"
+        archive_2_3 = "percona-xtrabackup-2.3.x-debug.tar.gz"
+        assert return_clone_obj.extract_xb_archive(file_name=archive_2_4) is True
+        assert return_clone_obj.extract_xb_archive(file_name=archive_2_3) is True

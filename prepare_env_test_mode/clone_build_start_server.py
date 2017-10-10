@@ -153,5 +153,19 @@ class CloneBuildStartServer:
             logger.debug("The {} is already there".format(file_name))
             return True
 
+    def extract_xb_archive(self, file_name):
+        extract_cmd = "tar -xf {}/{}"
+        if os.path.isfile(file_name):
+            status, output = subprocess.getstatusoutput(extract_cmd.format(self.testpath, file_name))
+            if status == 0:
+                logger.debug("Extracted from {}".format(file_name))
+                return True
+            else:
+                logger.error("Failed to extract from {}".format(file_name))
+                logger.error(output)
+                return False
+        else:
+            logger.debug("Could not find {}".format(file_name))
+            return False
 
 
