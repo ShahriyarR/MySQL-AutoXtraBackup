@@ -9,7 +9,9 @@ logger = logging.getLogger(__name__)
 
 class CloneBuildStartServer:
     """
-    Class for cloning from git, building server from source and starting test server
+    Class for cloning from git, building server from source and starting test server etc.
+    This class will include all necessary actions for preparing test environment.
+    Please see specific methods for clarity.
     """
     def __init__(self):
         self.git_cmd = GeneralClass().gitcmd
@@ -154,16 +156,23 @@ class CloneBuildStartServer:
             return True
 
     def extract_xb_archive(self, file_name):
+        # General method for extracting XB archives
+        # It will create target folder inside test path
+        # TODO: check if archives are already unpacked prior extracting; this will save few seconds.
         extract_cmd = "tar -xf {}/{} -C {}"
         if os.path.isfile("{}/{}".format(self.testpath, file_name)):
-            status, output = subprocess.getstatusoutput(extract_cmd.format(self.testpath, file_name, self.testpath))
-            if status == 0:
-                logger.debug("Extracted from {}".format(file_name))
-                return True
+            if not os.path.isdir("{}/target".format(self.testpath)):
+                status, output = subprocess.getstatusoutput(extract_cmd.format(self.testpath, file_name, self.testpath))
+                if status == 0:
+                    logger.debug("Extracted from {}".format(file_name))
+                    return True
+                else:
+                    logger.error("Failed to extract from {}".format(file_name))
+                    logger.error(output)
+                    return False
             else:
-                logger.error("Failed to extract from {}".format(file_name))
-                logger.error(output)
-                return False
+                logger.debug("The 'target' folder already there...")
+                return True
         else:
             logger.debug("Could not find {}".format(file_name))
             return False
