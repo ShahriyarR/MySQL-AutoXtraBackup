@@ -45,3 +45,6 @@ class ConfigGenerator(CloneBuildStartServer):
         else:
             logger.debug("Config file generated successfully...")
             return True
+
+obj = ConfigGenerator()
+obj.generate_config_files()
