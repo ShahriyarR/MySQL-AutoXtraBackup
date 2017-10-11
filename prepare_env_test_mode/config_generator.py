@@ -37,6 +37,7 @@ class ConfigGenerator(CloneBuildStartServer):
                 config.set(section1, "datadir", "{}/data".format(basedir))
         except Exception as err:
             logger.error("Failed to generate config file...")
+            logger.error(err)
             return False
         else:
             logger.debug("Config file generated successfully...")
