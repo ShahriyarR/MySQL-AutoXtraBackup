@@ -22,7 +22,7 @@ class ConfigGenerator(CloneBuildStartServer):
         try:
             if not os.path.isfile(conf_path):
                 with open(conf_path, 'w') as cfgfile:
-                    config = configparser.ConfigParser()
+                    config = configparser.ConfigParser(allow_no_value=True)
                     section1 = 'MySQL'
                     config.add_section("{}".format(section1))
                     config.set("{}".format(section1), "mysql", "{}/bin/mysql".format(basedir))
