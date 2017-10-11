@@ -158,7 +158,6 @@ class CloneBuildStartServer:
     def extract_xb_archive(self, file_name):
         # General method for extracting XB archives
         # It will create target folder inside test path
-        # TODO: check if archives are already unpacked prior extracting; this will save few seconds.
         extract_cmd = "tar -xf {}/{} -C {}"
         if os.path.isfile("{}/{}".format(self.testpath, file_name)):
             if not os.path.isdir("{}/target".format(self.testpath)):
