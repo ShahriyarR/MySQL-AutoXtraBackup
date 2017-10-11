@@ -13,7 +13,7 @@ class TestRunBenchmark:
         assert "mysql" in return_run_benchmark_obj.get_mysql_conn()
 
     def test_create_db(self, return_run_benchmark_obj):
-        assert return_run_benchmark_obj.create_db("test_run_benchmark_db") == True
+        assert return_run_benchmark_obj.create_db("test_run_benchmark_db") is True
 
     def test_run_sysbench(self, return_run_benchmark_obj):
-        assert return_run_benchmark_obj.run_sysbench() == True
+        assert return_run_benchmark_obj.run_sysbench() is True

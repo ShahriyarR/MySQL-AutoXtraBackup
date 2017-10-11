@@ -9,7 +9,9 @@ logger = logging.getLogger(__name__)
 
 class CloneBuildStartServer:
     """
-    Class for cloning from git, building server from source and starting test server
+    Class for cloning from git, building server from source and starting test server etc.
+    This class will include all necessary actions for preparing test environment.
+    Please see specific methods for clarity.
     """
     def __init__(self):
         self.git_cmd = GeneralClass().gitcmd
@@ -87,16 +89,6 @@ class CloneBuildStartServer:
         logger.debug("It looks like you should build server first...")
         return False
 
-        # cmd = 'ls -1td {}/PS* | grep -v ".tar" | grep PS[0-9]'
-        # status, output = subprocess.getstatusoutput(cmd.format(self.testpath))
-        # if status == 0:
-        #     logger.debug("Could get PS basedir path returning...")
-        #     return output
-        # else:
-        #     logger.error("Could not get PS basedir path failed...")
-        #     logger.error(output)
-        #     return False
-
     def prepare_startup(self, basedir_path):
         # Method for calling startup.sh file from percona-qa folder
         saved_path = os.getcwd()
@@ -146,3 +138,42 @@ class CloneBuildStartServer:
             logger.error(output)
             os.chdir(saved_path)
             return False
+
+    def get_xb_packages(self, file_name, url):
+        # General method for getting XB packages
+        wget_cmd = "wget {} -P {}"
+        if not os.path.isfile("{}/{}".format(self.testpath, file_name)):
+            status, output = subprocess.getstatusoutput(wget_cmd.format(url, self.testpath))
+            if status == 0:
+                logger.debug("Downloaded {}".format(file_name))
+                return True
+            else:
+                logger.error("Failed to download {}".format(file_name))
+                logger.error(output)
+                return False
+        else:
+            logger.debug("The {} is already there".format(file_name))
+            return True
+
+    def extract_xb_archive(self, file_name):
+        # General method for extracting XB archives
+        # It will create target folder inside test path
+        extract_cmd = "tar -xf {}/{} -C {}"
+        if os.path.isfile("{}/{}".format(self.testpath, file_name)):
+            if not os.path.isdir("{}/target".format(self.testpath)):
+                status, output = subprocess.getstatusoutput(extract_cmd.format(self.testpath, file_name, self.testpath))
+                if status == 0:
+                    logger.debug("Extracted from {}".format(file_name))
+                    return True
+                else:
+                    logger.error("Failed to extract from {}".format(file_name))
+                    logger.error(output)
+                    return False
+            else:
+                logger.debug("The 'target' folder already there...")
+                return True
+        else:
+            logger.debug("Could not find {}".format(file_name))
+            return False
+
+
