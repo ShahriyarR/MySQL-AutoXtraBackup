@@ -21,20 +21,22 @@ class ConfigGenerator(CloneBuildStartServer):
         basedir = self.get_basedir()
         try:
             if not os.path.isfile(conf_path):
-                cfgfile = open(conf_path, 'w')
-                config = configparser.ConfigParser()
-                section1 = 'MySQL'
-                config.add_section("{}".format(section1))
-                config.set("{}".format(section1), "mysql", "{}/bin/mysql".format(basedir))
-                config.set("{}".format(section1), "mycnf", "")
-                config.set("{}".format(section1), "mysqladmin", "{}/bin/mysqladmin".format(basedir))
-                config.set("{}".format(section1), "mysql_user", "root")
-                config.set("{}".format(section1), "mysql_password", "")
-                config.set("{}".format(section1), "#Use either socket or port + host combination")
-                config.set("{}".format(section1), "mysql_socket", "{}".format(self.benchmark_obj.get_sock()))
-                config.set("{}".format(section1), "#mysql_host", "127.0.0.1")
-                config.set("{}".format(section1), "#mysql_port", "3306")
-                config.set("{}".format(section1), "datadir", "{}/data".format(basedir))
+                with open(conf_path, 'w') as cfgfile:
+                    config = configparser.ConfigParser()
+                    section1 = 'MySQL'
+                    config.add_section("{}".format(section1))
+                    config.set("{}".format(section1), "mysql", "{}/bin/mysql".format(basedir))
+                    config.set("{}".format(section1), "mycnf", "")
+                    config.set("{}".format(section1), "mysqladmin", "{}/bin/mysqladmin".format(basedir))
+                    config.set("{}".format(section1), "mysql_user", "root")
+                    config.set("{}".format(section1), "mysql_password", "")
+                    config.set("{}".format(section1), "#Use either socket or port + host combination")
+                    config.set("{}".format(section1), "mysql_socket", "{}".format(self.benchmark_obj.get_sock()))
+                    config.set("{}".format(section1), "#mysql_host", "127.0.0.1")
+                    config.set("{}".format(section1), "#mysql_port", "3306")
+                    config.set("{}".format(section1), "datadir", "{}/data".format(basedir))
+                    config.write(cfgfile)
+
         except Exception as err:
             logger.error("Failed to generate config file...")
             logger.error(err)
@@ -42,5 +44,3 @@ class ConfigGenerator(CloneBuildStartServer):
         else:
             logger.debug("Config file generated successfully...")
             return True
-        finally:
-            cfgfile.close()
