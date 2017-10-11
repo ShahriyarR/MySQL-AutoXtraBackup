@@ -38,9 +38,10 @@ class ConfigGenerator(CloneBuildStartServer):
                     config.write(cfgfile)
 
         except Exception as err:
-            logger.error("Failed to generate config file...")
-            logger.error(err)
-            return False
+            raise err
+            #logger.error("Failed to generate config file...")
+            #logger.error(err)
+            #return False
         else:
             logger.debug("Config file generated successfully...")
             return True
