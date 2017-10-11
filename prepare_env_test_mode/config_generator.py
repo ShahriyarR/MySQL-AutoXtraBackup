@@ -25,7 +25,7 @@ class ConfigGenerator(CloneBuildStartServer):
                 config = configparser.ConfigParser()
                 section1 = 'MySQL'
                 config.add_section("{}".format(section1))
-                config.set("{}".format("{}".format(section1)), "mysql", "{}/bin/mysql".format(basedir))
+                config.set("{}".format(section1), "mysql", "{}/bin/mysql".format(basedir))
                 config.set("{}".format(section1), "mycnf", "")
                 config.set("{}".format(section1), "mysqladmin", "{}/bin/mysqladmin".format(basedir))
                 config.set("{}".format(section1), "mysql_user", "root")
