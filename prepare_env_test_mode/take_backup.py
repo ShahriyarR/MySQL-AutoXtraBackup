@@ -1,5 +1,4 @@
 from master_backup_script.backuper import Backup
-from general_conf.generalops import GeneralClass
 from prepare_env_test_mode.clone_build_start_server import CloneBuildStartServer
 
 

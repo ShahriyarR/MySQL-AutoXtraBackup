@@ -1,6 +1,7 @@
 from prepare_env_test_mode.clone_build_start_server import CloneBuildStartServer
 from prepare_env_test_mode.config_generator import ConfigGenerator
 from prepare_env_test_mode.run_benchmark import RunBenchmark
+from prepare_env_test_mode.take_backup import WrapperForBackupTest
 import os
 import logging
 logger = logging.getLogger(__name__)
@@ -16,7 +17,8 @@ class RunnerTestMode:
             logger.debug("It seems to be the test setup already done...")
             if self.clone_obj.wipe_server_all(self.basedir):
                 if RunBenchmark().run_sysbench():
-                    # Take backup/prepare and recover here
+                    # Take backup
+                    WrapperForBackupTest().run_all_backup()
                     pass
 
         else:
@@ -38,5 +40,6 @@ class RunnerTestMode:
                                                 conf_obj = ConfigGenerator()
                                                 if conf_obj.generate_config_files():
                                                     if RunBenchmark().run_sysbench():
-                                                        # Take backup/prepare and recover here
+                                                        # Take backup
+                                                        WrapperForBackupTest().run_all_backup()
                                                         pass
