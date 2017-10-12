@@ -7,7 +7,7 @@ class WrapperForBackupTest(CloneBuildStartServer):
 
     def __init__(self):
         super().__init__()
-        self.backup_obj = Backup(config="{}/xb_2_4.conf")
+        self.backup_obj = Backup(config="{}/xb_2_4.conf".format(self.testpath)) 
 
 
     def run_all_backup(self):
