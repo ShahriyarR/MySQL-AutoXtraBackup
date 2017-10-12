@@ -46,7 +46,7 @@ class CheckEnv(GeneralClass):
             return True
 
     def check_mysql_conf(self):
-        if not os.path.exists(self.mycnf):
+        if not os.path.exists(self.mycnf) and (self.mycnf is not None):
             # Testing with MariaDB Galera Cluster
             # if not os.path.exists(self.maria_cluster_cnf):
             logger.error(
