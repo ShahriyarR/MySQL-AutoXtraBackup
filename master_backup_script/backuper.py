@@ -107,7 +107,7 @@ class Backup(GeneralClass):
                 self.mycnf,
                 self.mysql_user,
                 self.mysql_password,
-                self.mysql_host,
+                #self.mysql_host,
                 self.mysql_socket
             )
         else:
