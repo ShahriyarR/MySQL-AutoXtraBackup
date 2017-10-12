@@ -33,7 +33,8 @@ class Backup(GeneralClass):
         self.conf = config
         self.dry = dry_run
         # Call GeneralClass for storing configuration
-        GeneralClass.__init__(self, self.conf)
+        super().__init__(self.conf)
+        #GeneralClass.__init__(self, self.conf)
 
     def sorted_ls(self, path):
         mtime = lambda f: os.stat(os.path.join(path, f)).st_mtime
