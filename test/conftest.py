@@ -31,9 +31,7 @@ cg_obj = ConfigGenerator()
 def return_config_generator_obj():
     return cg_obj
 
-
-bck_obj = WrapperForBackupTest()
-
 @pytest.fixture()
 def return_take_backup_obj():
+    bck_obj = WrapperForBackupTest()
     return bck_obj
