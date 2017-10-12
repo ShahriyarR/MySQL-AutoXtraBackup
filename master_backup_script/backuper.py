@@ -92,9 +92,12 @@ class Backup(GeneralClass):
         It is highly recomended to flush binary logs before each full backup for easy maintenance.
         That's why we will execute "flush logs" command before each full backup!
         """
-
-        command_connection = '{} --defaults-file={} -u{} --password={} --host={}'
-        command_execute = ' -e "flush logs"'
+        if hasattr(self, 'mysql_socket'):
+            command_connection = '{} --defaults-file={} -u{} --password={}'
+            command_execute = ' -e "flush logs"'
+        else:
+            command_connection = '{} --defaults-file={} -u{} --password={} --host={}'
+            command_execute = ' -e "flush logs"'
 
         # Open connection
 
