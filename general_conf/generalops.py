@@ -126,6 +126,7 @@ class GeneralClass:
             TEST = con['TestConf']
             self.gitcmd = TEST['gitcmd']
             self.testpath = TEST['testpath']
+            self.incremental_count = TEST['incremental_count']
 
         else:
             logger.critical("Missing config file : /etc/bck.conf")

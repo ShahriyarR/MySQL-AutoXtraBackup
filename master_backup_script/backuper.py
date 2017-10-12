@@ -33,7 +33,8 @@ class Backup(GeneralClass):
         self.conf = config
         self.dry = dry_run
         # Call GeneralClass for storing configuration
-        GeneralClass.__init__(self, self.conf)
+        super().__init__(self.conf)
+        #GeneralClass.__init__(self, self.conf)
 
     def sorted_ls(self, path):
         mtime = lambda f: os.stat(os.path.join(path, f)).st_mtime
@@ -91,9 +92,12 @@ class Backup(GeneralClass):
         It is highly recomended to flush binary logs before each full backup for easy maintenance.
         That's why we will execute "flush logs" command before each full backup!
         """
-
-        command_connection = '{} --defaults-file={} -u{} --password={} --host={}'
-        command_execute = ' -e "flush logs"'
+        if hasattr(self, 'mysql_socket'):
+            command_connection = '{} --defaults-file={} -u{} --password={}'
+            command_execute = ' -e "flush logs"'
+        else:
+            command_connection = '{} --defaults-file={} -u{} --password={} --host={}'
+            command_execute = ' -e "flush logs"'
 
         # Open connection
 
@@ -106,7 +110,7 @@ class Backup(GeneralClass):
                 self.mycnf,
                 self.mysql_user,
                 self.mysql_password,
-                self.mysql_host,
+                #self.mysql_host,
                 self.mysql_socket
             )
         else:
@@ -673,7 +677,7 @@ class Backup(GeneralClass):
                     self.copy_backup_to_remote_host()
 
                 # Exiting after taking full backup
-                exit(0)
+                #exit(0)
 
             elif self.last_full_backup_date() == 1:
                 logger.debug(
@@ -715,7 +719,7 @@ class Backup(GeneralClass):
                     self.copy_backup_to_remote_host()
 
                 # Exiting after taking NEW full backup
-                exit(0)
+                #exit(0)
 
             else:
                 logger.debug(
@@ -742,7 +746,7 @@ class Backup(GeneralClass):
                     self.copy_backup_to_remote_host()
 
                 # Exiting after taking Incremental backup
-                exit(0)
+                #exit(0)
 
 # b = Backup()
 # b.all_backup()

@@ -40,7 +40,7 @@ class ConfigGenerator(CloneBuildStartServer):
                     config.add_section(section2)
                     config.set(section2, "#Optional: set pid directory")
                     config.set(section2, "pid_dir", "/tmp/MySQL-AutoXtraBackup")
-                    config.set(section2, "tmp_dir", "/home/shahriyar.rzaev/XB_TEST/mysql_datadirs")
+                    config.set(section2, "tmpdir", "/home/shahriyar.rzaev/XB_TEST/mysql_datadirs")
                     config.set(section2, "#Optional: set warning if pid of backup us running for longer than X")
                     config.set(section2, "pid_runtime_warning", "2 Hours")
                     config.set(section2, "backupdir", "/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_7") # Can be changed in the future depending on PS version
@@ -102,8 +102,8 @@ class ConfigGenerator(CloneBuildStartServer):
                     section6 = "Remote"
                     config.add_section(section6)
                     config.set(section6, "#Optional remote syncing")
-                    config.set(section6, "remote_conn", "root@xxx.xxx.xxx.xxx")
-                    config.set(section6, "remote_dir", "/home/sh/Documents")
+                    config.set(section6, "#remote_conn", "root@xxx.xxx.xxx.xxx")
+                    config.set(section6, "#remote_dir", "/home/sh/Documents")
 
                     section7 = "Commands"
                     config.add_section(section7)
@@ -115,6 +115,7 @@ class ConfigGenerator(CloneBuildStartServer):
                     config.add_section(section8)
                     config.set(section8, "gitcmd", "--recursive --depth=1 https://github.com/percona/percona-server.git -b 5.7")
                     config.set(section8, "testpath", "/home/shahriyar.rzaev/XB_TEST/server_dir")
+                    config.set(section8, "incremental_count", "3")
 
                     config.write(cfgfile)
 
