@@ -102,8 +102,8 @@ class ConfigGenerator(CloneBuildStartServer):
                     section6 = "Remote"
                     config.add_section(section6)
                     config.set(section6, "#Optional remote syncing")
-                    config.set(section6, "remote_conn", "root@xxx.xxx.xxx.xxx")
-                    config.set(section6, "remote_dir", "/home/sh/Documents")
+                    config.set(section6, "#remote_conn", "root@xxx.xxx.xxx.xxx")
+                    config.set(section6, "#remote_dir", "/home/sh/Documents")
 
                     section7 = "Commands"
                     config.add_section(section7)
