@@ -40,7 +40,7 @@ class ConfigGenerator(CloneBuildStartServer):
                     config.add_section(section2)
                     config.set(section2, "#Optional: set pid directory")
                     config.set(section2, "pid_dir", "/tmp/MySQL-AutoXtraBackup")
-                    config.set(section2, "tmp_dir", "/home/shahriyar.rzaev/XB_TEST/mysql_datadirs")
+                    config.set(section2, "tmpdir", "/home/shahriyar.rzaev/XB_TEST/mysql_datadirs")
                     config.set(section2, "#Optional: set warning if pid of backup us running for longer than X")
                     config.set(section2, "pid_runtime_warning", "2 Hours")
                     config.set(section2, "backupdir", "/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_7") # Can be changed in the future depending on PS version
