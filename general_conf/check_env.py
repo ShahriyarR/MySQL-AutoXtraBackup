@@ -46,7 +46,7 @@ class CheckEnv(GeneralClass):
             return True
 
     def check_mysql_conf(self):
-        if self.mycnf is None:
+        if self.mycnf is None or self.mycnf == '':
             logger.debug("Skipping my.cnf check, because it is not specified")
             return True
         elif not os.path.exists(self.mycnf) and (self.mycnf is not None):
