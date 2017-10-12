@@ -677,7 +677,7 @@ class Backup(GeneralClass):
                     self.copy_backup_to_remote_host()
 
                 # Exiting after taking full backup
-                exit(0)
+                #exit(0)
 
             elif self.last_full_backup_date() == 1:
                 logger.debug(
