@@ -719,7 +719,7 @@ class Backup(GeneralClass):
                     self.copy_backup_to_remote_host()
 
                 # Exiting after taking NEW full backup
-                exit(0)
+                #exit(0)
 
             else:
                 logger.debug(
@@ -746,7 +746,7 @@ class Backup(GeneralClass):
                     self.copy_backup_to_remote_host()
 
                 # Exiting after taking Incremental backup
-                exit(0)
+                #exit(0)
 
 # b = Backup()
 # b.all_backup()
