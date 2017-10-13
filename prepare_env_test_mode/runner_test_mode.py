@@ -2,6 +2,7 @@ from prepare_env_test_mode.clone_build_start_server import CloneBuildStartServer
 from prepare_env_test_mode.config_generator import ConfigGenerator
 from prepare_env_test_mode.run_benchmark import RunBenchmark
 from prepare_env_test_mode.take_backup import WrapperForBackupTest
+from prepare_env_test_mode.prepare_backup import WrapperForPrepareTest
 import os
 import logging
 logger = logging.getLogger(__name__)
@@ -19,6 +20,7 @@ class RunnerTestMode:
                 if RunBenchmark().run_sysbench():
                     # Take backup
                     WrapperForBackupTest().run_all_backup()
+                    WrapperForPrepareTest().run_prepare_backup_and_copy_back()
                     pass
 
         else:
@@ -42,4 +44,5 @@ class RunnerTestMode:
                                                     if RunBenchmark().run_sysbench():
                                                         # Take backup
                                                         WrapperForBackupTest().run_all_backup()
+                                                        WrapperForPrepareTest().run_prepare_backup_and_copy_back()
                                                         pass
