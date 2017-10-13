@@ -19,6 +19,7 @@ class RunnerTestMode:
             if self.clone_obj.wipe_server_all(self.basedir):
                 if RunBenchmark().run_sysbench():
                     # Take backup
+                    # TODO: pass the config file path here; for now it is hardcoded in side classed below
                     WrapperForBackupTest().run_all_backup()
                     WrapperForPrepareTest().run_prepare_backup_and_copy_back()
                     pass

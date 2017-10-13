@@ -127,6 +127,7 @@ class GeneralClass:
             self.gitcmd = TEST['gitcmd']
             self.testpath = TEST['testpath']
             self.incremental_count = TEST['incremental_count']
+            self.xb_configs = TEST['xb_configs']
 
         else:
             logger.critical("Missing config file : /etc/bck.conf")
