@@ -7,15 +7,17 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class CloneBuildStartServer:
+class CloneBuildStartServer(TestModeConfCheck):
     """
     Class for cloning from git, building server from source and starting test server etc.
     This class will include all necessary actions for preparing test environment.
     Please see specific methods for clarity.
     """
-    def __init__(self):
-        self.git_cmd = GeneralClass().gitcmd
-
+    def __init__(self, config='/etc/bck.conf'):
+        self.conf = config
+        super().__init__(config=self.conf)
+        #self.git_cmd = GeneralClass().gitcmd
+        #self.xb_configs = GeneralClass().xb_configs
         # Creating needed path here
         t_obj = TestModeConfCheck()
         if t_obj.check_test_path(t_obj.testpath):
@@ -43,7 +45,7 @@ class CloneBuildStartServer:
         clone_cmd = "git clone {} {}/PS-5.7-trunk"
         if not os.path.exists("{}/PS-5.7-trunk".format(self.testpath)):
             logger.debug("Started to clone Percona Server...")
-            status, output = subprocess.getstatusoutput(clone_cmd.format(self.git_cmd, self.testpath))
+            status, output = subprocess.getstatusoutput(clone_cmd.format(self.gitcmd, self.testpath))
             if status == 0:
                 logger.debug("PS cloned ready to build")
                 return True

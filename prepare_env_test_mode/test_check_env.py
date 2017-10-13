@@ -11,7 +11,7 @@ class TestModeConfCheck(GeneralClass):
     """
     def __init__(self, config='/etc/bck.conf'):
         self.conf = config
-        GeneralClass.__init__(self, self.conf)
+        super().__init__(config=self.conf)
         if hasattr(self, 'gitcmd') and hasattr(self, 'testpath'):
             pass
         else:
