@@ -16,10 +16,7 @@ class TestCloneBuildStartServer:
         assert return_clone_obj.build_server() is True
 
     def test_get_basedir(self, return_clone_obj):
-        assert 'PS' in return_clone_obj.get_basedir()
-
-    def test_get_basedir_print_result(self, return_clone_obj):
-        print(return_clone_obj.get_basedir())
+        assert isinstance(return_clone_obj.get_basedir(), list)
 
     @pytest.mark.usefixtures("return_basedir")
     def test_prepare_startup(self, return_clone_obj, return_basedir):

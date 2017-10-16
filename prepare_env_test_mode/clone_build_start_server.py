@@ -82,17 +82,21 @@ class CloneBuildStartServer(TestModeConfCheck):
     def get_basedir(self):
         # Method for getting PS basedir path
         logger.debug("Trying to get basedir path...")
+        basedirs = []
         for root, dirs, files in os.walk(self.testpath):
             for dir_name in dirs:
                 obj = re.search('PS[0-9]', dir_name)
                 if obj:
-                    logger.debug("Could get PS basedir path returning...")
                     basedir_path = "{}/{}"
-                    return basedir_path.format(self.testpath, dir_name)
-
-        logger.warning("Could not get PS basedir path...")
-        logger.debug("It looks like you should build server first...")
-        return False
+                    basedirs.append(basedir_path.format(self.testpath, dir_name))
+                    #return basedir_path.format(self.testpath, dir_name)
+        if len(basedirs) > 0:
+            logger.debug("Could get PS basedir path returning...")
+            return basedirs
+        else:
+            logger.warning("Could not get PS basedir path...")
+            logger.debug("It looks like you should build server first...")
+            return False
 
     def prepare_startup(self, basedir_path):
         # Method for calling startup.sh file from percona-qa folder
