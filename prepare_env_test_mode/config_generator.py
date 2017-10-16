@@ -126,6 +126,7 @@ class ConfigGenerator(CloneBuildStartServer):
 
                         section8 = "TestConf"
                         config.add_section(section8)
+                        config.set(section8, "ps_branches", "5.6 5.7")
                         config.set(section8, "gitcmd", "--recursive --depth=1 https://github.com/percona/percona-server.git -b 5.7")
                         config.set(section8, "testpath", "/home/shahriyar.rzaev/XB_TEST/server_dir")
                         config.set(section8, "incremental_count", "3")
