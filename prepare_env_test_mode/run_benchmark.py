@@ -10,24 +10,27 @@ class RunBenchmark:
     General class for running all kind of Benchmarks; For now running sysbench against started server.
     """
 
-    def __init__(self):
-        self.testpath = GeneralClass().testpath
-        self.basedir = CloneBuildStartServer().get_basedir()
+    def __init__(self, config="/etc/bck.conf"):
+        self.conf = config
+        self.testpath = GeneralClass(self.conf).testpath
+        self.basedir = CloneBuildStartServer(self.conf).get_basedir()
 
-    def get_sock(self):
+    @staticmethod
+    def get_sock(basedir):
         # Get socket connection path from PS basedir(Pythonic way)
         logger.debug("Trying to get socket file...")
         file_name = "{}/cl_noprompt_nobinary"
-        with open(file_name.format(self.basedir)) as config:
+        with open(file_name.format(basedir)) as config:
             sock_file = config.read().split()[3][2:]
 
         return sock_file
 
-    def get_mysql_conn(self):
+    @staticmethod
+    def get_mysql_conn(basedir):
         # Get mysql client connection
         logger.debug("Trying to get mysql client connection...")
         get_conn = "cat {}/cl_noprompt_nobinary"
-        status, output = subprocess.getstatusoutput(get_conn.format(self.basedir))
+        status, output = subprocess.getstatusoutput(get_conn.format(basedir))
         if status == 0:
             logger.debug("Could get mysql client")
             return output
@@ -36,9 +39,9 @@ class RunBenchmark:
             logger.error(output)
             return False
 
-    def create_db(self, db_name):
+    def create_db(self, db_name, basedir):
         # Creating DB using mysql client
-        conn = self.get_mysql_conn()
+        conn = self.get_mysql_conn(basedir)
         sql = "{} -e 'create database if not exists {} '"
         logger.debug("Trying to create DB...")
         status, output = subprocess.getstatusoutput(sql.format(conn, db_name))
@@ -50,16 +53,18 @@ class RunBenchmark:
             logger.error(output)
             return False
 
-    def run_sysbench(self):
+    def run_sysbench(self, basedir):
         # Running sysbench here; The parameters hard coded here, should figure out how to pass them also
         # TODO: make sysbench run with dynamic values
         # TODO: make sysbench different possible kind of runs
+        # TODO: check this implementation; it seems to be buggy
 
         # Created sysbench DB
         db_name = "sysbench_test_db"
-        self.create_db(db_name=db_name)
+        self.create_db(db_name=db_name, basedir=basedir)
 
-        sock_name = self.get_sock()
+        # Likely to fail here! Pay attention
+        sock_name = self.get_sock(basedir)
 
         sysbench_cmd = "sysbench /usr/share/sysbench/oltp_insert.lua " \
               "--table-size={} " \
