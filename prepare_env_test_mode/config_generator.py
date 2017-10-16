@@ -25,7 +25,9 @@ class ConfigGenerator(CloneBuildStartServer):
                 for conf_file in conf_list:
                     conf_path = "{}/{}".format(self.testpath, conf_file)
                     if not os.path.isfile(conf_path):
-                        if ('5.7' not in basedir) and ('2_3' not in conf_file): 
+                        if ('5.7' in basedir) and ('2_3' in conf_file):
+                            pass
+                        else:
                             with open(conf_path, 'w') as cfgfile:
                                 config = configparser.ConfigParser(allow_no_value=True)
                                 section1 = 'MySQL'
