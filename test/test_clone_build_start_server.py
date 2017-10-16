@@ -1,7 +1,7 @@
 import pytest
 
 @pytest.mark.usefixtures("return_clone_obj")
-class TestBackupTestMode:
+class TestCloneBuildStartServer:
     """
     Tests for clone_build_start_server.py module
     """

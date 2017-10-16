@@ -124,6 +124,7 @@ class GeneralClass:
             self.chown_command = CM['chown_command']
 
             TEST = con['TestConf']
+            self.ps_branches = TEST['ps_branches']
             self.gitcmd = TEST['gitcmd']
             self.testpath = TEST['testpath']
             self.incremental_count = TEST['incremental_count']

@@ -39,42 +39,45 @@ class CloneBuildStartServer(TestModeConfCheck):
         else:
             return True
 
-
     def clone_ps_server_from_conf(self):
         # Clone PS server[the value coming from config file]
-        clone_cmd = "git clone {} {}/PS-5.7-trunk"
-        if not os.path.exists("{}/PS-5.7-trunk".format(self.testpath)):
-            logger.debug("Started to clone Percona Server...")
-            status, output = subprocess.getstatusoutput(clone_cmd.format(self.gitcmd, self.testpath))
-            if status == 0:
-                logger.debug("PS cloned ready to build")
-                return True
-            else:
-                logger.error("Cloning PS failed")
-                logger.error(output)
-                return False
-        else:
-            return True
+        ps_branches = self.ps_branches.split()
+        for branch in ps_branches:
+            clone_cmd = "git clone {} -b {} {}/PS-{}-trunk"
+            if not os.path.exists("{}/PS-{}-trunk".format(self.testpath, branch)):
+                logger.debug("Started to clone Percona Server...")
+                status, output = subprocess.getstatusoutput(clone_cmd.format(self.gitcmd, branch, self.testpath, branch))
+                if status == 0:
+                    logger.debug("PS-{} cloned ready to build".format(branch))
+                else:
+                    logger.error("Cloning PS-{} failed".format(branch))
+                    logger.error(output)
+                    return False
+
+        return True
 
     def build_server(self):
         # Building server from source
         # For this purpose; I am going to use build_5.x_debug.sh script from percona-qa
         saved_path = os.getcwd()
         # Specify here the cloned PS path; for me it is PS-5.7-trunk(which I have hard coded in method above)
-        new_path = "{}/PS-5.7-trunk"
-        os.chdir(new_path.format(self.testpath))
-        build_cmd = "{}/percona-qa/build_5.x_debug.sh"
-        logger.debug("Started to build Percon Server from source...")
-        status, output = subprocess.getstatusoutput(build_cmd.format(self.testpath))
-        if status == 0:
-            logger.debug("PS build succeeded")
-            os.chdir(saved_path)
-            return True
-        else:
-            logger.error("PS build failed")
-            logger.error(output)
-            os.chdir(saved_path)
-            return False
+        ps_branches = self.ps_branches.split()
+        for branch in ps_branches:
+            new_path = "{}/PS-{}-trunk"
+            os.chdir(new_path.format(self.testpath, branch))
+            build_cmd = "{}/percona-qa/build_5.x_debug.sh"
+            logger.debug("Started to build Percon Server from source...")
+            status, output = subprocess.getstatusoutput(build_cmd.format(self.testpath))
+            if status == 0:
+                logger.debug("PS build succeeded")
+                os.chdir(saved_path)
+            else:
+                logger.error("PS build failed")
+                logger.error(output)
+                os.chdir(saved_path)
+                return False
+
+        return True
 
     def get_basedir(self):
         # Method for getting PS basedir path
