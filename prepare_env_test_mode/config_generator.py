@@ -162,11 +162,16 @@ class ConfigGenerator(CloneBuildStartServer):
             for conf_file in conf_list:
                 print(basedir)
                 print(conf_file)
-                if (('5.7' in basedir) or ('5.6' in basedir)) and ('2_4' in conf_file):
+                if ('5.7' in basedir) and ('2_4_ps_5_7' in conf_file):
                     self.generate_config_files(test_path=self.testpath,
                                            conf_file=conf_file,
                                            basedir=basedir,
                                            sock_file=self.benchmark_obj.get_sock(basedir=basedir))
+                elif ('5.6' in basedir) and ('2_4_ps_5_6' in conf_file):
+                    self.generate_config_files(test_path=self.testpath,
+                                               conf_file=conf_file,
+                                               basedir=basedir,
+                                               sock_file=self.benchmark_obj.get_sock(basedir=basedir))
                 elif ('5.6' in basedir) and ('2_3' in conf_file):
                     self.generate_config_files(test_path=self.testpath,
                                                conf_file=conf_file,
