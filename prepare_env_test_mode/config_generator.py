@@ -171,3 +171,5 @@ class ConfigGenerator(CloneBuildStartServer):
                                                sock_file=self.benchmark_obj.get_sock(basedir=basedir))
                 else:
                     continue
+
+        return True
