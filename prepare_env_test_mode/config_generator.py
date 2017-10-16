@@ -21,12 +21,12 @@ class ConfigGenerator(CloneBuildStartServer):
         conf_list = self.xb_configs.split()
         basedirs = self.get_basedir()
         try:
-            for basedir in basedirs:
-                for conf_file in conf_list:
+            for conf_file in conf_list:
+                for basedir in basedirs:
                     conf_path = "{}/{}".format(self.testpath, conf_file)
                     if not os.path.isfile(conf_path):
                         if ('5.7' in basedir) and ('2_3' in conf_file):
-                            continue
+                            pass
                         else:
                             with open(conf_path, 'w') as cfgfile:
                                 config = configparser.ConfigParser(allow_no_value=True)
