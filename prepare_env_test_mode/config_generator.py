@@ -35,7 +35,7 @@ class ConfigGenerator(CloneBuildStartServer):
                             config.set(section1, "mysql_user", "root")
                             config.set(section1, "mysql_password", "")
                             config.set(section1, "#Use either socket or port + host combination")
-                            config.set(section1, "mysql_socket", "{}".format(self.benchmark_obj.get_sock()))
+                            config.set(section1, "mysql_socket", "{}".format(self.benchmark_obj.get_sock(basedir)))
                             config.set(section1, "#mysql_host", "127.0.0.1")
                             config.set(section1, "#mysql_port", "3306")
                             config.set(section1, "datadir", "{}/data".format(basedir))
