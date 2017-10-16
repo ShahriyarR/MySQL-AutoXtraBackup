@@ -25,7 +25,7 @@ class ConfigGenerator(CloneBuildStartServer):
                 for conf_file in conf_list:
                     conf_path = "{}/{}".format(self.testpath, conf_file)
                     if not os.path.isfile(conf_path):
-                        if '5.7' in basedir and '2_3' in conf_file:
+                        if ('5.7' in basedir) and ('2_3' in conf_file):
                             continue
                         else:
                             with open(conf_path, 'w') as cfgfile:
