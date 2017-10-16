@@ -57,6 +57,7 @@ class RunBenchmark:
         # Running sysbench here; The parameters hard coded here, should figure out how to pass them also
         # TODO: make sysbench run with dynamic values
         # TODO: make sysbench different possible kind of runs
+        # TODO: check this implementation; it seems to be buggy
 
         # Created sysbench DB
         db_name = "sysbench_test_db"
