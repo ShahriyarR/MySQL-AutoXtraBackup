@@ -20,8 +20,9 @@ class TestCloneBuildStartServer:
 
     @pytest.mark.usefixtures("return_basedir")
     def test_prepare_startup(self, return_clone_obj, return_basedir):
-        basedir = return_basedir
-        assert return_clone_obj.prepare_startup(basedir_path=basedir) is True
+        basedir_list = return_basedir
+        for basedir in basedir_list:
+            assert return_clone_obj.prepare_startup(basedir_path=basedir) is True
 
     @pytest.mark.usefixtures("return_basedir")
     def test_start_server(self, return_clone_obj, return_basedir):
