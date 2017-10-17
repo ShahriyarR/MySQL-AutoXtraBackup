@@ -15,7 +15,7 @@ setup(
     description='Commandline tool written in Python 3 for using Percona XtraBackup',
     install_requires=[
         'click>=3.3',
-        'mysql-connector>=2.0.2',
+        'mysql-connector==2.1.4',
         'pid>=2.0',
         'humanfriendly>=2.0',
         'pytest'
