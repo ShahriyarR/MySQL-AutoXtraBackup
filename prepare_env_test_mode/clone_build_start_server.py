@@ -1,5 +1,4 @@
 from prepare_env_test_mode.test_check_env import TestModeConfCheck
-from general_conf.generalops import GeneralClass
 import subprocess
 import os
 import re

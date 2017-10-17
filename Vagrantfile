@@ -81,5 +81,10 @@ Vagrant.configure("2") do |config|
      sudo pip3.5 install setuptools -U pip setuptools
      cd /vagrant
      sudo python3.5 setup.py install
+     cd /home/vagrant
+     touch python-sudo.sh
+     echo "#!/bin/bash" > python-sudo.sh
+     echo 'sudo /usr/bin/python3.5 "$@"' >> python-sudo.sh
+     chmod +x python-sudo.sh
    SHELL
 end
