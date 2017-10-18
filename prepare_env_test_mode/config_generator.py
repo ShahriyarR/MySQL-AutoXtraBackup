@@ -42,10 +42,12 @@ class ConfigGenerator(CloneBuildStartServer):
                     config.set(section2, "tmpdir", "/home/shahriyar.rzaev/XB_TEST/mysql_datadirs")
                     config.set(section2, "#Optional: set warning if pid of backup us running for longer than X")
                     config.set(section2, "pid_runtime_warning", "2 Hours")
-                    if '5.7' in basedir:
-                        config.set(section2, "backupdir", "/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_7")
-                    else:
-                        config.set(section2, "backupdir", "/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_6")
+                    if ('5.7' in basedir) and ('2_4' in conf_file):
+                        config.set(section2, "backupdir", "/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_7_x_2_4")
+                    elif ('5.6' in basedir) and ('2_4' in conf_file):
+                        config.set(section2, "backupdir", "/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_6_x_2_4")
+                    elif ('5.6' in basedir) and ('2_3' in conf_file):
+                        config.set(section2, "backupdir", "/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_6_x_2_3")
                     if '2_4' in conf_file:
                         config.set(section2, "backup_tool",
                                    "{}/target/percona-xtrabackup-2.4.x-debug/bin/xtrabackup".format(test_path))
