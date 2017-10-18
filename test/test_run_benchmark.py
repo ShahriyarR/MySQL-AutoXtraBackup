@@ -7,7 +7,8 @@ class TestRunBenchmark:
     """
 
     def test_get_sock(self, return_run_benchmark_obj):
-        assert "sock" in return_run_benchmark_obj.get_sock()
+        for basedir in return_run_benchmark_obj.basedir:
+            assert "sock" in return_run_benchmark_obj.get_sock(basedir=basedir)
 
     def test_get_mysql_conn(self, return_run_benchmark_obj):
         assert "mysql" in return_run_benchmark_obj.get_mysql_conn()
