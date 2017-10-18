@@ -168,7 +168,7 @@ class CloneBuildStartServer(TestModeConfCheck):
         # It will create target folder inside test path
         extract_cmd = "tar -xf {}/{} -C {}"
         if os.path.isfile("{}/{}".format(self.testpath, file_name)):
-            if not os.path.isdir("{}/target".format(self.testpath)):
+            if not os.path.isdir("{}/target/{}".format(self.testpath, file_name[:-7])):
                 status, output = subprocess.getstatusoutput(extract_cmd.format(self.testpath, file_name, self.testpath))
                 if status == 0:
                     logger.debug("Extracted from {}".format(file_name))
