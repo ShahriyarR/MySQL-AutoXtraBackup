@@ -1,6 +1,6 @@
-import pytest
 from general_conf.generalops import GeneralClass
 from prepare_env_test_mode.prepare_backup import WrapperForPrepareTest
+
 
 class TestPrepareBackup:
     # class for prepare_env_test_mode.prepare_backup.py
