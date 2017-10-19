@@ -1,13 +1,14 @@
 from backup_prepare.prepare import Prepare
-from prepare_env_test_mode.clone_build_start_server import CloneBuildStartServer
 
 
-class WrapperForPrepareTest(CloneBuildStartServer):
+class WrapperForPrepareTest(Prepare):
 
-    def __init__(self):
-        super().__init__()
-        self.prepare_obj = Prepare(config="{}/xb_2_4.conf".format(self.testpath))
+    def __init__(self, config='/etc/bck.conf'):
+        self.conf = config
+        super().__init__(config=self.conf)
 
-    def run_prepare_backup_and_copy_back(self):
-        self.prepare_obj.prepare_inc_full_backups()
-        self.prepare_obj.copy_back_action()
+    def run_prepare_backup(self):
+        self.prepare_inc_full_backups()
+
+    def run_copy_back(self):
+        self.copy_back_action()
