@@ -37,7 +37,7 @@ def return_config_generator_obj():
 #     bck_obj = WrapperForBackupTest()
 #     return bck_obj
 
-@pytest.fixture()
-def return_prepare_backup_obj():
-    prp_obj = WrapperForPrepareTest()
-    return prp_obj
+# @pytest.fixture()
+# def return_prepare_backup_obj():
+#     prp_obj = WrapperForPrepareTest()
+#     return prp_obj

@@ -1,9 +1,12 @@
 import pytest
+from general_conf.generalops import GeneralClass
+from prepare_env_test_mode.prepare_backup import WrapperForPrepareTest
 
-
-@pytest.mark.usefixtures("return_prepare_backup_obj")
 class TestPrepareBackup:
-    # class for prepare_backup.py
-    def test_run_prepare_backup_and_copy_back(self, return_prepare_backup_obj):
-        return_prepare_backup_obj.run_prepare_backup_and_copy_back()
+    # class for prepare_env_test_mode.prepare_backup.py
+    def test_run_prepare_backup(self):
+        gen_obj = GeneralClass()
+        for conf_files in gen_obj.xb_configs.split():
+            obj = WrapperForPrepareTest(config='{}/{}'.format(gen_obj.testpath, conf_files))
+            obj.run_prepare_backup()
 
