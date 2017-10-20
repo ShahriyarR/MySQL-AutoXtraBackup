@@ -11,18 +11,20 @@ class RunnerTestMode:
 
     def __init__(self):
         self.clone_obj = CloneBuildStartServer()
-        self.basedir = self.clone_obj.get_basedir()
+        self.basedirs = self.clone_obj.get_basedir()
 
     def all_runner(self):
-        if self.basedir and (os.path.isfile("{}/all_no_cl".format(self.basedir))):
-            logger.debug("It seems to be the test setup already done...")
-            if self.clone_obj.wipe_server_all(self.basedir):
-                if RunBenchmark().run_sysbench():
-                    # Take backup
-                    # TODO: pass the config file path here; for now it is hardcoded in side classed below
-                    WrapperForBackupTest().run_all_backup()
-                    WrapperForPrepareTest().run_prepare_backup_and_copy_back()
-                    pass
+        for basedir in self.basedirs:
+            if basedir and (os.path.isfile("{}/all_no_cl".format(basedir))):
+                logger.debug("It seems to be the test setup already done...")
+                if self.clone_obj.wipe_server_all(basedir_path=basedir):
+                    if RunBenchmark().run_sysbench(basedir=basedir):
+                        # Take backup
+                        # TODO: pass the config file path here; for now it is hardcoded in side classed below
+                        WrapperForBackupTest().run_all_backup()
+                        WrapperForPrepareTest().run_prepare_backup()
+                        WrapperForPrepareTest().copy_back_action()
+                        pass
 
         else:
             logger.debug("Starting test setup from scratch...")
@@ -40,10 +42,12 @@ class RunnerTestMode:
                                         archive_2_3 = "percona-xtrabackup-2.3.x-debug.tar.gz"
                                         if self.clone_obj.extract_xb_archive(file_name=archive_2_4):
                                             if self.clone_obj.extract_xb_archive(file_name=archive_2_3):
+                                                # TODO: fix logic here
                                                 conf_obj = ConfigGenerator()
                                                 if conf_obj.generate_config_files():
                                                     if RunBenchmark().run_sysbench():
                                                         # Take backup
                                                         WrapperForBackupTest().run_all_backup()
-                                                        WrapperForPrepareTest().run_prepare_backup_and_copy_back()
+                                                        WrapperForPrepareTest().run_prepare_backup()
+                                                        WrapperForPrepareTest().copy_back_action()
                                                         pass

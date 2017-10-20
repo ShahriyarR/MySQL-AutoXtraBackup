@@ -2,6 +2,7 @@ from prepare_env_test_mode.clone_build_start_server import CloneBuildStartServer
 from prepare_env_test_mode.run_benchmark import RunBenchmark
 import configparser
 import os
+from itertools import product
 import logging
 logger = logging.getLogger(__name__)
 
@@ -187,3 +188,27 @@ class ConfigGenerator(CloneBuildStartServer):
                     continue
 
         return True
+
+    @staticmethod
+    def options_combination_generator(initial_str):
+        '''
+        Description: Option parser method for creating option combinarotics
+        return: List of tuples with option combinations
+        '''
+        separated_values_list = []
+
+        for i in initial_str.split(','):
+            separated_values_list.append(i.split('='))
+
+        all_new_list = []
+
+        for i in separated_values_list:
+            k = ["{}={}".format(i[0], j) for j in i[1].split()]
+            all_new_list.append(k)
+
+        option_combinations = []
+
+        for i in product(*all_new_list):
+            option_combinations.append(i)
+
+        return option_combinations
