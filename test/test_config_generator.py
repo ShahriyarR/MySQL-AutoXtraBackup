@@ -9,5 +9,5 @@ class TestConfigGenerator:
         assert return_config_generator_obj.the_main_generator() is True
 
     def test_options_combination_generator(self, return_config_generator_obj):
-        mysql_options = GeneralClass(config='{}/{}'.format(return_config_generator_obj.test_path, 'xb_2_4_ps_5_6.conf')).mysql_options
+        mysql_options = GeneralClass(config='{}/{}'.format(return_config_generator_obj.testpath, 'xb_2_4_ps_5_6.conf')).mysql_options
         return_config_generator_obj.options_combination_generator(mysql_options)
