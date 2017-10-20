@@ -116,7 +116,7 @@ class CloneBuildStartServer(TestModeConfCheck):
             return False
 
     @staticmethod
-    def start_server(basedir_path):
+    def start_server(basedir_path, options=None):
         # Method for calling start script which is created inside PS basedir
         start_cmd = "{}/start"
         logger.debug("Using start script here...")
@@ -130,7 +130,7 @@ class CloneBuildStartServer(TestModeConfCheck):
             return False
 
     @staticmethod
-    def wipe_server_all(basedir_path):
+    def wipe_server_all(basedir_path, options=None):
         # Method for calling "all" script which is created inside PS basedir
         saved_path = os.getcwd()
         os.chdir(basedir_path)
