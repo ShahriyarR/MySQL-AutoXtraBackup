@@ -21,8 +21,8 @@ class RunnerTestMode(GeneralClass):
         for options in ConfigGenerator.options_combination_generator(self.mysql_options):
             if self.clone_obj.wipe_server_all(basedir_path=basedir, options=" ".join(options)):
                 WrapperForBackupTest(config=self.conf).run_all_backup()
-                WrapperForPrepareTest(config=self.conf).run_prepare_backup()
-                WrapperForPrepareTest(config=self.conf).copy_back_action()
+                #WrapperForPrepareTest(config=self.conf).run_prepare_backup()
+                #WrapperForPrepareTest(config=self.conf).copy_back_action()
 
 
 
