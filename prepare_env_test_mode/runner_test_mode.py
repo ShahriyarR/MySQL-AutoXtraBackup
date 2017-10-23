@@ -18,7 +18,7 @@ class RunnerTestMode(GeneralClass):
         self.basedirs = self.clone_obj.get_basedir()
 
     def wipe_backup_prepare_copyback(self, basedir):
-        for options in ConfigGenerator.options_combination_generator(self.mysql_options):
+        for options in ConfigGenerator(config=self.conf).options_combination_generator(self.mysql_options):
             if self.clone_obj.wipe_server_all(basedir_path=basedir, options=" ".join(options)):
                 WrapperForBackupTest(config=self.conf).run_all_backup()
                 #WrapperForPrepareTest(config=self.conf).run_prepare_backup()
