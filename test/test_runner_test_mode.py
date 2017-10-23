@@ -4,10 +4,8 @@ class TestRunnerTestMode:
 
     @pytest.mark.usefixtures("return_runner_test_mode_obj_5_6_xb_2_3")
     def test_wipe_backup_prepare_copyback_5_6_xb_2_3(self, return_runner_test_mode_obj_5_6_xb_2_3):
-        print("Inside test")
         for basedir in return_runner_test_mode_obj_5_6_xb_2_3.basedirs:
             if '5.6' in basedir:
-                print("Running NOW!!!")
                 return_runner_test_mode_obj_5_6_xb_2_3.wipe_backup_prepare_copyback(basedir=basedir)
 
     @pytest.mark.usefixtures("return_runner_test_mode_obj_5_6_xb_2_4")

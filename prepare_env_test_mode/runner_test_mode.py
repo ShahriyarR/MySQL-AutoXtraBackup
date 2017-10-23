@@ -19,6 +19,7 @@ class RunnerTestMode(GeneralClass):
 
     def wipe_backup_prepare_copyback(self, basedir):
         for options in ConfigGenerator(config=self.conf).options_combination_generator(self.mysql_options):
+            logger.debug("Will start MySQL with {}".format(" ".join(options)))
             if self.clone_obj.wipe_server_all(basedir_path=basedir, options=" ".join(options)):
                 WrapperForBackupTest(config=self.conf).run_all_backup()
                 #WrapperForPrepareTest(config=self.conf).run_prepare_backup()
