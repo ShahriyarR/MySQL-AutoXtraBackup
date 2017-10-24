@@ -138,7 +138,8 @@ class CheckEnv(GeneralClass):
                     'Full Backup directory does not exist.+-+-+-+-+-+-+-+-+-+-+-+-OK')
                 logger.debug(
                     'Creating full backup directory...+-+-+-+-+-+-+-+-+-++-+-+-+-+OK')
-                os.makedirs(self.backupdir + '/full')
+                #os.makedirs(self.backupdir + '/full')
+                os.makedirs(self.full_dir)
                 logger.debug(
                     'Created+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK')
                 return True
@@ -158,7 +159,8 @@ class CheckEnv(GeneralClass):
                     'Increment directory does not exist.+-+-+-+-+-+-+-+-+-++-+-+-+OK')
                 logger.debug(
                     'Creating increment backup directory.+-+-+-+-+-+-+-+-+-++-+-+-OK')
-                os.makedirs(self.backupdir + '/inc')
+                #os.makedirs(self.backupdir + '/inc')
+                os.makedirs(self.inc_dir)
                 logger.debug('Created')
                 return True
             except Exception as err:
