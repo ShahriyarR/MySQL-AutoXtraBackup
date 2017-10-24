@@ -22,7 +22,7 @@ class Prepare(GeneralClass):
         self.conf = config
         self.dry = dry_run
         GeneralClass.__init__(self, self.conf)
-        self.check_env_obj = CheckEnv(self.conf)
+        #self.check_env_obj = CheckEnv(self.conf)
         # If prepare_tool option enabled in config, make backup_tool to use this.
         if hasattr(self, 'prepare_tool'):
             self.backup_tool = self.prepare_tool
