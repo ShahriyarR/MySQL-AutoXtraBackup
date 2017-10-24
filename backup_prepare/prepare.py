@@ -693,7 +693,7 @@ class Prepare(GeneralClass):
             logger.error(output)
             return False
 
-    def start_mysql_func(self):
+    def start_mysql_func(self, options=None):
         # Starting MySQL
         logger.debug(
             "####################################################################################################")
@@ -702,8 +702,12 @@ class Prepare(GeneralClass):
             "####################################################################################################")
         time.sleep(3)
 
-        args = self.start_mysql
-        start_command = args
+        if options is not None:
+            args = self.start_mysql
+            start_command = "{} {}".format(args, options)
+        else:
+            args = self.start_mysql
+            start_command = args
         status, output = subprocess.getstatusoutput(start_command)
         if status == 0:
             logger.debug("Starting MySQL ...")
@@ -714,7 +718,7 @@ class Prepare(GeneralClass):
             logger.error(output)
             return False
 
-    def copy(self):
+    def copy(self, options=None):
         """
         Function for running:
           xtrabackup --copy-back
@@ -735,19 +739,19 @@ class Prepare(GeneralClass):
         else:
             if self.run_xtra_copyback():
                 if self.giving_chown():
-                    if self.start_mysql_func():
+                    if self.start_mysql_func(options=options):
                         return True
                     else:
                         "Error Occurred!"
 
-    def copy_back_action(self):
+    def copy_back_action(self, options=None):
         """
         Function for complete recover/copy-back actions
         :return: True if succeeded. Error if failed.
         """
         if self.shutdown_mysql():
             if self.move_datadir():
-                if self.copy():
+                if self.copy(options=options):
                     logger.debug(
                         "####################################################################################################")
                     logger.debug("All data copied back successfully. ")

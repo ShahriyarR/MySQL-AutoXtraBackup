@@ -21,11 +21,13 @@ class RunnerTestMode(GeneralClass):
         c_count = 0
         for options in ConfigGenerator(config=self.conf).options_combination_generator(self.mysql_options):
             c_count = c_count + 1
-            logger.debug("Will start MySQL with {}".format(" ".join(options)))
-            if self.clone_obj.wipe_server_all(basedir_path=basedir, options=" ".join(options)):
+            options = " ".join(options)
+            logger.debug("Will start MySQL with {}".format(options))
+            if self.clone_obj.wipe_server_all(basedir_path=basedir, options=options):
                 logger.debug("Starting cycle{}".format(c_count))
                 full_dir = self.backupdir + "/cycle{}".format(c_count) + "/full"
                 inc_dir = self.backupdir + "/cycle{}".format(c_count) + "/inc"
                 WrapperForBackupTest(config=self.conf, full_dir=full_dir, inc_dir=inc_dir).run_all_backup()
-                WrapperForPrepareTest(config=self.conf, full_dir=full_dir, inc_dir=inc_dir).run_prepare_backup()
-                #WrapperForPrepareTest(config=self.conf).copy_back_action()
+                prepare_obj = WrapperForPrepareTest(config=self.conf, full_dir=full_dir, inc_dir=inc_dir)
+                prepare_obj.run_prepare_backup()
+                prepare_obj.copy_back_action(options=options)
