@@ -132,7 +132,7 @@ def validate_file(file):
 @click.option(
     '--test_mode',
     is_flag=True,
-    help="Enable test mode.[It will clone, build, start the PS server, take backup, prepare and recover]")
+    help="Enable test mode.Must be used with --defaults_file and only for TESTs for XtraBackup")
 
 def all_procedure(prepare, backup, partial, verbose, log, defaults_file, dry_run, test_mode):
     logger.setLevel(log)
@@ -155,11 +155,21 @@ def all_procedure(prepare, backup, partial, verbose, log, defaults_file, dry_run
                 print("ERROR: you must give an option, run with --help for available options")
                 logger.critical("Aborting!")
                 sys.exit(-1)
-            elif test_mode:
+            elif test_mode and defaults_file:
                 # TODO: do staff here to implement all in one things for running test mode
                 logger.warning("Enabled Test Mode!!!")
                 logger.debug("Starting Test Mode")
-                RunnerTestMode().all_runner()
+                test_obj = RunnerTestMode(config=defaults_file)
+                for basedir in test_obj.basedirs:
+                    if ('5.7' in basedir) and ('2_4_ps_5_7' in defaults_file):
+                        test_obj.wipe_backup_prepare_copyback(basedir=basedir)
+                    elif ('5.6' in basedir) and ('2_4_ps_5_6' in defaults_file):
+                        test_obj.wipe_backup_prepare_copyback(basedir=basedir)
+                    elif ('5.6' in basedir) and ('2_3' in defaults_file):
+                        test_obj.wipe_backup_prepare_copyback(basedir=basedir)
+                    else:
+                        logger.error("Please pass proper already generated config file!")
+                        logger.error("Please check also if you have run prepare_env.bats file")
             elif prepare and not test_mode:
                 if not dry_run:
                     a = Prepare(config=defaults_file)
