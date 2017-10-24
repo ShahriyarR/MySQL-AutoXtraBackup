@@ -12,9 +12,13 @@ logger = logging.getLogger(__name__)
 
 class CheckEnv(GeneralClass):
 
-    def __init__(self, config='/etc/bck.conf'):
+    def __init__(self, config='/etc/bck.conf', full_dir=None, inc_dir=None):
         self.conf = config
         GeneralClass.__init__(self, self.conf)
+        if full_dir is not None:
+            self.full_dir = full_dir
+        if inc_dir is not None:
+            self.inc_dir = inc_dir
 
     def check_mysql_uptime(self):
 
@@ -138,7 +142,8 @@ class CheckEnv(GeneralClass):
                     'Full Backup directory does not exist.+-+-+-+-+-+-+-+-+-+-+-+-OK')
                 logger.debug(
                     'Creating full backup directory...+-+-+-+-+-+-+-+-+-++-+-+-+-+OK')
-                os.makedirs(self.backupdir + '/full')
+                #os.makedirs(self.backupdir + '/full')
+                os.makedirs(self.full_dir)
                 logger.debug(
                     'Created+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK')
                 return True
@@ -158,7 +163,8 @@ class CheckEnv(GeneralClass):
                     'Increment directory does not exist.+-+-+-+-+-+-+-+-+-++-+-+-+OK')
                 logger.debug(
                     'Creating increment backup directory.+-+-+-+-+-+-+-+-+-++-+-+-OK')
-                os.makedirs(self.backupdir + '/inc')
+                #os.makedirs(self.backupdir + '/inc')
+                os.makedirs(self.inc_dir)
                 logger.debug('Created')
                 return True
             except Exception as err:

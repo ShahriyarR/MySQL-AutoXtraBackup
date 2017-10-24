@@ -646,7 +646,7 @@ class Backup(GeneralClass):
         # Workaround for circular import dependency error in Python
 
         # Creating object from CheckEnv class
-        check_env_obj = CheckEnv(self.conf)
+        check_env_obj = CheckEnv(self.conf, full_dir=self.full_dir, inc_dir=self.inc_dir)
 
         if check_env_obj.check_all_env():
 
