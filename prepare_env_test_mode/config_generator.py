@@ -2,6 +2,7 @@ from prepare_env_test_mode.clone_build_start_server import CloneBuildStartServer
 from prepare_env_test_mode.run_benchmark import RunBenchmark
 import configparser
 import os
+from itertools import product
 import logging
 logger = logging.getLogger(__name__)
 
@@ -143,6 +144,12 @@ class ConfigGenerator(CloneBuildStartServer):
                     config.set(section8, "testpath", "/home/shahriyar.rzaev/XB_TEST/server_dir")
                     config.set(section8, "incremental_count", "3")
                     config.set(section8, "xb_configs", "xb_2_4_ps_5_6.conf xb_2_4_ps_5_7.conf xb_2_3_ps_5_6.conf")
+                    if '5_7' in conf_file:
+                        config.set(section8, "mysql_options",
+                                   "--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,--innodb_page_size=4K 8K 16K 32K 64K")
+                    else:
+                        config.set(section8, "mysql_options",
+                                   "--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,--innodb_page_size=4K 8K 16K")
 
                     config.write(cfgfile)
 
@@ -162,8 +169,6 @@ class ConfigGenerator(CloneBuildStartServer):
         print(conf_list)
         for basedir in basedirs:
             for conf_file in conf_list:
-                print(basedir)
-                print(conf_file)
                 if ('5.7' in basedir) and ('2_4_ps_5_7' in conf_file):
                     self.generate_config_files(test_path=self.testpath,
                                            conf_file=conf_file,
@@ -183,3 +188,27 @@ class ConfigGenerator(CloneBuildStartServer):
                     continue
 
         return True
+
+    @staticmethod
+    def options_combination_generator(initial_str):
+        '''
+        Description: Option parser method for creating option combinarotics
+        return: List of tuples with option combinations
+        '''
+        separated_values_list = []
+
+        for i in initial_str.split(','):
+            separated_values_list.append(i.split('='))
+
+        all_new_list = []
+
+        for i in separated_values_list:
+            k = ["{}={}".format(i[0], j) for j in i[1].split()]
+            all_new_list.append(k)
+
+        option_combinations = []
+
+        for i in product(*all_new_list):
+            option_combinations.append(i)
+
+        return option_combinations

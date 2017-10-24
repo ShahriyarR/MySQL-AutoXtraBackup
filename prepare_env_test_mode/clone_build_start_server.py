@@ -18,7 +18,7 @@ class CloneBuildStartServer(TestModeConfCheck):
         #self.git_cmd = GeneralClass().gitcmd
         #self.xb_configs = GeneralClass().xb_configs
         # Creating needed path here
-        t_obj = TestModeConfCheck()
+        t_obj = TestModeConfCheck(config=self.conf)
         if t_obj.check_test_path(t_obj.testpath):
             self.testpath = t_obj.testpath
 
@@ -116,11 +116,15 @@ class CloneBuildStartServer(TestModeConfCheck):
             return False
 
     @staticmethod
-    def start_server(basedir_path):
+    def start_server(basedir_path, options=None):
         # Method for calling start script which is created inside PS basedir
-        start_cmd = "{}/start"
         logger.debug("Using start script here...")
-        status, output = subprocess.getstatusoutput(start_cmd.format(basedir_path))
+        if options is not None:
+            start_cmd = "{}/start {}"
+            status, output = subprocess.getstatusoutput(start_cmd.format(basedir_path, options))
+        else:
+            start_cmd = "{}/start"
+            status, output = subprocess.getstatusoutput(start_cmd.format(basedir_path))
         if status == 0:
             logger.debug("Server started!")
             return True
@@ -130,13 +134,17 @@ class CloneBuildStartServer(TestModeConfCheck):
             return False
 
     @staticmethod
-    def wipe_server_all(basedir_path):
+    def wipe_server_all(basedir_path, options=None):
         # Method for calling "all" script which is created inside PS basedir
         saved_path = os.getcwd()
         os.chdir(basedir_path)
-        all_cmd = "./all_no_cl"
         logger.debug("Using all_no_cl script here...")
-        status, output = subprocess.getstatusoutput(all_cmd)
+        if options is not None:
+            all_cmd = "./all_no_cl {}"
+            status, output = subprocess.getstatusoutput(all_cmd.format(options))
+        else:
+            all_cmd = "./all_no_cl"
+            status, output = subprocess.getstatusoutput(all_cmd)
         if status == 0:
             logger.debug("Server wiped for fresh start!")
             os.chdir(saved_path)
