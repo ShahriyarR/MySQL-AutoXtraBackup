@@ -18,7 +18,6 @@ class RunnerTestMode(GeneralClass):
         self.basedirs = self.clone_obj.get_basedir()
 
     def wipe_backup_prepare_copyback(self, basedir):
-        # TODO: figure out how to create cycle{num} for each cycle inside backup dir
         c_count = 0
         for options in ConfigGenerator(config=self.conf).options_combination_generator(self.mysql_options):
             c_count = c_count + 1
