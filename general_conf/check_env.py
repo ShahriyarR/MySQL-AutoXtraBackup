@@ -12,9 +12,13 @@ logger = logging.getLogger(__name__)
 
 class CheckEnv(GeneralClass):
 
-    def __init__(self, config='/etc/bck.conf'):
+    def __init__(self, config='/etc/bck.conf', full_dir=None, inc_dir=None):
         self.conf = config
         GeneralClass.__init__(self, self.conf)
+        if full_dir is not None:
+            self.full_dir = full_dir
+        if inc_dir is not None:
+            self.inc_dir = inc_dir
 
     def check_mysql_uptime(self):
 
