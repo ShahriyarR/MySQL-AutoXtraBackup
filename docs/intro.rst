@@ -13,7 +13,7 @@ Why you need this?
 ------------------
 
 The idea for this tool, came from my hard times after accidentally
-deleting table data.
+deleting the table data.
 There was a full backup and 12 incremental backups.
 It took me 20 minutes to prepare necessary commands for preparing
 backups. If you have compressed + encrypted backups you need also,
@@ -28,6 +28,8 @@ I have decided to recover only that table(partial recovery).
 But still did a bunch of manual tasks, which was quite time consuming process. That was the reason for
 implementing partial recovery functionality. So the necessary actions
 for restoring single table was added to automate this process as well.
+
+The recent thing is, --test_mode for testing XtraBackup[So it is for me, or for somebody who wants to find bug in XtraBackup]
 
 If you think that those reasons are not enough - Then just believe me
 you need this :)
