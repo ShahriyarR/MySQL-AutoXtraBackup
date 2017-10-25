@@ -22,7 +22,9 @@ Preparing test environment
 --------------------------
 
 For simplicity I have created ``prepare_env.bats`` file for preparing test environment in fully automated manner.
-You need _BATS: https://github.com/sstephenson/bats for this.
+You need BATS_. for this.
+
+.. _BATS: https://github.com/sstephenson/bats
 
 After running this you will likely have something like in your test path:
 
@@ -57,7 +59,8 @@ To be clear, for eg, we have 50 different combinations of starting PS, then we w
 Where I can add more mysql options?
 -----------------------------------
 
-In generated configs you can add more PS(mysql) startup/initialization options:
+In generated configs you can add more PS(mysql) startup/initialization options.
+For test mode [TestConf] category is relevant. Let's go through options
 
 ::
 
@@ -69,7 +72,15 @@ In generated configs you can add more PS(mysql) startup/initialization options:
     xb_configs = xb_2_4_ps_5_6.conf xb_2_4_ps_5_7.conf xb_2_3_ps_5_6.conf
     mysql_options = --innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,--innodb_page_size=4K 8K 16K 32K 64K
 
-See ``mysql_options`` parameter. The options are comma separated.
+``ps_branches`` is for specifying PS branches in github.
+``gitcmd`` is for passing git command for git clone.
+``testpath`` is for passing the path for test mode.
+``incremental_count`` specify how many incremental backups the tool should take.
+``xb_configs`` is for passing config files to be generated.
+``mysql_options`` is for passing mysql startup/initialization options to PS.
+
+Internally, based on mysql options, the combination of those options will be created.
+So just add more options to ``mysql_options`` if you want more.
 
 
 Important things to remember
