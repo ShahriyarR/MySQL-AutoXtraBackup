@@ -27,7 +27,7 @@ class RunnerTestMode(GeneralClass):
                 logger.debug("Starting cycle{}".format(c_count))
                 full_dir = self.backupdir + "/cycle{}".format(c_count) + "/full"
                 inc_dir = self.backupdir + "/cycle{}".format(c_count) + "/inc"
-                WrapperForBackupTest(config=self.conf, full_dir=full_dir, inc_dir=inc_dir).run_all_backup()
+                WrapperForBackupTest(config=self.conf, full_dir=full_dir, inc_dir=inc_dir, basedir=basedir).run_all_backup()
                 prepare_obj = WrapperForPrepareTest(config=self.conf, full_dir=full_dir, inc_dir=inc_dir)
                 prepare_obj.run_prepare_backup()
                 prepare_obj.copy_back_action(options=options)
