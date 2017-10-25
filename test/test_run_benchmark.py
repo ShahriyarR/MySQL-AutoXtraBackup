@@ -18,6 +18,10 @@ class TestRunBenchmark:
         for basedir in return_run_benchmark_obj.basedir:
             assert return_run_benchmark_obj.create_db(db_name="test_run_benchmark_db", basedir=basedir) is True
 
-    def test_run_sysbench(self, return_run_benchmark_obj):
+    def test_run_sysbench_prepare(self, return_run_benchmark_obj):
         for basedir in return_run_benchmark_obj.basedir:
-            assert return_run_benchmark_obj.run_sysbench(basedir=basedir) is True
+            assert return_run_benchmark_obj.run_sysbench_prepare(basedir=basedir) is True
+
+    def test_run_sysbench_run(self, return_run_benchmark_obj):
+        for basedir in return_run_benchmark_obj.basedir:
+            assert return_run_benchmark_obj.run_sysbench_run(basedir=basedir) is True
