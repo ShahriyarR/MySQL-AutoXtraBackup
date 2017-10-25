@@ -14,18 +14,27 @@ For me there is another config file prepared here -> ``/home/shahriyar.rzaev/Aut
     [Backup]
     #Optional: set pid directory
     pid_dir=/tmp/MySQL-AutoXtraBackup
+    tmpdir=/home/shahriyar.rzaev/XB_TEST/mysql_datadirs
     #Optional: set warning if pid of backup us running for longer than X
     pid_runtime_warning=2 Hours
-    backupdir=/home/shahriyar.rzaev/backup_dirs/ps_5.7_master/
-    backup_tool=/home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xtrabackup
+    backupdir=/home/shahriyar.rzaev/XB_TEST/backup_dir
+    backup_tool=/usr/bin/xtrabackup
+    #Optional: specify different path/version of xtrabackup here for prepare
+    #prepare_tool=
     xtra_prepare=--apply-log-only
-    #Optional: pass additional options
+    #Optional: pass additional options for backup stage
+    #xtra_backup=--compact
+    #Optional: pass additional options for prepare stage
+    #xtra_prepare_options=--rebuild-indexes
+    #Optional: pass general additional options; it will go to both for backup and prepare
     #xtra_options=--binlog-info=ON --galera-info
     #Optional: set archive and rotation
-    #archive_dir=/home/backup_archives
+    #archive_dir=/home/shahriyar.rzaev/XB_TEST/backup_archives
     #full_backup_interval=1 day
     #max_archive_size=100GiB
     #max_archive_duration=4 Days
+    #Optional WARNING(Enable this if you want to take partial backups). Specify database names or table names.
+    #partial_list=test.t1 test.t2 dbtest
 
 The command for backup:
 

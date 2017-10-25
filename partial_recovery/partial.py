@@ -88,15 +88,13 @@ class PartialRecovery(GeneralClass):
         logger.debug("Checking MySQL version")
         status, output = subprocess.getstatusoutput(run_command)
 
-        if status == 0 and ('5.6' in output[-13:]):
-            logger.debug("MySQL Version is, %s" % output[-13:])
+        if status == 0 and ('5.6' in output):
             logger.debug("You have correct version of MySQL")
             return True
-        elif status == 0 and ('5.7' in output[-13:]):
-            logger.debug("MySQL Version is, %s" % output[-13:])
+        elif status == 0 and ('5.7' in output):
             logger.debug("You have correct version of MySQL")
             return True
-        elif status == 0 and ('5.7' not in output[-13:]) and ('5.6' not in output[-13:]):
+        elif status == 0 and ('5.7' not in output) and ('5.6' not in output):
             logger.error("Your MySQL server is not supported")
             logger.error("MySQL version must be >= 5.6")
             return False

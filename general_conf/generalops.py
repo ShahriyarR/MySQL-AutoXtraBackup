@@ -123,5 +123,14 @@ class GeneralClass:
             self.stop_mysql = CM['stop_mysql_command']
             self.chown_command = CM['chown_command']
 
+            TEST = con['TestConf']
+            self.ps_branches = TEST['ps_branches']
+            self.gitcmd = TEST['gitcmd']
+            self.testpath = TEST['testpath']
+            self.incremental_count = TEST['incremental_count']
+            self.xb_configs = TEST['xb_configs']
+            if 'mysql_options' in TEST:
+                self.mysql_options = TEST['mysql_options']
+
         else:
             logger.critical("Missing config file : /etc/bck.conf")

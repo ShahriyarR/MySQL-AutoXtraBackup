@@ -52,6 +52,7 @@ coverage.xml
 
 # PyCharm stuff
 .idea
+.vagrant
 
 # Django stuff:
 *.log

@@ -3,6 +3,7 @@ from master_backup_script.backuper import Backup
 from backup_prepare.prepare import Prepare
 from partial_recovery.partial import PartialRecovery
 from general_conf.generalops import GeneralClass
+from prepare_env_test_mode.runner_test_mode import RunnerTestMode
 from sys import platform as _platform
 import pid
 import time
@@ -11,6 +12,7 @@ import os
 import humanfriendly
 import logging
 import logging.handlers
+import sys
 
 
 logger = logging.getLogger('')
@@ -36,7 +38,7 @@ def print_version(ctx, param, value):
     click.echo("Email: rzayev.shahriyar@yandex.com")
     click.echo(
         "Based on Percona XtraBackup: https://github.com/percona/percona-xtrabackup/")
-    click.echo('MySQL-AutoXtraBackup Version: 1.4.8')
+    click.echo('MySQL-AutoXtraBackup Version: 1.4.9')
     ctx.exit()
 
 
@@ -45,7 +47,7 @@ def check_file_content(file):
     with open(file, 'r') as config_file:
         file_content = config_file.read()
  
-    config_headers = ["MySQL", "Backup", "Encrypt", "Compress", "Commands"]
+    config_headers = ["MySQL", "Backup", "Encrypt", "Compress", "Commands", "TestConf"]
     config_keys = [
         "mysql",
         "mycnf",
@@ -127,7 +129,12 @@ def validate_file(file):
                                  'ERROR',
                                  'CRITICAL']),
               help="Set log level")
-def all_procedure(prepare, backup, partial, verbose, log, defaults_file, dry_run):
+@click.option(
+    '--test_mode',
+    is_flag=True,
+    help="Enable test mode.Must be used with --defaults_file and only for TESTs for XtraBackup")
+
+def all_procedure(prepare, backup, partial, verbose, log, defaults_file, dry_run, test_mode):
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
@@ -144,10 +151,26 @@ def all_procedure(prepare, backup, partial, verbose, log, defaults_file, dry_run
     try:
         with pid_file:  # User PidFile for locking to single instance
             if (not prepare) and (not backup) and (
-                    not partial) and (not defaults_file) and (not dry_run):
-                print(
-                    "ERROR: you must give an option, run with --help for available options")
-            elif prepare:
+                    not partial) and (not defaults_file) and (not dry_run) and (not test_mode):
+                print("ERROR: you must give an option, run with --help for available options")
+                logger.critical("Aborting!")
+                sys.exit(-1)
+            elif test_mode and defaults_file:
+                # TODO: do staff here to implement all in one things for running test mode
+                logger.warning("Enabled Test Mode!!!")
+                logger.debug("Starting Test Mode")
+                test_obj = RunnerTestMode(config=defaults_file)
+                for basedir in test_obj.basedirs:
+                    if ('5.7' in basedir) and ('2_4_ps_5_7' in defaults_file):
+                        test_obj.wipe_backup_prepare_copyback(basedir=basedir)
+                    elif ('5.6' in basedir) and ('2_4_ps_5_6' in defaults_file):
+                        test_obj.wipe_backup_prepare_copyback(basedir=basedir)
+                    elif ('5.6' in basedir) and ('2_3' in defaults_file):
+                        test_obj.wipe_backup_prepare_copyback(basedir=basedir)
+                    else:
+                        logger.error("Please pass proper already generated config file!")
+                        logger.error("Please check also if you have run prepare_env.bats file")
+            elif prepare and not test_mode:
                 if not dry_run:
                     a = Prepare(config=defaults_file)
                     a.prepare_backup_and_copy_back()
@@ -157,7 +180,7 @@ def all_procedure(prepare, backup, partial, verbose, log, defaults_file, dry_run
                     a = Prepare(config=defaults_file, dry_run=1)
                     a.prepare_backup_and_copy_back()
                 # print("Prepare")
-            elif backup:
+            elif backup and not test_mode:
                 if not dry_run:
                     b = Backup(config=defaults_file)
                     b.all_backup()
@@ -181,7 +204,7 @@ def all_procedure(prepare, backup, partial, verbose, log, defaults_file, dry_run
                     "Backup (pid: " + pid_str + ") has been running for logger than: " + str(
                         humanfriendly.format_timespan(
                             config.pid_runtime_warning)))
-        #logger.warn("Pid file already exists: " + str(error))
+        # logger.warn("Pid file already exists: " + str(error))
     except pid.PidFileAlreadyRunningError as error:
         if hasattr(config, 'pid_runtime_warning'):
             if time.time() - os.stat(pid_file.filename).st_ctime > config.pid_runtime_warning:
@@ -191,11 +214,11 @@ def all_procedure(prepare, backup, partial, verbose, log, defaults_file, dry_run
                     "Backup (pid: " + pid_str + ") has been running for logger than: " + str(
                         humanfriendly.format_timespan(
                             config.pid_runtime_warning)))
-        #logger.warn("Pid already running: " + str(error))
+        # logger.warn("Pid already running: " + str(error))
     except pid.PidFileUnreadableError as error:
-        logger.warn("Pid file can not be read: " + str(error))
+        logger.warning("Pid file can not be read: " + str(error))
     except pid.PidFileError as error:
-        logger.warn("Generic error with pid file: " + str(error))
+        logger.warning("Generic error with pid file: " + str(error))
 
 
 if __name__ == "__main__":
