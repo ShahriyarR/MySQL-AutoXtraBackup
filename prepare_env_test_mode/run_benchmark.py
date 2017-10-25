@@ -53,8 +53,8 @@ class RunBenchmark:
             logger.error(output)
             return False
 
-    def run_sysbench(self, basedir):
-        # Running sysbench here; The parameters hard coded here, should figure out how to pass them also
+    def run_sysbench_prepare(self, basedir):
+        # Running sysbench prepare here; The parameters hard coded here, should figure out how to pass them also
         # TODO: make sysbench run with dynamic values
         # TODO: make sysbench different possible kind of runs
 
@@ -74,7 +74,11 @@ class RunBenchmark:
               "--db-driver=mysql " \
               "--mysql-socket={} prepare"
 
-        logger.debug("Started to run Sysbench...")
+        logger.debug("Running command -> {}".format(sysbench_cmd.format(1000,
+                                                                        100,
+                                                                        db_name,
+                                                                        100,
+                                                                        sock_name)))
 
         status, output = subprocess.getstatusoutput(sysbench_cmd.format(1000,
                                                                         100,
@@ -91,3 +95,37 @@ class RunBenchmark:
             return False
 
 
+    def run_sysbench_run(self, basedir):
+        # Running sysbench run here
+        db_name = "sysbench_test_db"
+
+        sock_name = self.get_sock(basedir)
+
+        sysbench_cmd = "sysbench /usr/share/sysbench/oltp_update_non_index.lua " \
+                       "--table-size={} " \
+                       "--tables={} " \
+                       "--mysql-db={} " \
+                       "--mysql-user=root  " \
+                       "--threads={} " \
+                       "--db-driver=mysql " \
+                       "--mysql-socket={} run"
+
+        logger.debug("Running command -> {}".format(sysbench_cmd.format(1000,
+                                                                        100,
+                                                                        db_name,
+                                                                        100,
+                                                                        sock_name)))
+
+        status, output = subprocess.getstatusoutput(sysbench_cmd.format(1000,
+                                                                        100,
+                                                                        db_name,
+                                                                        100,
+                                                                        sock_name))
+
+        if status == 0:
+            logger.debug("Sysbench succeeded!")
+            return True
+        else:
+            logger.error("Failed to run sysbench")
+            logger.error(output)
+            return False
