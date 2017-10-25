@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to MySQL AutoXtrabackup's documentation!
+Welcome to MySQL-AutoXtrabackup's documentation!
 ================================================
 
 .. toctree::
@@ -15,6 +15,7 @@ Welcome to MySQL AutoXtrabackup's documentation!
    config_file
    basic_features
    advance_features
+   test_mode
    
 Indices and tables
 ==================
