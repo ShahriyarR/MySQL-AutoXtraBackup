@@ -38,7 +38,7 @@ After running this you will likely have something like in your test path:
         percona-xtrabackup-2.4.x-debug.tar.gz                   PS231017-percona-server-5.7.19-17-linux-x86_64-debug.tar.gz    PS-5.7-trunk_dbg  xb_2_4_ps_5_7.conf
         PS231017-percona-server-5.6.37-82.2-linux-x86_64-debug  PS-5.6-trunk                                                   target
 
-So you have everything you need to run combination of tests for XtraBackup. Even ``xb_2_3_ps_5_6.conf`` configs are generated here.
+So you have everything you need to run combination of tests for XtraBackup. Even configs are generated for you.
 
 
 Running test mode
@@ -71,3 +71,10 @@ In generated configs you can add more PS(mysql) startup/initialization options:
 
 See ``mysql_options`` parameter. The options are comma separated.
 
+
+Important things to remember
+-----------------------------
+
+This is tested only with Percona Servers, but can be expanded.
+Also --test_mode option is mutually exclusive with other options such as --backup and --prepare.
+So basically do not touch this, if you are not testing XtraBackup
