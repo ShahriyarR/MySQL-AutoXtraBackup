@@ -16,12 +16,14 @@ class RunnerTestMode(GeneralClass):
 
         self.clone_obj = CloneBuildStartServer(config=self.conf)
         self.basedirs = self.clone_obj.get_basedir()
+        self.df_mysql_options = " ".join(self.default_mysql_options.split(','))
 
     def wipe_backup_prepare_copyback(self, basedir):
         c_count = 0
         for options in ConfigGenerator(config=self.conf).options_combination_generator(self.mysql_options):
             c_count = c_count + 1
             options = " ".join(options)
+            options = options + " " + self.df_mysql_options.format(c_count)
             logger.debug("Will start MySQL with {}".format(options))
             if self.clone_obj.wipe_server_all(basedir_path=basedir, options=options):
                 logger.debug("Starting cycle{}".format(c_count))
