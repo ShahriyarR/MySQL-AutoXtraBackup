@@ -144,6 +144,7 @@ class ConfigGenerator(CloneBuildStartServer):
                 config.set(section8, "testpath", "/home/shahriyar.rzaev/XB_TEST/server_dir")
                 config.set(section8, "incremental_count", "3")
                 config.set(section8, "xb_configs", "xb_2_4_ps_5_6.conf xb_2_4_ps_5_7.conf xb_2_3_ps_5_6.conf")
+                config.set(section8, "slave_count", "1")
                 config.set(section8, "default_mysql_options",
                            "--log-bin=mysql-bin,--log-slave-updates,--server-id={},--gtid-mode=ON,--enforce-gtid-consistency,--binlog-format=mixed")
                 if '5_7' in conf_file:
