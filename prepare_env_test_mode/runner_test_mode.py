@@ -30,7 +30,7 @@ class RunnerTestMode(GeneralClass):
     def prepare_start_slave_options(self, basedir, slave_number, options):
         tmpdir="--tmpdir={}/node{}".format(basedir, slave_number)
         datadir = "--datadir={}/node{}".format(basedir, slave_number)
-        socket = "--socket={}/node{}/slave_socket.sock".format(basedir, slave_number)
+        socket = "--socket={}/sock{}.sock".format(basedir, slave_number)
         port = "--port={}".format(self.get_free_tcp_port())
         log_error = "--log-error={}/log/node{}".format(basedir, slave_number)
         return " ".join([tmpdir, datadir, socket, port, log_error, options])
