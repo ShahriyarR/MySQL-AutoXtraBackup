@@ -693,15 +693,19 @@ class Prepare(GeneralClass):
             logger.error(output)
             return False
 
-    def start_mysql_func(self, options=None):
+    def start_mysql_func(self, start_tool=None, options=None):
         # Starting MySQL
         logger.debug(
             "####################################################################################################")
-        logger.debug("Starting MySQL/MariaDB server: ")
+        logger.debug("Starting MySQL server: ")
         logger.debug(
             "####################################################################################################")
         time.sleep(3)
-        args = self.start_mysql
+        if start_tool is None:
+            args = self.start_mysql
+        else:
+            args = start_tool
+
         if options is not None:
             start_command = "{} {}".format(args, options)
         else:

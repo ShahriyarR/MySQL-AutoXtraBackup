@@ -80,7 +80,7 @@ class RunnerTestMode(GeneralClass):
                         prepare_obj.run_xtra_copyback(datadir=slave_datadir)
                         prepare_obj.giving_chown(datadir=slave_datadir)
                         slave_full_options = self.prepare_start_slave_options(options=options)
-                        prepare_obj.start_mysql_func(slave_full_options)
+                        prepare_obj.start_mysql_func(start_tool="{}/start_dynamic".format(basedir), options=slave_full_options)
 
 
 
