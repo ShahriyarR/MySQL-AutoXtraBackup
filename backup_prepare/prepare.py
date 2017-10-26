@@ -650,14 +650,14 @@ class Prepare(GeneralClass):
                 logger.error(output2)
                 return False
 
-    def run_xtra_copyback(self):
+    def run_xtra_copyback(self, datadir=None):
         # Running Xtrabackup with --copy-back option
 
         copy_back = '%s --copy-back --target-dir=%s/%s --datadir=%s' % \
             (self.backup_tool,
              self.full_dir,
              self.recent_full_backup_file(),
-             self.datadir)
+             self.datadir if datadir is None else datadir)
 
         status, output = subprocess.getstatusoutput(copy_back)
 
@@ -674,10 +674,10 @@ class Prepare(GeneralClass):
             logger.error(output)
             return False
 
-    def giving_chown(self):
+    def giving_chown(self, datadir=None):
         # Changing owner of datadir to given user:group
         time.sleep(3)
-        give_chown = "%s %s" % (self.chown_command, self.datadir)
+        give_chown = "%s %s" % (self.chown_command, self.datadir if datadir is None else datadir)
         status, output = subprocess.getstatusoutput(give_chown)
 
         if status == 0:
@@ -701,12 +701,10 @@ class Prepare(GeneralClass):
         logger.debug(
             "####################################################################################################")
         time.sleep(3)
-
+        args = self.start_mysql
         if options is not None:
-            args = self.start_mysql
             start_command = "{} {}".format(args, options)
         else:
-            args = self.start_mysql
             start_command = args
         status, output = subprocess.getstatusoutput(start_command)
         if status == 0:
@@ -718,7 +716,7 @@ class Prepare(GeneralClass):
             logger.error(output)
             return False
 
-    def copy(self, options=None):
+    def copy(self, options=None, datadir=None):
         """
         Function for running:
           xtrabackup --copy-back
@@ -733,12 +731,12 @@ class Prepare(GeneralClass):
         logger.debug(
             "####################################################################################################")
         time.sleep(3)
-        if len(os.listdir(self.datadir)) > 0:
+        if len(os.listdir(self.datadir if datadir is None else datadir)) > 0:
             logger.debug("MySQL Datadir is not empty!")
             return False
         else:
-            if self.run_xtra_copyback():
-                if self.giving_chown():
+            if self.run_xtra_copyback(datadir=datadir):
+                if self.giving_chown(datadir=datadir):
                     if self.start_mysql_func(options=options):
                         return True
                     else:
