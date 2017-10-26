@@ -3,6 +3,7 @@ from prepare_env_test_mode.config_generator import ConfigGenerator
 from prepare_env_test_mode.take_backup import WrapperForBackupTest
 from prepare_env_test_mode.prepare_backup import WrapperForPrepareTest
 from general_conf.generalops import GeneralClass
+from general_conf.check_env import CheckEnv
 import socket
 import os
 import shutil
@@ -76,10 +77,22 @@ class RunnerTestMode(GeneralClass):
                         except Exception as err:
                             logger.error("An error while creating directory {}".format(slave_datadir))
                             logger.error(err)
+                        # Doing some stuff on slave
+                        if prepare_obj.run_xtra_copyback(datadir=slave_datadir):
+                            if prepare_obj.giving_chown(datadir=slave_datadir):
+                                slave_full_options = self.prepare_start_slave_options(basedir=basedir, slave_number=i, options=options)
+                                if prepare_obj.start_mysql_func(start_tool="{}/start_dynamic".format(basedir), options=slave_full_options):
+                                    # Creating slave connection file
+                                    with open("{}/cl_node{}".format(basedir, i), 'w+') as clfile:
+                                        conn = "{}/bin/mysql -A -uroot -S{}/sock{}.sock --force test".format(basedir, basedir, i)
+                                        clfile.write(conn)
+                                    # Checking if slave is up
+                                    chk_obj = CheckEnv(config=self.conf)
+                                    check_options = "--user={} --socket={}/sock{}.sock".format('root', basedir, i)
+                                    chk_obj.check_mysql_uptime(options=check_options)
 
-                        prepare_obj.run_xtra_copyback(datadir=slave_datadir)
-                        prepare_obj.giving_chown(datadir=slave_datadir)
-                        slave_full_options = self.prepare_start_slave_options(basedir=basedir, slave_number=i, options=options)
-                        prepare_obj.start_mysql_func(start_tool="{}/start_dynamic".format(basedir), options=slave_full_options)
+
+
+
                 else:
                     prepare_obj.copy_back_action(options=options)
