@@ -13,7 +13,7 @@ class TestRunnerTestMode:
             if '5.6' in basedir:
                 socket = return_run_benchmark_obj.get_sock(basedir=basedir)
                 conn_options = "--user={} --socket={}".format('root', socket)
-        return_runner_test_mode_obj_5_6_xb_2_3.run_pt_table_checksum(conn_options=conn_options)
+        assert return_runner_test_mode_obj_5_6_xb_2_3.run_pt_table_checksum(conn_options=conn_options)
 
 
     @pytest.mark.usefixtures("return_runner_test_mode_obj_5_6_xb_2_3")
