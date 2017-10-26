@@ -8,6 +8,7 @@ import socket
 import os
 import shutil
 import logging
+import subprocess
 logger = logging.getLogger(__name__)
 
 class RunnerTestMode(GeneralClass):
@@ -35,6 +36,18 @@ class RunnerTestMode(GeneralClass):
         port = "--port={}".format(self.get_free_tcp_port())
         log_error = "--log-error={}/log/node{}".format(basedir, slave_number)
         return " ".join([tmpdir, datadir, socket, port, log_error, options])
+
+    @staticmethod
+    def run_pt_table_checksum(conn_options):
+        command = "pt-table-checksum {}"
+        status, output = subprocess.getstatusoutput(command.format(conn_options))
+        if status == 0:
+            logger.debug("pt-table-checksum succeeded on master")
+            return True
+        else:
+            logger.error("pt-table-checksum command failed")
+            logger.error(output)
+            return False
 
 
 
@@ -77,7 +90,7 @@ class RunnerTestMode(GeneralClass):
                         except Exception as err:
                             logger.error("An error while creating directory {}".format(slave_datadir))
                             logger.error(err)
-                        # Doing some stuff on slave
+                        # Doing some stuff for creating slave server env
                         if prepare_obj.run_xtra_copyback(datadir=slave_datadir):
                             if prepare_obj.giving_chown(datadir=slave_datadir):
                                 slave_full_options = self.prepare_start_slave_options(basedir=basedir, slave_number=i, options=options)
@@ -89,7 +102,9 @@ class RunnerTestMode(GeneralClass):
                                     # Checking if slave is up
                                     chk_obj = CheckEnv(config=self.conf)
                                     check_options = "--user={} --socket={}/sock{}.sock".format('root', basedir, i)
-                                    chk_obj.check_mysql_uptime(options=check_options)
+                                    if chk_obj.check_mysql_uptime(options=check_options):
+                                        self.run_pt_table_checksum(conn_options=check_options)
+
 
 
 
