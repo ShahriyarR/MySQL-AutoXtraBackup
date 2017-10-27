@@ -51,9 +51,9 @@ class RunnerTestMode(GeneralClass):
             return False
 
     def run_change_master(self, basedir, file_name=None):
-        sql_create_user = "{} -e 'CREATE USER 'repl'@'%' IDENTIFIED BY 'slavepass''"
+        sql_create_user = "{} -e 'CREATE USER 'repl'@'%' IDENTIFIED BY 'Baku12345''"
         sql_grant = "{} -e 'GRANT REPLICATION SLAVE ON *.* TO 'repl'@'%''"
-        sql_change_master = "{} -e 'CHANGE MASTER TO MASTER_HOST = {}, MASTER_USER = {}, MASTER_PASSWORD = {}, MASTER_AUTO_POSITION = 1'"
+        sql_change_master = "{} -e 'CHANGE MASTER TO MASTER_HOST = '{}', MASTER_USER = '{}', MASTER_PASSWORD = '{}', MASTER_AUTO_POSITION = 1'"
         mysql_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir, file_name=file_name)
 
         # Create user
@@ -61,7 +61,7 @@ class RunnerTestMode(GeneralClass):
         # Grant user
         status, output = subprocess.getstatusoutput(sql_grant.format(mysql_client_cmd))
         # Change master
-        status, output = subprocess.getstatusoutput(sql_change_master.format(mysql_client_cmd, 'localhost', 'repl', 'slavepass'))
+        status, output = subprocess.getstatusoutput(sql_change_master.format(mysql_client_cmd, 'localhost', 'repl', 'Baku12345'))
         if status == 0:
             logger.debug("run_change_master() succeeded")
             return True
