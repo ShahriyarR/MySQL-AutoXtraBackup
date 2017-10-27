@@ -56,22 +56,26 @@ class RunnerTestMode(GeneralClass):
         sql_change_master = '{} -e "CHANGE MASTER TO MASTER_HOST=\'{}\', MASTER_USER=\'{}\', MASTER_PASSWORD=\'{}\', MASTER_PORT={}, MASTER_AUTO_POSITION=1"'
         mysql_slave_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir, file_name=file_name)
         mysql_master_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir)
+        statuses = []
         # Getting port from master
         sql_port = "{} -e 'select @@port'"
         status, port = subprocess.getstatusoutput(sql_port.format(mysql_master_client_cmd))
+        statuses.append(status)
         # Create user
         status, output = subprocess.getstatusoutput(sql_create_user.format(mysql_master_client_cmd))
+        statuses.append(status)
         # Grant user
         status, output = subprocess.getstatusoutput(sql_grant.format(mysql_master_client_cmd))
+        statuses.append(status)
         # Change master
         status, output = subprocess.getstatusoutput(sql_change_master.format(mysql_slave_client_cmd, 'localhost', 'repl', 'Baku12345', port[7:]))
-        if status == 0:
-            logger.debug("run_change_master() succeeded")
-            return True
-        else:
-            logger.error("Something failed in run_change_master()")
-            logger.error(output)
-            return False
+        statuses.append(status)
+
+        for i in status:
+            if i != 0:
+                logger.error("Something failed in run_change_master()")
+                return False
+        return True
 
 
 
@@ -139,8 +143,9 @@ class RunnerTestMode(GeneralClass):
                                     check_options = "--user={} --socket={}/sock{}.sock".format('root', basedir, i)
                                     if chk_obj.check_mysql_uptime(options=check_options):
                                         # Make this node to be slave
-                                        self.run_change_master(basedir=basedir, file_name="cl_node{}".format(i))
-                                        # Running on master
-                                        #self.run_pt_table_checksum(conn_options=check_options)
+                                        if self.run_change_master(basedir=basedir, file_name="cl_node{}".format(i)):
+                                            pass
+                                            #Running on master
+                                            #self.run_pt_table_checksum(conn_options=check_options)
                 else:
                     prepare_obj.copy_back_action(options=options)
