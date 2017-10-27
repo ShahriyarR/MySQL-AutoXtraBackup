@@ -57,7 +57,7 @@ class RunnerTestMode(GeneralClass):
         mysql_slave_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir, file_name=file_name)
         mysql_master_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir)
         sql_port = "{} -e 'select @@port'"
-        status, output = subprocess.getstatusoutput(sql_create_user.format(sql_port.format(mysql_master_client_cmd)))
+        status, output = subprocess.getstatusoutput(sql_port.format(mysql_master_client_cmd))
         print(output)
         # Create user
         status, output = subprocess.getstatusoutput(sql_create_user.format(mysql_slave_client_cmd))
