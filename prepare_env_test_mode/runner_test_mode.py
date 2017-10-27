@@ -39,9 +39,14 @@ class RunnerTestMode(GeneralClass):
         return " ".join([tmpdir, datadir, socket, port, log_error, options])
 
     @staticmethod
-    def run_pt_table_checksum(conn_options):
-        command = "pt-table-checksum {}"
-        status, output = subprocess.getstatusoutput(command.format(conn_options))
+    def run_pt_table_checksum(basedir, conn_options=None):
+        rb_obj = RunBenchmark()
+        sock_file = rb_obj.get_sock(basedir=basedir)
+        if conn_options is None:
+            command = "pt-table-checksum --user={} --socket={}".format("root", sock_file)
+        else:
+            command = "pt-table-checksum {}".format(conn_options)
+        status, output = subprocess.getstatusoutput(command)
         if status == 0:
             logger.debug("pt-table-checksum succeeded on master")
             return True
@@ -144,8 +149,8 @@ class RunnerTestMode(GeneralClass):
                                     if chk_obj.check_mysql_uptime(options=check_options):
                                         # Make this node to be slave
                                         if self.run_change_master(basedir=basedir, file_name="cl_node{}".format(i)):
-                                            pass
                                             #Running on master
-                                            #self.run_pt_table_checksum(conn_options=check_options)
+                                            if self.run_pt_table_checksum(basedir=basedir):
+                                                pass
                 else:
                     prepare_obj.copy_back_action(options=options)
