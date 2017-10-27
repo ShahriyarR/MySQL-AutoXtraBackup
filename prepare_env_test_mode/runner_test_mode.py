@@ -64,9 +64,11 @@ class RunnerTestMode(GeneralClass):
         status, output = subprocess.getstatusoutput(sql_change_master.format(mysql_client_cmd, 'localhost', 'repl', 'slavepass'))
         if status == 0:
             logger.debug("run_change_master() succeeded")
+            return True
         else:
             logger.error("Something failed in run_change_master()")
             logger.error(output)
+            return False
 
 
 

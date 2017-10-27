@@ -19,7 +19,7 @@ class TestRunnerTestMode:
     def test_run_change_master(self, return_runner_test_mode_obj_5_6_xb_2_3):
         for basedir in return_runner_test_mode_obj_5_6_xb_2_3.basedirs:
             if '5.6' in basedir:
-                return_runner_test_mode_obj_5_6_xb_2_3.run_change_master(basedir=basedir, file_name='cl_node0')
+                assert return_runner_test_mode_obj_5_6_xb_2_3.run_change_master(basedir=basedir, file_name='cl_node0')
 
     @pytest.mark.usefixtures("return_runner_test_mode_obj_5_6_xb_2_3")
     def test_wipe_backup_prepare_copyback_5_6_xb_2_3(self, return_runner_test_mode_obj_5_6_xb_2_3):
