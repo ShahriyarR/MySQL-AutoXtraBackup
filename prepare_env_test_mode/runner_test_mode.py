@@ -53,15 +53,18 @@ class RunnerTestMode(GeneralClass):
     def run_change_master(self, basedir, file_name=None):
         sql_create_user = '{} -e "CREATE USER \'repl\'@\'%\' IDENTIFIED BY \'Baku12345\'"'
         sql_grant = '{} -e "GRANT REPLICATION SLAVE ON *.* TO \'repl\'@\'%\'"'
-        sql_change_master = '{} -e "CHANGE MASTER TO MASTER_HOST=\'{}\', MASTER_USER=\'{}\', MASTER_PASSWORD=\'{}\', MASTER_AUTO_POSITION=1"'
-        mysql_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir, file_name=file_name)
-
+        sql_change_master = '{} -e "CHANGE MASTER TO MASTER_HOST=\'{}\', MASTER_USER=\'{}\', MASTER_PASSWORD=\'{}\', MASTER_PORT=\'{}\', MASTER_AUTO_POSITION=1"'
+        mysql_slave_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir, file_name=file_name)
+        mysql_master_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir)
+        sql_port = "{} -e 'select @@port'"
+        status, output = subprocess.getstatusoutput(sql_create_user.format(sql_port.format(mysql_master_client_cmd)))
+        print(output)
         # Create user
-        status, output = subprocess.getstatusoutput(sql_create_user.format(mysql_client_cmd))
+        status, output = subprocess.getstatusoutput(sql_create_user.format(mysql_slave_client_cmd))
         # Grant user
-        status, output = subprocess.getstatusoutput(sql_grant.format(mysql_client_cmd))
+        status, output = subprocess.getstatusoutput(sql_grant.format(mysql_slave_client_cmd))
         # Change master
-        status, output = subprocess.getstatusoutput(sql_change_master.format(mysql_client_cmd, 'localhost', 'repl', 'Baku12345'))
+        status, output = subprocess.getstatusoutput(sql_change_master.format(mysql_slave_client_cmd, 'localhost', 'repl', 'Baku12345'))
         if status == 0:
             logger.debug("run_change_master() succeeded")
             return True
