@@ -61,7 +61,7 @@ class RunnerTestMode(GeneralClass):
         # Grant user
         status, output = subprocess.getstatusoutput(sql_grant.format(mysql_client_cmd))
         # Change master
-        status, output = subprocess.getstatusoutput(sql_change_master.format(mysql_client_cmd))
+        status, output = subprocess.getstatusoutput(sql_change_master.format(mysql_client_cmd, 'localhost', 'repl', 'slavepass'))
         if status == 0:
             logger.debug("run_change_master() succeeded")
         else:
