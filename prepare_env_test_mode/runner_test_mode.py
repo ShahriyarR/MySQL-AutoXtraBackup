@@ -60,9 +60,9 @@ class RunnerTestMode(GeneralClass):
         sql_port = "{} -e 'select @@port'"
         status, port = subprocess.getstatusoutput(sql_port.format(mysql_master_client_cmd))
         # Create user
-        status, output = subprocess.getstatusoutput(sql_create_user.format(mysql_slave_client_cmd))
+        status, output = subprocess.getstatusoutput(sql_create_user.format(mysql_master_client_cmd))
         # Grant user
-        status, output = subprocess.getstatusoutput(sql_grant.format(mysql_slave_client_cmd))
+        status, output = subprocess.getstatusoutput(sql_grant.format(mysql_master_client_cmd))
         # Change master
         status, output = subprocess.getstatusoutput(sql_change_master.format(mysql_slave_client_cmd, 'localhost', 'repl', 'Baku12345', port[7:]))
         if status == 0:
