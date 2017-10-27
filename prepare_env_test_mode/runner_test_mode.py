@@ -56,15 +56,15 @@ class RunnerTestMode(GeneralClass):
         sql_change_master = '{} -e "CHANGE MASTER TO MASTER_HOST=\'{}\', MASTER_USER=\'{}\', MASTER_PASSWORD=\'{}\', MASTER_PORT=\'{}\', MASTER_AUTO_POSITION=1"'
         mysql_slave_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir, file_name=file_name)
         mysql_master_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir)
+        # Getting port from master
         sql_port = "{} -e 'select @@port'"
-        status, output = subprocess.getstatusoutput(sql_port.format(mysql_master_client_cmd))
-        print(output)
+        status, port = subprocess.getstatusoutput(sql_port.format(mysql_master_client_cmd))
         # Create user
         status, output = subprocess.getstatusoutput(sql_create_user.format(mysql_slave_client_cmd))
         # Grant user
         status, output = subprocess.getstatusoutput(sql_grant.format(mysql_slave_client_cmd))
         # Change master
-        status, output = subprocess.getstatusoutput(sql_change_master.format(mysql_slave_client_cmd, 'localhost', 'repl', 'Baku12345'))
+        status, output = subprocess.getstatusoutput(sql_change_master.format(mysql_slave_client_cmd, 'localhost', 'repl', 'Baku12345', port[7:]))
         if status == 0:
             logger.debug("run_change_master() succeeded")
             return True
