@@ -2,6 +2,7 @@ from prepare_env_test_mode.clone_build_start_server import CloneBuildStartServer
 from prepare_env_test_mode.config_generator import ConfigGenerator
 from prepare_env_test_mode.take_backup import WrapperForBackupTest
 from prepare_env_test_mode.prepare_backup import WrapperForPrepareTest
+from prepare_env_test_mode.run_benchmark import RunBenchmark
 from general_conf.generalops import GeneralClass
 from general_conf.check_env import CheckEnv
 import socket
@@ -49,6 +50,25 @@ class RunnerTestMode(GeneralClass):
             logger.error(output)
             return False
 
+    def run_change_master(self, basedir, file_name=None):
+        sql_create_user = "{} -e 'CREATE USER 'repl'@'%' IDENTIFIED BY 'slavepass''"
+        sql_grant = "{} -e 'GRANT REPLICATION SLAVE ON *.* TO 'repl'@'%''"
+        sql_change_master = "{} -e 'CHANGE MASTER TO MASTER_HOST = {}, MASTER_USER = {}, MASTER_PASSWORD = {}, MASTER_AUTO_POSITION = 1'"
+        mysql_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir, file_name=file_name)
+
+        # Create user
+        status, output = subprocess.getstatusoutput(sql_create_user.format(mysql_client_cmd))
+        # Grant user
+        status, output = subprocess.getstatusoutput(sql_grant.format(mysql_client_cmd))
+        # Change master
+        status, output = subprocess.getstatusoutput(sql_change_master.format(mysql_client_cmd))
+        if status == 0:
+            logger.debug("run_change_master() succeeded")
+        else:
+            logger.error("Something failed in run_change_master()")
+            logger.error(output)
+
+
 
 
     def wipe_backup_prepare_copyback(self, basedir):
@@ -95,19 +115,27 @@ class RunnerTestMode(GeneralClass):
                             if prepare_obj.giving_chown(datadir=slave_datadir):
                                 slave_full_options = self.prepare_start_slave_options(basedir=basedir, slave_number=i, options=options)
                                 if prepare_obj.start_mysql_func(start_tool="{}/start_dynamic".format(basedir), options=slave_full_options):
-                                    # Creating slave connection file
+                                    # Creating connection file for new node
                                     with open("{}/cl_node{}".format(basedir, i), 'w+') as clfile:
                                         conn = "{}/bin/mysql -A -uroot -S{}/sock{}.sock --force test".format(basedir, basedir, i)
                                         clfile.write(conn)
-                                    # Checking if slave is up
+                                        # give u+x to this file
+                                        chmod = "chmod u+x {}/cl_node{}".format(basedir, i)
+                                        status, output = subprocess.getstatusoutput(chmod)
+                                        if status == 0:
+                                            logger.debug("chmod succeeded for {}/cl_node{}".format(basedir, i))
+                                        else:
+                                            logger.error("Failed to chmod")
+                                            logger.error(output)
+
+
+                                    # Checking if node is up
                                     chk_obj = CheckEnv(config=self.conf)
                                     check_options = "--user={} --socket={}/sock{}.sock".format('root', basedir, i)
                                     if chk_obj.check_mysql_uptime(options=check_options):
-                                        self.run_pt_table_checksum(conn_options=check_options)
-
-
-
-
-
+                                        # Make this node to be slave
+                                        self.run_change_master(basedir=basedir, file_name="cl_node{}".format(i))
+                                        # Running on master
+                                        #self.run_pt_table_checksum(conn_options=check_options)
                 else:
                     prepare_obj.copy_back_action(options=options)
