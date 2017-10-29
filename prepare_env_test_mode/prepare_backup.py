@@ -12,9 +12,9 @@ class WrapperForPrepareTest(Prepare):
             self.inc_dir = inc_dir
 
     def run_prepare_backup(self):
-        if self.prepare_inc_full_backups():
-            return True
+        self.prepare_inc_full_backups()
+        return True
 
     def run_copy_back(self):
-        if self.copy_back_action():
-            return True
+        self.copy_back_action()
+        return True
