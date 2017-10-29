@@ -20,3 +20,5 @@ class WrapperForBackupTest(Backup):
         for _ in range(int(self.incremental_count) + 1):
             RunBenchmark().run_sysbench_run(basedir=self.basedir)
             self.all_backup()
+
+        return True

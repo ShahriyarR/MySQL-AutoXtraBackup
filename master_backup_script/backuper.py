@@ -678,6 +678,7 @@ class Backup(GeneralClass):
 
                 # Exiting after taking full backup
                 #exit(0)
+                return True
 
             elif self.last_full_backup_date() == 1:
                 logger.debug(
@@ -720,7 +721,7 @@ class Backup(GeneralClass):
 
                 # Exiting after taking NEW full backup
                 #exit(0)
-
+                return True
             else:
                 logger.debug(
                     "################################################################")
@@ -747,6 +748,7 @@ class Backup(GeneralClass):
 
                 # Exiting after taking Incremental backup
                 #exit(0)
+                return True
 
 # b = Backup()
 # b.all_backup()

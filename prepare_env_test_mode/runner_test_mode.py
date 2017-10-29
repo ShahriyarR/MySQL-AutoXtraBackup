@@ -57,6 +57,7 @@ class RunnerTestMode(GeneralClass):
             return False
 
     def run_change_master(self, basedir, file_name=None):
+        logger.debug("Started to make this new servers as slave...")
         sql_create_user = '{} -e "CREATE USER \'repl\'@\'%\' IDENTIFIED BY \'Baku12345\'"'
         sql_grant = '{} -e "GRANT REPLICATION SLAVE ON *.* TO \'repl\'@\'%\'"'
         sql_change_master = '{} -e "CHANGE MASTER TO MASTER_HOST=\'{}\', MASTER_USER=\'{}\', MASTER_PASSWORD=\'{}\', MASTER_PORT={}, MASTER_AUTO_POSITION=1"'
@@ -85,6 +86,7 @@ class RunnerTestMode(GeneralClass):
             if i != 0:
                 logger.error("Something failed in run_change_master()")
                 return False
+        logger.debug("Slave server is ready now...")
         return True
 
 
@@ -110,21 +112,25 @@ class RunnerTestMode(GeneralClass):
                 backup_obj = WrapperForBackupTest(config=self.conf, full_dir=full_dir, inc_dir=inc_dir, basedir=basedir)
                 # Take backups
                 if backup_obj.run_all_backup():
+                    logger.debug("Running run_all_backup()")
                     prepare_obj = WrapperForPrepareTest(config=self.conf, full_dir=full_dir, inc_dir=inc_dir)
                     # Prepare backups
                     if prepare_obj.run_prepare_backup():
-
+                        logger.debug("Running run_prepare_backup()")
                         if hasattr(self, 'slave_count'):
+                            logger.debug("slave_count is defined on option so will create slaves!")
                             for i in range(int(self.slave_count)):
                                 slave_datadir = "{}/node{}".format(basedir, i)
                                 if os.path.exists(slave_datadir):
                                     try:
+                                        logger.debug("Removing old slave datadir...")
                                         shutil.rmtree(slave_datadir)
                                     except Exception as err:
                                         logger.error("An error while removing directory {}".format(slave_datadir))
                                         logger.error(err)
 
                                 try:
+                                    logger.debug("Creating slave datadir...")
                                     os.makedirs("{}/node{}".format(basedir, i))
                                 except Exception as err:
                                     logger.error("An error while creating directory {}".format(slave_datadir))
