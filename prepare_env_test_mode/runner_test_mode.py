@@ -12,6 +12,7 @@ import logging
 import subprocess
 logger = logging.getLogger(__name__)
 
+
 class RunnerTestMode(GeneralClass):
 
     def __init__(self, config='/etc/bck.conf'):
