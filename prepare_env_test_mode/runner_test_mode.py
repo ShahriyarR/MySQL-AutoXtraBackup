@@ -105,53 +105,53 @@ class RunnerTestMode(GeneralClass):
                 inc_dir = self.backupdir + "/cycle{}".format(c_count) + "/inc"
                 backup_obj = WrapperForBackupTest(config=self.conf, full_dir=full_dir, inc_dir=inc_dir, basedir=basedir)
                 # Take backups
-                backup_obj.run_all_backup()
-                prepare_obj = WrapperForPrepareTest(config=self.conf, full_dir=full_dir, inc_dir=inc_dir)
-                # Prepare backups
-                prepare_obj.run_prepare_backup()
+                if backup_obj.run_all_backup():
+                    prepare_obj = WrapperForPrepareTest(config=self.conf, full_dir=full_dir, inc_dir=inc_dir)
+                    # Prepare backups
+                    if prepare_obj.run_prepare_backup():
 
-                if hasattr(self, 'slave_count'):
-                    for i in range(int(self.slave_count)):
-                        slave_datadir = "{}/node{}".format(basedir, i)
-                        if os.path.exists(slave_datadir):
-                            try:
-                                shutil.rmtree(slave_datadir)
-                            except Exception as err:
-                                logger.error("An error while removing directory {}".format(slave_datadir))
-                                logger.error(err)
+                        if hasattr(self, 'slave_count'):
+                            for i in range(int(self.slave_count)):
+                                slave_datadir = "{}/node{}".format(basedir, i)
+                                if os.path.exists(slave_datadir):
+                                    try:
+                                        shutil.rmtree(slave_datadir)
+                                    except Exception as err:
+                                        logger.error("An error while removing directory {}".format(slave_datadir))
+                                        logger.error(err)
 
-                        try:
-                            os.makedirs("{}/node{}".format(basedir, i))
-                        except Exception as err:
-                            logger.error("An error while creating directory {}".format(slave_datadir))
-                            logger.error(err)
-                        # Doing some stuff for creating slave server env
-                        if prepare_obj.run_xtra_copyback(datadir=slave_datadir):
-                            if prepare_obj.giving_chown(datadir=slave_datadir):
-                                slave_full_options = self.prepare_start_slave_options(basedir=basedir, slave_number=i, options=options)
-                                if prepare_obj.start_mysql_func(start_tool="{}/start_dynamic".format(basedir), options=slave_full_options):
-                                    # Creating connection file for new node
-                                    with open("{}/cl_node{}".format(basedir, i), 'w+') as clfile:
-                                        conn = "{}/bin/mysql -A -uroot -S{}/sock{}.sock --force test".format(basedir, basedir, i)
-                                        clfile.write(conn)
-                                        # give u+x to this file
-                                        chmod = "chmod u+x {}/cl_node{}".format(basedir, i)
-                                        status, output = subprocess.getstatusoutput(chmod)
-                                        if status == 0:
-                                            logger.debug("chmod succeeded for {}/cl_node{}".format(basedir, i))
-                                        else:
-                                            logger.error("Failed to chmod")
-                                            logger.error(output)
+                                try:
+                                    os.makedirs("{}/node{}".format(basedir, i))
+                                except Exception as err:
+                                    logger.error("An error while creating directory {}".format(slave_datadir))
+                                    logger.error(err)
+                                # Doing some stuff for creating slave server env
+                                if prepare_obj.run_xtra_copyback(datadir=slave_datadir):
+                                    if prepare_obj.giving_chown(datadir=slave_datadir):
+                                        slave_full_options = self.prepare_start_slave_options(basedir=basedir, slave_number=i, options=options)
+                                        if prepare_obj.start_mysql_func(start_tool="{}/start_dynamic".format(basedir), options=slave_full_options):
+                                            # Creating connection file for new node
+                                            with open("{}/cl_node{}".format(basedir, i), 'w+') as clfile:
+                                                conn = "{}/bin/mysql -A -uroot -S{}/sock{}.sock --force test".format(basedir, basedir, i)
+                                                clfile.write(conn)
+                                                # give u+x to this file
+                                                chmod = "chmod u+x {}/cl_node{}".format(basedir, i)
+                                                status, output = subprocess.getstatusoutput(chmod)
+                                                if status == 0:
+                                                    logger.debug("chmod succeeded for {}/cl_node{}".format(basedir, i))
+                                                else:
+                                                    logger.error("Failed to chmod")
+                                                    logger.error(output)
 
 
-                                    # Checking if node is up
-                                    chk_obj = CheckEnv(config=self.conf)
-                                    check_options = "--user={} --socket={}/sock{}.sock".format('root', basedir, i)
-                                    if chk_obj.check_mysql_uptime(options=check_options):
-                                        # Make this node to be slave
-                                        if self.run_change_master(basedir=basedir, file_name="cl_node{}".format(i)):
-                                            #Running on master
-                                            if self.run_pt_table_checksum(basedir=basedir):
-                                                pass
-                else:
-                    prepare_obj.copy_back_action(options=options)
+                                            # Checking if node is up
+                                            chk_obj = CheckEnv(config=self.conf)
+                                            check_options = "--user={} --socket={}/sock{}.sock".format('root', basedir, i)
+                                            if chk_obj.check_mysql_uptime(options=check_options):
+                                                # Make this node to be slave
+                                                if self.run_change_master(basedir=basedir, file_name="cl_node{}".format(i)):
+                                                    #Running on master
+                                                    if self.run_pt_table_checksum(basedir=basedir):
+                                                        pass
+                        else:
+                            prepare_obj.copy_back_action(options=options)
