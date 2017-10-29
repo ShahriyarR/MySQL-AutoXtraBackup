@@ -77,6 +77,10 @@ class RunnerTestMode(GeneralClass):
         status, output = subprocess.getstatusoutput(sql_change_master.format(mysql_slave_client_cmd, 'localhost', 'repl', 'Baku12345', port[7:]))
         statuses.append(status)
 
+        start_slave = "{} -e 'start slave'"
+        status, output = subprocess.getstatusoutput(start_slave.format(mysql_slave_client_cmd))
+        statuses.append(status)
+
         for i in statuses:
             if i != 0:
                 logger.error("Something failed in run_change_master()")
