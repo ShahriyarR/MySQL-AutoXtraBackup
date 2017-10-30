@@ -27,7 +27,7 @@ class TestRunnerTestMode:
         for basedir in return_runner_test_mode_obj_5_6_xb_2_3.basedirs:
             if '5.6' in basedir:
                 mysql_master_client_cmd = RunBenchmark(config=return_runner_test_mode_obj_5_6_xb_2_3.conf).get_mysql_conn(basedir=basedir)
-                select_blank_users = '{} -e "select user, host from from mysql.user where user like ''"'
+                select_blank_users = "{} -e \'select user, host from from mysql.user where user like \'\'\'"
                 print(select_blank_users.format(mysql_master_client_cmd))
                 assert return_runner_test_mode_obj_5_6_xb_2_3.drop_blank_mysql_users(select_blank_users.format(mysql_master_client_cmd))
 
