@@ -10,6 +10,7 @@ import os
 import shutil
 import logging
 import subprocess
+from time import sleep
 logger = logging.getLogger(__name__)
 
 
@@ -64,6 +65,37 @@ class RunnerTestMode(GeneralClass):
         else:
             raise RuntimeError("Failed to run SQL command -> {}".format(output))
 
+    @staticmethod
+    def check_slave_status(sql_command):
+        '''
+        Checks Slave's status output for fails
+        :param sql_command: The formulated SQL command to be passed to run_sql_command()
+        :return: True if Slave up and running properly
+        :return: Raise a RuntimeError is something wrong with slave
+        '''
+        output = RunnerTestMode.run_sql_command(sql_command=sql_command)
+        list_output = output.splitlines()
+        for i, j in enumerate(list_output[2:], start=1):
+            splitted = j.split(":")
+
+            if 'Slave_SQL_Running' == splitted[0].lstrip():
+                if splitted[1] != 'Yes':
+                    raise RuntimeError("Slave_SQL_Running is not Yes")
+
+            if 'Slave_IO_Running' == splitted[0].lstrip():
+                if splitted[1] != 'Yes':
+                    raise RuntimeError("Slave_IO_Running is not Yes")
+
+            if 'Last_IO_Error' == splitted[0].lstrip():
+                if splitted[1] != '':
+                    raise RuntimeError("It seems to be IO Error: {}".format(splitted[1]))
+
+            if 'Last_SQL_Error' == splitted[0].lstrip():
+                if splitted[1] != '':
+                    raise RuntimeError("It seems to be SQL Error: {}".format(splitted[1]))
+
+
+
     def run_change_master(self, basedir, file_name=None):
         logger.debug("Started to make this new servers as slave...")
         sql_port = "{} -e 'select @@port'"
@@ -71,6 +103,7 @@ class RunnerTestMode(GeneralClass):
         sql_grant = '{} -e "GRANT REPLICATION SLAVE ON *.* TO \'repl\'@\'%\'"'
         sql_change_master = '{} -e "CHANGE MASTER TO MASTER_HOST=\'{}\', MASTER_USER=\'{}\', MASTER_PASSWORD=\'{}\', MASTER_PORT={}, MASTER_AUTO_POSITION=1"'
         start_slave = "{} -e 'start slave'"
+        show_slave_status = "{} -e 'show slave status'"
         mysql_slave_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir, file_name=file_name)
         mysql_master_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir)
         try:
@@ -84,6 +117,8 @@ class RunnerTestMode(GeneralClass):
             self.run_sql_command(sql_change_master.format(mysql_slave_client_cmd, 'localhost', 'repl', 'Baku12345', port[7:]))
             # Start Slave
             self.run_sql_command(start_slave.format(mysql_slave_client_cmd))
+            # Check Slave output for errors
+            self.check_slave_status(show_slave_status.format(mysql_slave_client_cmd))
         except Exception as err:
             logger.error("Error in run_change_master()")
             logger.error(err)
@@ -110,14 +145,14 @@ class RunnerTestMode(GeneralClass):
                 inc_dir = self.backupdir + "/cycle{}".format(c_count) + "/inc"
                 backup_obj = WrapperForBackupTest(config=self.conf, full_dir=full_dir, inc_dir=inc_dir, basedir=basedir)
                 # Take backups
+                logger.debug("Started to run run_all_backup()")
                 if backup_obj.run_all_backup():
-                    logger.debug("Running run_all_backup()")
                     prepare_obj = WrapperForPrepareTest(config=self.conf, full_dir=full_dir, inc_dir=inc_dir)
                     # Prepare backups
+                    logger.debug("Started to run run_prepare_backup()")
                     if prepare_obj.run_prepare_backup():
-                        logger.debug("Running run_prepare_backup()")
                         if hasattr(self, 'slave_count'):
-                            logger.debug("slave_count is defined on option so will create slaves!")
+                            logger.debug("slave_count is defined so will create slaves!")
                             for i in range(int(self.slave_count)):
                                 slave_datadir = "{}/node{}".format(basedir, i)
                                 if os.path.exists(slave_datadir):
@@ -146,11 +181,24 @@ class RunnerTestMode(GeneralClass):
                                                 # give u+x to this file
                                                 chmod = "chmod u+x {}/cl_node{}".format(basedir, i)
                                                 status, output = subprocess.getstatusoutput(chmod)
+
                                                 if status == 0:
                                                     logger.debug("chmod succeeded for {}/cl_node{}".format(basedir, i))
                                                 else:
-                                                    logger.error("Failed to chmod")
-                                                    logger.error(output)
+                                                    raise RuntimeError("Failed to chmod {}/cl_node{}".format(basedir, i))
+
+                                            with open("{}/stop_node{}".format(basedir, i)) as stop_file:
+                                                shutdown_slave = "{}/bin/mysqladmin -uroot -S{}/sock{}.sock shutdown".format(basedir, basedir, i)
+                                                stop_file.write(shutdown_slave)
+                                                # give u+x to this file
+                                                chmod = "chmod u+x {}/cl_node{}".format(basedir, i)
+                                                status, output = subprocess.getstatusoutput(chmod)
+
+                                                if status == 0:
+                                                    logger.debug("chmod succeeded for {}/stop_node{}".format(basedir, i))
+                                                else:
+                                                    raise RuntimeError("Failed to chmod {}/stop_node{}".format(basedir, i))
+
 
 
                                             # Checking if node is up
@@ -159,6 +207,7 @@ class RunnerTestMode(GeneralClass):
                                             if chk_obj.check_mysql_uptime(options=check_options):
                                                 # Make this node to be slave
                                                 if self.run_change_master(basedir=basedir, file_name="cl_node{}".format(i)):
+                                                    sleep(10)
                                                     #Running on master
                                                     if self.run_pt_table_checksum(basedir=basedir):
                                                         pass
