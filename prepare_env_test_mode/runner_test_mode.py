@@ -62,7 +62,7 @@ class RunnerTestMode(GeneralClass):
         if status == 0:
             return output
         else:
-            raise RuntimeError("Failed to run SQL command!")
+            raise RuntimeError("Failed to run SQL command -> {}".format(output))
 
     def run_change_master(self, basedir, file_name=None):
         logger.debug("Started to make this new servers as slave...")
