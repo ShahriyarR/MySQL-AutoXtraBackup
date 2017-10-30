@@ -97,7 +97,7 @@ class RunnerTestMode(GeneralClass):
 
 
     def run_change_master(self, basedir, file_name=None):
-        logger.debug("Started to make this new servers as slave...")
+        logger.debug("Started to make this new server as slave...")
         sql_port = "{} -e 'select @@port'"
         sql_create_user = '{} -e "CREATE USER \'repl\'@\'%\' IDENTIFIED BY \'Baku12345\'"'
         sql_grant = '{} -e "GRANT REPLICATION SLAVE ON *.* TO \'repl\'@\'%\'"'
@@ -114,7 +114,7 @@ class RunnerTestMode(GeneralClass):
             # Grant user
             self.run_sql_command(sql_grant.format(mysql_master_client_cmd))
             # Change master
-            self.run_sql_command(sql_change_master.format(mysql_slave_client_cmd, 'localhost', 'repl', 'Baku12345', port[7:]))
+            self.run_sql_command(sql_change_master.format(mysql_slave_client_cmd, '127.0.0.1', 'repl', 'Baku12345', port[7:]))
             # Start Slave
             self.run_sql_command(start_slave.format(mysql_slave_client_cmd))
             # Check Slave output for errors
