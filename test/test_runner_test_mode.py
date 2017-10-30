@@ -1,4 +1,5 @@
 import pytest
+from prepare_env_test_mode.run_benchmark import RunBenchmark
 
 class TestRunnerTestMode:
 
@@ -20,6 +21,15 @@ class TestRunnerTestMode:
         for basedir in return_runner_test_mode_obj_5_6_xb_2_3.basedirs:
             if '5.6' in basedir:
                 assert return_runner_test_mode_obj_5_6_xb_2_3.run_change_master(basedir=basedir, file_name='cl_node0')
+
+    @pytest.mark.usefixtures("return_runner_test_mode_obj_5_6_xb_2_3")
+    def test_drop_blank_mysql_users(self, return_runner_test_mode_obj_5_6_xb_2_3):
+        for basedir in return_runner_test_mode_obj_5_6_xb_2_3.basedirs:
+            if '5.6' in basedir:
+                mysql_master_client_cmd = RunBenchmark(config=return_runner_test_mode_obj_5_6_xb_2_3.conf).get_mysql_conn(basedir=basedir)
+                select_blank_users = '{} -e "select user, host from from mysql.user where user like ''"'
+                print(select_blank_users.format(mysql_master_client_cmd))
+                assert return_runner_test_mode_obj_5_6_xb_2_3.drop_blank_mysql_users(select_blank_users.format(mysql_master_client_cmd))
 
     @pytest.mark.usefixtures("return_runner_test_mode_obj_5_6_xb_2_3")
     def test_wipe_backup_prepare_copyback_5_6_xb_2_3(self, return_runner_test_mode_obj_5_6_xb_2_3):

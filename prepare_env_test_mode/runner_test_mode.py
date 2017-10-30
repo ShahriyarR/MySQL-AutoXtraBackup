@@ -98,6 +98,12 @@ class RunnerTestMode(GeneralClass):
                     raise RuntimeError("It seems to be SQL Error: {}".format(splitted[1]))
 
 
+    @staticmethod
+    def drop_blank_mysql_users(sql_command):
+         #TODO: Implement this one
+         users = RunnerTestMode.run_sql_command(sql_command=sql_command)
+         print(users)
+         pass
 
     def run_change_master(self, basedir, file_name=None):
         logger.debug("Started to make this new server as slave...")
@@ -109,26 +115,27 @@ class RunnerTestMode(GeneralClass):
         show_slave_status = "{} -e 'show slave status\G'"
         mysql_slave_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir, file_name=file_name)
         mysql_master_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir)
-        try:
-            # Getting port from master
-            port = self.run_sql_command(sql_port.format(mysql_master_client_cmd))
-            # Create user
-            self.run_sql_command(sql_create_user.format(mysql_master_client_cmd))
-            # Grant user
-            self.run_sql_command(sql_grant.format(mysql_master_client_cmd))
-            # Change master
-            self.run_sql_command(sql_change_master.format(mysql_slave_client_cmd, '127.0.0.1', 'repl', 'Baku12345', port[7:]))
-            # Start Slave
-            self.run_sql_command(start_slave.format(mysql_slave_client_cmd))
-            # Check Slave output for errors
-            sleep(10)
-            self.check_slave_status(show_slave_status.format(mysql_slave_client_cmd))
-        except Exception as err:
-            logger.error("Error in run_change_master()")
-            logger.error(err)
-            return False
-        else:
-            return True
+        # Getting port from master
+        port = self.run_sql_command(sql_port.format(mysql_master_client_cmd))
+        # Create user
+        self.run_sql_command(sql_create_user.format(mysql_master_client_cmd))
+        # Grant user
+        self.run_sql_command(sql_grant.format(mysql_master_client_cmd))
+        # Drop blank users if PS version is 5.6
+        if '5.6' in basedir:
+            select_blank_users = '{} -e "select user, host from from mysql.user where user like ''"'
+            self.drop_blank_mysql_users(select_blank_users.format(mysql_master_client_cmd))
+
+        # Change master
+        self.run_sql_command(
+            sql_change_master.format(mysql_slave_client_cmd, '127.0.0.1', 'repl', 'Baku12345', port[7:]))
+        # Start Slave
+        self.run_sql_command(start_slave.format(mysql_slave_client_cmd))
+        # Check Slave output for errors
+        sleep(10)
+        self.check_slave_status(show_slave_status.format(mysql_slave_client_cmd))
+
+        return True
 
     def wipe_backup_prepare_copyback(self, basedir):
         '''
