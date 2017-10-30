@@ -126,10 +126,12 @@ class RunnerTestMode(GeneralClass):
         :return: True if success or raise RuntimeError exception from run_sql_command() method
         '''
         select_blank_users = '{} -e \"select user, host from mysql.user where user like \'\'\"'
+        logger.debug("Running -> {}".format(select_blank_users.format(sql_conn)))
         users = RunnerTestMode.run_sql_command(sql_command=select_blank_users.format(sql_conn))
         # Getting host names for blank users:
         for i in users.splitlines()[1:]:
             drop_user = '{} -e "drop user \'\'@\'{}\'"'
+            logger.debug("Running -> {}".format(drop_user.format(sql_conn, i.lstrip())))
             RunnerTestMode.run_sql_command(drop_user.format(sql_conn, i.lstrip()))
 
         return True

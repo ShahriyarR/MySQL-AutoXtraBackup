@@ -146,7 +146,7 @@ class ConfigGenerator(CloneBuildStartServer):
                 config.set(section8, "xb_configs", "xb_2_4_ps_5_6.conf xb_2_4_ps_5_7.conf xb_2_3_ps_5_6.conf")
                 config.set(section8, "slave_count", "1")
                 config.set(section8, "default_mysql_options",
-                           "--log-bin=mysql-bin,--log-slave-updates,--server-id={},--gtid-mode=ON,--enforce-gtid-consistency,--binlog-format=mixed")
+                           "--log-bin=mysql-bin,--log-slave-updates,--server-id={},--gtid-mode=ON,--enforce-gtid-consistency,--binlog-format=row")
                 if '5_7' in conf_file:
                     config.set(section8, "mysql_options",
                                "--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,--innodb_page_size=4K 8K 16K 32K 64K")
