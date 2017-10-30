@@ -187,11 +187,11 @@ class RunnerTestMode(GeneralClass):
                                                 else:
                                                     raise RuntimeError("Failed to chmod {}/cl_node{}".format(basedir, i))
 
-                                            with open("{}/stop_node{}".format(basedir, i)) as stop_file:
+                                            with open("{}/stop_node{}".format(basedir, i), 'w+') as stop_file:
                                                 shutdown_slave = "{}/bin/mysqladmin -uroot -S{}/sock{}.sock shutdown".format(basedir, basedir, i)
                                                 stop_file.write(shutdown_slave)
                                                 # give u+x to this file
-                                                chmod = "chmod u+x {}/cl_node{}".format(basedir, i)
+                                                chmod = "chmod u+x {}/stop_node{}".format(basedir, i)
                                                 status, output = subprocess.getstatusoutput(chmod)
 
                                                 if status == 0:
