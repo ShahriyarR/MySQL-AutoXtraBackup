@@ -11,6 +11,7 @@ import shutil
 import logging
 import subprocess
 from time import sleep
+from random import randint
 logger = logging.getLogger(__name__)
 
 
@@ -38,7 +39,8 @@ class RunnerTestMode(GeneralClass):
         socket = "--socket={}/sock{}.sock".format(basedir, slave_number)
         port = "--port={}".format(self.get_free_tcp_port())
         log_error = "--log-error={}/log/node{}".format(basedir, slave_number)
-        return " ".join([tmpdir, datadir, socket, port, log_error, options])
+        server_id = "--server_id={}".format(randint(10, 99))
+        return " ".join([tmpdir, datadir, socket, port, log_error, options, server_id])
 
     @staticmethod
     def run_pt_table_checksum(basedir, conn_options=None):
@@ -104,7 +106,7 @@ class RunnerTestMode(GeneralClass):
         sql_grant = '{} -e "GRANT REPLICATION SLAVE ON *.* TO \'repl\'@\'%\'"'
         sql_change_master = '{} -e "CHANGE MASTER TO MASTER_HOST=\'{}\', MASTER_USER=\'{}\', MASTER_PASSWORD=\'{}\', MASTER_PORT={}, MASTER_AUTO_POSITION=1"'
         start_slave = "{} -e 'start slave'"
-        show_slave_status = "{} -e 'show slave status'"
+        show_slave_status = "{} -e 'show slave status\G'"
         mysql_slave_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir, file_name=file_name)
         mysql_master_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir)
         try:
@@ -141,7 +143,6 @@ class RunnerTestMode(GeneralClass):
             options = " ".join(options)
             options = options + " " + self.df_mysql_options.format(c_count)
             logger.debug("Will start MySQL with {}".format(options))
-            sleep(10)
             if self.clone_obj.wipe_server_all(basedir_path=basedir, options=options):
                 logger.debug("Starting cycle{}".format(c_count))
                 full_dir = self.backupdir + "/cycle{}".format(c_count) + "/full"
