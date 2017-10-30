@@ -140,6 +140,7 @@ class RunnerTestMode(GeneralClass):
             options = " ".join(options)
             options = options + " " + self.df_mysql_options.format(c_count)
             logger.debug("Will start MySQL with {}".format(options))
+            sleep(10)
             if self.clone_obj.wipe_server_all(basedir_path=basedir, options=options):
                 logger.debug("Starting cycle{}".format(c_count))
                 full_dir = self.backupdir + "/cycle{}".format(c_count) + "/full"
