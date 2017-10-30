@@ -118,6 +118,7 @@ class RunnerTestMode(GeneralClass):
             # Start Slave
             self.run_sql_command(start_slave.format(mysql_slave_client_cmd))
             # Check Slave output for errors
+            sleep(10)
             self.check_slave_status(show_slave_status.format(mysql_slave_client_cmd))
         except Exception as err:
             logger.error("Error in run_change_master()")
