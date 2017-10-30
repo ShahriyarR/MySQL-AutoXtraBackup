@@ -178,6 +178,7 @@ class RunnerTestMode(GeneralClass):
         # Run SET GLOBAL gtid_purged= here
         gtid_pos = self.get_gtid_address(full_backup_dir)
         gtid_purged = '{} -e \'set global gitd_purged=\"{}\"\''.format(mysql_slave_client_cmd, gtid_pos)
+        self.run_sql_command(gtid_purged)
 
         # Change master
         self.run_sql_command(
