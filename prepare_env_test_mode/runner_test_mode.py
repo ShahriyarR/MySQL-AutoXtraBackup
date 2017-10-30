@@ -55,10 +55,11 @@ class RunnerTestMode(GeneralClass):
         else:
             logger.error("pt-table-checksum command failed")
             logger.error(output)
-            return False
+            raise RuntimeError("pt-table-checksum command failed")
 
     @staticmethod
     def run_sql_command(sql_command):
+        logger.debug("Running -> {}".format(sql_command))
         status, output = subprocess.getstatusoutput(sql_command)
         if status == 0:
             return output
