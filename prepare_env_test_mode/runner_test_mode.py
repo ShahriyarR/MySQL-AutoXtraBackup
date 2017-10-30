@@ -136,7 +136,19 @@ class RunnerTestMode(GeneralClass):
 
         return True
 
-    def run_change_master(self, basedir, file_name=None):
+    @staticmethod
+    def get_gtid_address(full_backup_dir):
+        '''
+        This method is going to open xtrabackup_binlog_info file inside full backup dir.
+        :param full_backup_dir: The full backup directory path
+        :return: The GTID position
+        '''
+        file_name = "{}/{}".format(full_backup_dir, 'xtrabackup_binlog_info')
+        with open(file_name, 'r') as binlog_file:
+            return binlog_file.readline().split('\t')[2][:-1]
+
+
+    def run_change_master(self, basedir, full_backup_dir, file_name=None):
         '''
         Method for making ordinary server as slave
         :param basedir: PS basedir path
@@ -162,6 +174,10 @@ class RunnerTestMode(GeneralClass):
         # Drop blank users if PS version is 5.6
         if '5.6' in basedir:
             self.drop_blank_mysql_users(mysql_master_client_cmd)
+
+        # Run SET GLOBAL gtid_purged= here
+        gtid_pos = self.get_gtid_address(full_backup_dir)
+        gtid_purged = '{} -e \'set global gitd_purged=\"{}\"\''.format(mysql_slave_client_cmd, gtid_pos)
 
         # Change master
         self.run_sql_command(
@@ -254,7 +270,10 @@ class RunnerTestMode(GeneralClass):
                                             check_options = "--user={} --socket={}/sock{}.sock".format('root', basedir, i)
                                             if chk_obj.check_mysql_uptime(options=check_options):
                                                 # Make this node to be slave
-                                                if self.run_change_master(basedir=basedir, file_name="cl_node{}".format(i)):
+                                                full_backup_dir = prepare_obj.recent_full_backup_file()
+                                                if self.run_change_master(basedir=basedir,
+                                                                          full_backup_dir="{}/{}".format(full_dir, full_backup_dir),
+                                                                          file_name="cl_node{}".format(i)):
                                                     sleep(10)
                                                     #Running on master
                                                     if self.run_pt_table_checksum(basedir=basedir):
