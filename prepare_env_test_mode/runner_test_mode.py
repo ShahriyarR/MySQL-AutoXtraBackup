@@ -99,11 +99,21 @@ class RunnerTestMode(GeneralClass):
 
 
     @staticmethod
-    def drop_blank_mysql_users(sql_command):
-         #TODO: Implement this one
-         users = RunnerTestMode.run_sql_command(sql_command=sql_command)
-         print(users)
-         pass
+    def drop_blank_mysql_users(sql_conn):
+        '''
+        Method for dropping blank PS users(for 5.6 version). In PS 5.7 there are no blank users created.
+        :param sql_conn: MySQL Client connection string
+        :return: True if success or raise RuntimeError exception from run_sql_command() method
+        '''
+        select_blank_users = '{} -e \"select user, host from mysql.user where user like \'\'\"'
+        users = RunnerTestMode.run_sql_command(sql_command=select_blank_users.format(sql_conn))
+        # Getting host names for blank users:
+        for i in users.splitlines()[1:]:
+            drop_user = '{} -e "drop user \'\'@\'{}\'"'
+            RunnerTestMode.run_sql_command(drop_user.format(sql_conn, i.lstrip()))
+
+        return True
+
 
     def run_change_master(self, basedir, file_name=None):
         logger.debug("Started to make this new server as slave...")
@@ -123,8 +133,7 @@ class RunnerTestMode(GeneralClass):
         self.run_sql_command(sql_grant.format(mysql_master_client_cmd))
         # Drop blank users if PS version is 5.6
         if '5.6' in basedir:
-            select_blank_users = '{} -e "select user, host from from mysql.user where user like ''"'
-            self.drop_blank_mysql_users(select_blank_users.format(mysql_master_client_cmd))
+            self.drop_blank_mysql_users(mysql_master_client_cmd)
 
         # Change master
         self.run_sql_command(
