@@ -27,6 +27,7 @@ class RunnerTestMode(GeneralClass):
 
     @staticmethod
     def get_free_tcp_port():
+        # Method to generate random ports
         tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         tcp.bind(('', 0))
         addr, port = tcp.getsockname()
@@ -34,6 +35,13 @@ class RunnerTestMode(GeneralClass):
         return port
 
     def prepare_start_slave_options(self, basedir, slave_number, options):
+        '''
+
+        :param basedir: PS basedir path
+        :param slave_number: Slave count 0, 1, 2 (node0 node1 node2 etc.)
+        :param options: Generated combination of PS options passed here.
+        :return: String of options
+        '''
         tmpdir="--tmpdir={}/node{}".format(basedir, slave_number)
         datadir = "--datadir={}/node{}".format(basedir, slave_number)
         socket = "--socket={}/sock{}.sock".format(basedir, slave_number)
@@ -44,6 +52,12 @@ class RunnerTestMode(GeneralClass):
 
     @staticmethod
     def run_pt_table_checksum(basedir, conn_options=None):
+        '''
+        Method for running pt-table-checksum method. Should be run on master server.
+        :param basedir: PS basedir path
+        :param conn_options: pass this only for Slave
+        :return:
+        '''
         rb_obj = RunBenchmark()
         sock_file = rb_obj.get_sock(basedir=basedir)
         if conn_options is None:
@@ -61,6 +75,11 @@ class RunnerTestMode(GeneralClass):
 
     @staticmethod
     def run_sql_command(sql_command):
+        '''
+        General method for running SQL using mysql client connection
+        :param sql_command: Passed runnable mysql client sql command
+        :return: The output/result of running SQL or raise RuntimError
+        '''
         logger.debug("Running -> {}".format(sql_command))
         status, output = subprocess.getstatusoutput(sql_command)
         if status == 0:
@@ -76,6 +95,7 @@ class RunnerTestMode(GeneralClass):
         :return: True if Slave up and running properly
         :return: Raise a RuntimeError is something wrong with slave
         '''
+
         output = RunnerTestMode.run_sql_command(sql_command=sql_command)
         list_output = output.splitlines()
         for i, j in enumerate(list_output[2:], start=1):
@@ -114,8 +134,14 @@ class RunnerTestMode(GeneralClass):
 
         return True
 
-
     def run_change_master(self, basedir, file_name=None):
+        '''
+        Method for making ordinary server as slave
+        :param basedir: PS basedir path
+        :param file_name: MySQL client connections stored file name; It is passed for slave server
+        :return: True if succes or raise RuntimeError exception fom run_sql_command()
+        '''
+
         logger.debug("Started to make this new server as slave...")
         sql_port = "{} -e 'select @@port'"
         sql_create_user = '{} -e "CREATE USER \'repl\'@\'%\' IDENTIFIED BY \'Baku12345\'"'
@@ -230,6 +256,6 @@ class RunnerTestMode(GeneralClass):
                                                     sleep(10)
                                                     #Running on master
                                                     if self.run_pt_table_checksum(basedir=basedir):
-                                                        pass
+                                                        break
                         else:
                             prepare_obj.copy_back_action(options=options)
