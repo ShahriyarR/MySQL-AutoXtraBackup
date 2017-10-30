@@ -56,41 +56,40 @@ class RunnerTestMode(GeneralClass):
             logger.error(output)
             return False
 
+    @staticmethod
+    def run_sql_command(sql_command):
+        status, output = subprocess.getstatusoutput(sql_command)
+        if status == 0:
+            return output
+        else:
+            raise RuntimeError("Failed to run SQL command!")
+
     def run_change_master(self, basedir, file_name=None):
         logger.debug("Started to make this new servers as slave...")
+        sql_port = "{} -e 'select @@port'"
         sql_create_user = '{} -e "CREATE USER \'repl\'@\'%\' IDENTIFIED BY \'Baku12345\'"'
         sql_grant = '{} -e "GRANT REPLICATION SLAVE ON *.* TO \'repl\'@\'%\'"'
         sql_change_master = '{} -e "CHANGE MASTER TO MASTER_HOST=\'{}\', MASTER_USER=\'{}\', MASTER_PASSWORD=\'{}\', MASTER_PORT={}, MASTER_AUTO_POSITION=1"'
+        start_slave = "{} -e 'start slave'"
         mysql_slave_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir, file_name=file_name)
         mysql_master_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir)
-        statuses = []
-        # Getting port from master
-        sql_port = "{} -e 'select @@port'"
-        status, port = subprocess.getstatusoutput(sql_port.format(mysql_master_client_cmd))
-        statuses.append(status)
-        # Create user
-        status, output = subprocess.getstatusoutput(sql_create_user.format(mysql_master_client_cmd))
-        statuses.append(status)
-        # Grant user
-        status, output = subprocess.getstatusoutput(sql_grant.format(mysql_master_client_cmd))
-        statuses.append(status)
-        # Change master
-        status, output = subprocess.getstatusoutput(sql_change_master.format(mysql_slave_client_cmd, 'localhost', 'repl', 'Baku12345', port[7:]))
-        statuses.append(status)
-
-        start_slave = "{} -e 'start slave'"
-        status, output = subprocess.getstatusoutput(start_slave.format(mysql_slave_client_cmd))
-        statuses.append(status)
-
-        for i in statuses:
-            if i != 0:
-                logger.error("Something failed in run_change_master()")
-                return False
-        logger.debug("Slave server is ready now...")
-        return True
-
-
-
+        try:
+            # Getting port from master
+            port = self.run_sql_command(sql_port.format(mysql_master_client_cmd))
+            # Create user
+            self.run_sql_command(sql_create_user.format(mysql_master_client_cmd))
+            # Grant user
+            self.run_sql_command(sql_grant.format(mysql_master_client_cmd))
+            # Change master
+            self.run_sql_command(sql_change_master.format(mysql_slave_client_cmd, 'localhost', 'repl', 'Baku12345', port[7:]))
+            # Start Slave
+            self.run_sql_command(start_slave.format(mysql_slave_client_cmd))
+        except Exception as err:
+            logger.error("Error in run_change_master()")
+            logger.error(err)
+            return False
+        else:
+            return True
 
     def wipe_backup_prepare_copyback(self, basedir):
         '''
