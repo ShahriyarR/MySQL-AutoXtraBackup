@@ -20,20 +20,23 @@ class CheckEnv(GeneralClass):
         if inc_dir is not None:
             self.inc_dir = inc_dir
 
-    def check_mysql_uptime(self):
+    def check_mysql_uptime(self, options=None):
 
-        statusargs = '%s --defaults-file=%s --user=%s --password=%s status' % (
-            self.mysqladmin, self.mycnf, self.mysql_user, self.mysql_password)
+        if options is None:
+            statusargs = '%s --defaults-file=%s --user=%s --password=%s status' % (
+                self.mysqladmin, self.mycnf, self.mysql_user, self.mysql_password)
 
-        if hasattr(self, 'mysql_socket'):
-            statusargs += " --socket=%s" % (self.mysql_socket)
-        elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
-            statusargs += " --host=%s" % self.mysql_host
-            statusargs += " --port=%s" % self.mysql_port
+            if hasattr(self, 'mysql_socket'):
+                statusargs += " --socket=%s" % (self.mysql_socket)
+            elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
+                statusargs += " --host=%s" % self.mysql_host
+                statusargs += " --port=%s" % self.mysql_port
+            else:
+                logger.critical(
+                    "Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
+                return False
         else:
-            logger.critical(
-                "Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
-            return False
+            statusargs = "{} {} status".format(self.mysqladmin, options)
         
         logger.debug(
             "Running mysqladmin command -> %s", statusargs)

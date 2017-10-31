@@ -26,11 +26,15 @@ class RunBenchmark:
         return sock_file
 
     @staticmethod
-    def get_mysql_conn(basedir):
+    def get_mysql_conn(basedir, file_name=None):
         # Get mysql client connection
         logger.debug("Trying to get mysql client connection...")
-        get_conn = "cat {}/cl_noprompt_nobinary"
-        status, output = subprocess.getstatusoutput(get_conn.format(basedir))
+        if file_name is None:
+            get_conn = "cat {}/cl_noprompt_nobinary"
+            status, output = subprocess.getstatusoutput(get_conn.format(basedir))
+        else:
+            get_conn = "cat {}/{}"
+            status, output = subprocess.getstatusoutput(get_conn.format(basedir, file_name))
         if status == 0:
             logger.debug("Could get mysql client")
             return output
