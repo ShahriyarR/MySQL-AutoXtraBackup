@@ -61,7 +61,7 @@ class RunnerTestMode(GeneralClass):
         rb_obj = RunBenchmark()
         sock_file = rb_obj.get_sock(basedir=basedir)
         if conn_options is None:
-            command = "pt-table-checksum --user={} --socket={}".format("root", sock_file)
+            command = "pt-table-checksum --user={} --socket={} --recursion-method dsn=h=127.0.0.1,D=test,t=dsns".format("root", sock_file)
         else:
             command = "pt-table-checksum {}".format(conn_options)
         status, output = subprocess.getstatusoutput(command)
