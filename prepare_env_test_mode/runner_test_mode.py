@@ -93,7 +93,7 @@ class RunnerTestMode(GeneralClass):
         return True
 
     @staticmethod
-    def populate_dsns_table(sql_conn, slave_socket):
+    def populate_dsns_table(sql_conn, slave_port):
         '''
         Method for inserting slave info into dsns table
         :param sql_conn: MySQl client connection string
@@ -103,7 +103,7 @@ class RunnerTestMode(GeneralClass):
 
         dsns_id = randint(10, 99)
         dsns_parent_id = randint(1, 99)
-        dsn='"h=localhost,u=root,s={}"'.format(slave_socket)
+        dsn='"h=localhost,u=root,P={}"'.format(slave_port)
         insert_into = "{} -e 'insert into dsns(id, parent_id, dsn) values({}, {}, {})'".format(sql_conn,
                                                                                                dsns_id,
                                                                                                dsns_parent_id,

@@ -22,8 +22,14 @@ class TestRunnerTestMode:
             if '5.6' in basedir:
                 mysql_master_client_cmd = RunBenchmark(config=return_runner_test_mode_obj_5_6_xb_2_3.conf).get_mysql_conn(
                     basedir=basedir)
-                slave_sock = "{}/sock0.sock".format(basedir)
-                assert return_runner_test_mode_obj_5_6_xb_2_3.populate_dsns_table(sql_conn=mysql_master_client_cmd, slave_socket=slave_sock)
+                file_name = "cl_node0"
+                mysql_slave_client_cmd = RunBenchmark(config=return_runner_test_mode_obj_5_6_xb_2_3.conf).get_mysql_conn(basedir=basedir,
+                                                                                       file_name=file_name)
+                # Get slave port here
+                sql = "{} -e 'select @@port'".format(mysql_slave_client_cmd)
+                port = return_runner_test_mode_obj_5_6_xb_2_3.run_sql_command(sql_command=sql)
+                #slave_sock = "{}/sock0.sock".format(basedir)
+                assert return_runner_test_mode_obj_5_6_xb_2_3.populate_dsns_table(sql_conn=mysql_master_client_cmd, slave_port=port[7:])
 
     @pytest.mark.usefixtures("return_runner_test_mode_obj_5_6_xb_2_3")
     def test_run_pt_table_checksum(self, return_runner_test_mode_obj_5_6_xb_2_3):
