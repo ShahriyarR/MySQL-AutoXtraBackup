@@ -101,14 +101,6 @@ class RunnerTestMode(GeneralClass):
         for i, j in enumerate(list_output[2:], start=1):
             splitted = j.split(":")
 
-            if 'Slave_SQL_Running' == splitted[0].lstrip():
-                if splitted[1] != 'Yes':
-                    raise RuntimeError("Slave_SQL_Running is not Yes")
-
-            if 'Slave_IO_Running' == splitted[0].lstrip():
-                if splitted[1] != 'Yes':
-                    raise RuntimeError("Slave_IO_Running is not Yes")
-
             if 'Last_IO_Error' == splitted[0].lstrip():
                 if splitted[1] != '':
                     raise RuntimeError("It seems to be IO Error: {}".format(splitted[1]))
@@ -116,6 +108,14 @@ class RunnerTestMode(GeneralClass):
             if 'Last_SQL_Error' == splitted[0].lstrip():
                 if splitted[1] != '':
                     raise RuntimeError("It seems to be SQL Error: {}".format(splitted[1]))
+
+            if 'Slave_IO_Running' == splitted[0].lstrip():
+                if splitted[1] != 'Yes':
+                    raise RuntimeError("Slave_IO_Running is not Yes")
+
+            if 'Slave_SQL_Running' == splitted[0].lstrip():
+                if splitted[1] != 'Yes':
+                    raise RuntimeError("Slave_SQL_Running is not Yes")
 
 
     @staticmethod

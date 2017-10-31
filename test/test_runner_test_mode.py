@@ -30,6 +30,15 @@ class TestRunnerTestMode:
                 assert return_runner_test_mode_obj_5_6_xb_2_3.drop_blank_mysql_users(mysql_master_client_cmd)
 
     @pytest.mark.usefixtures("return_runner_test_mode_obj_5_6_xb_2_3")
+    def test_check_slave_status(self, return_runner_test_mode_obj_5_6_xb_2_3):
+        for basedir in return_runner_test_mode_obj_5_6_xb_2_3.basedirs:
+            if '5.6' in basedir:
+                mysql_slave_client_cmd = RunBenchmark(config=return_runner_test_mode_obj_5_6_xb_2_3.conf).get_mysql_conn(basedir=basedir, file_name="cl_node0")
+                show_slave_status = "{} -e 'show slave status\G'"
+                assert return_runner_test_mode_obj_5_6_xb_2_3.check_slave_status(show_slave_status.format(mysql_slave_client_cmd))
+
+
+    @pytest.mark.usefixtures("return_runner_test_mode_obj_5_6_xb_2_3")
     def test_wipe_backup_prepare_copyback_5_6_xb_2_3(self, return_runner_test_mode_obj_5_6_xb_2_3):
         for basedir in return_runner_test_mode_obj_5_6_xb_2_3.basedirs:
             if '5.6' in basedir:
