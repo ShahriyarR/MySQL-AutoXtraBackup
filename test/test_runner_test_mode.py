@@ -35,7 +35,7 @@ class TestRunnerTestMode:
             if '5.6' in basedir:
                 mysql_slave_client_cmd = RunBenchmark(config=return_runner_test_mode_obj_5_6_xb_2_3.conf).get_mysql_conn(basedir=basedir, file_name="cl_node0")
                 show_slave_status = "{} -e 'show slave status\G'"
-                assert return_runner_test_mode_obj_5_6_xb_2_3.check_slave_status(show_slave_status.format(mysql_slave_client_cmd))
+                assert return_runner_test_mode_obj_5_6_xb_2_3.check_slave_status(show_slave_status.format(mysql_slave_client_cmd)) is None
 
 
     @pytest.mark.usefixtures("return_runner_test_mode_obj_5_6_xb_2_3")
