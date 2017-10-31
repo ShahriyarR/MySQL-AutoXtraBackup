@@ -8,13 +8,21 @@ class TestRunnerTestMode:
     def test_get_free_tcp_port(self, return_runner_test_mode_obj_5_6_xb_2_3):
         return_runner_test_mode_obj_5_6_xb_2_3.get_free_tcp_port()
 
+    @pytest.mark.usefixtures("return_runner_test_mode_obj_5_6_xb_2_3")
+    def test_create_dsns_table(self, return_runner_test_mode_obj_5_6_xb_2_3):
+        for basedir in return_runner_test_mode_obj_5_6_xb_2_3.basedirs:
+            if '5.6' in basedir:
+                mysql_master_client_cmd = RunBenchmark(config=return_runner_test_mode_obj_5_6_xb_2_3.conf).get_mysql_conn(
+                    basedir=basedir)
+                assert return_runner_test_mode_obj_5_6_xb_2_3.create_dsns_table(mysql_master_client_cmd)
+
     @pytest.mark.usefixtures("return_runner_test_mode_obj_5_6_xb_2_3", "return_run_benchmark_obj")
     def test_run_pt_table_checksum(self, return_runner_test_mode_obj_5_6_xb_2_3, return_run_benchmark_obj):
         for basedir in return_runner_test_mode_obj_5_6_xb_2_3.basedirs:
             if '5.6' in basedir:
-                socket = return_run_benchmark_obj.get_sock(basedir=basedir)
-                conn_options = "--user={} --socket={}".format('root', socket)
-        assert return_runner_test_mode_obj_5_6_xb_2_3.run_pt_table_checksum(conn_options=conn_options)
+                # socket = return_run_benchmark_obj.get_sock(basedir=basedir)
+                # conn_options = "--user={} --socket={}".format('root', socket)
+                assert return_runner_test_mode_obj_5_6_xb_2_3.run_pt_table_checksum(basedir=basedir)
 
     @pytest.mark.usefixtures("return_runner_test_mode_obj_5_6_xb_2_3")
     def test_run_change_master(self, return_runner_test_mode_obj_5_6_xb_2_3):

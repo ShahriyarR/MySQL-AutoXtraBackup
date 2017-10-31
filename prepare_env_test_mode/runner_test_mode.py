@@ -74,6 +74,45 @@ class RunnerTestMode(GeneralClass):
             raise RuntimeError("pt-table-checksum command failed")
 
     @staticmethod
+    def create_dsns_table(sql_conn):
+        '''
+        This method will create dsns table for pt-table-checksum
+        :param sql_conn: The mysql client connection command
+        :return: True if success or raise RuntimeError from run_sql_command()
+        '''
+        create_table = "CREATE TABLE `dsns` ( " \
+                          "`id` int(11) NOT NULL AUTO_INCREMENT, " \ 
+                          "`parent_id` int(11) DEFAULT NULL," \
+                          "`dsn` varchar(255) NOT NULL,PRIMARY KEY (`id`))"
+
+        cmd = "{} -e \'{}\'".format(sql_conn, create_table)
+        RunnerTestMode.run_sql_command(cmd)
+
+        return True
+
+    @staticmethod
+    def populate_dsns_table(sql_conn, slave_socket):
+        '''
+        Method for inserting slave info into dsns table
+        :param sql_conn: MySQl client connection string
+        :param slave_socket: Socket file of slave
+        :return: True or RuntimError from run_sql_command()
+        '''
+
+        dsns_id = randint(10, 99)
+        dsns_parent_id = randint(1, 99)
+        dsn="h=localhost,u=root,p='',s={}".format(slave_socket)
+        insert_into = "{}- e \'insert into dsns(id, parent_id, dsn) values({}, {}, {})\'".format(sql_conn,
+                                                                                                 dsns_id,
+                                                                                                 dsns_parent_id,
+                                                                                                 dsn)
+        RunnerTestMode.run_sql_command(insert_into)
+
+        return True
+
+
+
+    @staticmethod
     def run_sql_command(sql_command):
         '''
         General method for running SQL using mysql client connection
@@ -271,6 +310,7 @@ class RunnerTestMode(GeneralClass):
                                             # Checking if node is up
                                             chk_obj = CheckEnv(config=self.conf)
                                             check_options = "--user={} --socket={}/sock{}.sock".format('root', basedir, i)
+                                            slave_socket_file = "{}/sock{}.sock".format(basedir, i)
                                             if chk_obj.check_mysql_uptime(options=check_options):
                                                 # Make this node to be slave
                                                 full_backup_dir = prepare_obj.recent_full_backup_file()
