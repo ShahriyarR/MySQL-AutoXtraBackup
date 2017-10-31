@@ -25,8 +25,8 @@ class TestRunnerTestMode:
                 slave_sock = "{}/sock0.sock".format(basedir)
                 assert return_runner_test_mode_obj_5_6_xb_2_3.populate_dsns_table(sql_conn=mysql_master_client_cmd, slave_socket=slave_sock)
 
-    @pytest.mark.usefixtures("return_runner_test_mode_obj_5_6_xb_2_3", "return_run_benchmark_obj")
-    def test_run_pt_table_checksum(self, return_runner_test_mode_obj_5_6_xb_2_3, return_run_benchmark_obj):
+    @pytest.mark.usefixtures("return_runner_test_mode_obj_5_6_xb_2_3")
+    def test_run_pt_table_checksum(self, return_runner_test_mode_obj_5_6_xb_2_3):
         for basedir in return_runner_test_mode_obj_5_6_xb_2_3.basedirs:
             if '5.6' in basedir:
                 # socket = return_run_benchmark_obj.get_sock(basedir=basedir)
