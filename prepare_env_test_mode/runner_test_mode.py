@@ -80,10 +80,12 @@ class RunnerTestMode(GeneralClass):
         :param sql_conn: The mysql client connection command
         :return: True if success or raise RuntimeError from run_sql_command()
         '''
-        create_table = "CREATE TABLE `dsns` ( " \
-                          "`id` int(11) NOT NULL AUTO_INCREMENT, " \ 
-                          "`parent_id` int(11) DEFAULT NULL," \
-                          "`dsn` varchar(255) NOT NULL,PRIMARY KEY (`id`))"
+        create_table = """CREATE TABLE `dsns` (
+                          `id` int(11) NOT NULL AUTO_INCREMENT,
+                          `parent_id` int(11) DEFAULT NULL,
+                          `dsn` varchar(255) NOT NULL,
+                          PRIMARY KEY (`id`))
+                        """
 
         cmd = "{} -e \'{}\'".format(sql_conn, create_table)
         RunnerTestMode.run_sql_command(cmd)
