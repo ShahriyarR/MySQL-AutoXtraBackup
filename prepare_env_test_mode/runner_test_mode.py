@@ -61,9 +61,13 @@ class RunnerTestMode(GeneralClass):
         rb_obj = RunBenchmark()
         sock_file = rb_obj.get_sock(basedir=basedir)
         if conn_options is None:
-            command = "pt-table-checksum --user={} --socket={} --recursion-method dsn=h=localhost,D=test,t=dsns".format("root", sock_file)
+            command = "pt-table-checksum --user={} --socket={} " \
+                      "--recursion-method dsn=h=localhost,D=test,t=dsns " \
+                      "--no-check-binlog-format".format("root", sock_file)
         else:
-            command = "pt-table-checksum {}".format(conn_options)
+            command = "pt-table-checksum {} " \
+                      "--recursion-method dsn=h=localhost,D=test,t=dsns " \
+                      "--no-check-binlog-format".format(conn_options)
         status, output = subprocess.getstatusoutput(command)
         if status == 0:
             logger.debug("pt-table-checksum succeeded on master")
@@ -191,7 +195,7 @@ class RunnerTestMode(GeneralClass):
             return binlog_file.readline().split('\t')[2][:-1]
 
 
-    def run_change_master(self, basedir, full_backup_dir, file_name=None):
+    def run_change_master(self, basedir, full_backup_dir, file_name):
         '''
         Method for making ordinary server as slave
         :param basedir: PS basedir path
@@ -231,6 +235,13 @@ class RunnerTestMode(GeneralClass):
         # Check Slave output for errors
         sleep(20)
         self.check_slave_status(show_slave_status.format(mysql_slave_client_cmd))
+
+        # Creating dsns table
+        self.create_dsns_table(mysql_master_client_cmd)
+
+        # Populating dsns table with slave info
+        slave_port = self.run_sql_command(sql_port.format(mysql_slave_client_cmd))
+        self.populate_dsns_table(sql_conn=mysql_master_client_cmd, slave_port=slave_port[7:])
 
         return True
 
@@ -321,7 +332,7 @@ class RunnerTestMode(GeneralClass):
                                                                           file_name="cl_node{}".format(i)):
                                                     sleep(10)
                                                     #Running on master
-                                                    if self.run_pt_table_checksum(basedir=basedir):
-                                                        break
+                                                    self.run_pt_table_checksum(basedir=basedir)
+
                         else:
                             prepare_obj.copy_back_action(options=options)
