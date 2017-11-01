@@ -12,6 +12,7 @@ import os
 import humanfriendly
 import logging
 import logging.handlers
+from logging.handlers import RotatingFileHandler
 import sys
 
 
@@ -142,13 +143,14 @@ def all_procedure(prepare, backup, partial, verbose,log_file, log, defaults_file
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
+
     if verbose:
         ch = logging.StreamHandler()
         ch.setFormatter(formatter)
         logger.addHandler(ch)
 
     if log_file:
-        file_handler = logging.RotatingFileHandler(log_file, mode='a', max_bytes=104857600, backupCount=7)
+        file_handler = RotatingFileHandler(log_file, mode='a', maxBytes=104857600, backupCount=7)
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
