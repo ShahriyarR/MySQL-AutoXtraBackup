@@ -12,6 +12,7 @@ import os
 import humanfriendly
 import logging
 import logging.handlers
+from logging.handlers import RotatingFileHandler
 import sys
 
 
@@ -117,9 +118,13 @@ def validate_file(file):
     is_eager=True,
     help="Version information.")
 @click.option('--defaults_file', default='/etc/bck.conf',
-              help="Read options from the given file")
+              help="Read options from the given file[Default: /etc/bck.conf]")
 @click.option('-v', '--verbose', is_flag=True,
               help="Be verbose (print to console)")
+@click.option('-lf',
+              '--log_file',
+              default='/var/log/autoxtrabackup.log',
+              help="Set log file[Default: /var/log/autoxtrabackup.log]")
 @click.option('-l',
               '--log',
               default='WARNING',
@@ -134,14 +139,21 @@ def validate_file(file):
     is_flag=True,
     help="Enable test mode.Must be used with --defaults_file and only for TESTs for XtraBackup")
 
-def all_procedure(prepare, backup, partial, verbose, log, defaults_file, dry_run, test_mode):
+def all_procedure(prepare, backup, partial, verbose,log_file, log, defaults_file, dry_run, test_mode):
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
+
     if verbose:
         ch = logging.StreamHandler()
         ch.setFormatter(formatter)
         logger.addHandler(ch)
+
+    if log_file:
+        file_handler = RotatingFileHandler(log_file, mode='a', maxBytes=104857600, backupCount=7)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+
 
     validate_file(defaults_file)
     config = GeneralClass(defaults_file)
