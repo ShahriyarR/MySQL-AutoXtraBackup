@@ -154,7 +154,6 @@ class CheckEnv(GeneralClass):
             logger.debug('OK: Increment directory exists')
             return True
 
-
     def check_all_env(self):
 
         env_result = False
