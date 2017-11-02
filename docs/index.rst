@@ -16,6 +16,7 @@ Welcome to MySQL-AutoXtrabackup's documentation!
    basic_features
    advance_features
    test_mode
+   option_reference
    
 Indices and tables
 ==================

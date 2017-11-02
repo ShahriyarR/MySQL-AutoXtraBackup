@@ -7,7 +7,7 @@ Compressed backups:
 To enable compression support just uncomment the options under
 [Compress] category inside main configuration file:
 
-::
+    ::
 
     [Compress]
     #Optional
@@ -21,7 +21,7 @@ To enable compression support just uncomment the options under
 
 Example run of compression enabled backup:
 
-::
+    ::
 
 
     $ sudo autoxtrabackup --backup -v -l DEBUG --defaults_file=/home/shahriyar.rzaev/AutoXtrabackup_Configs/ps_5.7_master_bck.conf
@@ -56,7 +56,7 @@ Example run of compression enabled backup:
 
 Take a look at backup folder:
 
-::
+    ::
 
     [shahriyar.rzaev@qaserver-04 ps_5.7_master]$ sudo ls full/2017-02-24_18-15-59/
     backup-my.cnf.qp  dbtest  ib_buffer_pool.qp  ibdata1.qp  mysql  performance_schema  sys  test  xtrabackup_checkpoints  xtrabackup_info.qp  xtrabackup_logfile.qp
@@ -67,7 +67,7 @@ Encrypted backups
 To enable encryption support uncomment the options under [Encryption]
 category:
 
-::
+    ::
 
     [Encrypt]
     #Optional
@@ -85,7 +85,7 @@ category:
 
 Then just run backup command:
 
-::
+    ::
 
 
     [shahriyar.rzaev@qaserver-04 ~]$ sudo autoxtrabackup --backup -v -l DEBUG --defaults_file=/home/shahriyar.rzaev/AutoXtrabackup_Configs/ps_5.7_master_bck.conf
@@ -120,7 +120,7 @@ Then just run backup command:
 
 Check backup directory:
 
-::
+    ::
 
 
     [shahriyar.rzaev@qaserver-04 ps_5.7_master]$ ls full/2017-02-24_18-45-57/
@@ -129,7 +129,7 @@ Check backup directory:
 
 How about incremental backups? Let's take an incremental backup:
 
-::
+    ::
 
 
     $ sudo autoxtrabackup --backup -v -l DEBUG --defaults_file=/home/shahriyar.rzaev/AutoXtrabackup_Configs/ps_5.7_master_bck.conf
@@ -171,7 +171,7 @@ then to take incremental backups based on this one table.
 You can achieve this by enabling ``partial_list`` option from config file:
 
 
-::
+    ::
 
     [Backup]
     #Optional: set pid directory
@@ -194,7 +194,7 @@ You can achieve this by enabling ``partial_list`` option from config file:
 
 Sample run of full backup:
 
-::
+    ::
 
     $ sudo autoxtrabackup --backup -v -l DEBUG --defaults_file=/home/shahriyar.rzaev/AutoXtrabackup_Configs/ps_5.7_master_bck.conf
     2017-03-06 10:51:32 DEBUG    <pid.PidFile object at 0x7f129b9a90e8> entering setup
@@ -230,7 +230,7 @@ Sample run of full backup:
 
 Notice that backup command has changed (see ``--databases`` option):
 
-::
+    ::
 
     /home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xtrabackup
     --defaults-file=/home/shahriyar.rzaev/sandboxes/rsandbox_Percona-Server-5_7_17/master/my.sandbox.cnf --user=jeffrey --password='msandbox'
@@ -241,7 +241,7 @@ Notice that backup command has changed (see ``--databases`` option):
 
 In the same way you can take incremental backup of this table:
 
-::
+    ::
 
     $ sudo autoxtrabackup --backup -v -l DEBUG --defaults_file=/home/shahriyar.rzaev/AutoXtrabackup_Configs/ps_5.7_master_bck.conf
     2017-03-06 11:59:59 DEBUG    <pid.PidFile object at 0x7fab09cad0e8> entering setup
@@ -295,7 +295,7 @@ We have 2 incremental backups:
 Let's prepare them:
 
 
-::
+    ::
 
 
     $ sudo autoxtrabackup --prepare -v -l DEBUG --defaults_file=/home/shahriyar.rzaev/AutoXtrabackup_Configs/ps_5.7_master_bck.conf
@@ -368,7 +368,7 @@ remove ``.xbcrypt`` and ``.qp`` files from backup directory during prepare
 process. Read about this option here -> `--remove-original <https://www.percona.com/doc/percona-xtrabackup/2.4/xtrabackup_bin/xbk_option_reference.html#cmdoption-xtrabackup-remove-original>`_
 
 
-::
+    ::
 
     [Compress]
     #Optional
@@ -671,3 +671,5 @@ Preparing backups:
         2017-04-24 15:04:20 DEBUG    ####################################################################################################
         2017-04-24 15:04:23 DEBUG    <pid.PidFile object at 0x7f357389aea8> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
         2017-04-24 15:04:23 DEBUG    <pid.PidFile object at 0x7f357389aea8> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+
+The end.

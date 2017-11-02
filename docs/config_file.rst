@@ -23,21 +23,27 @@ You can pass another configuration file using ``--defaults_file`` option.
     mysql_host=127.0.0.1
     mysql_port=3306
     datadir=/var/lib/mysql
-    tmpdir=/tmp/mysql
-    tmp=/tmp
 
     [Backup]
     #Optional: set pid directory
     pid_dir=/tmp/MySQL-AutoXtraBackup
+    tmpdir=/home/shahriyar.rzaev/XB_TEST/mysql_datadirs
     #Optional: set warning if pid of backup us running for longer than X
     pid_runtime_warning=2 Hours
-    backupdir=/home/backup_dir
+    backupdir=/home/shahriyar.rzaev/XB_TEST/backup_dir
     backup_tool=/usr/bin/xtrabackup
+    #Optional: specify different path/version of xtrabackup here for prepare
+    #prepare_tool=
     xtra_prepare=--apply-log-only
-    #Optional: pass additional options
+    #Optional: pass additional options for backup stage
+    #xtra_backup=--compact
+    #Optional: pass additional options for prepare stage
+    #xtra_prepare_options=--rebuild-indexes
+    #Optional: pass general additional options; it will go to both for backup and prepare
     #xtra_options=--binlog-info=ON --galera-info
+    xtra_options=--no-version-check
     #Optional: set archive and rotation
-    #archive_dir=/home/backup_archives
+    #archive_dir=/home/shahriyar.rzaev/XB_TEST/backup_archives
     #full_backup_interval=1 day
     #max_archive_size=100GiB
     #max_archive_duration=4 Days
@@ -87,9 +93,17 @@ You can pass another configuration file using ``--defaults_file`` option.
     [Commands]
     start_mysql_command=service mysql start
     stop_mysql_command=service mysql stop
-    systemd_start_mysql=systemctl start mysqld.service
-    systemd_stop_mysql=systemctl stop mysqld.service
-    systemd_start_mariadb=systemctl start mariadb.service
-    systemd_stop_mariadb=systemctl stop mariadb.service
+    #Change user:group respectively
     chown_command=chown -R mysql:mysql
-    mariadb_cluster_bootstrap=service mysql bootstrap
+
+
+    # Do not touch; this is for --test_mode, which is testing for XtraBackup itself.
+    [TestConf]
+    ps_branches=5.6 5.7
+    gitcmd=--recursive --depth=1 https://github.com/percona/percona-server.git
+    testpath=/home/shahriyar.rzaev/XB_TEST/server_dir
+    incremental_count=3
+    #slave_count=1
+    xb_configs=xb_2_4_ps_5_6.conf xb_2_4_ps_5_7.conf xb_2_3_ps_5_6.conf
+    default_mysql_options=--log-bin=mysql-bin,--log-slave-updates,--server-id={},--gtid-mode=ON,--enforce-gtid-consistency,--binlog-format=row
+    mysql_options=--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,--innodb_page_size=4K 8K 16K 32K 64K

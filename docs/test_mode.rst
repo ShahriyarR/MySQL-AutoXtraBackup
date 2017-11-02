@@ -14,7 +14,9 @@ Here is the brief flow for this:
 * Generate autoxtrabackup .conf files for each version PS and XtraBackup
 * Pass different combination of options to PS start command; Initialize PS servers each time with different options.
 * Run sysbench against each started PS server
-* Took backup in cycles for each started PS + prepare + restore.
+* Took backup in cycles for each started PS + prepare
+* If slave_count is defined then create slave server from this backup(i.e copy-back to another directory and start slave from it)
+* If slave_count is not defined then just recover/restore to original server.
 
 Now let's talk a bit more here.
 
@@ -69,6 +71,7 @@ For test mode [TestConf] category is relevant. Let's go through options
     gitcmd = --recursive --depth=1 https://github.com/percona/percona-server.git
     testpath = /home/shahriyar.rzaev/XB_TEST/server_dir
     incremental_count = 3
+    slave_count = 1
     xb_configs = xb_2_4_ps_5_6.conf xb_2_4_ps_5_7.conf xb_2_3_ps_5_6.conf
     mysql_options = --innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,--innodb_page_size=4K 8K 16K 32K 64K
 
@@ -76,6 +79,7 @@ For test mode [TestConf] category is relevant. Let's go through options
 ``gitcmd`` is for passing git command for git clone.
 ``testpath`` is for passing the path for test mode.
 ``incremental_count`` specify how many incremental backups the tool should take.
+``slave_count`` specify how many slaves tool should start from taken backup.
 ``xb_configs`` is for passing config files to be generated.
 ``mysql_options`` is for passing mysql startup/initialization options to PS.
 
@@ -88,4 +92,4 @@ Important things to remember
 
 This is tested only with Percona Servers, but can be expanded.
 Also --test_mode option is mutually exclusive with other options such as --backup and --prepare.
-So basically do not touch this, if you are not testing XtraBackup
+So basically do not touch this, if you are not testing XtraBackup.
