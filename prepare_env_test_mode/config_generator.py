@@ -1,7 +1,6 @@
 from prepare_env_test_mode.clone_build_start_server import CloneBuildStartServer
 from prepare_env_test_mode.run_benchmark import RunBenchmark
 import configparser
-import os
 from itertools import product
 import logging
 logger = logging.getLogger(__name__)
@@ -20,7 +19,6 @@ class ConfigGenerator(CloneBuildStartServer):
         # This method for generating separate config files for each XB versions based on PS versions
         try:
             conf_path = "{}/{}".format(test_path, conf_file)
-            #if not os.path.isfile(conf_path):
             with open(conf_path, 'w+') as cfgfile:
                 config = configparser.ConfigParser(allow_no_value=True)
                 section1 = 'MySQL'
@@ -78,49 +76,49 @@ class ConfigGenerator(CloneBuildStartServer):
                 config.add_section(section3)
                 config.set(section3, "#optional")
                 config.set(section3, "#Enable only if you want to use compression.")
-                config.set(section3, "#compress", "quicklz")
-                config.set(section3, "#compress_chunk_size", "65536")
-                config.set(section3, "#compress_threads", "4")
-                config.set(section3, "#decompress", "TRUE")
+                config.set(section3, "compress", "quicklz")
+                config.set(section3, "compress_chunk_size", "65536")
+                config.set(section3, "compress_threads", "4")
+                config.set(section3, "decompress", "TRUE")
                 config.set(section3,
                            "#Enable if you want to remove .qp files after decompression.(Not available yet, will be released with XB 2.3.7 and 2.4.6)")
-                config.set(section3, "#remove_original", "FALSE")
+                config.set(section3, "remove_original", "FALSE")
 
                 section4 = "Encrypt"
                 config.add_section(section4)
                 config.set(section4, "#Optional")
                 config.set(section4, "#Enable only if you want to create encrypted backups")
                 if '2_4' in conf_file:
-                    config.set(section4, "#xbcrypt",
+                    config.set(section4, "xbcrypt",
                                "{}/target/percona-xtrabackup-2.4.x-debug/bin/xbcrypt".format(test_path))
                 else:
-                    config.set(section4, "#xbcrypt",
+                    config.set(section4, "xbcrypt",
                                "{}/target/percona-xtrabackup-2.3.x-debug/bin/xbcrypt".format(test_path))
-                config.set(section4, "#encrypt", "AES256")
+                config.set(section4, "encrypt", "AES256")
                 config.set(section4,
                            "#Please note that --encrypt-key and --encrypt-key-file are mutually exclusive")
-                config.set(section4, "#encrypt_key", 'VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K')
+                config.set(section4, "encrypt_key", 'VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K')
                 config.set(section4, "#encrypt_key_file", "/path/to/file/with_encrypt_key")
-                config.set(section4, "#encrypt_threads", "4")
-                config.set(section4, "#encrypt_chunk_size", "65536")
-                config.set(section4, "#decrypt", "AES256")
+                config.set(section4, "encrypt_threads", "4")
+                config.set(section4, "encrypt_chunk_size", "65536")
+                config.set(section4, "decrypt", "AES256")
                 config.set(section4,
                            "#Enable if you want to remove .qp files after decompression.(Not available yet, will be released with XB 2.3.7 and 2.4.6)")
-                config.set(section4, "#remove_original", "FALSE")
+                config.set(section4, "remove_original", "FALSE")
 
                 section5 = "Xbstream"
                 config.add_section(section5)
                 config.set(section5, "#EXPERIMENTAL")
                 config.set(section5, "#Enable this, if you want to stream your backups")
                 if '2_4' in conf_file:
-                    config.set(section5, "#xbstream",
+                    config.set(section5, "xbstream",
                                "{}/target/percona-xtrabackup-2.4.x-debug/bin/xbstream".format(test_path))
                 else:
-                    config.set(section5, "#xbstream",
+                    config.set(section5, "xbstream",
                                "{}/target/percona-xtrabackup-2.3.x-debug/bin/xbstream".format(test_path))
-                config.set(section5, "#stream", "xbstream")
-                config.set(section5, "#xbstream_options", "-x --parallel=100")
-                config.set(section5, "#xbs_decrypt", "1")
+                config.set(section5, "stream", "xbstream")
+                config.set(section5, "xbstream_options", "-x --parallel=100")
+                config.set(section5, "xbs_decrypt", "1")
                 config.set(section5, "# WARN, enable this, if you want to stream your backups to remote host")
                 config.set(section5, "#remote_stream", "ssh xxx.xxx.xxx.xxx")
 
@@ -195,8 +193,9 @@ class ConfigGenerator(CloneBuildStartServer):
     @staticmethod
     def options_combination_generator(initial_str):
         '''
-        Description: Option parser method for creating option combinarotics
-        return: List of tuples with option combinations
+        Option parser method for creating option combinarotics
+        :param initial_str -> mysql_options initial string from config file
+        :return List of tuples with option combinations
         '''
         separated_values_list = []
 
