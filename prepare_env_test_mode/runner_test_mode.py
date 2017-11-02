@@ -322,8 +322,6 @@ class RunnerTestMode(GeneralClass):
                                                 else:
                                                     raise RuntimeError("Failed to chmod {}/stop_node{}".format(basedir, i))
 
-
-
                                             # Checking if node is up
                                             chk_obj = CheckEnv(config=self.conf)
                                             check_options = "--user={} --socket={}/sock{}.sock".format('root', basedir, i)
@@ -335,8 +333,16 @@ class RunnerTestMode(GeneralClass):
                                                                           full_backup_dir="{}/{}".format(full_dir, full_backup_dir),
                                                                           file_name="cl_node{}".format(i)):
                                                     sleep(10)
-                                                    #Running on master
+                                                    # Running on master
                                                     self.run_pt_table_checksum(basedir=basedir)
+
+                                                    # Shutdown slave
+                                                    shutdown_cmd = "{}/stop_node{}".format(basedir, i)
+                                                    status, output = subprocess.getstatusoutput(shutdown_cmd)
+                                                    if status == 0:
+                                                        logger.debug("OK: Slave shutdown")
+                                                    else:
+                                                        raise RuntimeError("FAILED: Slave shutdown")
 
                         else:
                             prepare_obj.copy_back_action(options=options)
