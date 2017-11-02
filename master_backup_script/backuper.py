@@ -34,7 +34,6 @@ class Backup(GeneralClass):
         self.dry = dry_run
         # Call GeneralClass for storing configuration
         super().__init__(self.conf)
-        #GeneralClass.__init__(self, self.conf)
 
     def sorted_ls(self, path):
         mtime = lambda f: os.stat(os.path.join(path, f)).st_mtime
@@ -70,8 +69,7 @@ class Backup(GeneralClass):
             makedirs(new_backup_dir)
             return new_backup_dir
         except Exception as err:
-            logger.error(
-                "Something went wrong in create_backup_directory(): {}".format(err))
+            logger.error("Something went wrong in create_backup_directory(): {}".format(err))
 
     def recent_full_backup_file(self):
         # Return last full backup dir name
@@ -110,7 +108,6 @@ class Backup(GeneralClass):
                 self.mycnf,
                 self.mysql_user,
                 self.mysql_password,
-                #self.mysql_host,
                 self.mysql_socket
             )
         else:
@@ -128,10 +125,10 @@ class Backup(GeneralClass):
         status, output = subprocess.getstatusoutput(new_command)
 
         if status == 0:
-            logger.debug("Log flushing completed")
+            logger.debug("OK: Log flushing completed")
             return True
         else:
-            logger.error("Log flushing FAILED!")
+            logger.error("FAILED: Log flushing")
             time.sleep(5)
             logger.error(output)
             return False
@@ -152,10 +149,10 @@ class Backup(GeneralClass):
         logger.debug("Start to archive previous backups")
         status, output = subprocess.getstatusoutput(run_tar)
         if status == 0:
-            logger.debug("Old full backup and incremental backups archived!")
+            logger.debug("OK: Old full backup and incremental backups archived!")
             return True
         else:
-            logger.error("Archiving FAILED!")
+            logger.error("FAILED: Archiving ")
             time.sleep(5)
             logger.error(output)
             return False
@@ -204,12 +201,9 @@ class Backup(GeneralClass):
 
     def copy_backup_to_remote_host(self):
         # Copying backup directory to remote server
-        logger.debug(
-            "########################################################################")
-        logger.debug("Copying backups to remote server")
-        logger.debug(
-            "########################################################################")
-        copy_it = 'scp -r %s %s:%s' % (self.backupdir,
+        logger.debug("- - - - Copying backups to remote server - - - -")
+
+        copy_it = 'scp -r {} {}:{}'.format(self.backupdir,
                                        self.remote_conn, self.remote_dir)
         copy_it = shlex.split(copy_it)
         cp = subprocess.Popen(copy_it, stdout=subprocess.PIPE)
@@ -233,8 +227,7 @@ class Backup(GeneralClass):
             args += " --host=%s" % self.mysql_host
             args += " --port=%s" % self.mysql_port
         else:
-            logger.critical(
-                "Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
+            logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
             return False
 
         # Adding compression support for full backup
@@ -290,7 +283,7 @@ class Backup(GeneralClass):
                 #logger.debug(output[-27:])
                 return True
             else:
-                logger.error("FULL BACKUP FAILED!")
+                logger.error("FAILED: FULL BACKUP")
                 time.sleep(5)
                 logger.error(output)
                 return False
@@ -329,8 +322,7 @@ class Backup(GeneralClass):
                 args += " --host=%s" % self.mysql_host
                 args += " --port=%s" % self.mysql_port
             else:
-                logger.critical(
-                    "Neither mysql_socket nor mysql_host and mysql_port are not defined in config!")
+                logger.critical("Neither mysql_socket nor mysql_host and mysql_port are not defined in config!")
                 return False
 
             # Adding compression support for incremental backup
@@ -404,9 +396,9 @@ class Backup(GeneralClass):
                 if self.dry == 0 and isfile(("%s/%s/full_backup.stream") % (self.full_dir, recent_bck)):
                     status, output = subprocess.getstatusoutput(xbstream_command)
                     if status == 0:
-                        logger.debug("XBSTREAM command succeeded.")
+                        logger.debug("OK: XBSTREAM command succeeded.")
                     else:
-                        logger.error("XBSTREAM COMMAND FAILED!")
+                        logger.error("FAILED: XBSTREAM command")
                         time.sleep(5)
                         logger.error(output)
                         return False
@@ -431,7 +423,7 @@ class Backup(GeneralClass):
                     if status == 0:
                         logger.debug(output[-27:])
                     else:
-                        logger.error("XBCRYPT COMMAND FAILED!")
+                        logger.error("FAILED: XBCRYPT command")
                         time.sleep(5)
                         logger.error(output)
                         return False
@@ -468,7 +460,7 @@ class Backup(GeneralClass):
                     #logger.debug(output[-27:])
                     return True
                 else:
-                    logger.error("INCREMENT BACKUP FAILED!")
+                    logger.error("FAILED: INCREMENT BACKUP FAILED!")
                     time.sleep(5)
                     logger.error(output)
                     return False
@@ -540,9 +532,9 @@ class Backup(GeneralClass):
                 if self.dry == 0 and isfile(("%s/%s/inc_backup.stream") % (self.inc_dir, recent_inc)):
                     status, output = subprocess.getstatusoutput(xbstream_command)
                     if status == 0:
-                        logger.debug("XBSTREAM command succeeded.")
+                        logger.debug("OK: XBSTREAM command succeeded.")
                     else:
-                        logger.error("XBSTREAM COMMAND FAILED!")
+                        logger.error("FAILED: XBSTREAM command.")
                         time.sleep(5)
                         logger.error(output)
                         return False
@@ -567,9 +559,9 @@ class Backup(GeneralClass):
                 if self.dry == 0 and isfile(("%s/%s/inc_backup.stream") % (self.full_dir, recent_bck)):
                     status, output = subprocess.getstatusoutput(xbstream_command)
                     if status == 0:
-                        logger.debug("XBSTREAM command succeeded.")
+                        logger.debug("OK: XBSTREAM command succeeded.")
                     else:
-                        logger.error("XBSTREAM COMMAND FAILED!")
+                        logger.error("FAILED: XBSTREAM command.")
                         time.sleep(5)
                         logger.error(output)
                         return False
@@ -593,7 +585,7 @@ class Backup(GeneralClass):
                     if status == 0:
                         logger.debug(output[-27:])
                     else:
-                        logger.error("XBCRYPT COMMAND FAILED!")
+                        logger.error("FAILED: XBCRYPT command")
                         time.sleep(5)
                         logger.error(output)
                         return False
@@ -631,7 +623,7 @@ class Backup(GeneralClass):
                     #logger.debug(output[-27:])
                     return True
                 else:
-                    logger.error("INCREMENT BACKUP FAILED!")
+                    logger.error("FAILED: INCREMENT BACKUP")
                     time.sleep(5)
                     logger.error(output)
                     return False
@@ -651,13 +643,7 @@ class Backup(GeneralClass):
         if check_env_obj.check_all_env():
 
             if self.recent_full_backup_file() == 0:
-                logger.debug(
-                    "###############################################################")
-                logger.debug(
-                    "#You have no backups : Taking very first Full Backup! - - - - #")
-                logger.debug(
-                    "###############################################################")
-
+                logger.debug("- - - - You have no backups : Taking very first Full Backup! - - - -")
                 time.sleep(3)
 
                 # Flushing Logs
@@ -681,12 +667,10 @@ class Backup(GeneralClass):
                 return True
 
             elif self.last_full_backup_date() == 1:
+
                 logger.debug(
-                    "################################################################")
-                logger.debug(
-                    "Your full backup is timeout : Taking new Full Backup!- - - - - #")
-                logger.debug(
-                    "################################################################")
+                    "- - - - Your full backup is timeout : Taking new Full Backup! - - - -")
+
 
                 time.sleep(3)
 
@@ -723,15 +707,12 @@ class Backup(GeneralClass):
                 #exit(0)
                 return True
             else:
+
                 logger.debug(
-                    "################################################################")
-                logger.debug(
-                    "You have a full backup that is less than %d seconds old. - -#",
+                    "- - - - You have a full backup that is less than %d seconds old. - - - -",
                     self.full_backup_interval)
                 logger.debug(
-                    "We will take an incremental one based on recent Full Backup - -#")
-                logger.debug(
-                    "################################################################")
+                    "- - - - We will take an incremental one based on recent Full Backup - - - -")
 
                 time.sleep(3)
 
