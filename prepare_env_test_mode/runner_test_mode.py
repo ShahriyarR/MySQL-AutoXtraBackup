@@ -222,6 +222,10 @@ class RunnerTestMode(GeneralClass):
         if '5.6' in basedir:
             self.drop_blank_mysql_users(mysql_master_client_cmd)
 
+        # Run reset master on slave fix for -> https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/157
+        reset_master = "{} -e 'reset master'"
+        self.run_sql_command(reset_master.format(mysql_slave_client_cmd))
+
         # Run SET GLOBAL gtid_purged= here
         gtid_pos = self.get_gtid_address(full_backup_dir)
         gtid_purged = '{} -e \'set global gtid_purged=\"{}\"\''.format(mysql_slave_client_cmd, gtid_pos)
