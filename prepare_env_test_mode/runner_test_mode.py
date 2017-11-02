@@ -222,6 +222,10 @@ class RunnerTestMode(GeneralClass):
         if '5.6' in basedir:
             self.drop_blank_mysql_users(mysql_master_client_cmd)
 
+        # Run reset master on slave fix for -> https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/157
+        reset_master = "{} -e 'reset master'"
+        self.run_sql_command(reset_master.format(mysql_slave_client_cmd))
+
         # Run SET GLOBAL gtid_purged= here
         gtid_pos = self.get_gtid_address(full_backup_dir)
         gtid_purged = '{} -e \'set global gtid_purged=\"{}\"\''.format(mysql_slave_client_cmd, gtid_pos)
@@ -318,8 +322,6 @@ class RunnerTestMode(GeneralClass):
                                                 else:
                                                     raise RuntimeError("Failed to chmod {}/stop_node{}".format(basedir, i))
 
-
-
                                             # Checking if node is up
                                             chk_obj = CheckEnv(config=self.conf)
                                             check_options = "--user={} --socket={}/sock{}.sock".format('root', basedir, i)
@@ -331,8 +333,16 @@ class RunnerTestMode(GeneralClass):
                                                                           full_backup_dir="{}/{}".format(full_dir, full_backup_dir),
                                                                           file_name="cl_node{}".format(i)):
                                                     sleep(10)
-                                                    #Running on master
+                                                    # Running on master
                                                     self.run_pt_table_checksum(basedir=basedir)
+
+                                                    # Shutdown slave
+                                                    shutdown_cmd = "{}/stop_node{}".format(basedir, i)
+                                                    status, output = subprocess.getstatusoutput(shutdown_cmd)
+                                                    if status == 0:
+                                                        logger.debug("OK: Slave shutdown")
+                                                    else:
+                                                        raise RuntimeError("FAILED: Slave shutdown")
 
                         else:
                             prepare_obj.copy_back_action(options=options)
