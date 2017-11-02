@@ -51,7 +51,6 @@ class PartialRecovery(GeneralClass):
             )
             return new_command
 
-
     def check_innodb_file_per_table(self):
         """
         Function for checking MySQL innodb_file_per_table option.
@@ -74,7 +73,6 @@ class PartialRecovery(GeneralClass):
             logger.error("Check FAILED!")
             logger.error(output)
             return False
-
 
     def check_mysql_version(self):
         """
@@ -102,7 +100,6 @@ class PartialRecovery(GeneralClass):
             logger.error("Check FAILED!")
             logger.error(output)
             return False
-
 
     def check_database_exists_on_mysql(self, database_name):
         """
@@ -136,7 +133,7 @@ class PartialRecovery(GeneralClass):
                     logger.error("Failed to create database!")
                     logger.error(output)
                     return False
-            else: # if you type non-yes word
+            else:  # if you type non-yes word
                 logger.error("Exited!")
                 return False
 
@@ -144,7 +141,6 @@ class PartialRecovery(GeneralClass):
             logger.error("Check FAILED!")
             logger.error(output)
             return False
-
 
     def check_table_exists_on_mysql(
             self,
@@ -154,6 +150,7 @@ class PartialRecovery(GeneralClass):
         """
         Function to check if table exists on MySQL.
         If it is dropped, we will try to extract table create statement from .frm file from backup file.
+        :param path_to_frm_file: Path for .frm file
         :param database_name: Specified database name
         :param table_name: Specified table name
         :return: True/False
@@ -171,18 +168,14 @@ class PartialRecovery(GeneralClass):
             return True
         elif status == 0 and int(output[-1]) == 0:
             logger.debug("Table does not exist in MySQL Server.")
-            logger.debug(
-                "You can not restore table, with not existing tablespace file(.ibd)!")
-            logger.debug(
-                "We will try to extract table create statement from .frm file, from backup folder")
-            create = self.run_mysqlfrm_utility(
-                path_to_frm_file=path_to_frm_file)
-            regex = re.compile(
-                r'((\n)CREATE((?!#).)*ENGINE=\w+)', re.DOTALL)
+            logger.debug("You can not restore table, with not existing tablespace file(.ibd)!")
+            logger.debug("We will try to extract table create statement from .frm file, from backup folder")
+            create = self.run_mysqlfrm_utility(path_to_frm_file=path_to_frm_file)
+            regex = re.compile(r'((\n)CREATE((?!#).)*ENGINE=\w+)', re.DOTALL)
             matches = [m.groups() for m in regex.finditer(create)]
             for m in matches:
                 create_table = m[0]
-                new_create_table = create_table.replace("`","")
+                new_create_table = create_table.replace("`", "")
                 run_command = self.create_mysql_client_command(statement=new_create_table)
                 status, output = subprocess.getstatusoutput(run_command)
                 if status == 0:
@@ -197,8 +190,8 @@ class PartialRecovery(GeneralClass):
             logger.error(output)
             return False
 
-
-    def run_mysqlfrm_utility(self, path_to_frm_file):
+    @staticmethod
+    def run_mysqlfrm_utility(path_to_frm_file):
         command = '/usr/bin/mysqlfrm --diagnostic %s' % path_to_frm_file
         logger.debug("Running mysqlfrm tool")
         status, output = subprocess.getstatusoutput(command)
@@ -251,7 +244,7 @@ class PartialRecovery(GeneralClass):
         # If table name from input is valid and it is located in database
         # directory return .ibd file name
         if len(database_dir_list) > 0 and len(
-                table_dir_list) == 2:  # Why 2? because every table must have .frm and .ibd file
+                table_dir_list) == 2:  # Why 2? because every InnoDB table must have .frm and .ibd file
             for i in table_dir_list:
                 ext = os.path.splitext(i)[1]
                 if ext == '.ibd':
@@ -281,7 +274,6 @@ class PartialRecovery(GeneralClass):
             logger.error(output)
             return False
 
-
     def alter_tablespace(self, database_name, table_name):
         statement = "ALTER TABLE %s.%s DISCARD TABLESPACE" % (
             database_name, table_name)
@@ -296,7 +288,8 @@ class PartialRecovery(GeneralClass):
             logger.error(output)
             return False
 
-    def copy_ibd_file_back(self, path_of_ibd_file, path_to_mysql_database_dir):
+    @staticmethod
+    def copy_ibd_file_back(path_of_ibd_file, path_to_mysql_database_dir):
         try:
             logger.debug("Copying .ibd file back")
             shutil.copy(path_of_ibd_file, path_to_mysql_database_dir)
@@ -377,8 +370,8 @@ class PartialRecovery(GeneralClass):
                                         database_name=database_name, table_name=table_name):
                                     if self.alter_tablespace(
                                             database_name=database_name, table_name=table_name):
-                                        if self.copy_ibd_file_back(
-                                                path_of_ibd_file=path, path_to_mysql_database_dir=path_to_mysql_datadir):
+                                        if self.copy_ibd_file_back(path_of_ibd_file=path,
+                                                                   path_to_mysql_database_dir=path_to_mysql_datadir):
                                             if self.give_chown(
                                                     path_to_mysql_database_dir=path_to_mysql_datadir):
                                                 if self.import_tablespace(
