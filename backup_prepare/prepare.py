@@ -9,7 +9,6 @@ import subprocess
 import shutil
 import time
 from general_conf.generalops import GeneralClass
-from general_conf.check_env import CheckEnv
 from os.path import isfile
 
 import logging
@@ -22,7 +21,6 @@ class Prepare(GeneralClass):
         self.conf = config
         self.dry = dry_run
         GeneralClass.__init__(self, self.conf)
-        #self.check_env_obj = CheckEnv(self.conf)
         # If prepare_tool option enabled in config, make backup_tool to use this.
         if hasattr(self, 'prepare_tool'):
             self.backup_tool = self.prepare_tool
@@ -48,20 +46,11 @@ class Prepare(GeneralClass):
     def prepare_only_full_backup(self):
         if self.recent_full_backup_file() == 0:
             logger.debug(
-                "####################################################################################################")
-            logger.debug(
-                "You have no FULL backups. First please take FULL backup for preparing - - - - - - - - - - - - - -  #")
-            logger.debug(
-                "####################################################################################################")
+                "- - - - You have no FULL backups. First please take FULL backup for preparing - - - -")
             exit(0)
 
         elif self.check_inc_backups() == 0:
-            logger.debug(
-                "################################################################################################")
-            logger.debug(
-                "Preparing Full Backup - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #")
-            logger.debug(
-                "################################################################################################")
+            logger.debug("- - - - Preparing Full Backup - - - -")
 
             # Extract and decrypt streamed full backup prior to executing incremental backup
             if hasattr(self, 'stream')  \
@@ -84,13 +73,13 @@ class Prepare(GeneralClass):
                 logger.debug(
                     "The following xbstream command will be executed %s",
                     xbstream_command)
-                if self.dry == 0 and isfile(("%s/%s/full_backup.stream") %
-                                                          (self.full_dir, self.recent_full_backup_file())):
+                if self.dry == 0 and isfile("%s/%s/full_backup.stream" %
+                                                    (self.full_dir, self.recent_full_backup_file())):
                     status, output = subprocess.getstatusoutput(xbstream_command)
                     if status == 0:
-                        logger.debug("XBSTREAM command succeeded.")
+                        logger.debug("OK: XBSTREAM command succeeded.")
                     else:
-                        logger.error("XBSTREAM COMMAND FAILED!")
+                        logger.error("FAILED: XBSTREAM command.")
                         time.sleep(5)
                         logger.error(output)
                         return False
@@ -111,21 +100,20 @@ class Prepare(GeneralClass):
                     "The following xbstream command will be executed %s",
                     xbstream_command)
 
-                if self.dry == 0 and isfile(("%s/%s/full_backup.stream") %
+                if self.dry == 0 and isfile("%s/%s/full_backup.stream" %
                                                             (self.full_dir, self.recent_full_backup_file())):
                     status, output = subprocess.getstatusoutput(xbstream_command)
                     if status == 0:
-                        logger.debug("XBSTREAM command succeeded.")
+                        logger.debug("OK: XBSTREAM command succeeded.")
                     else:
-                        logger.error("XBSTREAM COMMAND FAILED!")
+                        logger.error("FAILED: XBSTREAM command.")
                         time.sleep(5)
                         logger.error(output)
                         return False
 
-
             # Check if decryption enabled
             if hasattr(self, 'decrypt'):
-                if hasattr(self, 'remove_original_enc') and (self.remove_original_enc):
+                if hasattr(self, 'remove_original_enc') and self.remove_original_enc:
                     decr = "%s --decrypt=%s --encrypt-key=%s --target-dir=%s/%s --remove-original" % \
                            (self.backup_tool,
                             self.decrypt,
@@ -145,15 +133,15 @@ class Prepare(GeneralClass):
                     status, output = subprocess.getstatusoutput(decr)
                     if status == 0:
                         logger.debug(output[-27:])
-                        logger.debug("Decrypted!")
+                        logger.debug("OK: Decrypted!")
                     else:
-                        logger.error("FULL BACKUP DECRYPT FAILED!")
+                        logger.error("FAILED: FULL BACKUP decrypt")
                         time.sleep(5)
                         logger.error(output)
 
             # Check if decompression enabled
             if hasattr(self, 'decompress'):
-                if hasattr(self, 'remove_original_comp') and (self.remove_original_comp):
+                if hasattr(self, 'remove_original_comp') and self.remove_original_comp:
                     decmp = "%s --decompress=%s --target-dir=%s/%s --remove-original" % \
                             (self.backup_tool,
                              self.decompress,
@@ -171,9 +159,9 @@ class Prepare(GeneralClass):
                     status, output = subprocess.getstatusoutput(decmp)
                     if status == 0:
                         logger.debug(output[-27:])
-                        logger.debug("Decompressed")
+                        logger.debug("OK: Decompressed")
                     else:
-                        logger.error("FULL BACKUP DECOMPRESSION FAILED!")
+                        logger.error("FAILED: FULL BACKUP decompression")
                         time.sleep(5)
                         logger.error(output)
                     
@@ -199,24 +187,21 @@ class Prepare(GeneralClass):
 
                 if status == 0:
                     logger.debug(output)
-                    #logger.debug(output[-27:])
+                    # logger.debug(output[-27:])
                 else:
-                    logger.error("FULL BACKUP PREPARE FAILED!")
+                    logger.error("FAILED: FULL BACKUP prepare.")
                     time.sleep(5)
                     logger.error(output)
                     return False
 
         else:
-            logger.debug(
-                "Preparing Full backup 1 time. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#\n"
-                "Final prepare,will occur after preparing all inc backups - - - - - - - - - - - - - - - - -  - - - -#")
-            logger.debug(
-                "####################################################################################################")
+            logger.debug("- - - - Preparing Full backup for incrementals - - - -")
+            logger.debug("- - - - Final prepare,will occur after preparing all inc backups - - - -")
             time.sleep(3)
 
             # Check if decryption enabled
             if hasattr(self, 'decrypt'):
-                if hasattr(self, 'remove_original_enc') and (self.remove_original_enc):
+                if hasattr(self, 'remove_original_enc') and self.remove_original_enc:
                     decr = "%s --decrypt=%s --encrypt-key=%s --target-dir=%s/%s --remove-original" % \
                            (self.backup_tool,
                             self.decrypt,
@@ -236,16 +221,16 @@ class Prepare(GeneralClass):
                     status, output = subprocess.getstatusoutput(decr)
                     if status == 0:
                         logger.debug(output[-27:])
-                        logger.debug("Decrypted!")
+                        logger.debug("OK: Decrypted!")
                     else:
-                        logger.error("FULL BACKUP DECRYPT FAILED!")
+                        logger.error("FAILED: FULL BACKUP decrypt.")
                         time.sleep(5)
                         logger.error(output)
 
             # Check if decompression enabled, if it is, decompress backup prior
             # prepare
             if hasattr(self, 'decompress'):
-                if hasattr(self, 'remove_original_comp') and (self.remove_original_comp):
+                if hasattr(self, 'remove_original_comp') and self.remove_original_comp:
                     decmp = "%s --decompress=%s --target-dir=%s/%s --remove-original" % \
                             (self.backup_tool,
                              self.decompress,
@@ -263,13 +248,12 @@ class Prepare(GeneralClass):
                     status, output = subprocess.getstatusoutput(decmp)
                     if status == 0:
                         logger.debug(output[-27:])
-                        logger.debug("Decompressed")
+                        logger.debug("OK: Decompressed")
                     else:
-                        logger.error("FULL BACKUP DECOMPRESSION FAILED!")
+                        logger.error("FAILED: FULL BACKUP decompression.")
                         time.sleep(5)
                         logger.error(output)
-            
-                         
+
             # Actual prepare command goes here
             args = '%s --prepare %s --target-dir=%s/%s' % \
                 (self.backup_tool,
@@ -292,10 +276,10 @@ class Prepare(GeneralClass):
                 status, output = subprocess.getstatusoutput(args)
                 if status == 0:
                     logger.debug(output)
-                    #logger.debug(output[-27:])
+                    # logger.debug(output[-27:])
                     return True
                 else:
-                    logger.error("One time FULL BACKUP PREPARE FAILED!")
+                    logger.error("FAILED: One time FULL BACKUP")
                     time.sleep(5)
                     logger.error(output)
                     return False
@@ -308,23 +292,13 @@ class Prepare(GeneralClass):
 
     def prepare_inc_full_backups(self):
         if self.check_inc_backups() == 0:
-            logger.debug(
-                "################################################################################################")
-            logger.debug(
-                "You have no Incremental backups. So will prepare only latest Full backup - - - - - - - - - - - #")
-            logger.debug(
-                "################################################################################################")
+            logger.debug("- - - - You have no Incremental backups. So will prepare only latest Full backup - - - -")
             time.sleep(3)
             self.prepare_only_full_backup()
         else:
-            logger.debug(
-                "####################################################################################################")
-            logger.debug(
-                "You have Incremental backups. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
+            logger.debug("- - - - You have Incremental backups. - - - -")
             time.sleep(3)
             if self.prepare_only_full_backup():
-                logger.debug(
-                    "####################################################################################################")
                 logger.debug("Preparing Incs: ")
                 time.sleep(3)
                 list_of_dir = sorted(os.listdir(self.inc_dir))
@@ -334,13 +308,11 @@ class Prepare(GeneralClass):
                         logger.debug(
                             "Preparing inc backups in sequence. inc backup dir/name is %s" %
                             i)
-                        logger.debug(
-                            "####################################################################################################")
                         time.sleep(3)
 
                         # Check if decryption enabled
                         if hasattr(self, 'decrypt'):
-                            if hasattr(self, 'remove_original_enc') and (self.remove_original_enc):
+                            if hasattr(self, 'remove_original_enc') and self.remove_original_enc:
                                 decr = "%s --decrypt=%s --encrypt-key=%s --target-dir=%s/%s --remove-original" % \
                                        (self.backup_tool,
                                         self.decrypt,
@@ -360,16 +332,16 @@ class Prepare(GeneralClass):
                                 status, output = subprocess.getstatusoutput(decr)
                                 if status == 0:
                                     logger.debug(output[-27:])
-                                    logger.debug("Decrypted!")
+                                    logger.debug("OK: Decrypted!")
                                 else:
-                                    logger.error("FULL BACKUP DECRYPT FAILED!")
+                                    logger.error("FAILED: FULL BACKUP decrypt.")
                                     time.sleep(5)
                                     logger.error(output)
 
                         # Check if decompression enabled, if it is, decompress
                         # backup prior prepare
                         if hasattr(self, 'decompress'):
-                            if hasattr(self, 'remove_original_comp') and (self.remove_original_comp):
+                            if hasattr(self, 'remove_original_comp') and self.remove_original_comp:
                                 decmp = "%s --decompress=%s --target-dir=%s/%s --remove-original" % \
                                         (self.backup_tool,
                                          self.decompress,
@@ -388,13 +360,11 @@ class Prepare(GeneralClass):
                                 status, output = subprocess.getstatusoutput(decmp)
                                 if status == 0:
                                     logger.debug(output[-27:])
-                                    logger.debug("Decompressed")
+                                    logger.debug("OK: Decompressed")
                                 else:
-                                    logger.error(
-                                        "INCREMENTAL BACKUP DECOMPRESSION FAILED!")
+                                    logger.error("FAILED: INCREMENTAL BACKUP decompression.")
                                     time.sleep(5)
                                     logger.error(output)
-                        
                                                    
                         # Actual prepare command goes here
                         args = '%s --prepare %s --target-dir=%s/%s --incremental-dir=%s/%s' % \
@@ -420,21 +390,15 @@ class Prepare(GeneralClass):
                             status, output = subprocess.getstatusoutput(args)
                             if status == 0:
                                 logger.debug(output)
-                                #logger.debug(output[-27:])
+                                # logger.debug(output[-27:])
                             else:
-                                logger.error("Incremental BACKUP PREPARE FAILED!")
+                                logger.error("FAILED: Incremental BACKUP prepare")
                                 time.sleep(5)
                                 logger.error(output)
                                 return False
 
                     else:
-                        logger.debug(
-                            "####################################################################################################")
-                        logger.debug(
-                            "Preparing last incremental backup, inc backup dir/name is %s" %
-                            i)
-                        logger.debug(
-                            "####################################################################################################")
+                        logger.debug("Preparing last incremental backup, inc backup dir/name is %s" % i)
                         time.sleep(3)
 
                         # Extracting streamed incremental backup prior to preparing
@@ -447,27 +411,24 @@ class Prepare(GeneralClass):
                                 self.inc_dir,
                                 i,
                                 self.inc_dir,
-                                i
-                            )
+                                i)
 
                             logger.debug(
                                 "The following xbstream command will be executed %s",
                                 xbstream_command)
-                            if self.dry == 0 and isfile(
-                                        ("%s/%s/inc_backup.stream") % (self.inc_dir, i)):
+                            if self.dry == 0 and isfile("%s/%s/inc_backup.stream" % (self.inc_dir, i)):
                                 status, output = subprocess.getstatusoutput(xbstream_command)
                                 if status == 0:
-                                    logger.debug("XBSTREAM command succeeded.")
+                                    logger.debug("OK: XBSTREAM command succeeded.")
                                 else:
-                                    logger.error("XBSTREAM COMMAND FAILED!")
+                                    logger.error("FAILED: XBSTREAM command.")
                                     time.sleep(5)
                                     logger.error(output)
                                     return False
 
-
                         # Check if decryption enabled
                         if hasattr(self, 'decrypt'):
-                            if hasattr(self, 'remove_original_enc') and (self.remove_original_enc):
+                            if hasattr(self, 'remove_original_enc') and self.remove_original_enc:
                                 decr = "%s --decrypt=%s --encrypt-key=%s --target-dir=%s/%s --remove-original" % \
                                        (self.backup_tool,
                                         self.decrypt,
@@ -496,7 +457,7 @@ class Prepare(GeneralClass):
                         # Check if decompression enabled, if it is, decompress
                         # backup prior prepare
                         if hasattr(self, 'decompress'):
-                            if hasattr(self, 'remove_original_comp') and (self.remove_original_comp):
+                            if hasattr(self, 'remove_original_comp') and self.remove_original_comp:
                                 decmp = "%s --decompress=%s --target-dir=%s/%s --remove-original" % \
                                         (self.backup_tool,
                                          self.decompress,
@@ -516,14 +477,12 @@ class Prepare(GeneralClass):
                                 status, output = subprocess.getstatusoutput(decmp)
                                 if status == 0:
                                     logger.debug(output[-27:])
-                                    logger.debug("Decompressed")
+                                    logger.debug("OK: Decompressed")
                                 else:
-                                    logger.error(
-                                        "INCREMENTAL BACKUP DECOMPRESSION FAILED!")
+                                    logger.error("FAILED: INCREMENTAL BACKUP decompression")
                                     time.sleep(5)
                                     logger.error(output)
-                                                             
-                        
+
                         args2 = '%s --prepare --target-dir=%s/%s --incremental-dir=%s/%s' % \
                             (self.backup_tool,
                              self.full_dir,
@@ -546,19 +505,14 @@ class Prepare(GeneralClass):
                             status2, output2 = subprocess.getstatusoutput(args2)
                             if status2 == 0:
                                 logger.debug(output2)
-                                #logger.debug(output2[-27:])
+                                # logger.debug(output2[-27:])
                             else:
-                                logger.error("Incremental BACKUP PREPARE FAILED!")
+                                logger.error("FAILED: Incremental BACKUP prepare")
                                 time.sleep(5)
                                 logger.error(output2)
                                 return False
 
-            logger.debug(
-                "####################################################################################################")
-            logger.debug(
-                "The end of the Prepare Stage. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
-            logger.debug(
-                "####################################################################################################")
+            logger.debug("- - - - The end of the Prepare Stage. - - - -")
             time.sleep(3)
 
     ##########################################################################
@@ -566,14 +520,8 @@ class Prepare(GeneralClass):
     ##########################################################################
 
     def shutdown_mysql(self):
-
         # Shut Down MySQL
-        logger.debug(
-            "####################################################################################################")
-        logger.debug(
-            "Shutting Down MySQL server: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
-        logger.debug(
-            "####################################################################################################")
+        logger.debug("Shutting Down MySQL server:")
         time.sleep(3)
 
         args = self.stop_mysql
@@ -589,14 +537,8 @@ class Prepare(GeneralClass):
             return False
 
     def move_datadir(self):
-
         # Move datadir to new directory
-        logger.debug(
-            "####################################################################################################")
-        logger.debug(
-            "Moving MySQL datadir to {}  - - - - - - - - - - - - - - - - - - - - - - - - - - - -#".format(self.tmpdir))
-        logger.debug(
-            "####################################################################################################")
+        logger.debug("Moving MySQL datadir to {}".format(self.tmpdir))
         time.sleep(3)
         if os.path.isdir(self.tmpdir):
             rmdirc = 'rm -rf %s' % self.tmpdir
@@ -614,7 +556,7 @@ class Prepare(GeneralClass):
                     return False
 
                 logger.debug("Creating an empty data directory ...")
-                makedir = "mkdir %s" % (self.datadir)
+                makedir = "mkdir %s" % self.datadir
                 status2, output2 = subprocess.getstatusoutput(makedir)
                 if status2 == 0:
                     logger.debug("Datadir is Created! ...")
@@ -640,7 +582,7 @@ class Prepare(GeneralClass):
                 return False
 
             logger.debug("Creating an empty data directory ...")
-            makedir = "mkdir %s" % (self.datadir)
+            makedir = "mkdir %s" % self.datadir
             status2, output2 = subprocess.getstatusoutput(makedir)
             if status2 == 0:
                 logger.debug("Datadir is Created! ...")
@@ -652,7 +594,6 @@ class Prepare(GeneralClass):
 
     def run_xtra_copyback(self, datadir=None):
         # Running Xtrabackup with --copy-back option
-
         copy_back = '%s --copy-back --target-dir=%s/%s --datadir=%s' % \
             (self.backup_tool,
              self.full_dir,
@@ -662,12 +603,7 @@ class Prepare(GeneralClass):
         status, output = subprocess.getstatusoutput(copy_back)
 
         if status == 0:
-            logger.debug(
-                "####################################################################################################")
-            logger.debug(
-                "Data copied back successfully! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #")
-            logger.debug(
-                "####################################################################################################")
+            logger.debug("Data copied back successfully!")
             return True
         else:
             logger.error("Error occurred while copying back data!")
@@ -681,12 +617,7 @@ class Prepare(GeneralClass):
         status, output = subprocess.getstatusoutput(give_chown)
 
         if status == 0:
-            logger.debug(
-                "####################################################################################################")
-            logger.debug(
-                "New copied-back data now owned by specified user! - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
-            logger.debug(
-                "####################################################################################################")
+            logger.debug("New copied-back data now owned by specified user!")
             return True
         else:
             logger.error("Error occurred while changing owner!")
@@ -695,11 +626,7 @@ class Prepare(GeneralClass):
 
     def start_mysql_func(self, start_tool=None, options=None):
         # Starting MySQL
-        logger.debug(
-            "####################################################################################################")
         logger.debug("Starting MySQL server: ")
-        logger.debug(
-            "####################################################################################################")
         time.sleep(3)
         if start_tool is None:
             args = self.start_mysql
@@ -728,12 +655,8 @@ class Prepare(GeneralClass):
           starting mysql
         :return: True if succeeded. Error if failed
         """
-        logger.debug(
-            "####################################################################################################")
-        logger.debug(
-            "Copying Back Already Prepared Final Backup: - - - - - - - - - - - - - - - - - - - - - - - - - - - -#")
-        logger.debug(
-            "####################################################################################################")
+        logger.debug("Copying Back Already Prepared Final Backup:")
+
         time.sleep(3)
         if len(os.listdir(self.datadir if datadir is None else datadir)) > 0:
             logger.debug("MySQL Datadir is not empty!")
@@ -754,12 +677,8 @@ class Prepare(GeneralClass):
         if self.shutdown_mysql():
             if self.move_datadir():
                 if self.copy(options=options):
-                    logger.debug(
-                        "####################################################################################################")
                     logger.debug("All data copied back successfully. ")
                     logger.debug("Your MySQL server is UP again")
-                    logger.debug(
-                        "####################################################################################################")
                     return True
                 else:
                     logger.error("Error Occurred!")
@@ -770,8 +689,8 @@ class Prepare(GeneralClass):
 
     def prepare_backup_and_copy_back(self):
         # Recovering/Copying Back Prepared Backup
-        # print("#####################################################################################################")
-        print("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-")
+
+        print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
         print("")
         print("Preparing full/inc backups!")
         print("What do you want to do?")
@@ -779,12 +698,10 @@ class Prepare(GeneralClass):
         print("2. Prepare Backups and restore/recover/copy-back immediately")
         print("3. Just copy-back previously prepared backups")
 
-        prepare = int(
-            input("Please Choose one of options and type 1 or 2 or 3: "))
+        prepare = int(input("Please Choose one of options and type 1 or 2 or 3: "))
         print("")
-        print("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-")
+        print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
         time.sleep(3)
-        # print("####################################################################################################")
         if prepare == 1:
             self.prepare_inc_full_backups()
         elif prepare == 2:
