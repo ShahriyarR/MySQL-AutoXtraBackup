@@ -5,6 +5,7 @@ from partial_recovery.partial import PartialRecovery
 from general_conf.generalops import GeneralClass
 from prepare_env_test_mode.runner_test_mode import RunnerTestMode
 from sys import platform as _platform
+from subprocess import getstatusoutput
 import pid
 import time
 import re
@@ -141,7 +142,6 @@ def validate_file(file):
 
 
 def all_procedure(prepare, backup, partial, verbose, log_file, log, defaults_file, dry_run, test_mode):
-    click.help_option()
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
@@ -164,10 +164,15 @@ def all_procedure(prepare, backup, partial, verbose, log_file, log, defaults_fil
     try:
         with pid_file:  # User PidFile for locking to single instance
             if (not prepare) and (not backup) and (
-                    not partial) and (not defaults_file) and (not dry_run) and (not test_mode):
-                print("ERROR: you must give an option, run with --help for available options")
-                logger.critical("Aborting!")
-                sys.exit(-1)
+                    not partial) and (not defaults_file) and (not dry_run) and (not test_mode)\
+                    and (not verbose) and (not log_file) and (not log):
+                external_cmd = "autoxtrabackup --help"
+                status, output = getstatusoutput(external_cmd)
+                if status == 0:
+                    print(output)
+                #print("ERROR: you must give an option, run with --help for available options")
+                #logger.critical("Aborting!")
+                    sys.exit(-1)
             elif test_mode and defaults_file:
                 # TODO: do staff here to implement all in one things for running test mode
                 logger.warning("Enabled Test Mode!!!")
