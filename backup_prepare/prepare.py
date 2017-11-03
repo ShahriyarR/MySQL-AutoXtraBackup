@@ -655,7 +655,7 @@ class Prepare(GeneralClass):
         backup_type column must be equal to 'full-prepared'
         :return: True if backup is already prepared; RuntimeError if it is not.
         '''
-        with open("{}/{}/xtrabackup_checkpoints", 'r') as xchk_file:
+        with open("{}/{}/xtrabackup_checkpoints".format(full_dir, full_backup_file), 'r') as xchk_file:
             # This thing seems to be complicated bu it is not:
             # Trying to get 'full-prepared' from ['backup_type ', ' full-prepared\n']
             if xchk_file.readline().split("=")[1].strip("\n").lstrip() == 'full-prepared':
