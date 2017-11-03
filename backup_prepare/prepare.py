@@ -30,7 +30,8 @@ class Prepare(GeneralClass):
 
         if len(os.listdir(self.full_dir)) > 0:
             return max(os.listdir(self.full_dir))
-        return 0
+        else:
+            raise RuntimeError("The full backup directory is empty, it seems you have not backups")
 
     def check_inc_backups(self):
         # Check for Incremental backups
@@ -531,10 +532,9 @@ class Prepare(GeneralClass):
             logger.debug(output)
             return True
         else:
-            logger.error("Could not Shutdown MySQL!")
-            logger.error("Refer to MySQL Error log file")
+            logger.error("Could not Shutdown MySQL!. Refer to MySQL error log")
             logger.error(output)
-            return False
+            raise RuntimeError("FAILED: Shutdown MySQL -> {}".format(output))
 
     def move_datadir(self):
         # Move datadir to new directory
@@ -647,6 +647,22 @@ class Prepare(GeneralClass):
             logger.error(output)
             return False
 
+    @staticmethod
+    def check_if_backup_prepared(full_dir, full_backup_file):
+        '''
+        This method is for checking if the backup can be copied-back.
+        It is going to check xtrabackup_checkpoints file inside backup directory for backup_type column.
+        backup_type column must be equal to 'full-prepared'
+        :return: True if backup is already prepared; RuntimeError if it is not.
+        '''
+        with open("{}/{}/xtrabackup_checkpoints".format(full_dir, full_backup_file), 'r') as xchk_file:
+            # This thing seems to be complicated bu it is not:
+            # Trying to get 'full-prepared' from ['backup_type ', ' full-prepared\n']
+            if xchk_file.readline().split("=")[1].strip("\n").lstrip() == 'full-prepared':
+                return True
+            else:
+                raise RuntimeError("This full backup is not fully prepared, not doing copy-back!")
+
     def copy(self, options=None, datadir=None):
         """
         Function for running:
@@ -674,14 +690,18 @@ class Prepare(GeneralClass):
         Function for complete recover/copy-back actions
         :return: True if succeeded. Error if failed.
         """
-        if self.shutdown_mysql():
-            if self.move_datadir():
-                if self.copy(options=options):
-                    logger.debug("All data copied back successfully. ")
-                    logger.debug("Your MySQL server is UP again")
-                    return True
-                else:
-                    logger.error("Error Occurred!")
+        try:
+            if self.check_if_backup_prepared(self.full_dir, self.recent_full_backup_file()):
+                if self.shutdown_mysql():
+                    if self.move_datadir():
+                        if self.copy(options=options):
+                            logger.debug("All data copied back successfully. ")
+                            logger.debug("Your MySQL server is UP again")
+                            return True
+                        else:
+                            logger.error("Error Occurred!")
+        except Exception as err:
+            logger.error("{}: {}".format(type(err).__name__, err))
 
     ##########################################################################
     # FINAL FUNCTION FOR CALL: prepare_backup_and_copy_back()
