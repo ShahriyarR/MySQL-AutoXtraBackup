@@ -141,6 +141,7 @@ def validate_file(file):
 
 
 def all_procedure(prepare, backup, partial, verbose, log_file, log, defaults_file, dry_run, test_mode):
+    click.help_option()
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
@@ -234,19 +235,4 @@ def all_procedure(prepare, backup, partial, verbose, log_file, log, defaults_fil
 
 
 if __name__ == "__main__":
-    if (not prepare) \
-            and (not backup) \
-            and (not partial) \
-            and (not verbose) \
-            and (not log_file) \
-            and (not log) \
-            and (not defaults_file) \
-            and (not dry_run) \
-            and (not test_mode) \
-            and (not help) \
-            and (not version):
-        print("Hello from other side")
-        print(click.Context.get_help(ctx))
-        print(click.Context.get_usage(ctx))
-
-    #all_procedure()
+    all_procedure()
