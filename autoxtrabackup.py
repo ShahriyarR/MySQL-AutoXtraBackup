@@ -140,13 +140,14 @@ def validate_file(file):
     help="Enable test mode.Must be used with --defaults_file and only for TESTs for XtraBackup")
 
 
-def check_for_passed_options(*passed_args):
-    if passed_args.count(None) == len(passed_args):
-        click.Context.get_help()
-        pass
+# def check_for_passed_options(*passed_args):
+#     if passed_args.count(None) == len(passed_args):
+#         click.Context.get_help()
+#         pass
 
 
 def all_procedure(prepare, backup, partial, verbose, log_file, log, defaults_file, dry_run, test_mode):
+    click.Context.get_help()
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
