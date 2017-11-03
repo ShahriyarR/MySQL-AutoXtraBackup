@@ -245,6 +245,7 @@ if __name__ == "__main__":
             and (not test_mode) \
             and (not help) \
             and (not version):
+        print("Hello from other side")
         print(click.Context.get_help(ctx))
         print(click.Context.get_usage(ctx))
 
