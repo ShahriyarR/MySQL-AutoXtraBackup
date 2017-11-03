@@ -31,7 +31,6 @@ class Prepare(GeneralClass):
         if len(os.listdir(self.full_dir)) > 0:
             return max(os.listdir(self.full_dir))
         else:
-            logger.error("The full backup directory is empty, it seems you have not backups")
             raise RuntimeError("The full backup directory is empty, it seems you have not backups")
 
     def check_inc_backups(self):
@@ -662,8 +661,6 @@ class Prepare(GeneralClass):
             if xchk_file.readline().split("=")[1].strip("\n").lstrip() == 'full-prepared':
                 return True
             else:
-                logger.error("This full backup is not fully prepared, not doing copy-back!")
-                logger.error("Aborting!")
                 raise RuntimeError("This full backup is not fully prepared, not doing copy-back!")
 
     def copy(self, options=None, datadir=None):
