@@ -701,7 +701,7 @@ class Prepare(GeneralClass):
                         else:
                             logger.error("Error Occurred!")
         except Exception as err:
-            logger.error(err)
+            logger.error("{}: {}".format(type(err).__name__, err))
 
     ##########################################################################
     # FINAL FUNCTION FOR CALL: prepare_backup_and_copy_back()
