@@ -245,6 +245,7 @@ if __name__ == "__main__":
             and (not test_mode) \
             and (not help) \
             and (not version):
-        click.Context.get_help(ctx)
+        print(click.Context.get_help(ctx))
+        print(click.Context.get_usage(ctx))
 
-    all_procedure()
+    #all_procedure()
