@@ -146,8 +146,8 @@ def validate_file(file):
 #         pass
 
 
-def all_procedure(prepare, backup, partial, verbose, log_file, log, defaults_file, dry_run, test_mode):
-    click.Context.get_help()
+def all_procedure(prepare, backup, partial, verbose, log_file, log, defaults_file, dry_run, test_mode, ctx):
+    click.Context.get_help(ctx)
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
