@@ -140,7 +140,7 @@ def validate_file(file):
     help="Enable test mode.Must be used with --defaults_file and only for TESTs for XtraBackup")
 
 
-def all_procedure(prepare, backup, partial, verbose, log_file, log, defaults_file, dry_run, test_mode, help, version):
+def all_procedure(prepare, backup, partial, verbose, log_file, log, defaults_file, dry_run, test_mode):
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
