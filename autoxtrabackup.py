@@ -140,14 +140,7 @@ def validate_file(file):
     help="Enable test mode.Must be used with --defaults_file and only for TESTs for XtraBackup")
 
 
-# def check_for_passed_options(*passed_args):
-#     if passed_args.count(None) == len(passed_args):
-#         click.Context.get_help()
-#         pass
-
-
-def all_procedure(prepare, backup, partial, verbose, log_file, log, defaults_file, dry_run, test_mode, ctx):
-    click.Context.get_help(ctx)
+def all_procedure(prepare, backup, partial, verbose, log_file, log, defaults_file, dry_run, test_mode, help, version):
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
@@ -241,4 +234,17 @@ def all_procedure(prepare, backup, partial, verbose, log_file, log, defaults_fil
 
 
 if __name__ == "__main__":
+    if (not prepare) \
+            and (not backup) \
+            and (not partial) \
+            and (not verbose) \
+            and (not log_file) \
+            and (not log) \
+            and (not defaults_file) \
+            and (not dry_run) \
+            and (not test_mode) \
+            and (not help) \
+            and (not version):
+        click.Context.get_help(ctx)
+
     all_procedure()
