@@ -31,6 +31,7 @@ class Prepare(GeneralClass):
         if len(os.listdir(self.full_dir)) > 0:
             return max(os.listdir(self.full_dir))
         else:
+            logger.error("The full backup directory is empty, it seems you have not backups")
             raise RuntimeError("The full backup directory is empty, it seems you have not backups")
 
     def check_inc_backups(self):
