@@ -139,7 +139,18 @@ def validate_file(file):
     is_flag=True,
     help="Enable test mode.Must be used with --defaults_file and only for TESTs for XtraBackup")
 
-def all_procedure(prepare, backup, partial, verbose,log_file, log, defaults_file, dry_run, test_mode):
+
+def check_for_passed_options(*args):
+    if args.count(None) == len(args):
+        click.Context.get_help()
+        click.Context.get_usage()
+        pass
+
+
+def all_procedure(prepare, backup, partial, verbose, log_file, log, defaults_file, dry_run, test_mode, version, help):
+    if check_for_passed_options(prepare, backup, partial, verbose, log_file, log, defaults_file, dry_run, test_mode, version, help):
+        pass
+
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
@@ -153,7 +164,6 @@ def all_procedure(prepare, backup, partial, verbose,log_file, log, defaults_file
         file_handler = RotatingFileHandler(log_file, mode='a', maxBytes=104857600, backupCount=7)
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
-
 
     validate_file(defaults_file)
     config = GeneralClass(defaults_file)
