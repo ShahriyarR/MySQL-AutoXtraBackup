@@ -693,16 +693,18 @@ class Prepare(GeneralClass):
         Function for complete recover/copy-back actions
         :return: True if succeeded. Error if failed.
         """
-
-        if self.check_if_backup_prepared(self.full_dir, self.recent_full_backup_file()):
-            if self.shutdown_mysql():
-                if self.move_datadir():
-                    if self.copy(options=options):
-                        logger.debug("All data copied back successfully. ")
-                        logger.debug("Your MySQL server is UP again")
-                        return True
-                    else:
-                        logger.error("Error Occurred!")
+        try:
+            if self.check_if_backup_prepared(self.full_dir, self.recent_full_backup_file()):
+                if self.shutdown_mysql():
+                    if self.move_datadir():
+                        if self.copy(options=options):
+                            logger.debug("All data copied back successfully. ")
+                            logger.debug("Your MySQL server is UP again")
+                            return True
+                        else:
+                            logger.error("Error Occurred!")
+        except Exception as err:
+            logger.error(err)
 
     ##########################################################################
     # FINAL FUNCTION FOR CALL: prepare_backup_and_copy_back()
