@@ -148,9 +148,6 @@ def check_for_passed_options(*args):
 
 
 def all_procedure(prepare, backup, partial, verbose, log_file, log, defaults_file, dry_run, test_mode):
-    # if check_for_passed_options(prepare, backup, partial, verbose, log_file, log, defaults_file, dry_run, test_mode):
-    #     pass
-
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
