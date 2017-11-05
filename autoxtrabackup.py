@@ -29,6 +29,7 @@ handler = logging.handlers.SysLogHandler(address=address_matcher(_platform))
 # Set syslog for the root logger
 logger.addHandler(handler)
 
+
 def print_help(ctx, param, value):
     if value is False:
         return
@@ -122,13 +123,6 @@ def validate_file(file):
     expose_value=False,
     is_eager=True,
     help="Version information.")
-@click.option(
-    '--help', '-h',
-    is_flag=True,
-    callback=print_help,
-    expose_value=False,
-    is_eager=True,
-    help="Print help message and exit.")
 @click.option('--defaults_file', default='/etc/bck.conf',
               help="Read options from the given file[Default: /etc/bck.conf]")
 @click.option('-v', '--verbose', is_flag=True,
@@ -150,18 +144,15 @@ def validate_file(file):
     '--test_mode',
     is_flag=True,
     help="Enable test mode.Must be used with --defaults_file and only for TESTs for XtraBackup")
+@click.option(
+    '--help',
+    is_flag=True,
+    callback=print_help,
+    expose_value=False,
+    is_eager=False,
+    help="Print help message and exit.")
 @click.pass_context
 def all_procedure(ctx, prepare, backup, partial, verbose, log_file, log, defaults_file, dry_run, test_mode):
-    if (prepare is False and
-        backup is False and
-        partial is False and
-        verbose is False and
-        log_file is False and
-        log is False and
-        defaults_file is False and
-        dry_run is False and
-        test_mode is False):
-        print_help(ctx, None, value=True)
 
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
@@ -184,11 +175,19 @@ def all_procedure(ctx, prepare, backup, partial, verbose, log_file, log, default
 
     try:
         with pid_file:  # User PidFile for locking to single instance
-            if (not prepare) and (not backup) and (
-                    not partial) and (not defaults_file) and (not dry_run) and (not test_mode):
-                print("ERROR: you must give an option, run with --help for available options")
-                logger.critical("Aborting!")
-                sys.exit(-1)
+            # if (not prepare) and (not backup) and (
+            #         not partial) and (not defaults_file) and (not dry_run) and (not test_mode):
+            #     print("ERROR: you must give an option, run with --help for available options")
+            #     logger.critical("Aborting!")
+            #     sys.exit(-1)
+            if (prepare is False and
+                        backup is False and
+                        partial is False and
+                        verbose is False and
+                        log is False and
+                        dry_run is False and
+                        test_mode is False):
+                print_help(ctx, None, value=True)
             elif test_mode and defaults_file:
                 # TODO: do staff here to implement all in one things for running test mode
                 logger.warning("Enabled Test Mode!!!")
