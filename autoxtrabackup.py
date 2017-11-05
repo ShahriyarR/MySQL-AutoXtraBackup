@@ -184,7 +184,6 @@ def all_procedure(ctx, prepare, backup, partial, verbose, log_file, log, default
                         backup is False and
                         partial is False and
                         verbose is False and
-                        log is False and
                         dry_run is False and
                         test_mode is False):
                 print_help(ctx, None, value=True)
