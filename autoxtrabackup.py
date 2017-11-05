@@ -157,8 +157,6 @@ def validate_file(file):
     help="Print help message and exit.")
 @click.pass_context
 def all_procedure(ctx, prepare, backup, partial, verbose, log_file, log, defaults_file, dry_run, test_mode):
-    if os.geteuid() != 0:
-        exit('Script must be run as root[sudo]')
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
@@ -169,9 +167,13 @@ def all_procedure(ctx, prepare, backup, partial, verbose, log_file, log, default
         logger.addHandler(ch)
 
     if log_file:
-        file_handler = RotatingFileHandler(log_file, mode='a', maxBytes=104857600, backupCount=7)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
+        try:
+            file_handler = RotatingFileHandler(log_file, mode='a', maxBytes=104857600, backupCount=7)
+            file_handler.setFormatter(formatter)
+            logger.addHandler(file_handler)
+        except PermissionError as err:
+            logger.error(err)
+            logger.error("Please consider to run as root or sudo")
 
     validate_file(defaults_file)
     config = GeneralClass(defaults_file)
