@@ -178,11 +178,6 @@ def all_procedure(ctx, prepare, backup, partial, verbose, log_file, log, default
 
     try:
         with pid_file:  # User PidFile for locking to single instance
-            # if (not prepare) and (not backup) and (
-            #         not partial) and (not defaults_file) and (not dry_run) and (not test_mode):
-            #     print("ERROR: you must give an option, run with --help for available options")
-            #     logger.critical("Aborting!")
-            #     sys.exit(-1)
             if (prepare is False and
                         backup is False and
                         partial is False and
