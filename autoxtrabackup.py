@@ -5,6 +5,7 @@ from partial_recovery.partial import PartialRecovery
 from general_conf.generalops import GeneralClass
 from prepare_env_test_mode.runner_test_mode import RunnerTestMode
 from sys import platform as _platform
+from sys import exit
 import pid
 import time
 import re
@@ -156,7 +157,6 @@ def validate_file(file):
     help="Print help message and exit.")
 @click.pass_context
 def all_procedure(ctx, prepare, backup, partial, verbose, log_file, log, defaults_file, dry_run, test_mode):
-
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
@@ -167,9 +167,13 @@ def all_procedure(ctx, prepare, backup, partial, verbose, log_file, log, default
         logger.addHandler(ch)
 
     if log_file:
-        file_handler = RotatingFileHandler(log_file, mode='a', maxBytes=104857600, backupCount=7)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
+        try:
+            file_handler = RotatingFileHandler(log_file, mode='a', maxBytes=104857600, backupCount=7)
+            file_handler.setFormatter(formatter)
+            logger.addHandler(file_handler)
+        except PermissionError as err:
+            exit("{} Please consider to run as root or sudo".format(err))
+
 
     validate_file(defaults_file)
     config = GeneralClass(defaults_file)
