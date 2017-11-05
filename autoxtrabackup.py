@@ -30,7 +30,7 @@ handler = logging.handlers.SysLogHandler(address=address_matcher(_platform))
 logger.addHandler(handler)
 
 def print_help(ctx, param, value):
-    if not value or ctx.resilient_parsing:
+    if value is False:
         return
     click.echo(ctx.get_help())
     ctx.exit()
@@ -150,7 +150,8 @@ def validate_file(file):
     '--test_mode',
     is_flag=True,
     help="Enable test mode.Must be used with --defaults_file and only for TESTs for XtraBackup")
-def all_procedure(prepare, backup, partial, verbose, log_file, log, defaults_file, dry_run, test_mode):
+@click.pass_context
+def all_procedure(ctx, prepare, backup, partial, verbose, log_file, log, defaults_file, dry_run, test_mode):
     if (prepare is False and
         backup is False and
         partial is False and
@@ -160,7 +161,7 @@ def all_procedure(prepare, backup, partial, verbose, log_file, log, defaults_fil
         defaults_file is False and
         dry_run is False and
         test_mode is False):
-        print_help()
+        print_help(ctx, None, value=True)
 
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
