@@ -30,6 +30,8 @@ handler = logging.handlers.SysLogHandler(address=address_matcher(_platform))
 logger.addHandler(handler)
 
 def print_help(ctx, param, value):
+    if not value or ctx.resilient_parsing:
+        return
     click.echo(ctx.get_help())
     ctx.exit()
 
