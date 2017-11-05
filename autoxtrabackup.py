@@ -252,4 +252,7 @@ def all_procedure(ctx, prepare, backup, partial, verbose, log_file, log, default
 
 
 if __name__ == "__main__":
-    all_procedure()
+    if os.geteuid() == 0:
+        all_procedure()
+    else:
+        print("Script must be run as root[sudo]")
