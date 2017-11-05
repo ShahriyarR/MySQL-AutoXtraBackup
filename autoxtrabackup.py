@@ -123,7 +123,7 @@ def validate_file(file):
     expose_value=False,
     is_eager=True,
     help="Version information.")
-@click.option('--defaults_file', default='/etc/bck.conf',
+@click.option('--defaults_file', default='/etc/bck.conf', show_default=True,
               help="Read options from the given file[Default: /etc/bck.conf]")
 @click.option('-v', '--verbose', is_flag=True,
               help="Be verbose (print to console)")
