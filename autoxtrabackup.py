@@ -172,9 +172,8 @@ def all_procedure(ctx, prepare, backup, partial, verbose, log_file, log, default
             file_handler.setFormatter(formatter)
             logger.addHandler(file_handler)
         except PermissionError as err:
-            print(err)
-            logger.error(err)
-            print("Please consider to run as root or sudo")
+            exit("{} Please consider to run as root or sudo".format(err))
+
 
     validate_file(defaults_file)
     config = GeneralClass(defaults_file)
