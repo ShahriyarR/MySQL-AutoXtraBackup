@@ -23,7 +23,7 @@ setup(
     dependency_links=['https://dev.mysql.com/get/Downloads/Connector-Python/mysql-connector-python-2.1.4.tar.gz'],
     entry_points='''
         [console_scripts]
-        autoxtrabackup=autoxtrabackup:all_procedure
+        autoxtrabackup=autoxtrabackup
     ''',
     data_files=datafiles,
 )
