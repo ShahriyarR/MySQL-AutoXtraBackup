@@ -123,7 +123,7 @@ def validate_file(file):
 @click.option(
     '--help', '-h',
     is_flag=True,
-    callback=print_help(),
+    callback=print_help,
     expose_value=False,
     is_eager=True,
     help="Print help message and exit.")
