@@ -13,7 +13,6 @@ import humanfriendly
 import logging
 import logging.handlers
 from logging.handlers import RotatingFileHandler
-import sys
 
 
 logger = logging.getLogger('')
@@ -123,17 +122,21 @@ def validate_file(file):
     expose_value=False,
     is_eager=True,
     help="Version information.")
-@click.option('--defaults_file', default='/etc/bck.conf', show_default=True,
-              help="Read options from the given file[Default: /etc/bck.conf]")
+@click.option('--defaults_file',
+              default='/etc/bck.conf',
+              show_default=True,
+              help="Read options from the given file")
 @click.option('-v', '--verbose', is_flag=True,
               help="Be verbose (print to console)")
 @click.option('-lf',
               '--log_file',
               default='/var/log/autoxtrabackup.log',
-              help="Set log file[Default: /var/log/autoxtrabackup.log]")
+              show_default=True,
+              help="Set log file")
 @click.option('-l',
               '--log',
               default='WARNING',
+              show_default=True,
               type=click.Choice(['DEBUG',
                                  'INFO',
                                  'WARNING',
