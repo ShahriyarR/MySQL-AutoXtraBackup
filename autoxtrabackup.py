@@ -13,7 +13,6 @@ import humanfriendly
 import logging
 import logging.handlers
 from logging.handlers import RotatingFileHandler
-import sys
 
 
 logger = logging.getLogger('')
@@ -29,6 +28,12 @@ handler = logging.handlers.SysLogHandler(address=address_matcher(_platform))
 # Set syslog for the root logger
 logger.addHandler(handler)
 
+
+def print_help(ctx, param, value):
+    if value is False:
+        return
+    click.echo(ctx.get_help())
+    ctx.exit()
 
 def print_version(ctx, param, value):
     if not value or ctx.resilient_parsing:
@@ -117,17 +122,21 @@ def validate_file(file):
     expose_value=False,
     is_eager=True,
     help="Version information.")
-@click.option('--defaults_file', default='/etc/bck.conf',
-              help="Read options from the given file[Default: /etc/bck.conf]")
+@click.option('--defaults_file',
+              default='/etc/bck.conf',
+              show_default=True,
+              help="Read options from the given file")
 @click.option('-v', '--verbose', is_flag=True,
               help="Be verbose (print to console)")
 @click.option('-lf',
               '--log_file',
               default='/var/log/autoxtrabackup.log',
-              help="Set log file[Default: /var/log/autoxtrabackup.log]")
+              show_default=True,
+              help="Set log file")
 @click.option('-l',
               '--log',
               default='WARNING',
+              show_default=True,
               type=click.Choice(['DEBUG',
                                  'INFO',
                                  'WARNING',
@@ -138,8 +147,16 @@ def validate_file(file):
     '--test_mode',
     is_flag=True,
     help="Enable test mode.Must be used with --defaults_file and only for TESTs for XtraBackup")
+@click.option(
+    '--help',
+    is_flag=True,
+    callback=print_help,
+    expose_value=False,
+    is_eager=False,
+    help="Print help message and exit.")
+@click.pass_context
+def all_procedure(ctx, prepare, backup, partial, verbose, log_file, log, defaults_file, dry_run, test_mode):
 
-def all_procedure(prepare, backup, partial, verbose,log_file, log, defaults_file, dry_run, test_mode):
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
@@ -154,7 +171,6 @@ def all_procedure(prepare, backup, partial, verbose,log_file, log, defaults_file
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
-
     validate_file(defaults_file)
     config = GeneralClass(defaults_file)
 
@@ -162,11 +178,13 @@ def all_procedure(prepare, backup, partial, verbose,log_file, log, defaults_file
 
     try:
         with pid_file:  # User PidFile for locking to single instance
-            if (not prepare) and (not backup) and (
-                    not partial) and (not defaults_file) and (not dry_run) and (not test_mode):
-                print("ERROR: you must give an option, run with --help for available options")
-                logger.critical("Aborting!")
-                sys.exit(-1)
+            if (prepare is False and
+                        backup is False and
+                        partial is False and
+                        verbose is False and
+                        dry_run is False and
+                        test_mode is False):
+                print_help(ctx, None, value=True)
             elif test_mode and defaults_file:
                 # TODO: do staff here to implement all in one things for running test mode
                 logger.warning("Enabled Test Mode!!!")
