@@ -5,6 +5,7 @@ from partial_recovery.partial import PartialRecovery
 from general_conf.generalops import GeneralClass
 from prepare_env_test_mode.runner_test_mode import RunnerTestMode
 from sys import platform as _platform
+from sys import exit
 import pid
 import time
 import re
@@ -156,7 +157,8 @@ def validate_file(file):
     help="Print help message and exit.")
 @click.pass_context
 def all_procedure(ctx, prepare, backup, partial, verbose, log_file, log, defaults_file, dry_run, test_mode):
-
+    if os.geteuid() != 0:
+        exit('Script must be run as root[sudo]')
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
@@ -252,7 +254,4 @@ def all_procedure(ctx, prepare, backup, partial, verbose, log_file, log, default
 
 
 if __name__ == "__main__":
-    if os.geteuid() == 0:
-        all_procedure()
-    else:
-        print("Script must be run as root[sudo]")
+    all_procedure()
