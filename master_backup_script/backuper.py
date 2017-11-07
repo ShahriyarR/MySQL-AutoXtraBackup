@@ -33,7 +33,7 @@ class Backup(GeneralClass):
 
     @staticmethod
     def add_tag(backup_dir, backup_name, type, tag_string):
-        with open('{}/backup_tags.txt'.format(backup_dir), 'w') as bcktags:
+        with open('{}/backup_tags.txt'.format(backup_dir), 'a') as bcktags:
             bcktags.write("{0}\t{1}\t{2}\n".format(backup_name, type, tag_string))
             pass
 
