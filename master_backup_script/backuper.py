@@ -24,11 +24,28 @@ logger = logging.getLogger(__name__)
 
 class Backup(GeneralClass):
 
-    def __init__(self, config='/etc/bck.conf', dry_run=0):
+    def __init__(self, config='/etc/bck.conf', dry_run=0, tag=None):
         self.conf = config
         self.dry = dry_run
+        self.tag = tag
         # Call GeneralClass for storing configuration options
         super().__init__(self.conf)
+
+    @staticmethod
+    def add_tag(backup_dir, backup_name, type, tag_string, backup_status):
+        '''
+        Static method for adding backup tags
+        :param backup_dir: The backup dir path
+        :param backup_name: The backup name(timestamped)
+        :param type: The backup type - Full/Inc
+        :param tag_string: The passed tag string
+        :param backup_status: Status: OK or Status: Failed
+        :return: True if no exception
+        '''
+        with open('{}/backup_tags.txt'.format(backup_dir), 'a') as bcktags:
+            bcktags.write("{0}\t{1}\t{2}\t'{3}'\n".format(backup_name, type, backup_status, tag_string))
+
+        return True
 
     @staticmethod
     def sorted_ls(path):
@@ -125,8 +142,7 @@ class Backup(GeneralClass):
                 self.mycnf,
                 self.mysql_user,
                 self.mysql_password,
-                self.mysql_socket
-            )
+                self.mysql_socket)
         else:
             command_connection += ' --port={}'
             command_connection += command_execute
@@ -136,8 +152,7 @@ class Backup(GeneralClass):
                 self.mysql_user,
                 self.mysql_password,
                 self.mysql_host,
-                self.mysql_port
-            )
+                self.mysql_port)
         logger.debug("Trying to flush logs")
         status, output = subprocess.getstatusoutput(new_command)
 
@@ -298,10 +313,16 @@ class Backup(GeneralClass):
             if status == 0:
                 logger.debug(output)
                 # logger.debug(output[-27:])
+                if self.tag is not None:
+                    logger.debug("Adding backup tags")
+                    self.add_tag(self.backupdir, self.recent_full_backup_file(), 'Full', self.tag, 'OK')
                 return True
             else:
                 logger.error("FAILED: FULL BACKUP")
                 logger.error(output)
+                if self.tag is not None:
+                    logger.debug("Adding backup tags")
+                    self.add_tag(self.backupdir, self.recent_full_backup_file(), 'Full', self.tag, 'FAILED')
                 raise RuntimeError("FAILED: FULL BACKUP")
 
     def inc_backup(self):
@@ -459,11 +480,17 @@ class Backup(GeneralClass):
                 if status == 0:
                     logger.debug(output)
                     # logger.debug(output[-27:])
+                    if self.tag is not None:
+                        logger.debug("Adding backup tags")
+                        self.add_tag(self.backupdir, self.recent_inc_backup_file(), 'Inc', self.tag, 'OK')
                     return True
                 else:
-                    logger.error("FAILED: INCREMENT BACKUP FAILED!")
+                    logger.error("FAILED: INCREMENTAL BACKUP")
                     logger.error(output)
-                    raise RuntimeError("FAILED: INCREMENT BACKUP FAILED!")
+                    if self.tag is not None:
+                        logger.debug("Adding backup tags")
+                        self.add_tag(self.backupdir, self.recent_inc_backup_file(), 'Inc', self.tag, 'FAILED')
+                    raise RuntimeError("FAILED: INCREMENTAL BACKUP")
 
         else:  # If there is already existing incremental backup
 
@@ -607,10 +634,16 @@ class Backup(GeneralClass):
                 if status == 0:
                     logger.debug(output)
                     # logger.debug(output[-27:])
+                    if self.tag is not None:
+                        logger.debug("Adding backup tags")
+                        self.add_tag(self.backupdir, self.recent_inc_backup_file(), 'Inc', self.tag, 'OK')
                     return True
                 else:
                     logger.error("FAILED: INCREMENT BACKUP")
                     logger.error(output)
+                    if self.tag is not None:
+                        logger.debug("Adding backup tags")
+                        self.add_tag(self.backupdir, self.recent_inc_backup_file(), 'Inc', self.tag, 'FAILED')
                     raise RuntimeError("FAILED: INCREMENT BACKUP")
 
     def all_backup(self):
