@@ -48,6 +48,18 @@ class Backup(GeneralClass):
         return True
 
     @staticmethod
+    def show_tags(backup_dir):
+        if os.path.isfile("{}/backup_tags.txt".format(backup_dir)):
+            with open('{}/backup_tags.txt'.format(backup_dir), 'r') as bcktags:
+                from_file = bcktags.read()
+            column_names = "{0}\t{1}\t{2}\tTAG\n".format("Backup".ljust(19), "Type".ljust(4), "Status".ljust(2))
+            extra_str = "{}\n".format("-"*(len(column_names)+7))
+            print(column_names + extra_str + from_file)
+        else:
+            logger.warning("Could not find backup_tags.txt inside given backup directory. Can't print tags.")
+            print("WARNING: Could not find backup_tags.txt inside given backup directory. Can't print tags.")
+
+    @staticmethod
     def sorted_ls(path):
         '''
         Static Method for sorting given path

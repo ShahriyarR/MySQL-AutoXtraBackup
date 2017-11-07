@@ -108,27 +108,27 @@ def validate_file(file):
 @click.command()
 @click.option('--dry_run', is_flag=True, help="Enable the dry run.")
 @click.option('--prepare', is_flag=True, help="Prepare/recover backups.")
-@click.option(
-    '--backup',
-    is_flag=True,
-    help="Take full and incremental backups.")
-@click.option(
-    '--partial',
-    is_flag=True,
-    help="Recover specified table (partial recovery).")
-@click.option(
-    '--version',
-    is_flag=True,
-    callback=print_version,
-    expose_value=False,
-    is_eager=True,
-    help="Version information.")
+@click.option('--backup',
+              is_flag=True,
+              help="Take full and incremental backups.")
+@click.option('--partial',
+              is_flag=True,
+              help="Recover specified table (partial recovery).")
+@click.option('--version',
+              is_flag=True,
+              callback=print_version,
+              expose_value=False,
+              is_eager=True,
+              help="Version information.")
 @click.option('--defaults_file',
               default='/etc/bck.conf',
               show_default=True,
               help="Read options from the given file")
 @click.option('--tag',
               help="Pass the tag string for each backup")
+@click.option('--show_tags',
+              is_flag=True,
+              help="Show backup tags and exit")
 @click.option('-v', '--verbose', is_flag=True,
               help="Be verbose (print to console)")
 @click.option('-lf',
@@ -146,19 +146,17 @@ def validate_file(file):
                                  'ERROR',
                                  'CRITICAL']),
               help="Set log level")
-@click.option(
-    '--test_mode',
-    is_flag=True,
-    help="Enable test mode.Must be used with --defaults_file and only for TESTs for XtraBackup")
-@click.option(
-    '--help',
-    is_flag=True,
-    callback=print_help,
-    expose_value=False,
-    is_eager=False,
-    help="Print help message and exit.")
+@click.option('--test_mode',
+              is_flag=True,
+              help="Enable test mode.Must be used with --defaults_file and only for TESTs for XtraBackup")
+@click.option('--help',
+              is_flag=True,
+              callback=print_help,
+              expose_value=False,
+              is_eager=False,
+              help="Print help message and exit.")
 @click.pass_context
-def all_procedure(ctx, prepare, backup, partial, tag, verbose, log_file, log, defaults_file, dry_run, test_mode):
+def all_procedure(ctx, prepare, backup, partial, tag, show_tags, verbose, log_file, log, defaults_file, dry_run, test_mode):
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
@@ -185,12 +183,16 @@ def all_procedure(ctx, prepare, backup, partial, tag, verbose, log_file, log, de
     try:
         with pid_file:  # User PidFile for locking to single instance
             if (prepare is False and
-                        backup is False and
-                        partial is False and
-                        verbose is False and
-                        dry_run is False and
-                        test_mode is False):
+                backup is False and
+                partial is False and
+                verbose is False and
+                dry_run is False and
+                test_mode is False and
+                show_tags is False):
                 print_help(ctx, None, value=True)
+            elif show_tags and defaults_file:
+                b = Backup(config=defaults_file)
+                b.show_tags(backup_dir=b.backupdir)
             elif test_mode and defaults_file:
                 # TODO: do staff here to implement all in one things for running test mode
                 logger.warning("Enabled Test Mode!!!")
