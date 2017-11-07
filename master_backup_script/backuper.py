@@ -480,11 +480,17 @@ class Backup(GeneralClass):
                 if status == 0:
                     logger.debug(output)
                     # logger.debug(output[-27:])
+                    if self.tag is not None:
+                        logger.debug("Adding backup tags")
+                        self.add_tag(self.backupdir, self.recent_inc_backup_file(), 'Inc', self.tag, 'OK')
                     return True
                 else:
-                    logger.error("FAILED: INCREMENT BACKUP FAILED!")
+                    logger.error("FAILED: INCREMENTAL BACKUP")
                     logger.error(output)
-                    raise RuntimeError("FAILED: INCREMENT BACKUP FAILED!")
+                    if self.tag is not None:
+                        logger.debug("Adding backup tags")
+                        self.add_tag(self.backupdir, self.recent_inc_backup_file(), 'Inc', self.tag, 'FAILED')
+                    raise RuntimeError("FAILED: INCREMENTAL BACKUP")
 
         else:  # If there is already existing incremental backup
 
@@ -628,10 +634,16 @@ class Backup(GeneralClass):
                 if status == 0:
                     logger.debug(output)
                     # logger.debug(output[-27:])
+                    if self.tag is not None:
+                        logger.debug("Adding backup tags")
+                        self.add_tag(self.backupdir, self.recent_inc_backup_file(), 'Inc', self.tag, 'OK')
                     return True
                 else:
                     logger.error("FAILED: INCREMENT BACKUP")
                     logger.error(output)
+                    if self.tag is not None:
+                        logger.debug("Adding backup tags")
+                        self.add_tag(self.backupdir, self.recent_inc_backup_file(), 'Inc', self.tag, 'FAILED')
                     raise RuntimeError("FAILED: INCREMENT BACKUP")
 
     def all_backup(self):
