@@ -20,7 +20,7 @@ class PartialRecovery(GeneralClass):
             raise RuntimeError("Could not find mysqlfrm! Please install it or check if it is in PATH")
 
     def create_mysql_client_command(self, statement):
-        command_connection = '{} --defaults-file={} -u{} --password={} --host={}'
+        command_connection = '{} --defaults-file={} -u{} --password={}'
         command_execute = ' -e "{}"'
 
         if hasattr(self, 'mysql_socket'):
@@ -31,7 +31,6 @@ class PartialRecovery(GeneralClass):
                 self.mycnf,
                 self.mysql_user,
                 self.mysql_password,
-                self.mysql_host,
                 self.mysql_socket,
                 statement)
             return new_command
