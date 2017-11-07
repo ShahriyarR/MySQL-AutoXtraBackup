@@ -191,7 +191,8 @@ def all_procedure(ctx, prepare, backup, partial, tag, show_tags, verbose, log_fi
                 show_tags is False):
                 print_help(ctx, None, value=True)
             elif show_tags and defaults_file:
-                pass
+                b = Backup(config=defaults_file)
+                b.show_tags(backup_dir=b.backupdir)
             elif test_mode and defaults_file:
                 # TODO: do staff here to implement all in one things for running test mode
                 logger.warning("Enabled Test Mode!!!")
