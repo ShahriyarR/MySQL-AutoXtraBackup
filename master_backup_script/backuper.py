@@ -55,6 +55,9 @@ class Backup(GeneralClass):
             column_names = "{0}\t{1}\t{2}\tTAG\n".format("Backup".ljust(19), "Type".ljust(4), "Status".ljust(2))
             extra_str = "{}\n".format("-"*(len(column_names)+7))
             print(column_names + extra_str + from_file)
+        else:
+            logger.error("Could not find backup_tags.txt inside given backup directory. Can't print tags.")
+            print("Could not find backup_tags.txt inside given backup directory. Can't print tags.")
 
     @staticmethod
     def sorted_ls(path):
