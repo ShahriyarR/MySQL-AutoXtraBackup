@@ -43,7 +43,7 @@ class Backup(GeneralClass):
         :return: True if no exception
         '''
         with open('{}/backup_tags.txt'.format(backup_dir), 'a') as bcktags:
-            bcktags.write("{0}\t{1}\t'{2}'\t{3}\n".format(backup_name, type, tag_string, backup_status))
+            bcktags.write("{0}\t{1}\t'{2}'\t{3}\n".format(backup_name, type, backup_status, tag_string))
 
         return True
 
