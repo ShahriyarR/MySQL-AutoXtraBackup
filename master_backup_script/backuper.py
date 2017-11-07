@@ -52,7 +52,7 @@ class Backup(GeneralClass):
         if os.path.isfile("{}/backup_tags.txt".format(backup_dir)):
             with open('{}/backup_tags.txt'.format(backup_dir), 'r') as bcktags:
                 from_file = bcktags.read()
-            column_names = "Backup\tType\tStatus\tTAG\n"
+            column_names = "{0}\t{1}\t{2}\tTAG\n".format("Backup".ljust(19), "Type".ljust(4), "Status".ljust(2))
             print(column_names + from_file)
 
     @staticmethod
