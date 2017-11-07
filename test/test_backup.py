@@ -12,3 +12,10 @@ class TestBackup:
                 obj = Backup(config='{}/{}'.format(gen_obj.testpath, conf_files), dry_run=0, tag="My first full backup")
                 backup_name = obj.recent_full_backup_file()
                 obj.add_tag(backup_dir=obj.backupdir, backup_name=backup_name, type='Full', tag_string=obj.tag)
+
+    def test_full_backup(self):
+        gen_obj = GeneralClass()
+        for conf_files in gen_obj.xb_configs.split():
+            if '2_3' in conf_files and '5_6' in conf_files:
+                obj = Backup(config='{}/{}'.format(gen_obj.testpath, conf_files), dry_run=0, tag="My first full backup")
+                obj.full_backup()
