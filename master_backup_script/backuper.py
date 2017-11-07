@@ -24,11 +24,18 @@ logger = logging.getLogger(__name__)
 
 class Backup(GeneralClass):
 
-    def __init__(self, config='/etc/bck.conf', dry_run=0):
+    def __init__(self, config='/etc/bck.conf', dry_run=0, tag=None):
         self.conf = config
         self.dry = dry_run
+        self.tag = tag
         # Call GeneralClass for storing configuration options
         super().__init__(self.conf)
+
+    @staticmethod
+    def add_tag(backup_dir, backup_name, type, tag_string):
+        with open('{}/backup_tags.txt'.format(backup_dir), 'w') as bcktags:
+            bcktags.write("{0}\t{1}\t{2}\n".format(backup_name, type, tag_string))
+            pass
 
     @staticmethod
     def sorted_ls(path):

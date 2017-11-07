@@ -127,6 +127,8 @@ def validate_file(file):
               default='/etc/bck.conf',
               show_default=True,
               help="Read options from the given file")
+@click.option('--tag',
+              help="Pass the tag string for each backup")
 @click.option('-v', '--verbose', is_flag=True,
               help="Be verbose (print to console)")
 @click.option('-lf',
@@ -156,7 +158,7 @@ def validate_file(file):
     is_eager=False,
     help="Print help message and exit.")
 @click.pass_context
-def all_procedure(ctx, prepare, backup, partial, verbose, log_file, log, defaults_file, dry_run, test_mode):
+def all_procedure(ctx, prepare, backup, partial, tag, verbose, log_file, log, defaults_file, dry_run, test_mode):
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
