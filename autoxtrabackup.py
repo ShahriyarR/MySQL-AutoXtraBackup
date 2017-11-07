@@ -218,12 +218,20 @@ def all_procedure(ctx, prepare, backup, partial, tag, verbose, log_file, log, de
                 # print("Prepare")
             elif backup and not test_mode:
                 if not dry_run:
-                    b = Backup(config=defaults_file)
-                    b.all_backup()
+                    if tag:
+                        b = Backup(config=defaults_file, tag=tag)
+                        b.all_backup()
+                    else:
+                        b = Backup(config=defaults_file)
+                        b.all_backup()
                 else:
                     logger.warning("Dry run enabled!")
-                    b = Backup(config=defaults_file, dry_run=1)
-                    b.all_backup()
+                    if tag:
+                        b = Backup(config=defaults_file, dry_run=1, tag=tag)
+                        b.all_backup()
+                    else:
+                        b = Backup(config=defaults_file, dry_run=1)
+                        b.all_backup()
                 # print("Backup")
             elif partial:
                 if not dry_run:
