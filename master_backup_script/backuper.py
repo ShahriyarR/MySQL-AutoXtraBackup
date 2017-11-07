@@ -48,6 +48,14 @@ class Backup(GeneralClass):
         return True
 
     @staticmethod
+    def show_tags(backup_dir):
+        if os.path.isfile("{}/backup_tags.txt".format(backup_dir)):
+            with open('{}/backup_tags.txt'.format(backup_dir), 'r') as bcktags:
+                from_file = bcktags.read()
+            column_names = "Backup\tType\tStatus\tTAG\n"
+            print(column_names + from_file)
+
+    @staticmethod
     def sorted_ls(path):
         '''
         Static Method for sorting given path
