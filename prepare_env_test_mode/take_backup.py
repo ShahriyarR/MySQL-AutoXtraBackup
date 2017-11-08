@@ -13,10 +13,13 @@ class WrapperForBackupTest(Backup):
         if basedir is not None:
             self.basedir = basedir
 
-
     def run_all_backup(self):
         # Method for taking backups using master_backup_script.backuper.py::all_backup()
         RunBenchmark().run_sysbench_prepare(basedir=self.basedir)
+        if '5.7' in self.basedir:
+            for i in range(1, 10):
+                sql = "alter table dbtest.sbtest{} encryption='YES'".format(i)
+                RunBenchmark().run_sql_statement(basedir=self.basedir, sql_statement=sql)
         for _ in range(int(self.incremental_count) + 1):
             RunBenchmark().run_sysbench_run(basedir=self.basedir)
             self.all_backup()
