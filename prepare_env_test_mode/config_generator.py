@@ -63,7 +63,11 @@ class ConfigGenerator(CloneBuildStartServer):
                 config.set(section2,
                            "#Optional: pass general additional options; it will go to both for backup and prepare")
                 config.set(section2, "#xtra_options", "--binlog-info=ON --galera-info")
-                config.set(section2, "xtra_options", "--no-version-check --core-file")
+                if '5.7' in basedir:
+                    config.set(section2, "xtra_options", "--no-version-check --core-file "
+                                                         "--keyring-file-data={}/mysql-keyring/keyring".format(basedir))
+                else:
+                    config.set(section2, "xtra_options","--no-version-check --core-file")
                 config.set(section2, "#Optional: set archive and rotation")
                 config.set(section2, "#archive_dir", "/home/shahriyar.rzaev/XB_TEST/backup_archives")
                 config.set(section2, "#full_backup_interval", "1 day")
