@@ -1,5 +1,6 @@
 from master_backup_script.backuper import Backup
 from prepare_env_test_mode.run_benchmark import RunBenchmark
+from time import sleep
 
 class WrapperForBackupTest(Backup):
 
@@ -22,6 +23,7 @@ class WrapperForBackupTest(Backup):
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql)
         flush_tables = "flush tables"
         RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=flush_tables)
+        sleep(20)
         for _ in range(int(self.incremental_count) + 1):
             RunBenchmark().run_sysbench_run(basedir=self.basedir)
             self.all_backup()
