@@ -41,7 +41,19 @@ class RunBenchmark:
         else:
             logger.error("Failed to get mysql client connection")
             logger.error(output)
-            return False
+            raise RuntimeError("Failed to get mysql client connection")
+
+    @staticmethod
+    def run_sql_statement(basedir, sql_statement):
+        sql = '{} -e \"{}\"'.format(RunBenchmark.get_mysql_conn(basedir), sql_statement)
+        status, output = subprocess.getstatusoutput(sql)
+        if status == 0:
+            logger.debug("OK: running SQL")
+            return True
+        else:
+            logger.error("FAILED: running SQL")
+            logger.error(output)
+            raise RuntimeError("FAILED: running SQL")
 
     def create_db(self, db_name, basedir):
         # Creating DB using mysql client

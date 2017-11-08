@@ -260,7 +260,10 @@ class RunnerTestMode(GeneralClass):
         for options in ConfigGenerator(config=self.conf).options_combination_generator(self.mysql_options):
             c_count = c_count + 1
             options = " ".join(options)
-            options = options + " " + self.df_mysql_options.format(c_count)
+            if '5.7' in basedir:
+                options = options + " " + self.df_mysql_options.format(basedir, c_count)
+            else:
+                options = options + " " + self.df_mysql_options.format(c_count)
             logger.debug("Will start MySQL with {}".format(options))
             if self.clone_obj.wipe_server_all(basedir_path=basedir, options=options):
                 logger.debug("Starting cycle{}".format(c_count))
