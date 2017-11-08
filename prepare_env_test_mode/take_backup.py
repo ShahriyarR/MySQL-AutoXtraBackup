@@ -18,7 +18,7 @@ class WrapperForBackupTest(Backup):
         RunBenchmark().run_sysbench_prepare(basedir=self.basedir)
         if '5.7' in self.basedir:
             for i in range(1, 10):
-                sql = "alter table dbtest.sbtest{} encryption='YES'".format(i)
+                sql = "alter table sysbench_test_db.sbtest{} encryption='Y'".format(i)
                 RunBenchmark().run_sql_statement(basedir=self.basedir, sql_statement=sql)
         for _ in range(int(self.incremental_count) + 1):
             RunBenchmark().run_sysbench_run(basedir=self.basedir)
