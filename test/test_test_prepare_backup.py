@@ -1,6 +1,7 @@
 from general_conf.generalops import GeneralClass
 from prepare_env_test_mode.prepare_backup import WrapperForPrepareTest
 
+# Part of TEST MODE
 
 class TestPrepareBackup:
     # class for prepare_env_test_mode.prepare_backup.py

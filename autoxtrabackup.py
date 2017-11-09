@@ -5,6 +5,7 @@ from partial_recovery.partial import PartialRecovery
 from general_conf.generalops import GeneralClass
 from prepare_env_test_mode.runner_test_mode import RunnerTestMode
 from sys import platform as _platform
+from sys import exit
 import pid
 import time
 import re
@@ -12,7 +13,7 @@ import os
 import humanfriendly
 import logging
 import logging.handlers
-import sys
+from logging.handlers import RotatingFileHandler
 
 
 logger = logging.getLogger('')
@@ -28,6 +29,12 @@ handler = logging.handlers.SysLogHandler(address=address_matcher(_platform))
 # Set syslog for the root logger
 logger.addHandler(handler)
 
+
+def print_help(ctx, param, value):
+    if value is False:
+        return
+    click.echo(ctx.get_help())
+    ctx.exit()
 
 def print_version(ctx, param, value):
     if not value or ctx.resilient_parsing:
@@ -101,47 +108,72 @@ def validate_file(file):
 @click.command()
 @click.option('--dry_run', is_flag=True, help="Enable the dry run.")
 @click.option('--prepare', is_flag=True, help="Prepare/recover backups.")
-@click.option(
-    '--backup',
-    is_flag=True,
-    help="Take full and incremental backups.")
-@click.option(
-    '--partial',
-    is_flag=True,
-    help="Recover specified table (partial recovery).")
-@click.option(
-    '--version',
-    is_flag=True,
-    callback=print_version,
-    expose_value=False,
-    is_eager=True,
-    help="Version information.")
-@click.option('--defaults_file', default='/etc/bck.conf',
+@click.option('--backup',
+              is_flag=True,
+              help="Take full and incremental backups.")
+@click.option('--partial',
+              is_flag=True,
+              help="Recover specified table (partial recovery).")
+@click.option('--version',
+              is_flag=True,
+              callback=print_version,
+              expose_value=False,
+              is_eager=True,
+              help="Version information.")
+@click.option('--defaults_file',
+              default='/etc/bck.conf',
+              show_default=True,
               help="Read options from the given file")
+@click.option('--tag',
+              help="Pass the tag string for each backup")
+@click.option('--show_tags',
+              is_flag=True,
+              help="Show backup tags and exit")
 @click.option('-v', '--verbose', is_flag=True,
               help="Be verbose (print to console)")
+@click.option('-lf',
+              '--log_file',
+              default='/var/log/autoxtrabackup.log',
+              show_default=True,
+              help="Set log file")
 @click.option('-l',
               '--log',
               default='WARNING',
+              show_default=True,
               type=click.Choice(['DEBUG',
                                  'INFO',
                                  'WARNING',
                                  'ERROR',
                                  'CRITICAL']),
               help="Set log level")
-@click.option(
-    '--test_mode',
-    is_flag=True,
-    help="Enable test mode.Must be used with --defaults_file and only for TESTs for XtraBackup")
-
-def all_procedure(prepare, backup, partial, verbose, log, defaults_file, dry_run, test_mode):
+@click.option('--test_mode',
+              is_flag=True,
+              help="Enable test mode.Must be used with --defaults_file and only for TESTs for XtraBackup")
+@click.option('--help',
+              is_flag=True,
+              callback=print_help,
+              expose_value=False,
+              is_eager=False,
+              help="Print help message and exit.")
+@click.pass_context
+def all_procedure(ctx, prepare, backup, partial, tag, show_tags, verbose, log_file, log, defaults_file, dry_run, test_mode):
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
+
     if verbose:
         ch = logging.StreamHandler()
         ch.setFormatter(formatter)
         logger.addHandler(ch)
+
+    if log_file:
+        try:
+            file_handler = RotatingFileHandler(log_file, mode='a', maxBytes=104857600, backupCount=7)
+            file_handler.setFormatter(formatter)
+            logger.addHandler(file_handler)
+        except PermissionError as err:
+            exit("{} Please consider to run as root or sudo".format(err))
+
 
     validate_file(defaults_file)
     config = GeneralClass(defaults_file)
@@ -150,11 +182,17 @@ def all_procedure(prepare, backup, partial, verbose, log, defaults_file, dry_run
 
     try:
         with pid_file:  # User PidFile for locking to single instance
-            if (not prepare) and (not backup) and (
-                    not partial) and (not defaults_file) and (not dry_run) and (not test_mode):
-                print("ERROR: you must give an option, run with --help for available options")
-                logger.critical("Aborting!")
-                sys.exit(-1)
+            if (prepare is False and
+                backup is False and
+                partial is False and
+                verbose is False and
+                dry_run is False and
+                test_mode is False and
+                show_tags is False):
+                print_help(ctx, None, value=True)
+            elif show_tags and defaults_file:
+                b = Backup(config=defaults_file)
+                b.show_tags(backup_dir=b.backupdir)
             elif test_mode and defaults_file:
                 # TODO: do staff here to implement all in one things for running test mode
                 logger.warning("Enabled Test Mode!!!")
@@ -182,12 +220,20 @@ def all_procedure(prepare, backup, partial, verbose, log, defaults_file, dry_run
                 # print("Prepare")
             elif backup and not test_mode:
                 if not dry_run:
-                    b = Backup(config=defaults_file)
-                    b.all_backup()
+                    if tag:
+                        b = Backup(config=defaults_file, tag=tag)
+                        b.all_backup()
+                    else:
+                        b = Backup(config=defaults_file)
+                        b.all_backup()
                 else:
                     logger.warning("Dry run enabled!")
-                    b = Backup(config=defaults_file, dry_run=1)
-                    b.all_backup()
+                    if tag:
+                        b = Backup(config=defaults_file, dry_run=1, tag=tag)
+                        b.all_backup()
+                    else:
+                        b = Backup(config=defaults_file, dry_run=1)
+                        b.all_backup()
                 # print("Backup")
             elif partial:
                 if not dry_run:

@@ -1,5 +1,3 @@
-#!/opt/Python-3.3.2/bin/python3
-
 # MySQL Backuper Script using Percona Xtrabackup
 # Originally Developed by
 # Shahriyar Rzayev -> http://www.mysql.az
@@ -10,11 +8,8 @@ import os
 import subprocess
 import shlex
 import shutil
-import mysql.connector
 import time
 from datetime import datetime
-from mysql.connector import errorcode
-from sys import exit
 from general_conf.generalops import GeneralClass
 from general_conf.check_env import CheckEnv
 from os.path import join, isfile
@@ -29,18 +24,58 @@ logger = logging.getLogger(__name__)
 
 class Backup(GeneralClass):
 
-    def __init__(self, config='/etc/bck.conf', dry_run=0):
+    def __init__(self, config='/etc/bck.conf', dry_run=0, tag=None):
         self.conf = config
         self.dry = dry_run
-        # Call GeneralClass for storing configuration
+        self.tag = tag
+        # Call GeneralClass for storing configuration options
         super().__init__(self.conf)
-        #GeneralClass.__init__(self, self.conf)
 
-    def sorted_ls(self, path):
+    @staticmethod
+    def add_tag(backup_dir, backup_name, type, tag_string, backup_status):
+        '''
+        Static method for adding backup tags
+        :param backup_dir: The backup dir path
+        :param backup_name: The backup name(timestamped)
+        :param type: The backup type - Full/Inc
+        :param tag_string: The passed tag string
+        :param backup_status: Status: OK or Status: Failed
+        :return: True if no exception
+        '''
+        with open('{}/backup_tags.txt'.format(backup_dir), 'a') as bcktags:
+            bcktags.write("{0}\t{1}\t{2}\t'{3}'\n".format(backup_name, type, backup_status, tag_string))
+
+        return True
+
+    @staticmethod
+    def show_tags(backup_dir):
+        if os.path.isfile("{}/backup_tags.txt".format(backup_dir)):
+            with open('{}/backup_tags.txt'.format(backup_dir), 'r') as bcktags:
+                from_file = bcktags.read()
+            column_names = "{0}\t{1}\t{2}\tTAG\n".format("Backup".ljust(19), "Type".ljust(4), "Status".ljust(2))
+            extra_str = "{}\n".format("-"*(len(column_names)+7))
+            print(column_names + extra_str + from_file)
+        else:
+            logger.warning("Could not find backup_tags.txt inside given backup directory. Can't print tags.")
+            print("WARNING: Could not find backup_tags.txt inside given backup directory. Can't print tags.")
+
+    @staticmethod
+    def sorted_ls(path):
+        '''
+        Static Method for sorting given path
+        :param path: Directory path
+        :return: The list of sorted directories
+        '''
         mtime = lambda f: os.stat(os.path.join(path, f)).st_mtime
         return list(sorted(os.listdir(path), key=mtime))
 
-    def get_directory_size(self, path):
+    @staticmethod
+    def get_directory_size(path):
+        '''
+        Calculate total size of given directory path
+        :param path: Directory path
+        :return: Total size of directory
+        '''
         total_size = 0
         for dirpath, dirnames, filenames in os.walk(path):
             for f in filenames:
@@ -49,10 +84,14 @@ class Backup(GeneralClass):
         return total_size
 
     def last_full_backup_date(self):
+        '''
+        Check if last full backup date retired or not.
+        :return: 1 if last full backup date older than given interval, 0 if it is newer.
+        '''
         # Finding last full backup date from dir/folder name
 
-        max = self.recent_full_backup_file()
-        dir_date = datetime.strptime(max, "%Y-%m-%d_%H-%M-%S")
+        max_dir = self.recent_full_backup_file()
+        dir_date = datetime.strptime(max_dir, "%Y-%m-%d_%H-%M-%S")
         now = datetime.now()
 
         # Finding if last full backup older than the interval or more from now!
@@ -62,16 +101,21 @@ class Backup(GeneralClass):
         else:
             return 0
 
-    def create_backup_directory(self, directory):
-        new_backup_dir = join(
-            directory, datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
+    @staticmethod
+    def create_backup_directory(directory):
+        '''
+        Static method for creating timestamped directory on given path
+        :param directory: Directory path
+        :return: Created new directory path
+        '''
+        new_backup_dir = join(directory, datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
         try:
             # Creating backup directory
             makedirs(new_backup_dir)
             return new_backup_dir
         except Exception as err:
-            logger.error(
-                "Something went wrong in create_backup_directory(): {}".format(err))
+            logger.error("Something went wrong in create_backup_directory(): {}".format(err))
+            raise RuntimeError("Something went wrong in create_backup_directory(): {}".format(err))
 
     def recent_full_backup_file(self):
         # Return last full backup dir name
@@ -91,6 +135,7 @@ class Backup(GeneralClass):
         """
         It is highly recomended to flush binary logs before each full backup for easy maintenance.
         That's why we will execute "flush logs" command before each full backup!
+        :return: True on success, raise RuntimError on error.
         """
         if hasattr(self, 'mysql_socket'):
             command_connection = '{} --defaults-file={} -u{} --password={}'
@@ -101,7 +146,6 @@ class Backup(GeneralClass):
 
         # Open connection
 
-
         if hasattr(self, 'mysql_socket'):
             command_connection += ' --socket={}'
             command_connection += command_execute
@@ -110,9 +154,7 @@ class Backup(GeneralClass):
                 self.mycnf,
                 self.mysql_user,
                 self.mysql_password,
-                #self.mysql_host,
-                self.mysql_socket
-            )
+                self.mysql_socket)
         else:
             command_connection += ' --port={}'
             command_connection += command_execute
@@ -122,20 +164,17 @@ class Backup(GeneralClass):
                 self.mysql_user,
                 self.mysql_password,
                 self.mysql_host,
-                self.mysql_port
-            )
+                self.mysql_port)
         logger.debug("Trying to flush logs")
         status, output = subprocess.getstatusoutput(new_command)
 
         if status == 0:
-            logger.debug("Log flushing completed")
+            logger.debug("OK: Log flushing completed")
             return True
         else:
-            logger.error("Log flushing FAILED!")
-            time.sleep(5)
+            logger.error("FAILED: Log flushing")
             logger.error(output)
-            return False
-
+            raise RuntimeError("FAILED: Log flushing -> {}".format(output))
 
     def create_backup_archives(self):
         # Creating .tar.gz archive files of taken backups
@@ -152,13 +191,12 @@ class Backup(GeneralClass):
         logger.debug("Start to archive previous backups")
         status, output = subprocess.getstatusoutput(run_tar)
         if status == 0:
-            logger.debug("Old full backup and incremental backups archived!")
+            logger.debug("OK: Old full backup and incremental backups archived!")
             return True
         else:
-            logger.error("Archiving FAILED!")
-            time.sleep(5)
+            logger.error("FAILED: Archiving ")
             logger.error(output)
-            return False
+            raise RuntimeError("FAILED: Archiving -> {}".format(output))
 
     def clean_old_archives(self):
         logger.debug("Starting cleaning of old archives")
@@ -204,58 +242,57 @@ class Backup(GeneralClass):
 
     def copy_backup_to_remote_host(self):
         # Copying backup directory to remote server
-        logger.debug(
-            "########################################################################")
-        logger.debug("Copying backups to remote server")
-        logger.debug(
-            "########################################################################")
-        copy_it = 'scp -r %s %s:%s' % (self.backupdir,
-                                       self.remote_conn, self.remote_dir)
+        logger.debug("- - - - Copying backups to remote server - - - -")
+
+        copy_it = 'scp -r {} {}:{}'.format(self.backupdir, self.remote_conn, self.remote_dir)
         copy_it = shlex.split(copy_it)
         cp = subprocess.Popen(copy_it, stdout=subprocess.PIPE)
         logger.debug(str(cp.stdout.read()))
 
     def full_backup(self):
-
+        '''
+        Method for taking full backups. It will construct the backup command based on config file.
+        :return: True on success, raise RuntimeError on error.
+        '''
         full_backup_dir = self.create_backup_directory(self.full_dir)
 
         # Taking Full backup
-        args = "%s --defaults-file=%s --user=%s --password='%s' " \
-               " --target-dir=%s --backup" % (self.backup_tool,
-                                              self.mycnf,
-                                              self.mysql_user,
-                                              self.mysql_password,
-                                              full_backup_dir)
+        args = "{} --defaults-file={} --user={} --password='{}' " \
+               " --target-dir={} --backup".format(
+                self.backup_tool,
+                self.mycnf,
+                self.mysql_user,
+                self.mysql_password,
+                full_backup_dir)
 
         if hasattr(self, 'mysql_socket'):
-            args += " --socket=%s" % (self.mysql_socket)
+            args += " --socket={}".format(self.mysql_socket)
         elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
-            args += " --host=%s" % self.mysql_host
-            args += " --port=%s" % self.mysql_port
+            args += " --host={}".format(self.mysql_host)
+            args += " --port={}".format(self.mysql_port)
         else:
-            logger.critical(
-                "Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
-            return False
+            logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
+            raise RuntimeError("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
 
         # Adding compression support for full backup
         if hasattr(self, 'compress'):
-            args += " --compress=%s" % (self.compress)
+            args += " --compress={}".format(self.compress)
         if hasattr(self, 'compress_chunk_size'):
-            args += " --compress-chunk-size=%s" % (self.compress_chunk_size)
+            args += " --compress-chunk-size={}".format(self.compress_chunk_size)
         if hasattr(self, 'compress_threads'):
-            args += " --compress-threads=%s" % (self.compress_threads)
+            args += " --compress-threads={}".format(self.compress_threads)
 
         # Adding encryption support for full backup
         if hasattr(self, 'encrypt'):
-            args += " --encrypt=%s" % (self.encrypt)
+            args += " --encrypt={}".format(self.encrypt)
         if hasattr(self, 'encrypt_key'):
-            args += " --encrypt-key=%s" % (self.encrypt_key)
+            args += " --encrypt-key={}".format(self.encrypt_key)
         if hasattr(self, 'encrypt_key_file'):
-            args += " --encrypt-key-file=%s" % (self.encrypt_key_file)
+            args += " --encrypt-key-file={}".format(self.encrypt_key_file)
         if hasattr(self, 'encrypt_threads'):
-            args += " --encrypt-threads=%s" % (self.encrypt_threads)
+            args += " --encrypt-threads={}".format(self.encrypt_threads)
         if hasattr(self, 'encrypt_chunk_size'):
-            args += " --encrypt-chunk-size=%s" % (self.encrypt_chunk_size)
+            args += " --encrypt-chunk-size={}".format(self.encrypt_chunk_size)
 
         # Checking if extra options were passed:
         if hasattr(self, 'xtra_options'):
@@ -270,40 +307,45 @@ class Backup(GeneralClass):
         # Checking if partial recovery list is available
         if hasattr(self, 'partial_list'):
             args += " "
-            args += '--databases="%s"' % self.partial_list
+            args += '--databases="{}"'.format(self.partial_list)
             logger.warning("Partial Backup is enabled!")
 
         # Checking if streaming enabled for backups
         if hasattr(self, 'stream'):
             args += " "
-            args += '--stream="%s"' % self.stream
-            args += " > %s/full_backup.stream" % full_backup_dir
+            args += '--stream="{}"'.format(self.stream)
+            args += " > {}/full_backup.stream".format(full_backup_dir)
             logger.warning("Streaming is enabled!")
 
-        logger.debug("The following backup command will be executed %s", args)
+        logger.debug("The following backup command will be executed {}".format(args))
 
         if self.dry == 0:
-            logger.debug("Starting %s", self.backup_tool)
+            logger.debug("Starting {}".format(self.backup_tool))
             status, output = subprocess.getstatusoutput(args)
             if status == 0:
                 logger.debug(output)
-                #logger.debug(output[-27:])
+                # logger.debug(output[-27:])
+                if self.tag is not None:
+                    logger.debug("Adding backup tags")
+                    self.add_tag(self.backupdir, self.recent_full_backup_file(), 'Full', self.tag, 'OK')
                 return True
             else:
-                logger.error("FULL BACKUP FAILED!")
-                time.sleep(5)
+                logger.error("FAILED: FULL BACKUP")
                 logger.error(output)
-                return False
-
+                if self.tag is not None:
+                    logger.debug("Adding backup tags")
+                    self.add_tag(self.backupdir, self.recent_full_backup_file(), 'Full', self.tag, 'FAILED')
+                raise RuntimeError("FAILED: FULL BACKUP")
 
     def inc_backup(self):
-
-        # Taking Incremental backup
-
+        '''
+        Method for taking incremental backups.
+        :return:
+        '''
+        # Get the recent full backup path
         recent_bck = self.recent_full_backup_file()
+        # Get the recent incremental backup path
         recent_inc = self.recent_inc_backup_file()
-
-        check_env_obj = CheckEnv(self.conf)
 
         # Creating time-stamped incremental backup directory
         inc_backup_dir = self.create_backup_directory(self.inc_dir)
@@ -313,9 +355,9 @@ class Backup(GeneralClass):
         if recent_inc == 0:  # If there is no incremental backup
 
             # Taking incremental backup.
-            args = "%s --defaults-file=%s --user=%s --password='%s' " \
-                   "--target-dir=%s --incremental-basedir=%s/%s --backup" % \
-                   (self.backup_tool,
+            args = "{} --defaults-file={} --user={} --password='{}' " \
+                   "--target-dir={} --incremental-basedir={}/{} --backup".format(
+                    self.backup_tool,
                     self.mycnf,
                     self.mysql_user,
                     self.mysql_password,
@@ -324,43 +366,39 @@ class Backup(GeneralClass):
                     recent_bck)
 
             if hasattr(self, 'mysql_socket'):
-                args += " --socket=%s" % (self.mysql_socket)
+                args += " --socket={}".format(self.mysql_socket)
             elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
-                args += " --host=%s" % self.mysql_host
-                args += " --port=%s" % self.mysql_port
+                args += " --host={}".format(self.mysql_host)
+                args += " --port={}".format(self.mysql_port)
             else:
-                logger.critical(
-                    "Neither mysql_socket nor mysql_host and mysql_port are not defined in config!")
-                return False
+                logger.critical("Neither mysql_socket nor mysql_host and mysql_port are not defined in config!")
+                raise RuntimeError("Neither mysql_socket nor mysql_host and mysql_port are not defined in config!")
 
             # Adding compression support for incremental backup
             if hasattr(self, 'compress'):
-                args += " --compress=%s" % (self.compress)
+                args += " --compress={}".format(self.compress)
             if hasattr(self, 'compress_chunk_size'):
-                args += " --compress-chunk-size=%s" % (
-                    self.compress_chunk_size)
+                args += " --compress-chunk-size={}".format(self.compress_chunk_size)
             if hasattr(self, 'compress_threads'):
-                args += " --compress-threads=%s" % (self.compress_threads)
+                args += " --compress-threads={}".format(self.compress_threads)
 
             # Adding encryption support for incremental backup
             if hasattr(self, 'encrypt'):
-                args += " --encrypt=%s" % (self.encrypt)
+                args += " --encrypt={}".format(self.encrypt)
             if hasattr(self, 'encrypt_key'):
-                args += " --encrypt-key=%s" % (self.encrypt_key)
+                args += " --encrypt-key={}".format(self.encrypt_key)
             if hasattr(self, 'encrypt_key_file'):
-                args += " --encrypt_key_file=%s" % (self.encrypt_key_file)
+                args += " --encrypt_key_file={}".format(self.encrypt_key_file)
             if hasattr(self, 'encrypt_threads'):
-                args += " --encrypt-threads=%s" % (self.encrypt_threads)
+                args += " --encrypt-threads={}".format(self.encrypt_threads)
             if hasattr(self, 'encrypt_chunk_size'):
-                args += " --encrypt-chunk-size=%s" % (self.encrypt_chunk_size)
+                args += " --encrypt-chunk-size={}".format(self.encrypt_chunk_size)
 
             # Extract and decrypt streamed full backup prior to executing incremental backup
-            if hasattr(self, 'stream') \
-                                       and hasattr(self, 'encrypt') \
-                                       and hasattr(self, 'xbs_decrypt'):
+            if hasattr(self, 'stream') and hasattr(self, 'encrypt') and hasattr(self, 'xbs_decrypt'):
                 logger.debug("Using xbstream to extract and decrypt from full_backup.stream!")
-                xbstream_command = "%s %s --decrypt=%s --encrypt-key=%s --encrypt-threads=%s " \
-                                   "< %s/%s/full_backup.stream -C %s/%s" % (
+                xbstream_command = "{} {} --decrypt={} --encrypt-key={} --encrypt-threads={} " \
+                                   "< {}/{}/full_backup.stream -C {}/{}".format(
                                     self.xbstream,
                                     self.xbstream_options,
                                     self.decrypt,
@@ -369,72 +407,61 @@ class Backup(GeneralClass):
                                     self.full_dir,
                                     recent_bck,
                                     self.full_dir,
-                                    recent_bck
-                                )
+                                    recent_bck)
 
-                logger.debug(
-                    "The following xbstream command will be executed %s",
-                    xbstream_command)
-                if self.dry == 0 and isfile(("%s/%s/full_backup.stream") % (self.full_dir, recent_bck)):
+                logger.debug("The following xbstream command will be executed {}".format(xbstream_command))
+                if self.dry == 0 and isfile("{}/{}/full_backup.stream".format(self.full_dir, recent_bck)):
                     status, output = subprocess.getstatusoutput(xbstream_command)
                     if status == 0:
-                        logger.debug("XBSTREAM command succeeded.")
+                        logger.debug("OK: XBSTREAM command succeeded.")
                     else:
-                        logger.error("XBSTREAM COMMAND FAILED!")
-                        time.sleep(5)
+                        logger.error("FAILED: XBSTREAM COMMAND")
                         logger.error(output)
-                        return False
+                        raise RuntimeError("FAILED: XBSTREAM COMMAND")
 
             # Extract streamed full backup prior to executing incremental backup
             elif hasattr(self, 'stream'):
                 logger.debug("Using xbstream to extract from full_backup.stream!")
-                xbstream_command = "%s %s < %s/%s/full_backup.stream -C %s/%s" % (
+                xbstream_command = "{} {} < {}/{}/full_backup.stream -C {}/{}".format(
                     self.xbstream,
                     self.xbstream_options,
                     self.full_dir,
                     recent_bck,
                     self.full_dir,
-                    recent_bck
-                )
+                    recent_bck)
 
-                logger.debug(
-                    "The following xbstream command will be executed %s",
-                xbstream_command)
+                logger.debug("The following xbstream command will be executed {}".format(xbstream_command))
 
-                if self.dry == 0 and isfile(("%s/%s/full_backup.stream") % (self.full_dir, recent_bck)):
+                if self.dry == 0 and isfile("{}/{}/full_backup.stream".format(self.full_dir, recent_bck)):
                     status, output = subprocess.getstatusoutput(xbstream_command)
                     if status == 0:
-                        logger.debug("XBSTREAM command succeeded.")
+                        logger.debug("OK: XBSTREAM command succeeded.")
                     else:
-                        logger.error("XBSTREAM COMMAND FAILED!")
-                        time.sleep(5)
+                        logger.error("FAILED: XBSTREAM command")
                         logger.error(output)
-                        return False
+                        raise RuntimeError("FAILED: XBSTREAM command")
 
             elif 'encrypt' in args:
                 logger.debug("Applying workaround for LP #1444255")
-                xbcrypt_command = "%s -d -k %s -a %s -i %s/%s/xtrabackup_checkpoints.xbcrypt " \
-                                  "-o %s/%s/xtrabackup_checkpoints" % \
-                                  (self.xbcrypt,
+                xbcrypt_command = "{} -d -k {} -a {} -i {}/{}/xtrabackup_checkpoints.xbcrypt " \
+                                  "-o {}/{}/xtrabackup_checkpoints".format(
+                                   self.xbcrypt,
                                    self.encrypt_key,
                                    self.encrypt,
                                    self.full_dir,
                                    recent_bck,
                                    self.full_dir,
                                    recent_bck)
-                logger.debug(
-                    "The following xbcrypt command will be executed %s",
-                    xbcrypt_command)
+                logger.debug("The following xbcrypt command will be executed {}".format(xbcrypt_command))
 
                 if self.dry == 0:
                     status, output = subprocess.getstatusoutput(xbcrypt_command)
                     if status == 0:
                         logger.debug(output[-27:])
                     else:
-                        logger.error("XBCRYPT COMMAND FAILED!")
-                        time.sleep(5)
+                        logger.error("FAILED: XBCRYPT command")
                         logger.error(output)
-                        return False
+                        raise RuntimeError("FAILED: XBCRYPT command")
 
             # Checking if extra options were passed:
             if hasattr(self, 'xtra_options'):
@@ -448,36 +475,40 @@ class Backup(GeneralClass):
 
             # Checking if partial recovery list is available
             if hasattr(self, 'partial_list'):
-               args += " "
-               args += '--databases="%s"' % (self.partial_list)
-               logger.warning("Partial Backup is enabled!")
+                args += " "
+                args += '--databases="{}"'.format(self.partial_list)
+                logger.warning("Partial Backup is enabled!")
 
             # Checking if streaming enabled for backups
             if hasattr(self, 'stream'):
-               args += " "
-               args += '--stream="%s"' % self.stream
-               args += " > %s/inc_backup.stream" % inc_backup_dir
-               logger.warning("Streaming is enabled!")
+                args += " "
+                args += '--stream="{}"'.format(self.stream)
+                args += " > {}/inc_backup.stream".format(inc_backup_dir)
+                logger.warning("Streaming is enabled!")
 
-            logger.debug(
-                "The following backup command will be executed %s", args)
+            logger.debug("The following backup command will be executed {}".format(args))
             if self.dry == 0:
                 status, output = subprocess.getstatusoutput(args)
                 if status == 0:
                     logger.debug(output)
-                    #logger.debug(output[-27:])
+                    # logger.debug(output[-27:])
+                    if self.tag is not None:
+                        logger.debug("Adding backup tags")
+                        self.add_tag(self.backupdir, self.recent_inc_backup_file(), 'Inc', self.tag, 'OK')
                     return True
                 else:
-                    logger.error("INCREMENT BACKUP FAILED!")
-                    time.sleep(5)
+                    logger.error("FAILED: INCREMENTAL BACKUP")
                     logger.error(output)
-                    return False
+                    if self.tag is not None:
+                        logger.debug("Adding backup tags")
+                        self.add_tag(self.backupdir, self.recent_inc_backup_file(), 'Inc', self.tag, 'FAILED')
+                    raise RuntimeError("FAILED: INCREMENTAL BACKUP")
 
         else:  # If there is already existing incremental backup
 
-            args = "%s --defaults-file=%s --user=%s --password='%s'  " \
-                   "--target-dir=%s --incremental-basedir=%s/%s --backup" % \
-                   (self.backup_tool,
+            args = "{} --defaults-file={} --user={} --password='{}'  " \
+                   "--target-dir={} --incremental-basedir={}/{} --backup".format(
+                    self.backup_tool,
                     self.mycnf,
                     self.mysql_user,
                     self.mysql_password,
@@ -486,43 +517,41 @@ class Backup(GeneralClass):
                     recent_inc)
 
             if hasattr(self, 'mysql_socket'):
-                args += " --socket=%s" % (self.mysql_socket)
+                args += " --socket={}".format(self.mysql_socket)
             elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
-                args += " --host=%s" % self.mysql_host
-                args += " --port=%s" % self.mysql_port
+                args += " --host={}".format(self.mysql_host)
+                args += " --port={}".format(self.mysql_port)
             else:
-                logger.critical(
-                    "Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
-                return False
+                logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
+                raise RuntimeError("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
 
             # Adding compression support for incremental backup
             if hasattr(self, 'compress'):
-                args += " --compress=%s" % (self.compress)
+                args += " --compress={}".format(self.compress)
             if hasattr(self, 'compress_chunk_size'):
-                args += " --compress_chunk_size=%s" % (
-                    self.compress_chunk_size)
+                args += " --compress_chunk_size={}".format(self.compress_chunk_size)
             if hasattr(self, 'compress-threads'):
-                args += " --compress_threads=%s" % (self.compress_threads)
+                args += " --compress_threads={}".format(self.compress_threads)
 
             # Adding encryption support for incremental backup
             if hasattr(self, 'encrypt'):
-                args += " --encrypt=%s" % (self.encrypt)
+                args += " --encrypt={}".format(self.encrypt)
             if hasattr(self, 'encrypt_key'):
-                args += " --encrypt-key=%s" % (self.encrypt_key)
+                args += " --encrypt-key={}".format(self.encrypt_key)
             if hasattr(self, 'encrypt_key_file'):
-                args += " --encrypt-key-file=%s" % (self.encrypt_key_file)
+                args += " --encrypt-key-file={}".format(self.encrypt_key_file)
             if hasattr(self, 'encrypt_threads'):
-                args += " --encrypt-threads=%s" % (self.encrypt_threads)
+                args += " --encrypt-threads={}".format(self.encrypt_threads)
             if hasattr(self, 'encrypt_chunk_size'):
-                args += " --encrypt-chunk-size=%s" % (self.encrypt_chunk_size)
+                args += " --encrypt-chunk-size={}".format(self.encrypt_chunk_size)
 
             # Extract and decrypt streamed full backup prior to executing incremental backup
             if hasattr(self, 'stream') \
                     and hasattr(self, 'encrypt') \
                     and hasattr(self, 'xbs_decrypt'):
                 logger.debug("Using xbstream to extract and decrypt from inc_backup.stream!")
-                xbstream_command = "%s %s --decrypt=%s --encrypt-key=%s --encrypt-threads=%s " \
-                                   "< %s/%s/inc_backup.stream -C %s/%s" % (
+                xbstream_command = "{} {} --decrypt={} --encrypt-key={} --encrypt-threads={} " \
+                                   "< {}/{}/inc_backup.stream -C {}/{}".format(
                                        self.xbstream,
                                        self.xbstream_options,
                                        self.decrypt,
@@ -531,72 +560,61 @@ class Backup(GeneralClass):
                                        self.inc_dir,
                                        recent_inc,
                                        self.inc_dir,
-                                       recent_inc
-                                   )
+                                       recent_inc)
 
-                logger.debug(
-                    "The following xbstream command will be executed %s",
-                    xbstream_command)
-                if self.dry == 0 and isfile(("%s/%s/inc_backup.stream") % (self.inc_dir, recent_inc)):
+                logger.debug("The following xbstream command will be executed {}".format(xbstream_command))
+                if self.dry == 0 and isfile("{}/{}/inc_backup.stream".format(self.inc_dir, recent_inc)):
                     status, output = subprocess.getstatusoutput(xbstream_command)
                     if status == 0:
-                        logger.debug("XBSTREAM command succeeded.")
+                        logger.debug("OK: XBSTREAM command succeeded.")
                     else:
-                        logger.error("XBSTREAM COMMAND FAILED!")
-                        time.sleep(5)
+                        logger.error("FAILED: XBSTREAM command.")
                         logger.error(output)
-                        return False
+                        raise RuntimeError("FAILED: XBSTREAM command.")
 
             # Extracting streamed incremental backup prior to executing new incremental backup
 
             elif hasattr(self, 'stream'):
                 logger.debug("Using xbstream to extract from inc_backup.stream!")
-                xbstream_command = "%s %s < %s/%s/inc_backup.stream -C %s/%s" % (
+                xbstream_command = "{} {} < {}/{}/inc_backup.stream -C {}/{}".format(
                     self.xbstream,
                     self.xbstream_options,
                     self.inc_dir,
                     recent_inc,
                     self.inc_dir,
-                    recent_inc
-                )
+                    recent_inc)
 
-                logger.debug(
-                    "The following xbstream command will be executed %s",
-                    xbstream_command)
+                logger.debug("The following xbstream command will be executed {}".format(xbstream_command))
 
-                if self.dry == 0 and isfile(("%s/%s/inc_backup.stream") % (self.full_dir, recent_bck)):
+                if self.dry == 0 and isfile("{}/{}/inc_backup.stream".format(self.full_dir, recent_bck)):
                     status, output = subprocess.getstatusoutput(xbstream_command)
                     if status == 0:
-                        logger.debug("XBSTREAM command succeeded.")
+                        logger.debug("OK: XBSTREAM command succeeded.")
                     else:
-                        logger.error("XBSTREAM COMMAND FAILED!")
-                        time.sleep(5)
+                        logger.error("FAILED: XBSTREAM command.")
                         logger.error(output)
-                        return False
+                        raise RuntimeError("FAILED: XBSTREAM command.")
 
             elif 'encrypt' in args:
                 logger.debug("Applying workaround for LP #1444255")
-                xbcrypt_command = "%s -d -k %s -a %s -i %s/%s/xtrabackup_checkpoints.xbcrypt " \
-                                  "-o %s/%s/xtrabackup_checkpoints" % \
-                                  (self.xbcrypt,
+                xbcrypt_command = "{} -d -k {} -a {} -i {}/{}/xtrabackup_checkpoints.xbcrypt " \
+                                  "-o {}/{}/xtrabackup_checkpoints".format(
+                                   self.xbcrypt,
                                    self.encrypt_key,
                                    self.encrypt,
                                    self.inc_dir,
                                    recent_inc,
                                    self.inc_dir,
                                    recent_inc)
-                logger.debug(
-                    "The following xbcrypt command will be executed %s",
-                    xbcrypt_command)
+                logger.debug("The following xbcrypt command will be executed {}".format(xbcrypt_command))
                 if self.dry == 0:
                     status, output = subprocess.getstatusoutput(xbcrypt_command)
                     if status == 0:
                         logger.debug(output[-27:])
                     else:
-                        logger.error("XBCRYPT COMMAND FAILED!")
-                        time.sleep(5)
+                        logger.error("FAILED: XBCRYPT command")
                         logger.error(output)
-                        return False
+                        raise RuntimeError("FAILED: XBCRYPT command")
 
             # Checking if extra options were passed:
             if hasattr(self, 'xtra_options'):
@@ -610,35 +628,39 @@ class Backup(GeneralClass):
 
             # Checking if partial recovery list is available
             if hasattr(self, 'partial_list'):
-               args += " "
-               args += '--databases="%s"' % (self.partial_list)
-               logger.warning("Partial Backup is enabled!")
+                args += " "
+                args += '--databases="{}"'.format(self.partial_list)
+                logger.warning("Partial Backup is enabled!")
 
-           # Checking if streaming enabled for backups
+            # Checking if streaming enabled for backups
             if hasattr(self, 'stream'):
-               args += " "
-               args += '--stream="%s"' % self.stream
-               args += " > %s/inc_backup.stream" % inc_backup_dir
-               logger.warning("Streaming is enabled!")
+                args += " "
+                args += '--stream="{}"'.format(self.stream)
+                args += " > {}/inc_backup.stream".format(inc_backup_dir)
+                logger.warning("Streaming is enabled!")
 
-            logger.debug(
-                "The following backup command will be executed %s", args)
+            logger.debug("The following backup command will be executed {}".format(args))
 
             if self.dry == 0:
                 status, output = subprocess.getstatusoutput(args)
                 if status == 0:
                     logger.debug(output)
-                    #logger.debug(output[-27:])
+                    # logger.debug(output[-27:])
+                    if self.tag is not None:
+                        logger.debug("Adding backup tags")
+                        self.add_tag(self.backupdir, self.recent_inc_backup_file(), 'Inc', self.tag, 'OK')
                     return True
                 else:
-                    logger.error("INCREMENT BACKUP FAILED!")
-                    time.sleep(5)
+                    logger.error("FAILED: INCREMENT BACKUP")
                     logger.error(output)
-                    return False
+                    if self.tag is not None:
+                        logger.debug("Adding backup tags")
+                        self.add_tag(self.backupdir, self.recent_inc_backup_file(), 'Inc', self.tag, 'FAILED')
+                    raise RuntimeError("FAILED: INCREMENT BACKUP")
 
     def all_backup(self):
         """
-         This function at first checks full backup directory, if it is empty takes full backup.
+         This method at first checks full backup directory, if it is empty takes full backup.
          If it is not empty then checks for full backup time.
          If the recent full backup  is taken 1 day ago, it takes full backup.
          In any other conditions it takes incremental backup.
@@ -649,16 +671,8 @@ class Backup(GeneralClass):
         check_env_obj = CheckEnv(self.conf, full_dir=self.full_dir, inc_dir=self.inc_dir)
 
         if check_env_obj.check_all_env():
-
             if self.recent_full_backup_file() == 0:
-                logger.debug(
-                    "###############################################################")
-                logger.debug(
-                    "#You have no backups : Taking very first Full Backup! - - - - #")
-                logger.debug(
-                    "###############################################################")
-
-                time.sleep(3)
+                logger.debug("- - - - You have no backups : Taking very first Full Backup! - - - -")
 
                 # Flushing Logs
                 if self.mysql_connection_flush_logs():
@@ -669,33 +683,21 @@ class Backup(GeneralClass):
                         self.clean_inc_backup_dir()
 
                 # Copying backups to remote server
-                if hasattr(
-                        self,
-                        'remote_conn') and hasattr(
-                        self,
-                        'remote_dir') and self.remote_conn and self.remote_dir:
+                if hasattr(self, 'remote_conn') and hasattr(self, 'remote_dir') \
+                        and self.remote_conn and self.remote_dir:
                     self.copy_backup_to_remote_host()
 
-                # Exiting after taking full backup
-                #exit(0)
+                return True
 
             elif self.last_full_backup_date() == 1:
-                logger.debug(
-                    "################################################################")
-                logger.debug(
-                    "Your full backup is timeout : Taking new Full Backup!- - - - - #")
-                logger.debug(
-                    "################################################################")
-
-                time.sleep(3)
+                logger.debug("- - - - Your full backup is timeout : Taking new Full Backup! - - - -")
 
                 # Archiving backups
-                if (hasattr(self, 'archive_dir')):
-                    if (hasattr(self, 'max_archive_duration') and self.max_archive_duration) or (
-                            hasattr(self, 'max_archive_size') and self.max_archive_size):
+                if hasattr(self, 'archive_dir'):
+                    if (hasattr(self, 'max_archive_duration') and self.max_archive_duration) \
+                            or (hasattr(self, 'max_archive_size') and self.max_archive_size):
                         self.clean_old_archives()
-                    if not self.create_backup_archives():
-                        exit(0)
+                    self.create_backup_archives()
                 else:
                     logger.debug("Archiving disabled. Skipping!")
 
@@ -711,26 +713,16 @@ class Backup(GeneralClass):
                         self.clean_inc_backup_dir()
 
                 # Copying backups to remote server
-                if hasattr(
-                        self,
-                        'remote_conn') and hasattr(
-                        self,
-                        'remote_dir') and self.remote_conn and self.remote_dir:
+                if hasattr(self, 'remote_conn') and hasattr(self, 'remote_dir') \
+                        and self.remote_conn and self.remote_dir:
                     self.copy_backup_to_remote_host()
 
-                # Exiting after taking NEW full backup
-                #exit(0)
-
+                return True
             else:
-                logger.debug(
-                    "################################################################")
-                logger.debug(
-                    "You have a full backup that is less than %d seconds old. - -#",
-                    self.full_backup_interval)
-                logger.debug(
-                    "We will take an incremental one based on recent Full Backup - -#")
-                logger.debug(
-                    "################################################################")
+
+                logger.debug("- - - - You have a full backup that is less than {} seconds old. - - - -".format(
+                    self.full_backup_interval))
+                logger.debug("- - - - We will take an incremental one based on recent Full Backup - - - -")
 
                 time.sleep(3)
 
@@ -738,15 +730,8 @@ class Backup(GeneralClass):
                 self.inc_backup()
 
                 # Copying backups to remote server
-                if hasattr(
-                        self,
-                        'remote_conn') and hasattr(
-                        self,
-                        'remote_dir') and self.remote_conn and self.remote_dir:
+                if hasattr(self, 'remote_conn') and hasattr(self, 'remote_dir') \
+                        and self.remote_conn and self.remote_dir:
                     self.copy_backup_to_remote_host()
 
-                # Exiting after taking Incremental backup
-                #exit(0)
-
-# b = Backup()
-# b.all_backup()
+                return True

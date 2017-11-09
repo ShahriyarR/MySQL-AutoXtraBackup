@@ -13,6 +13,8 @@ class WrapperForPrepareTest(Prepare):
 
     def run_prepare_backup(self):
         self.prepare_inc_full_backups()
+        return True
 
     def run_copy_back(self):
         self.copy_back_action()
+        return True
