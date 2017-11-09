@@ -24,8 +24,11 @@ class WrapperForBackupTest(Backup):
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_encrypt)
                 flush_tables = "flush tables"
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=flush_tables)
+                # Compression related issue -> https://bugs.launchpad.net/percona-xtrabackup/+bug/1641745
                 sql_compress = "alter table sysbench_test_db.sbtest{} compression='lz4'".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_compress)
+                sql_optimize = "optimize table sysbench_test_db.sbtest{}".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_optimize)
         sleep(20)
         for _ in range(int(self.incremental_count) + 1):
             RunBenchmark().run_sysbench_run(basedir=self.basedir)
