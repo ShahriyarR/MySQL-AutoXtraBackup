@@ -48,7 +48,7 @@ class RunBenchmark:
         sql = '{} -e \"{}\"'.format(RunBenchmark.get_mysql_conn(basedir), sql_statement)
         status, output = subprocess.getstatusoutput(sql)
         if status == 0:
-            logger.debug("OK: running SQL")
+            logger.debug("OK: Running -> {}".format(sql))
             return True
         else:
             logger.error("FAILED: running SQL")
