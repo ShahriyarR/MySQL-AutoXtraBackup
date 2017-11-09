@@ -2,8 +2,9 @@ from master_backup_script.backuper import Backup
 from prepare_env_test_mode.run_benchmark import RunBenchmark
 from time import sleep
 
-class WrapperForBackupTest(Backup):
 
+class WrapperForBackupTest(Backup):
+    # The Backup class child to do some staff for backup in --test_mode
     def __init__(self, config='/etc/bck.conf', full_dir=None, inc_dir=None, basedir=None):
         self.conf = config
         super().__init__(config=self.conf)
@@ -19,10 +20,12 @@ class WrapperForBackupTest(Backup):
         RunBenchmark().run_sysbench_prepare(basedir=self.basedir)
         if '5.7' in self.basedir:
             for i in range(1, 10):
-                sql = "alter table sysbench_test_db.sbtest{} encryption='Y'".format(i)
-                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql)
-        flush_tables = "flush tables"
-        RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=flush_tables)
+                sql_encrypt = "alter table sysbench_test_db.sbtest{} encryption='Y'".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_encrypt)
+                flush_tables = "flush tables"
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=flush_tables)
+                sql_compress = "alter table sysbench_test_db.sbtest{} compression='lz4'".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_compress)
         sleep(20)
         for _ in range(int(self.incremental_count) + 1):
             RunBenchmark().run_sysbench_run(basedir=self.basedir)
