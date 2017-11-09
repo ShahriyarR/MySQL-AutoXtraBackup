@@ -212,7 +212,10 @@ class Prepare(GeneralClass):
                 if self.prepare_only_full_backup():
                     logger.debug("Preparing Incs: ")
                     list_of_dir = sorted(os.listdir(self.inc_dir))
-                    for i in list_of_dir:
+                    # Find the index number inside all list for backup(which was found via tag)
+                    index_num = list_of_dir.index(found_backups[0])
+                    # Limit the iteration until this found backup
+                    for i in list_of_dir[:index_num+1]:
                         if i != found_backups[0]:
                             logger.debug("Preparing inc backups in sequence. inc backup dir/name is {}".format(i))
                             # Check if decryption enabled
@@ -1051,6 +1054,7 @@ class Prepare(GeneralClass):
             if self.tag is None:
                 self.prepare_inc_full_backups()
             else:
+                logger.debug("Backup tag will be used to prepare backups")
                 self.prepare_with_tags()
         elif prepare == 2:
             if self.tag is None:
