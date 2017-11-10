@@ -64,17 +64,17 @@ class ConfigGenerator(CloneBuildStartServer):
                            "#Optional: pass general additional options; it will go to both for backup and prepare")
                 config.set(section2, "#xtra_options", "--binlog-info=ON --galera-info")
                 if '5.7' in basedir:
-                    config.set(section2, "xtra_options", "--no-version-check --core-file --parallel=10 "
+                    config.set(section2, "xtra_options", "--no-version-check --core-file --parallel=10 --throttle=40 "
                                                          "--keyring-file-data={}/mysql-keyring/keyring".format(basedir))
                 else:
-                    config.set(section2, "xtra_options","--no-version-check --core-file --parallel=10")
+                    config.set(section2, "xtra_options", "--no-version-check --core-file --parallel=10 --throttle=40")
                 config.set(section2, "#Optional: set archive and rotation")
                 config.set(section2, "#archive_dir", "/home/shahriyar.rzaev/XB_TEST/backup_archives")
                 config.set(section2, "#full_backup_interval", "1 day")
                 config.set(section2, "#max_archive_size", "100GiB")
                 config.set(section2, "#max_archive_duration", "4 Days")
-                config.set(section2,
-                           "#Optional: WARNING(Enable this if you want to take partial backups). Specify database names or table names.")
+                config.set(section2, "#Optional: WARNING(Enable this if you want to take partial backups). "
+                                     "Specify database names or table names.")
                 config.set(section2, "#partial_list", "test.t1 test.t2 dbtest")
 
                 section3 = "Compress"
@@ -85,8 +85,8 @@ class ConfigGenerator(CloneBuildStartServer):
                 config.set(section3, "compress_chunk_size", "65536")
                 config.set(section3, "compress_threads", "4")
                 config.set(section3, "decompress", "TRUE")
-                config.set(section3,
-                           "#Enable if you want to remove .qp files after decompression.(Not available yet, will be released with XB 2.3.7 and 2.4.6)")
+                config.set(section3, "#Enable if you want to remove .qp files after decompression."
+                                     "(Not available yet, will be released with XB 2.3.7 and 2.4.6)")
                 config.set(section3, "remove_original", "FALSE")
 
                 section4 = "Encrypt"
@@ -100,15 +100,14 @@ class ConfigGenerator(CloneBuildStartServer):
                     config.set(section4, "xbcrypt",
                                "{}/target/percona-xtrabackup-2.3.x-debug/bin/xbcrypt".format(test_path))
                 config.set(section4, "encrypt", "AES256")
-                config.set(section4,
-                           "#Please note that --encrypt-key and --encrypt-key-file are mutually exclusive")
+                config.set(section4, "#Please note that --encrypt-key and --encrypt-key-file are mutually exclusive")
                 config.set(section4, "encrypt_key", 'VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K')
                 config.set(section4, "#encrypt_key_file", "/path/to/file/with_encrypt_key")
                 config.set(section4, "encrypt_threads", "4")
                 config.set(section4, "encrypt_chunk_size", "65536")
                 config.set(section4, "decrypt", "AES256")
-                config.set(section4,
-                           "#Enable if you want to remove .qp files after decompression.(Not available yet, will be released with XB 2.3.7 and 2.4.6)")
+                config.set(section4, "#Enable if you want to remove .qp files after decompression."
+                                     "(Not available yet, will be released with XB 2.3.7 and 2.4.6)")
                 config.set(section4, "remove_original", "FALSE")
 
                 section5 = "Xbstream"
@@ -143,23 +142,29 @@ class ConfigGenerator(CloneBuildStartServer):
                 config.add_section(section8)
                 config.set(section8, "ps_branches", "5.6 5.7")
                 config.set(section8, "gitcmd",
-                           "--recursive --depth=1 https://github.com/percona/percona-server.git")
+                                     "--recursive --depth=1 https://github.com/percona/percona-server.git")
                 config.set(section8, "testpath", "/home/shahriyar.rzaev/XB_TEST/server_dir")
                 config.set(section8, "incremental_count", "3")
                 config.set(section8, "xb_configs", "xb_2_4_ps_5_6.conf xb_2_4_ps_5_7.conf xb_2_3_ps_5_6.conf")
                 config.set(section8, "slave_count", "1")
                 if '5_7' in conf_file:
                     config.set(section8, "default_mysql_options",
-                           "--early-plugin-load=keyring_file.so,--keyring_file_data={}/mysql-keyring/keyring,--log-bin=mysql-bin,--log-slave-updates,--server-id={},--gtid-mode=ON,--enforce-gtid-consistency,--binlog-format=row")
+                                         "--early-plugin-load=keyring_file.so,"
+                                         "--keyring_file_data={}/mysql-keyring/keyring,"
+                                         "--log-bin=mysql-bin,--log-slave-updates,--server-id={},"
+                                         "--gtid-mode=ON,--enforce-gtid-consistency,--binlog-format=row")
                 else:
                     config.set(section8, "default_mysql_options",
-                               "--log-bin=mysql-bin,--log-slave-updates,--server-id={},--gtid-mode=ON,--enforce-gtid-consistency,--binlog-format=row")
+                                         "--log-bin=mysql-bin,--log-slave-updates,--server-id={},"
+                                         "--gtid-mode=ON,--enforce-gtid-consistency,--binlog-format=row")
                 if '5_7' in conf_file:
                     config.set(section8, "mysql_options",
-                               "--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,--innodb_page_size=64K 32K 16K 8K 4K")
+                                         "--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,"
+                                         "--innodb_page_size=64K 32K 16K 8K 4K")
                 else:
                     config.set(section8, "mysql_options",
-                               "--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,--innodb_page_size=4K 8K 16K")
+                                         "--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,"
+                                         "--innodb_page_size=4K 8K 16K")
 
                 config.write(cfgfile)
 
@@ -181,9 +186,9 @@ class ConfigGenerator(CloneBuildStartServer):
             for conf_file in conf_list:
                 if ('5.7' in basedir) and ('2_4_ps_5_7' in conf_file):
                     self.generate_config_files(test_path=self.testpath,
-                                           conf_file=conf_file,
-                                           basedir=basedir,
-                                           sock_file=self.benchmark_obj.get_sock(basedir=basedir))
+                                               conf_file=conf_file,
+                                               basedir=basedir,
+                                               sock_file=self.benchmark_obj.get_sock(basedir=basedir))
                 elif ('5.6' in basedir) and ('2_4_ps_5_6' in conf_file):
                     self.generate_config_files(test_path=self.testpath,
                                                conf_file=conf_file,
