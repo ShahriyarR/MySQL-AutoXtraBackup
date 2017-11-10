@@ -156,7 +156,8 @@ def validate_file(file):
               is_eager=False,
               help="Print help message and exit.")
 @click.pass_context
-def all_procedure(ctx, prepare, backup, partial, tag, show_tags, verbose, log_file, log, defaults_file, dry_run, test_mode):
+def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
+                  verbose, log_file, log, defaults_file, dry_run, test_mode):
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
@@ -173,7 +174,6 @@ def all_procedure(ctx, prepare, backup, partial, tag, show_tags, verbose, log_fi
             logger.addHandler(file_handler)
         except PermissionError as err:
             exit("{} Please consider to run as root or sudo".format(err))
-
 
     validate_file(defaults_file)
     config = GeneralClass(defaults_file)
@@ -210,14 +210,21 @@ def all_procedure(ctx, prepare, backup, partial, tag, show_tags, verbose, log_fi
                         logger.error("Please check also if you have run prepare_env.bats file")
             elif prepare and not test_mode:
                 if not dry_run:
-                    a = Prepare(config=defaults_file)
-                    a.prepare_backup_and_copy_back()
+                    if tag:
+                        a = Prepare(config=defaults_file, tag=tag)
+                        a.prepare_backup_and_copy_back()
+                    else:
+                        a = Prepare(config=defaults_file)
+                        a.prepare_backup_and_copy_back()
                 else:
                     logger.warning("Dry run enabled!")
                     logger.warning("Do not recover/copy-back in this mode!")
-                    a = Prepare(config=defaults_file, dry_run=1)
-                    a.prepare_backup_and_copy_back()
-                # print("Prepare")
+                    if tag:
+                        a = Prepare(config=defaults_file, dry_run=1, tag=tag)
+                        a.prepare_backup_and_copy_back()
+                    else:
+                        a = Prepare(config=defaults_file, dry_run=1)
+                        a.prepare_backup_and_copy_back()
             elif backup and not test_mode:
                 if not dry_run:
                     if tag:
@@ -234,7 +241,6 @@ def all_procedure(ctx, prepare, backup, partial, tag, show_tags, verbose, log_fi
                     else:
                         b = Backup(config=defaults_file, dry_run=1)
                         b.all_backup()
-                # print("Backup")
             elif partial:
                 if not dry_run:
                     c = PartialRecovery(config=defaults_file)
