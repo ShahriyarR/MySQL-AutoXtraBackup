@@ -73,8 +73,18 @@ Vagrant.configure("2") do |config|
      sudo yum -y update
      sudo yum -y install yum-utils
      sudo yum -y groupinstall development
+     sudo yum -y install cmake
+     sudo yum -y install libaio-devel
+     sudo yum -y install ncurses-devel
+     sudo yum -y install readline readline-devel
+     sudo yum -y install pam pam-devel
+     sudo yum -y install openssl openssl-devel
+     sudo yum -y install wget
+     sudo yum -y install vim
      sudo yum -y install https://centos7.iuscommunity.org/ius-release.rpm
      sudo yum -y update
+     sudo yum -y install jemalloc
+     sudo yum -y install sysbench
      sudo yum -y install python35u
      sudo yum -y install python35u-pip
      sudo yum -y install python35u-devel

@@ -108,7 +108,7 @@ class RunBenchmark:
         else:
             logger.error("Failed to run sysbench")
             logger.error(output)
-            return False
+            raise RuntimeError("Failed to run sysbench")
 
 
     def run_sysbench_run(self, basedir):
@@ -144,4 +144,4 @@ class RunBenchmark:
         else:
             logger.error("Failed to run sysbench")
             logger.error(output)
-            return False
+            raise RuntimeError("Failed to run sysbench")

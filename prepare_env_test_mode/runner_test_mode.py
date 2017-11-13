@@ -34,9 +34,10 @@ class RunnerTestMode(GeneralClass):
         tcp.close()
         return port
 
-    def prepare_start_slave_options(self, basedir, slave_number, options):
+    @staticmethod
+    def prepare_start_slave_options(basedir, slave_number, options):
         '''
-
+        Method for preparing slave start options
         :param basedir: PS basedir path
         :param slave_number: Slave count 0, 1, 2 (node0 node1 node2 etc.)
         :param options: Generated combination of PS options passed here.
@@ -45,7 +46,7 @@ class RunnerTestMode(GeneralClass):
         tmpdir="--tmpdir={}/node{}".format(basedir, slave_number)
         datadir = "--datadir={}/node{}".format(basedir, slave_number)
         socket = "--socket={}/sock{}.sock".format(basedir, slave_number)
-        port = "--port={}".format(self.get_free_tcp_port())
+        port = "--port={}".format(RunnerTestMode.get_free_tcp_port())
         log_error = "--log-error={}/log/node{}".format(basedir, slave_number)
         server_id = "--server_id={}".format(randint(10, 99))
         return " ".join([tmpdir, datadir, socket, port, log_error, options, server_id])
