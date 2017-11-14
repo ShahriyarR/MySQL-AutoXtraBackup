@@ -49,7 +49,8 @@ Vagrant.configure("2") do |config|
      vb.gui = true
   #
   #   # Customize the amount of memory on the VM:
-     vb.memory = "2024"
+     vb.memory = "6144"
+     vb.cpus = 4
    end
   #
   # View the documentation for the provider you are using for more
@@ -88,7 +89,12 @@ Vagrant.configure("2") do |config|
      sudo yum -y install python35u
      sudo yum -y install python35u-pip
      sudo yum -y install python35u-devel
+     sudo yum -y install python35u-tkinter
+     sudo yum -y install xauth
      sudo pip3.5 install setuptools -U pip setuptools
+     sudo pip3.5 install memory_profiler
+     sudo pip3.5 install psutil
+     sudo pip3.5 install matplotlib
      cd /vagrant
      sudo python3.5 setup.py install
      cd /home/vagrant
