@@ -191,54 +191,6 @@ class RunnerTestMode(GeneralClass):
         # Grant user
         RunnerTestMode.run_sql_command(sql_grant.format(mysql_master_client_cmd))
 
-    def run_change_master(self,
-                          full_backup_dir,
-                          mysql_slave_client_cmd,
-                          mysql_master_client_cmd):
-        """
-        Method for making ordinary server as slave
-        :param basedir: PS basedir path
-        :param full_backup_dir: Full backup directory path
-        :param file_name: MySQL client connections stored file name; It is passed for slave server
-        :return: True if succes or raise RuntimeError exception fom run_sql_command()
-        """
-
-        logger.debug("Started to make this new server as slave...")
-        sql_port = "{} -e 'select @@port'"
-        sql_change_master = '{} -e "CHANGE MASTER TO MASTER_HOST=\'{}\', MASTER_USER=\'{}\', MASTER_PASSWORD=\'{}\', MASTER_PORT={}, MASTER_AUTO_POSITION=1"'
-        start_slave = "{} -e 'start slave'"
-        show_slave_status = "{} -e 'show slave status\G'"
-        #mysql_slave_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir, file_name=file_name)
-        #mysql_master_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir)
-        # Getting port from master
-        port = self.run_sql_command(sql_port.format(mysql_master_client_cmd))
-        # Run reset master on slave fix for -> https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/157
-        reset_master = "{} -e 'reset master'"
-        self.run_sql_command(reset_master.format(mysql_slave_client_cmd))
-
-        # Run SET GLOBAL gtid_purged= here
-        gtid_pos = self.get_gtid_address(full_backup_dir)
-        gtid_purged = '{} -e \'set global gtid_purged=\"{}\"\''.format(mysql_slave_client_cmd, gtid_pos)
-        self.run_sql_command(gtid_purged)
-
-        # Change master
-        self.run_sql_command(
-            sql_change_master.format(mysql_slave_client_cmd, '127.0.0.1', 'repl', 'Baku12345', port[7:]))
-        # Start Slave
-        self.run_sql_command(start_slave.format(mysql_slave_client_cmd))
-        # Check Slave output for errors
-        sleep(20)
-        self.check_slave_status(show_slave_status.format(mysql_slave_client_cmd))
-
-        # Creating dsns table
-        self.create_dsns_table(mysql_master_client_cmd)
-
-        # Populating dsns table with slave info
-        slave_port = self.run_sql_command(sql_port.format(mysql_slave_client_cmd))
-        self.populate_dsns_table(sql_conn=mysql_master_client_cmd, slave_port=slave_port[7:])
-
-        return True
-
     @staticmethod
     def create_slave_datadir(basedir, num):
         """
@@ -330,6 +282,69 @@ class RunnerTestMode(GeneralClass):
         with open(file_name, 'r') as binlog_file:
             return binlog_file.readline().split('\t')[2][:-1]
 
+    @staticmethod
+    def get_gtid_xtrabackup_slave_info(full_backup_dir):
+        """
+        Parsing xtrabackup_slave_info
+        :param full_backup_dir: Full backup directory path
+        :return: String of SET GLOBAL gtid_purged=
+        :raise: I/O Error if failed
+        """
+        file_name = "{}/{}".format(full_backup_dir, 'xtrabackup_slave_info')
+        with open(file_name, 'r') as slave_info:
+            return slave_info.readline()[:-1]
+
+    def run_change_master(self,
+                          full_backup_dir,
+                          mysql_slave_client_cmd,
+                          mysql_master_client_cmd,
+                          is_slave=None):
+        """
+        Method for making ordinary server as slave
+        :param full_backup_dir: Full backup directory path
+        :param mysql_slave_client_cmd: Slave client string
+        :param mysql_master_client_cmd: Master client string
+        :param is_slave: flag for passing if set global gtid_purged grabbed from slave or not
+        :return: True if succes or raise RuntimeError exception fom run_sql_command()
+        """
+
+        logger.debug("Started to make this new server as slave...")
+        sql_port = "{} -e 'select @@port'"
+        sql_change_master = '{} -e "CHANGE MASTER TO MASTER_HOST=\'{}\', MASTER_USER=\'{}\', MASTER_PASSWORD=\'{}\', MASTER_PORT={}, MASTER_AUTO_POSITION=1"'
+        start_slave = "{} -e 'start slave'"
+        show_slave_status = "{} -e 'show slave status\G'"
+        #mysql_slave_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir, file_name=file_name)
+        #mysql_master_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir)
+        # Getting port from master
+        port = self.run_sql_command(sql_port.format(mysql_master_client_cmd))
+        # Run reset master on slave fix for -> https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/157
+        reset_master = "{} -e 'reset master'"
+        self.run_sql_command(reset_master.format(mysql_slave_client_cmd))
+
+        if is_slave is None:
+            # Run SET GLOBAL gtid_purged, get from master's xtrabackup_binlog_info
+            gtid_pos = self.get_gtid_address(full_backup_dir=full_backup_dir)
+            gtid_purged = '{} -e \'set global gtid_purged=\"{}\"\''.format(mysql_slave_client_cmd, gtid_pos)
+            self.run_sql_command(gtid_purged)
+        else:
+            # Run SET GLOBAL gtid_purged, get from slave's xtrabackup_slave_info
+            self.run_sql_command(self.get_gtid_xtrabackup_slave_info(full_backup_dir=full_backup_dir))
+
+        # Change master
+        self.run_sql_command(
+            sql_change_master.format(mysql_slave_client_cmd, '127.0.0.1', 'repl', 'Baku12345', port[7:]))
+        # Start Slave
+        self.run_sql_command(start_slave.format(mysql_slave_client_cmd))
+        # Check Slave output for errors
+        sleep(20)
+        self.check_slave_status(show_slave_status.format(mysql_slave_client_cmd))
+
+        # Populating dsns table with slave info
+        slave_port = self.run_sql_command(sql_port.format(mysql_slave_client_cmd))
+        self.populate_dsns_table(sql_conn=mysql_master_client_cmd, slave_port=slave_port[7:])
+
+        return True
+
     def wipe_backup_prepare_copyback(self, basedir):
         """
         Method Backup + Prepare and Copy-back actions.
@@ -398,17 +413,21 @@ class RunnerTestMode(GeneralClass):
                             mysql_slave_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir,
                                                                                                    file_name="cl_node{}".format(
                                                                                                        1))
+                            # Creating dsns table
+                            self.create_dsns_table(mysql_master_client_cmd)
+
+                            # Running change master and some other commands here
                             if self.run_change_master(full_backup_dir="{}/{}".format(full_dir, full_backup_dir),
                                                       mysql_master_client_cmd=mysql_master_client_cmd,
                                                       mysql_slave_client_cmd=mysql_slave_client_cmd):
-                                    sleep(10)
+                                sleep(10)
                             # TODO: Create second slave from this slave server;
                             # TODO: i.e backup + prepare + copy-back from this slave
                             logger.debug("Starting actions for second slave here...")
                             # Actions for second slave, it is going to be started from slave backup
                             full_dir_2 = self.backupdir + "/cycle{}".format(c_count) + "/slave_backup" + "/full"
                             inc_dir_2 = self.backupdir + "/cycle{}".format(c_count) + "/slave_backup" + "/inc"
-                            # Create config for this slave here
+                            # Create config for this slave node1 here
                             logger.debug("Generating special config file for second slave")
                             cnf_obj = ConfigGenerator(config=self.conf)
                             slave_conf_path = self.backupdir + "/cycle{}".format(c_count)
@@ -426,7 +445,8 @@ class RunnerTestMode(GeneralClass):
                                                           sock_file="{}/sock{}.sock".format(basedir, 1),
                                                           backup_path=slave_conf_path)
                             # DO backup here
-                            backup_obj_2 = WrapperForBackupTest(config="{}/{}".format(slave_conf_path, slave_conf_file),
+                            backup_obj_2 = WrapperForBackupTest(config="{}/{}".format(slave_conf_path,
+                                                                                      slave_conf_file),
                                                                 full_dir=full_dir_2,
                                                                 inc_dir=inc_dir_2,
                                                                 basedir=basedir)
@@ -438,14 +458,14 @@ class RunnerTestMode(GeneralClass):
                                 if prepare_obj_2.run_prepare_backup():
                                     # Creating slave datadir
                                     slave_datadir_2 = self.create_slave_datadir(basedir=basedir, num=2)
-                                    prepare_obj.run_xtra_copyback(datadir=slave_datadir_2)
-                                    prepare_obj.giving_chown(datadir=slave_datadir_2)
+                                    prepare_obj_2.run_xtra_copyback(datadir=slave_datadir_2)
+                                    prepare_obj_2.giving_chown(datadir=slave_datadir_2)
                                     slave_full_options = self.prepare_start_slave_options(basedir=basedir,
                                                                                           slave_number=2,
                                                                                           options=options)
 
-                                    prepare_obj.start_mysql_func(start_tool="{}/start_dynamic".format(basedir),
-                                                                 options=slave_full_options)
+                                    prepare_obj_2.start_mysql_func(start_tool="{}/start_dynamic".format(basedir),
+                                                                   options=slave_full_options)
                                     # Creating connection file for new node
                                     self.create_slave_connection_file(basedir=basedir, num=2)
                                     # Creating shutdown file for new node
@@ -460,7 +480,8 @@ class RunnerTestMode(GeneralClass):
                                     if self.run_change_master(full_backup_dir="{}/{}".format(
                                                                               full_dir_2, full_backup_dir_2),
                                                               mysql_master_client_cmd=mysql_master_client_cmd,
-                                                              mysql_slave_client_cmd=mysql_slave_client_cmd_2):
+                                                              mysql_slave_client_cmd=mysql_slave_client_cmd_2,
+                                                              is_slave=True):
                                         sleep(10)
 
                             # Running on master
