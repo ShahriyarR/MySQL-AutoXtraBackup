@@ -365,7 +365,7 @@ class RunnerTestMode(GeneralClass):
                     # Prepare backups
                     logger.debug("Started to run run_prepare_backup()")
                     if prepare_obj.run_prepare_backup():
-                        if hasattr(self, 'make_slaves') and self.make_slaves == 1:
+                        if hasattr(self, 'make_slaves'):
                             logger.debug("make_slaves is defined so will create slaves!")
                             # Creating slave datadir
                             slave_datadir = self.create_slave_datadir(basedir=basedir, num=1)
