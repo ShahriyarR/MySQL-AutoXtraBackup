@@ -132,8 +132,8 @@ class GeneralClass:
             self.default_mysql_options = TEST['default_mysql_options']
             if 'mysql_options' in TEST:
                 self.mysql_options = TEST['mysql_options']
-            if 'slave_count' in TEST:
-                self.slave_count = TEST['slave_count']
+            if 'make_slaves' in TEST:
+                self.slave_count = TEST['make_slaves']
 
         else:
             logger.critical("Missing config file : /etc/bck.conf")

@@ -83,7 +83,9 @@ Vagrant.configure("2") do |config|
      sudo yum -y install wget
      sudo yum -y install vim
      sudo yum -y install https://centos7.iuscommunity.org/ius-release.rpm
+     sudo yum -y install http://www.percona.com/downloads/percona-release/redhat/0.1-4/percona-release-0.1-4.noarch.rpm
      sudo yum -y update
+     sudo yum -y install qpress
      sudo yum -y install jemalloc
      sudo yum -y install sysbench
      sudo yum -y install python35u
