@@ -406,8 +406,8 @@ class RunnerTestMode(GeneralClass):
                             # TODO: i.e backup + prepare + copy-back from this slave
                             logger.debug("Starting actions for second slave here...")
                             # Actions for second slave, it is going to be started from slave backup
-                            full_dir_2 = self.backupdir + "/cycle{}".format(c_count) + "slave_backup" + "/full"
-                            inc_dir_2 = self.backupdir + "/cycle{}".format(c_count) + "slave_backup" + "/inc"
+                            full_dir_2 = self.backupdir + "/cycle{}".format(c_count) + "/slave_backup" + "/full"
+                            inc_dir_2 = self.backupdir + "/cycle{}".format(c_count) + "/slave_backup" + "/inc"
                             # Create config for this slave here
                             logger.debug("Generating special config file for second slave")
                             cnf_obj = ConfigGenerator(config=self.conf)
