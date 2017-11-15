@@ -87,6 +87,7 @@ Vagrant.configure("2") do |config|
      sudo yum -y update
      sudo yum -y install qpress
      sudo yum -y install jemalloc
+     sudo yum -y install percona-toolkit
      sudo yum -y install sysbench
      sudo yum -y install python35u
      sudo yum -y install python35u-pip
