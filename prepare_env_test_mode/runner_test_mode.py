@@ -404,10 +404,12 @@ class RunnerTestMode(GeneralClass):
                                     sleep(10)
                             # TODO: Create second slave from this slave server;
                             # TODO: i.e backup + prepare + copy-back from this slave
+                            logger.debug("Starting actions for second slave here...")
                             # Actions for second slave, it is going to be started from slave backup
                             full_dir_2 = self.backupdir + "/cycle{}".format(c_count) + "slave_backup" + "/full"
                             inc_dir_2 = self.backupdir + "/cycle{}".format(c_count) + "slave_backup" + "/inc"
                             # Create config for this slave here
+                            logger.debug("Generating special config file for second slave")
                             cnf_obj = ConfigGenerator(config=self.conf)
                             slave_conf_path = self.backupdir + "/cycle{}".format(c_count)
                             if ('5.7' in basedir) and ('2_4_ps_5_7' in self.conf):
@@ -453,8 +455,9 @@ class RunnerTestMode(GeneralClass):
 
                                     mysql_slave_client_cmd_2 = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir,
                                                                                                              file_name="cl_node{}".format(2))
-                                    full_backup_dir_2 = prepare_obj.recent_full_backup_file()
-                                    if self.run_change_master(full_backup_dir="{}/{}".format(full_dir_2, full_backup_dir),
+                                    full_backup_dir_2 = prepare_obj_2.recent_full_backup_file()
+                                    if self.run_change_master(full_backup_dir="{}/{}".format(
+                                                                              full_dir_2, full_backup_dir_2),
                                                               mysql_master_client_cmd=mysql_master_client_cmd,
                                                               mysql_slave_client_cmd=mysql_slave_client_cmd_2):
                                         sleep(10)
