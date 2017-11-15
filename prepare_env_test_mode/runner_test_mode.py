@@ -328,7 +328,9 @@ class RunnerTestMode(GeneralClass):
             self.run_sql_command(gtid_purged)
         else:
             # Run SET GLOBAL gtid_purged, get from slave's xtrabackup_slave_info
-            self.run_sql_command(self.get_gtid_xtrabackup_slave_info(full_backup_dir=full_backup_dir))
+            sql_cmd = self.get_gtid_xtrabackup_slave_info(full_backup_dir=full_backup_dir)
+            gtid_purged = '{} -e \"{}\"'.format(mysql_slave_client_cmd, sql_cmd)
+            self.run_sql_command(gtid_purged)
 
         # Change master
         self.run_sql_command(
