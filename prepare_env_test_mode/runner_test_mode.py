@@ -419,11 +419,12 @@ class RunnerTestMode(GeneralClass):
                             elif ('5.6' in basedir) and ('2_3' in self.conf):
                                 slave_conf_file = 'xb_2_3_ps_5_6_slave.conf'
 
-                            cnf_obj.generate_config_files(test_path=slave_conf_path,
+                            cnf_obj.generate_config_files(test_path=self.testpath,
                                                           conf_file=slave_conf_file,
                                                           basedir=basedir,
                                                           datadir="{}/node{}".format(basedir, 1),
-                                                          sock_file="{}/sock{}.sock".format(basedir, 1))
+                                                          sock_file="{}/sock{}.sock".format(basedir, 1),
+                                                          backup_path=slave_conf_path)
                             # DO backup here
                             backup_obj_2 = WrapperForBackupTest(config="{}/{}".format(slave_conf_path, slave_conf_file),
                                                                 full_dir=full_dir_2,

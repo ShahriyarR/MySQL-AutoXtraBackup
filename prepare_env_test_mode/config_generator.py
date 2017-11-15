@@ -15,10 +15,13 @@ class ConfigGenerator(CloneBuildStartServer):
         self.benchmark_obj = RunBenchmark()
 
     @staticmethod
-    def generate_config_files(test_path, conf_file, basedir, datadir, sock_file):
+    def generate_config_files(test_path, conf_file, basedir, datadir, sock_file, backup_path=None):
         # This method for generating separate config files for each XB versions based on PS versions
         try:
-            conf_path = "{}/{}".format(test_path, conf_file)
+            if backup_path is None:
+                conf_path = "{}/{}".format(test_path, conf_file)
+            else:
+                conf_path = "{}/{}".format(backup_path, conf_file)
             with open(conf_path, 'w+') as cfgfile:
                 config = configparser.ConfigParser(allow_no_value=True)
                 section1 = 'MySQL'
