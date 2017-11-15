@@ -248,7 +248,7 @@ class RunnerTestMode(GeneralClass):
         :return: True on success
         :raise: RuntimeError on fail
         """
-        with open("{}/stop_node{}".format(basedir, 1), 'w+') as stop_file:
+        with open("{}/stop_node{}".format(basedir, num), 'w+') as stop_file:
             shutdown_slave = "{}/bin/mysqladmin -uroot -S{}/sock{}.sock shutdown".format(basedir, basedir, num)
             stop_file.write(shutdown_slave)
             # give u+x to this file
