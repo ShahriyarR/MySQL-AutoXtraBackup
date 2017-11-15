@@ -493,6 +493,7 @@ class RunnerTestMode(GeneralClass):
                             # Shutdown slaves
                             self.slave_shutdown(basedir=basedir, num=1)
                             self.slave_shutdown(basedir=basedir, num=2)
+                            sleep(5)
 
                         else:
                             prepare_obj.copy_back_action(options=options)
