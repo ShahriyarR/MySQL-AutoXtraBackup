@@ -22,8 +22,6 @@ class WrapperForBackupTest(Backup):
             for i in range(1, 10):
                 sql_encrypt = "alter table sysbench_test_db.sbtest{} encryption='Y'".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_encrypt)
-                flush_tables = "flush tables"
-                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=flush_tables)
                 # Compression related issue -> https://bugs.launchpad.net/percona-xtrabackup/+bug/1641745
                 # Disabling for now
                 # TODO: Enable this after #1641745 is fixed.
@@ -31,7 +29,19 @@ class WrapperForBackupTest(Backup):
                 # RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_compress)
                 # sql_optimize = "optimize table sysbench_test_db.sbtest{}".format(i)
                 # RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_optimize)
+            # NOTE: PXB will ignore rocksdb tables, which is going to break pt-table-checksum
+            # for i in range(10, 15):
+            #     sql_alter = "alter table sysbench_test_db.sbtest{} engine=rocksdb".format(i)
+            #     RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter)
+        # NOTE: PXB will ignore tokudb tables, which is going to break pt-table-checksum
+        # for i in range(15, 20):
+        #     sql_alter = "alter table sysbench_test_db.sbtest{} engine=tokudb".format(i)
+        #     RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter)
+
+        flush_tables = "flush tables"
+        RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=flush_tables)
         sleep(20)
+
         for _ in range(int(self.incremental_count) + 1):
             RunBenchmark().run_sysbench_run(basedir=self.basedir)
             self.all_backup()
