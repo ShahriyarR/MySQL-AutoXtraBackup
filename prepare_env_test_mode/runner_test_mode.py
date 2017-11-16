@@ -43,13 +43,13 @@ class RunnerTestMode(GeneralClass):
         :param options: Generated combination of PS options passed here.
         :return: String of options
         """
-        tmpdir="--tmpdir={}/node{}".format(basedir, slave_number)
+        tmpdir = "--tmpdir={}/node{}".format(basedir, slave_number)
         datadir = "--datadir={}/node{}".format(basedir, slave_number)
-        socket = "--socket={}/sock{}.sock".format(basedir, slave_number)
+        socket_file = "--socket={}/sock{}.sock".format(basedir, slave_number)
         port = "--port={}".format(RunnerTestMode.get_free_tcp_port())
         log_error = "--log-error={}/log/node{}".format(basedir, slave_number)
         server_id = "--server_id={}".format(randint(10, 99))
-        return " ".join([tmpdir, datadir, socket, port, log_error, options, server_id])
+        return " ".join([tmpdir, datadir, socket_file, port, log_error, options, server_id])
 
     @staticmethod
     def run_pt_table_checksum(basedir, conn_options=None):
@@ -105,10 +105,9 @@ class RunnerTestMode(GeneralClass):
         :param slave_port: The port number for slave
         :return: True or RuntimError from run_sql_command()
         """
-
         dsns_id = randint(10, 999)
         dsns_parent_id = randint(1, 999)
-        dsn='"h=127.0.0.1,u=root,P={}"'.format(slave_port)
+        dsn = '"h=127.0.0.1,u=root,P={}"'.format(slave_port)
         insert_into = "{} -e 'insert into dsns(id, parent_id, dsn) values({}, {}, {})'".format(sql_conn,
                                                                                                dsns_id,
                                                                                                dsns_parent_id,
@@ -184,8 +183,6 @@ class RunnerTestMode(GeneralClass):
     def run_sql_create_user(mysql_master_client_cmd):
         sql_create_user = '{} -e "CREATE USER \'repl\'@\'%\' IDENTIFIED BY \'Baku12345\'"'
         sql_grant = '{} -e "GRANT REPLICATION SLAVE ON *.* TO \'repl\'@\'%\'"'
-
-        #mysql_master_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir)
         # Create user
         RunnerTestMode.run_sql_command(sql_create_user.format(mysql_master_client_cmd))
         # Grant user
@@ -310,11 +307,11 @@ class RunnerTestMode(GeneralClass):
 
         logger.debug("Started to make this new server as slave...")
         sql_port = "{} -e 'select @@port'"
-        sql_change_master = '{} -e "CHANGE MASTER TO MASTER_HOST=\'{}\', MASTER_USER=\'{}\', MASTER_PASSWORD=\'{}\', MASTER_PORT={}, MASTER_AUTO_POSITION=1"'
+        sql_change_master = '{} -e "CHANGE MASTER TO MASTER_HOST=\'{}\', ' \
+                            'MASTER_USER=\'{}\', MASTER_PASSWORD=\'{}\', ' \
+                            'MASTER_PORT={}, MASTER_AUTO_POSITION=1"'
         start_slave = "{} -e 'start slave'"
         show_slave_status = "{} -e 'show slave status\G'"
-        #mysql_slave_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir, file_name=file_name)
-        #mysql_master_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir)
         # Getting port from master
         port = self.run_sql_command(sql_port.format(mysql_master_client_cmd))
         # Run reset master on slave fix for -> https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/157
@@ -424,8 +421,7 @@ class RunnerTestMode(GeneralClass):
                                                       mysql_master_client_cmd=mysql_master_client_cmd,
                                                       mysql_slave_client_cmd=mysql_slave_client_cmd):
                                 sleep(10)
-                            # TODO: Create second slave from this slave server;
-                            # TODO: i.e backup + prepare + copy-back from this slave
+
                             logger.debug("Starting actions for second slave here...")
                             # Actions for second slave, it is going to be started from slave backup
                             full_dir_2 = self.backupdir + "/cycle{}".format(c_count) + "/slave_backup" + "/full"
@@ -455,7 +451,8 @@ class RunnerTestMode(GeneralClass):
                                                                 basedir=basedir)
                             if backup_obj_2.all_backup():
                                 # DO prepare here
-                                prepare_obj_2 = WrapperForPrepareTest(config="{}/{}".format(slave_conf_path, slave_conf_file),
+                                prepare_obj_2 = WrapperForPrepareTest(config="{}/{}".format(slave_conf_path,
+                                                                                            slave_conf_file),
                                                                       full_dir=full_dir_2,
                                                                       inc_dir=inc_dir_2)
                                 if prepare_obj_2.run_prepare_backup():
