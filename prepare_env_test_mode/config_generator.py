@@ -15,10 +15,13 @@ class ConfigGenerator(CloneBuildStartServer):
         self.benchmark_obj = RunBenchmark()
 
     @staticmethod
-    def generate_config_files(test_path, conf_file, basedir, sock_file):
+    def generate_config_files(test_path, conf_file, basedir, datadir, sock_file, backup_path=None):
         # This method for generating separate config files for each XB versions based on PS versions
         try:
-            conf_path = "{}/{}".format(test_path, conf_file)
+            if backup_path is None:
+                conf_path = "{}/{}".format(test_path, conf_file)
+            else:
+                conf_path = "{}/{}".format(backup_path, conf_file)
             with open(conf_path, 'w+') as cfgfile:
                 config = configparser.ConfigParser(allow_no_value=True)
                 section1 = 'MySQL'
@@ -32,7 +35,7 @@ class ConfigGenerator(CloneBuildStartServer):
                 config.set(section1, "mysql_socket", "{}".format(sock_file))
                 config.set(section1, "#mysql_host", "127.0.0.1")
                 config.set(section1, "#mysql_port", "3306")
-                config.set(section1, "datadir", "{}/data".format(basedir))
+                config.set(section1, "datadir", "{}/{}".format(basedir, datadir))
 
                 section2 = 'Backup'
                 config.add_section(section2)
@@ -64,10 +67,12 @@ class ConfigGenerator(CloneBuildStartServer):
                            "#Optional: pass general additional options; it will go to both for backup and prepare")
                 config.set(section2, "#xtra_options", "--binlog-info=ON --galera-info")
                 if '5.7' in basedir:
-                    config.set(section2, "xtra_options", "--no-version-check --core-file --parallel=10 --throttle=40 "
+                    config.set(section2, "xtra_options", "--slave-info --no-version-check --core-file "
+                                                         "--parallel=1 --throttle=40 "
                                                          "--keyring-file-data={}/mysql-keyring/keyring".format(basedir))
                 else:
-                    config.set(section2, "xtra_options", "--no-version-check --core-file --parallel=10 --throttle=40")
+                    config.set(section2, "xtra_options", "--slave-info --no-version-check --core-file "
+                                                         "--parallel=10 --throttle=40")
                 config.set(section2, "#Optional: set archive and rotation")
                 config.set(section2, "#archive_dir", "/home/shahriyar.rzaev/XB_TEST/backup_archives")
                 config.set(section2, "#full_backup_interval", "1 day")
@@ -136,7 +141,7 @@ class ConfigGenerator(CloneBuildStartServer):
                 config.add_section(section7)
                 config.set(section7, "start_mysql_command", "{}/start".format(basedir))
                 config.set(section7, "stop_mysql_command", "{}/stop".format(basedir))
-                config.set(section7, "chown_command", "chown -R shahriyar.rzaev:shahriyar.rzaev")
+                config.set(section7, "chown_command", "chown -R vagrant:vagrant")
 
                 section8 = "TestConf"
                 config.add_section(section8)
@@ -146,7 +151,7 @@ class ConfigGenerator(CloneBuildStartServer):
                 config.set(section8, "testpath", "/home/shahriyar.rzaev/XB_TEST/server_dir")
                 config.set(section8, "incremental_count", "3")
                 config.set(section8, "xb_configs", "xb_2_4_ps_5_6.conf xb_2_4_ps_5_7.conf xb_2_3_ps_5_6.conf")
-                config.set(section8, "slave_count", "1")
+                config.set(section8, "make_slaves", "1")
                 if '5_7' in conf_file:
                     config.set(section8, "default_mysql_options",
                                          "--early-plugin-load=keyring_file.so,"
@@ -188,16 +193,19 @@ class ConfigGenerator(CloneBuildStartServer):
                     self.generate_config_files(test_path=self.testpath,
                                                conf_file=conf_file,
                                                basedir=basedir,
+                                               datadir='data',
                                                sock_file=self.benchmark_obj.get_sock(basedir=basedir))
                 elif ('5.6' in basedir) and ('2_4_ps_5_6' in conf_file):
                     self.generate_config_files(test_path=self.testpath,
                                                conf_file=conf_file,
                                                basedir=basedir,
+                                               datadir='data',
                                                sock_file=self.benchmark_obj.get_sock(basedir=basedir))
                 elif ('5.6' in basedir) and ('2_3' in conf_file):
                     self.generate_config_files(test_path=self.testpath,
                                                conf_file=conf_file,
                                                basedir=basedir,
+                                               datadir='data',
                                                sock_file=self.benchmark_obj.get_sock(basedir=basedir))
                 else:
                     continue

@@ -49,7 +49,8 @@ Vagrant.configure("2") do |config|
      vb.gui = true
   #
   #   # Customize the amount of memory on the VM:
-     vb.memory = "2024"
+     vb.memory = "6144"
+     vb.cpus = 4
    end
   #
   # View the documentation for the provider you are using for more
@@ -73,12 +74,30 @@ Vagrant.configure("2") do |config|
      sudo yum -y update
      sudo yum -y install yum-utils
      sudo yum -y groupinstall development
+     sudo yum -y install cmake
+     sudo yum -y install libaio-devel
+     sudo yum -y install ncurses-devel
+     sudo yum -y install readline readline-devel
+     sudo yum -y install pam pam-devel
+     sudo yum -y install openssl openssl-devel
+     sudo yum -y install wget
+     sudo yum -y install vim
      sudo yum -y install https://centos7.iuscommunity.org/ius-release.rpm
+     sudo yum -y install http://www.percona.com/downloads/percona-release/redhat/0.1-4/percona-release-0.1-4.noarch.rpm
      sudo yum -y update
+     sudo yum -y install qpress
+     sudo yum -y install jemalloc
+     sudo yum -y install percona-toolkit
+     sudo yum -y install sysbench
      sudo yum -y install python35u
      sudo yum -y install python35u-pip
      sudo yum -y install python35u-devel
+     sudo yum -y install python35u-tkinter
+     sudo yum -y install xauth
      sudo pip3.5 install setuptools -U pip setuptools
+     sudo pip3.5 install memory_profiler
+     sudo pip3.5 install psutil
+     sudo pip3.5 install matplotlib
      cd /vagrant
      sudo python3.5 setup.py install
      cd /home/vagrant
