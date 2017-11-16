@@ -106,8 +106,8 @@ class RunnerTestMode(GeneralClass):
         :return: True or RuntimError from run_sql_command()
         """
 
-        dsns_id = randint(10, 99)
-        dsns_parent_id = randint(1, 99)
+        dsns_id = randint(10, 999)
+        dsns_parent_id = randint(1, 999)
         dsn='"h=127.0.0.1,u=root,P={}"'.format(slave_port)
         insert_into = "{} -e 'insert into dsns(id, parent_id, dsn) values({}, {}, {})'".format(sql_conn,
                                                                                                dsns_id,
