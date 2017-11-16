@@ -15,8 +15,9 @@ Here is the brief flow for this:
 * Pass different combination of options to PS start command; Initialize PS servers each time with different options.
 * Run sysbench against each started PS server
 * Took backup in cycles for each started PS + prepare
-* If slave_count is defined then create slave server from this backup(i.e copy-back to another directory and start slave from it)
-* If slave_count is not defined then just recover/restore to original server.
+* If make_slaves is defined then create slave1 server from this backup(i.e copy-back to another directory and start slave from it)
+* Then take backup, prepare and copy-back from this new slave1 and create slave2
+* Run pt-table-checksum on master to check backup consistency
 
 Now let's talk a bit more here.
 
@@ -32,15 +33,14 @@ After running this you will likely have something like in your test path:
 
 
 ::
-
-        [shahriyar.rzaev@qaserver-02 ~]$ cd XB_TEST/
-        [shahriyar.rzaev@qaserver-02 XB_TEST]$ ls
-        server_dir
-        [shahriyar.rzaev@qaserver-02 XB_TEST]$ ls server_dir/
-        percona-qa                                              PS231017-percona-server-5.6.37-82.2-linux-x86_64-debug.tar.gz  PS-5.6-trunk_dbg  xb_2_3_ps_5_6.conf
-        percona-xtrabackup-2.3.x-debug.tar.gz                   PS231017-percona-server-5.7.19-17-linux-x86_64-debug           PS-5.7-trunk      xb_2_4_ps_5_6.conf
-        percona-xtrabackup-2.4.x-debug.tar.gz                   PS231017-percona-server-5.7.19-17-linux-x86_64-debug.tar.gz    PS-5.7-trunk_dbg  xb_2_4_ps_5_7.conf
-        PS231017-percona-server-5.6.37-82.2-linux-x86_64-debug  PS-5.6-trunk                                                   target
+    [shahriyar.rzaev@qaserver-02 ~]$ cd XB_TEST/
+    [shahriyar.rzaev@qaserver-02 XB_TEST]$ ls
+    server_dir
+    [shahriyar.rzaev@qaserver-02 XB_TEST]$ ls server_dir/
+    percona-qa                                              PS231017-percona-server-5.6.37-82.2-linux-x86_64-debug.tar.gz  PS-5.6-trunk_dbg  xb_2_3_ps_5_6.conf
+    percona-xtrabackup-2.3.x-debug.tar.gz                   PS231017-percona-server-5.7.19-17-linux-x86_64-debug           PS-5.7-trunk      xb_2_4_ps_5_6.conf
+    percona-xtrabackup-2.4.x-debug.tar.gz                   PS231017-percona-server-5.7.19-17-linux-x86_64-debug.tar.gz    PS-5.7-trunk_dbg  xb_2_4_ps_5_7.conf
+    PS231017-percona-server-5.6.37-82.2-linux-x86_64-debug  PS-5.6-trunk                                                   target
 
 So you have everything you need to run combination of tests for XtraBackup. Even configs are generated for you.
 
@@ -66,22 +66,25 @@ For test mode [TestConf] category is relevant. Let's go through options
 
 ::
 
+    # Do not touch; this is for --test_mode, which is testing for XtraBackup itself.
     [TestConf]
-    ps_branches = 5.6 5.7
-    gitcmd = --recursive --depth=1 https://github.com/percona/percona-server.git
-    testpath = /home/shahriyar.rzaev/XB_TEST/server_dir
-    incremental_count = 3
-    slave_count = 1
-    xb_configs = xb_2_4_ps_5_6.conf xb_2_4_ps_5_7.conf xb_2_3_ps_5_6.conf
-    mysql_options = --innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,--innodb_page_size=4K 8K 16K 32K 64K
+    ps_branches=5.6 5.7
+    gitcmd=--recursive --depth=1 https://github.com/percona/percona-server.git
+    testpath=/home/shahriyar.rzaev/XB_TEST/server_dir
+    incremental_count=3
+    #make_slaves=1
+    xb_configs=xb_2_4_ps_5_6.conf xb_2_4_ps_5_7.conf xb_2_3_ps_5_6.conf
+    default_mysql_options=--log-bin=mysql-bin,--log-slave-updates,--server-id={},--gtid-mode=ON,--enforce-gtid-consistency,--binlog-format=row
+    mysql_options=--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,--innodb_page_size=4K 8K 16K 32K 64K
 
 ``ps_branches`` is for specifying PS branches in github.
 ``gitcmd`` is for passing git command for git clone.
 ``testpath`` is for passing the path for test mode.
 ``incremental_count`` specify how many incremental backups the tool should take.
-``slave_count`` specify how many slaves tool should start from taken backup.
+``make_slaves`` specify if you want to create slave servers.
 ``xb_configs`` is for passing config files to be generated.
-``mysql_options`` is for passing mysql startup/initialization options to PS.
+``default_mysql_options`` default mysql options to pass to PS start script.
+``mysql_options`` option combinations are for passing mysql startup/initialization options to PS start script.
 
 Internally, based on mysql options, the combination of those options will be created.
 So just add more options to ``mysql_options`` if you want more.

@@ -8,7 +8,6 @@ Following packages should be already there:
 
 -  Percona Xtrabackup (>= 2.3.5)
 -  Python 3 (tested version 3.5.3 on CentOS 7)
--  Official mysql-connector-python (>= 2.0.2 )
 -  mysql-utilities (>=1.5.4)
 
 Preparing the system
@@ -84,4 +83,4 @@ Installing from source:
 
     cd /home git clone https://github.com/ShahriyarR/MySQL-AutoXtraBackup.git
     cd /home/MySQL-AutoXtraBackup/
-    python3 setup.py install
+    sudo python3 setup.py install

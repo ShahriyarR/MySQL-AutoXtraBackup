@@ -6,7 +6,7 @@ The command line options to use:
     ::
 
 
-    $ autoxtrabackup --help
+    $ sudo autoxtrabackup
     Usage: autoxtrabackup [OPTIONS]
 
     Options:
@@ -15,17 +15,19 @@ The command line options to use:
       --backup                        Take full and incremental backups.
       --partial                       Recover specified table (partial recovery).
       --version                       Version information.
-      --defaults_file TEXT            Read options from the given file[Default:
+      --defaults_file TEXT            Read options from the given file  [default:
                                       /etc/bck.conf]
+      --tag TEXT                      Pass the tag string for each backup
+      --show_tags                     Show backup tags and exit
       -v, --verbose                   Be verbose (print to console)
-      -lf, --log_file TEXT            Set log file[Default:
+      -lf, --log_file TEXT            Set log file  [default:
                                       /var/log/autoxtrabackup.log]
       -l, --log [DEBUG|INFO|WARNING|ERROR|CRITICAL]
-                                      Set log level
+                                      Set log level  [default: WARNING]
       --test_mode                     Enable test mode.Must be used with
                                       --defaults_file and only for TESTs for
                                       XtraBackup
-      --help                          Show this message and exit.
+      --help                          Print help message and exit.
 
 
 dry_run
@@ -67,6 +69,16 @@ defaults_file
 --defaults_file
 The main config file to path to ``autoxtrabackup``. The default one is ``/etc/bck.conf``.
 In default config, the compression, encryption and streaming backups are disabled by defualt.
+
+tag
+----
+--tag
+This option enables creation of tags for backups.
+The backup_tags.txt file will be created and stored inside backup directory.
+
+show_tags
+---------
+It will show the backup tags and exit.
 
 verbose, v
 ----------
