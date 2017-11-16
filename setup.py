@@ -4,11 +4,11 @@ datafiles = [('//etc', ['general_conf/bck.conf'])]
 
 setup(
     name='mysql-autoxtrabackup',
-    version='1.4.9',
+    version='1.5.0',
     packages=['general_conf', 'backup_prepare', 'partial_recovery', 'master_backup_script', 'prepare_env_test_mode'],
     py_modules=['autoxtrabackup'],
     url='https://github.com/ShahriyarR/MySQL-AutoXtraBackup',
-    download_url='https://github.com/ShahriyarR/MySQL-AutoXtraBackup/archive/v1.4.9.zip',
+    download_url='https://github.com/ShahriyarR/MySQL-AutoXtraBackup/archive/v1.5.0.zip',
     license='MIT',
     author='Shahriyar Rzayev',
     author_email='rzayev.shahriyar@yandex.com',
