@@ -30,11 +30,11 @@ class WrapperForBackupTest(Backup):
                 # sql_optimize = "optimize table sysbench_test_db.sbtest{}".format(i)
                 # RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_optimize)
             for i in range(10, 15):
-                sql_alter = "alter table sysbench_test_db.sbtest{} engine=rocksdb"
+                sql_alter = "alter table sysbench_test_db.sbtest{} engine=rocksdb".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter)
 
         for i in range(15, 20):
-            sql_alter = "alter table sysbench_test_db.sbtest{} engine=tokudb"
+            sql_alter = "alter table sysbench_test_db.sbtest{} engine=tokudb".format(i)
             RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter)
 
         flush_tables = "flush tables"
