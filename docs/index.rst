@@ -14,8 +14,10 @@ Welcome to MySQL-AutoXtrabackup's documentation!
    installation
    config_file
    basic_features
+   backup_tags
    advance_features
    test_mode
+   option_reference
    
 Indices and tables
 ==================

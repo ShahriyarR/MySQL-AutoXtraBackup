@@ -7,182 +7,130 @@ Backup
 Yes you are right, this tool is for taking backups.
 It should take care for automating this process for you.
 You can specify the backup directory in config file (default /etc/bck.conf) under [Backup] category.
-For me there is another config file prepared here -> ``/home/shahriyar.rzaev/AutoXtrabackup_Configs/ps_5.7_master_bck.conf``
+So you have prepared your config and now you are ready for start.
+
+The command for taking full backup with DEBUG enabled, i.e first run of the tool.
 
 ::
 
-    [Backup]
-    #Optional: set pid directory
-    pid_dir=/tmp/MySQL-AutoXtraBackup
-    tmpdir=/home/shahriyar.rzaev/XB_TEST/mysql_datadirs
-    #Optional: set warning if pid of backup us running for longer than X
-    pid_runtime_warning=2 Hours
-    backupdir=/home/shahriyar.rzaev/XB_TEST/backup_dir
-    backup_tool=/usr/bin/xtrabackup
-    #Optional: specify different path/version of xtrabackup here for prepare
-    #prepare_tool=
-    xtra_prepare=--apply-log-only
-    #Optional: pass additional options for backup stage
-    #xtra_backup=--compact
-    #Optional: pass additional options for prepare stage
-    #xtra_prepare_options=--rebuild-indexes
-    #Optional: pass general additional options; it will go to both for backup and prepare
-    #xtra_options=--binlog-info=ON --galera-info
-    #Optional: set archive and rotation
-    #archive_dir=/home/shahriyar.rzaev/XB_TEST/backup_archives
-    #full_backup_interval=1 day
-    #max_archive_size=100GiB
-    #max_archive_duration=4 Days
-    #Optional WARNING(Enable this if you want to take partial backups). Specify database names or table names.
-    #partial_list=test.t1 test.t2 dbtest
+    $ sudo autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log \
+    -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --backup
 
-The command for backup:
-
-::
-
-    $ sudo autoxtrabackup --backup -v -l DEBUG --defaults_file=/home/shahriyar.rzaev/AutoXtrabackup_Configs/ps_5.7_master_bck.conf
-
-The result of first run:
-
-::
-
-    $ sudo autoxtrabackup --backup -v -l DEBUG --defaults_file=/home/shahriyar.rzaev/AutoXtrabackup_Configs/ps_5.7_master_bck.conf
-    2017-02-24 14:49:05 DEBUG    <pid.PidFile object at 0x7f093a6e2e08> entering setup
-    2017-02-24 14:49:05 DEBUG    <pid.PidFile object at 0x7f093a6e2e08> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
-    2017-02-24 14:49:05 DEBUG    <pid.PidFile object at 0x7f093a6e2e08> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
-    2017-02-24 14:49:05 DEBUG    Running mysqladmin command -> /home/shahriyar.rzaev/Percona_Servers/5.7.17/bin/mysqladmin --defaults-file=/home/shahriyar.rzaev/sandboxes/rsandbox_Percona-Server-5_7_17/master/my.sandbox.cnf --user=jeffrey --password=msandbox status --host=localhost --port=20192
+    2017-11-16 19:37:52 DEBUG    <pid.PidFile object at 0x7fdb6f78b048> entering setup
+    2017-11-16 19:37:52 DEBUG    <pid.PidFile object at 0x7fdb6f78b048> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    2017-11-16 19:37:52 DEBUG    <pid.PidFile object at 0x7fdb6f78b048> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    2017-11-16 19:37:52 DEBUG    Running mysqladmin command -> /home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/bin/mysqladmin --defaults-file= --user=root --password= status --socket=/home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/socket.sock
     mysqladmin: [Warning] Using a password on the command line interface can be insecure.
-    2017-02-24 14:49:05 DEBUG    Server is Up and running+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+OK
-    2017-02-24 14:49:05 DEBUG    /home/shahriyar.rzaev/Percona_Servers/5.7.17/bin/mysql exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-OK
-    2017-02-24 14:49:05 DEBUG    /home/shahriyar.rzaev/Percona_Servers/5.7.17/bin/mysqladmin exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK
-    2017-02-24 14:49:05 DEBUG    MySQL configuration file exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+OK
-    2017-02-24 14:49:05 DEBUG    Xtrabackup exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-OK
-    2017-02-24 14:49:05 DEBUG    Main backup directory exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-OK
-    2017-02-24 14:49:05 DEBUG    Full Backup directory does not exist.+-+-+-+-+-+-+-+-+-+-+-+-OK
-    2017-02-24 14:49:05 DEBUG    Creating full backup directory...+-+-+-+-+-+-+-+-+-++-+-+-+-+OK
-    2017-02-24 14:49:05 DEBUG    Created+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK
-    2017-02-24 14:49:05 DEBUG    Increment directory does not exist.+-+-+-+-+-+-+-+-+-++-+-+-+OK
-    2017-02-24 14:49:05 DEBUG    Creating increment backup directory.+-+-+-+-+-+-+-+-+-++-+-+-OK
-    2017-02-24 14:49:05 DEBUG    Created
-    2017-02-24 14:49:05 DEBUG    Check status: STATUS+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-OK
-    2017-02-24 14:49:05 DEBUG    ###############################################################
-    2017-02-24 14:49:05 DEBUG    #You have no backups : Taking very first Full Backup! - - - - #
-    2017-02-24 14:49:05 DEBUG    ###############################################################
-    2017-02-24 14:49:08 DEBUG    Trying to flush logs
-    2017-02-24 14:49:10 DEBUG    Log flushing completed
-    2017-02-24 14:49:10 DEBUG    The following backup command will be executed /home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xtrabackup --defaults-file=/home/shahriyar.rzaev/sandboxes/rsandbox_Percona-Server-5_7_17/master/my.sandbox.cnf --user=jeffrey --password='msandbox'  --target-dir=/home/shahriyar.rzaev/backup_dirs/ps_5.7_master//full/2017-02-24_14-49-10 --backup --host=localhost --port=20192
-    2017-02-24 14:49:10 DEBUG    Starting /home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xtrabackup
-    2017-02-24 14:49:26 DEBUG    0224 14:49:26 completed OK!
-    2017-02-24 14:49:26 DEBUG    <pid.PidFile object at 0x7f093a6e2e08> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
-    2017-02-24 14:49:26 DEBUG    <pid.PidFile object at 0x7f093a6e2e08> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    2017-11-16 19:37:52 DEBUG    OK: Server is Up and running
+    2017-11-16 19:37:52 DEBUG    OK: /home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/bin/mysql exists
+    2017-11-16 19:37:52 DEBUG    OK: /home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/bin/mysqladmin exists
+    2017-11-16 19:37:52 DEBUG    Skipping my.cnf check, because it is not specified
+    2017-11-16 19:37:52 DEBUG    OK: XtraBackup exists
+    2017-11-16 19:37:52 DEBUG    Main backup directory does not exist
+    2017-11-16 19:37:52 DEBUG    Creating Main Backup folder...
+    2017-11-16 19:37:52 DEBUG    OK: Created
+    2017-11-16 19:37:52 DEBUG    Full Backup directory does not exist
+    2017-11-16 19:37:52 DEBUG    Creating full backup directory...
+    2017-11-16 19:37:52 DEBUG    OK: Created
+    2017-11-16 19:37:52 DEBUG    Increment directory does not exist
+    2017-11-16 19:37:52 DEBUG    Creating increment backup directory...
+    2017-11-16 19:37:52 DEBUG    OK: Created
+    2017-11-16 19:37:52 DEBUG    OK: Check status
+    2017-11-16 19:37:52 DEBUG    - - - - You have no backups : Taking very first Full Backup! - - - -
+    2017-11-16 19:37:52 DEBUG    Trying to flush logs
+    2017-11-16 19:37:52 DEBUG    OK: Log flushing completed
+    2017-11-16 19:37:52 WARNING  Streaming is enabled!
+    2017-11-16 19:37:52 DEBUG    The following backup command will be executed /home/shahriyar.rzaev/XB_TEST/server_dir/target/percona-xtrabackup-2.4.x-debug/bin/xtrabackup --defaults-file= --user=root --password=''  --target-dir=/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_7_x_2_4/full/2017-11-16_19-37-52 --backup --socket=/home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/socket.sock --compress=quicklz --compress-chunk-size=65536 --compress-threads=4 --encrypt=AES256 --encrypt-key=VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K --encrypt-threads=4 --encrypt-chunk-size=65536 --slave-info --no-version-check --core-file --parallel=1 --throttle=40 --keyring-file-data=/home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/mysql-keyring/keyring --stream="xbstream" > /home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_7_x_2_4/full/2017-11-16_19-37-52/full_backup.stream
+
+The result of second run; it will take an incremental backup.
+
+::
+
+    $ sudo autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log \
+    -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --backup
+    2017-11-16 19:43:07 DEBUG    <pid.PidFile object at 0x7fb688315048> entering setup
+    2017-11-16 19:43:07 DEBUG    <pid.PidFile object at 0x7fb688315048> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    2017-11-16 19:43:07 DEBUG    <pid.PidFile object at 0x7fb688315048> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    2017-11-16 19:43:07 DEBUG    Running mysqladmin command -> /home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/bin/mysqladmin --defaults-file= --user=root --password= status --socket=/home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/socket.sock
+    mysqladmin: [Warning] Using a password on the command line interface can be insecure.
+    2017-11-16 19:43:07 DEBUG    OK: Server is Up and running
+    2017-11-16 19:43:07 DEBUG    OK: /home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/bin/mysql exists
+    2017-11-16 19:43:07 DEBUG    OK: /home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/bin/mysqladmin exists
+    2017-11-16 19:43:07 DEBUG    Skipping my.cnf check, because it is not specified
+    2017-11-16 19:43:07 DEBUG    OK: XtraBackup exists
+    2017-11-16 19:43:07 DEBUG    OK: Main backup directory exists
+    2017-11-16 19:43:07 DEBUG    OK: Full Backup directory exists
+    2017-11-16 19:43:07 DEBUG    OK: Increment directory exists
+    2017-11-16 19:43:07 DEBUG    OK: Check status
+    2017-11-16 19:43:07 DEBUG    - - - - You have a full backup that is less than 86400 seconds old. - - - -
+    2017-11-16 19:43:07 DEBUG    - - - - We will take an incremental one based on recent Full Backup - - - -
+    2017-11-16 19:43:10 DEBUG    Using xbstream to extract and decrypt from full_backup.stream!
+    2017-11-16 19:43:10 DEBUG    The following xbstream command will be executed /home/shahriyar.rzaev/XB_TEST/server_dir/target/percona-xtrabackup-2.4.x-debug/bin/xbstream -x --parallel=100 --decrypt=AES256 --encrypt-key=VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K --encrypt-threads=4 < /home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_7_x_2_4/full/2017-11-16_19-37-52/full_backup.stream -C /home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_7_x_2_4/full/2017-11-16_19-37-52
+    2017-11-16 19:43:10 DEBUG    OK: XBSTREAM command succeeded.
+    2017-11-16 19:43:10 WARNING  Streaming is enabled!
+    2017-11-16 19:43:10 DEBUG    The following backup command will be executed /home/shahriyar.rzaev/XB_TEST/server_dir/target/percona-xtrabackup-2.4.x-debug/bin/xtrabackup --defaults-file= --user=root --password='' --target-dir=/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_7_x_2_4/inc/2017-11-16_19-43-10 --incremental-basedir=/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_7_x_2_4/full/2017-11-16_19-37-52 --backup --socket=/home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/socket.sock --compress=quicklz --compress-chunk-size=65536 --compress-threads=4 --encrypt=AES256 --encrypt-key=VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K --encrypt-threads=4 --encrypt-chunk-size=65536 --slave-info --no-version-check --core-file --parallel=1 --throttle=40 --keyring-file-data=/home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/mysql-keyring/keyring --stream="xbstream" > /home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_7_x_2_4/inc/2017-11-16_19-43-10/inc_backup.stream
+
+
 
 You will have 2 separate folders inside backup directory:
 
 ::
 
-    [shahriyar.rzaev@qaserver-04 ps_5.7_master]$ ls
+    [vagrant@localhost backup_dir]$ ls
+    ps_5_7_x_2_4
+    [vagrant@localhost backup_dir]$ cd ps_5_7_x_2_4/
+    [vagrant@localhost ps_5_7_x_2_4]$ ls
     full  inc
 
-We took full backup and it should be under ``full`` directory:
+
+We took full backup and it should be under the ``full`` directory:
 
 ::
 
-    [shahriyar.rzaev@qaserver-04 ps_5.7_master]$ ls full
-    2017-02-24_14-49-10
+    [vagrant@localhost ps_5_7_x_2_4]$ ls full/
+    2017-11-16_19-37-52
 
-Just run same command for taking incremental backup:
-
-::
-
-    $ sudo autoxtrabackup --backup -v -l DEBUG --defaults_file=/home/shahriyar.rzaev/AutoXtrabackup_Configs/ps_5.7_master_bck.conf
-    2017-02-24 15:10:17 DEBUG    <pid.PidFile object at 0x7ff210900e08> entering setup
-    2017-02-24 15:10:17 DEBUG    <pid.PidFile object at 0x7ff210900e08> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
-    2017-02-24 15:10:17 DEBUG    <pid.PidFile object at 0x7ff210900e08> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
-    2017-02-24 15:10:17 DEBUG    Running mysqladmin command -> /home/shahriyar.rzaev/Percona_Servers/5.7.17/bin/mysqladmin --defaults-file=/home/shahriyar.rzaev/sandboxes/rsandbox_Percona-Server-5_7_17/master/my.sandbox.cnf --user=jeffrey --password=msandbox status --host=localhost --port=20192
-    mysqladmin: [Warning] Using a password on the command line interface can be insecure.
-    2017-02-24 15:10:17 DEBUG    Server is Up and running+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+OK
-    2017-02-24 15:10:17 DEBUG    /home/shahriyar.rzaev/Percona_Servers/5.7.17/bin/mysql exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-OK
-    2017-02-24 15:10:17 DEBUG    /home/shahriyar.rzaev/Percona_Servers/5.7.17/bin/mysqladmin exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK
-    2017-02-24 15:10:17 DEBUG    MySQL configuration file exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+OK
-    2017-02-24 15:10:17 DEBUG    Xtrabackup exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-OK
-    2017-02-24 15:10:17 DEBUG    Main backup directory exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-OK
-    2017-02-24 15:10:17 DEBUG    Full Backup directory exists.+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+OK
-    2017-02-24 15:10:17 DEBUG    Increment directory exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK
-    2017-02-24 15:10:17 DEBUG    Check status: STATUS+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-OK
-    2017-02-24 15:10:17 DEBUG    ################################################################
-    2017-02-24 15:10:17 DEBUG    You have a full backup that is less than 86400 seconds old. - -#
-    2017-02-24 15:10:17 DEBUG    We will take an incremental one based on recent Full Backup - -#
-    2017-02-24 15:10:17 DEBUG    ################################################################
-    2017-02-24 15:10:20 DEBUG    Installed Server is MySQL, will continue as usual.
-    2017-02-24 15:10:20 DEBUG    The following backup command will be executed /home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xtrabackup --defaults-file=/home/shahriyar.rzaev/sandboxes/rsandbox_Percona-Server-5_7_17/master/my.sandbox.cnf --user=jeffrey --password='msandbox' --target-dir=/home/shahriyar.rzaev/backup_dirs/ps_5.7_master//inc/2017-02-24_15-10-20 --incremental-basedir=/home/shahriyar.rzaev/backup_dirs/ps_5.7_master//full/2017-02-24_14-49-10 --backup --host=localhost --port=20192
-    2017-02-24 15:10:32 DEBUG    0224 15:10:32 completed OK!
-    2017-02-24 15:10:32 DEBUG    <pid.PidFile object at 0x7ff210900e08> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
-    2017-02-24 15:10:32 DEBUG    <pid.PidFile object at 0x7ff210900e08> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
-
-Again run same command for taking second incremental backup:
+Incremental backups are inside ``inc`` directory:
 
 ::
 
-    $ sudo autoxtrabackup --backup -v -l DEBUG --defaults_file=/home/shahriyar.rzaev/AutoXtrabackup_Configs/ps_5.7_master_bck.conf
-    2017-02-24 15:11:27 DEBUG    <pid.PidFile object at 0x7fca2aebfe08> entering setup
-    2017-02-24 15:11:27 DEBUG    <pid.PidFile object at 0x7fca2aebfe08> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
-    2017-02-24 15:11:27 DEBUG    <pid.PidFile object at 0x7fca2aebfe08> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
-    2017-02-24 15:11:27 DEBUG    Running mysqladmin command -> /home/shahriyar.rzaev/Percona_Servers/5.7.17/bin/mysqladmin --defaults-file=/home/shahriyar.rzaev/sandboxes/rsandbox_Percona-Server-5_7_17/master/my.sandbox.cnf --user=jeffrey --password=msandbox status --host=localhost --port=20192
-    mysqladmin: [Warning] Using a password on the command line interface can be insecure.
-    2017-02-24 15:11:27 DEBUG    Server is Up and running+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+OK
-    2017-02-24 15:11:27 DEBUG    /home/shahriyar.rzaev/Percona_Servers/5.7.17/bin/mysql exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-++-OK
-    2017-02-24 15:11:27 DEBUG    /home/shahriyar.rzaev/Percona_Servers/5.7.17/bin/mysqladmin exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK
-    2017-02-24 15:11:27 DEBUG    MySQL configuration file exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+OK
-    2017-02-24 15:11:27 DEBUG    Xtrabackup exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-OK
-    2017-02-24 15:11:27 DEBUG    Main backup directory exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-OK
-    2017-02-24 15:11:27 DEBUG    Full Backup directory exists.+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+OK
-    2017-02-24 15:11:27 DEBUG    Increment directory exists+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-OK
-    2017-02-24 15:11:27 DEBUG    Check status: STATUS+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-OK
-    2017-02-24 15:11:27 DEBUG    ################################################################
-    2017-02-24 15:11:27 DEBUG    You have a full backup that is less than 86400 seconds old. - -#
-    2017-02-24 15:11:27 DEBUG    We will take an incremental one based on recent Full Backup - -#
-    2017-02-24 15:11:27 DEBUG    ################################################################
-    2017-02-24 15:11:30 DEBUG    Installed Server is MySQL, will continue as usual.
-    2017-02-24 15:11:30 DEBUG    The following backup command will be executed /home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xtrabackup --defaults-file=/home/shahriyar.rzaev/sandboxes/rsandbox_Percona-Server-5_7_17/master/my.sandbox.cnf --user=jeffrey --password='msandbox'  --target-dir=/home/shahriyar.rzaev/backup_dirs/ps_5.7_master//inc/2017-02-24_15-11-30 --incremental-basedir=/home/shahriyar.rzaev/backup_dirs/ps_5.7_master//inc/2017-02-24_15-10-20 --backup --host=localhost --port=20192
-    2017-02-24 15:11:42 DEBUG    0224 15:11:42 completed OK!
-    2017-02-24 15:11:42 DEBUG    <pid.PidFile object at 0x7fca2aebfe08> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
-    2017-02-24 15:11:42 DEBUG    <pid.PidFile object at 0x7fca2aebfe08> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    [vagrant@localhost ps_5_7_x_2_4]$ ls inc/
+    2017-11-16_19-43-10
 
-The incremental backups will be stored under ``inc`` directory:
-
-::
-
-    [shahriyar.rzaev@qaserver-04 ps_5.7_master]$ ls  inc/
-    2017-02-24_15-10-20  2017-02-24_15-11-30
-
-You can proceed to take incremental backups in the same manner.
-
-
-
+If you want more incremental backups just run the same command again and again.
 
 
 Prepare
 -------
 For preparing backups just use --prepare option. For our case we have a
-full and 2 incremental backups. All backups will be prepared
+full and 2 incremental backups:
+
+::
+
+    [vagrant@localhost ps_5_7_x_2_4]$ ls full/
+    2017-11-16_19-37-52
+    [vagrant@localhost ps_5_7_x_2_4]$ ls inc/
+    2017-11-16_19-43-10  2017-11-16_19-48-23
+
+All backups will be prepared
 automatically.
 
 You are going to have 3 options to choose:
 
 1. Only prepare backups.
-2. Prepare backups and restore immediately
+2. Prepare backups and restore immediately.
 3. Restore from already prepared backup.
 
 For now let's choose 1:
 
 ::
 
-    $ sudo autoxtrabackup --prepare -v -l DEBUG --defaults_file=/home/shahriyar.rzaev/AutoXtrabackup_Configs/ps_5.7_master_bck.conf
-    2017-02-24 15:32:26 DEBUG    <pid.PidFile object at 0x7fd637dbfe08> entering setup
-    2017-02-24 15:32:26 DEBUG    <pid.PidFile object at 0x7fd637dbfe08> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
-    2017-02-24 15:32:26 DEBUG    <pid.PidFile object at 0x7fd637dbfe08> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
-    2017-02-24 15:32:26 DEBUG    Installed Server is MySQL, will continue as usual.
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
+    $ autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log \
+    -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --prepare
+    2017-11-16 19:50:33 DEBUG    <pid.PidFile object at 0x7fea1d28c048> entering setup
+    2017-11-16 19:50:33 DEBUG    <pid.PidFile object at 0x7fea1d28c048> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    2017-11-16 19:50:33 DEBUG    <pid.PidFile object at 0x7fea1d28c048> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     Preparing full/inc backups!
     What do you want to do?
@@ -191,30 +139,6 @@ For now let's choose 1:
     3. Just copy-back previously prepared backups
     Please Choose one of options and type 1 or 2 or 3: 1
 
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
-    2017-02-24 15:34:11 DEBUG    ####################################################################################################
-    2017-02-24 15:34:11 DEBUG    You have Incremental backups. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#
-    2017-02-24 15:34:14 DEBUG    Preparing Full backup 1 time. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#
-    Final prepare,will occur after preparing all inc backups - - - - - - - - - - - - - - - - -  - - - -#
-    2017-02-24 15:34:14 DEBUG    ####################################################################################################
-    2017-02-24 15:34:17 DEBUG    Running prepare command -> /home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xtrabackup --prepare --apply-log-only --target-dir=/home/shahriyar.rzaev/backup_dirs/ps_5.7_master//full/2017-02-24_14-49-10
-    2017-02-24 15:34:20 DEBUG    0224 15:34:20 completed OK!
-    2017-02-24 15:34:20 DEBUG    ####################################################################################################
-    2017-02-24 15:34:20 DEBUG    Preparing Incs:
-    2017-02-24 15:34:23 DEBUG    Preparing inc backups in sequence. inc backup dir/name is 2017-02-24_15-10-20
-    2017-02-24 15:34:23 DEBUG    ####################################################################################################
-    2017-02-24 15:34:26 DEBUG    Running prepare command -> /home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xtrabackup --prepare --apply-log-only --target-dir=/home/shahriyar.rzaev/backup_dirs/ps_5.7_master//full/2017-02-24_14-49-10 --incremental-dir=/home/shahriyar.rzaev/backup_dirs/ps_5.7_master//inc/2017-02-24_15-10-20
-    2017-02-24 15:34:36 DEBUG    0224 15:34:36 completed OK!
-    2017-02-24 15:34:36 DEBUG    ####################################################################################################
-    2017-02-24 15:34:36 DEBUG    Preparing last incremental backup, inc backup dir/name is 2017-02-24_15-11-30
-    2017-02-24 15:34:36 DEBUG    ####################################################################################################
-    2017-02-24 15:34:39 DEBUG    Running prepare command -> /home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xtrabackup --prepare --target-dir=/home/shahriyar.rzaev/backup_dirs/ps_5.7_master//full/2017-02-24_14-49-10 --incremental-dir=/home/shahriyar.rzaev/backup_dirs/ps_5.7_master//inc/2017-02-24_15-11-30
-    2017-02-24 15:34:51 DEBUG    0224 15:34:51 completed OK!
-    2017-02-24 15:34:51 DEBUG    ####################################################################################################
-    2017-02-24 15:34:51 DEBUG    The end of the Prepare Stage. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -#
-    2017-02-24 15:34:51 DEBUG    ####################################################################################################
-    2017-02-24 15:34:54 DEBUG    <pid.PidFile object at 0x7fd637dbfe08> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
-    2017-02-24 15:34:54 DEBUG    <pid.PidFile object at 0x7fd637dbfe08> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
 
 That's it. Your backup is ready to restore/recovery.
 
@@ -223,11 +147,18 @@ That's it. Your backup is ready to restore/recovery.
 Restore single table
 --------------------
 
-If you have deleted table data and you have full server backup. You can
-restore single table as displayed here:
+If you have deleted table data and you have already prepared full server backup.
+You can restore single table as displayed here:
 
 ::
 
+    > show create table t1\G
+    *************************** 1. row ***************************
+           Table: t1
+    Create Table: CREATE TABLE t1 (
+      id int(11) NOT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1
+    1 row in set (0.01 sec)
 
     > select * from t1;
     +----+
@@ -246,45 +177,43 @@ restore single table as displayed here:
     Query OK, 6 rows affected (0.12 sec)
 
 
-Restoring single table, ``--partial`` must be used for this:
+Restoring single table, the ``--partial`` option must be used for this:
 
 ::
 
 
-    $ sudo autoxtrabackup --partial -v -l DEBUG --defaults_file=/home/shahriyar.rzaev/AutoXtrabackup_Configs/ps_5.7_master_bck.conf
-    2017-02-24 15:45:01 DEBUG    <pid.PidFile object at 0x7f3349583e08> entering setup
-    2017-02-24 15:45:01 DEBUG    <pid.PidFile object at 0x7f3349583e08> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
-    2017-02-24 15:45:01 DEBUG    <pid.PidFile object at 0x7f3349583e08> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
-    2017-02-24 15:45:01 DEBUG    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
-    Type Database name: dbtest
+    $ sudo autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log \
+    -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --partial
+    2017-11-16 19:56:32 DEBUG    <pid.PidFile object at 0x7f39212e4048> entering setup
+    2017-11-16 19:56:32 DEBUG    <pid.PidFile object at 0x7f39212e4048> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    2017-11-16 19:56:32 DEBUG    <pid.PidFile object at 0x7f39212e4048> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    Type Database name: test
     Type Table name: t1
-    2017-02-24 15:45:05 DEBUG    Running mysqladmin command -> /home/shahriyar.rzaev/Percona_Servers/5.7.17/bin/mysqladmin --defaults-file=/home/shahriyar.rzaev/sandboxes/rsandbox_Percona-Server-5_7_17/master/my.sandbox.cnf --user=jeffrey --password=msandbox status --host=localhost --port=20192
+    2017-11-16 19:56:56 DEBUG    Running mysqladmin command -> /home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/bin/mysqladmin --defaults-file= --user=root --password= status --socket=/home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/socket.sock
     mysqladmin: [Warning] Using a password on the command line interface can be insecure.
-    2017-02-24 15:45:05 DEBUG    Server is Up and running+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+OK
-    2017-02-24 15:45:05 DEBUG    Checking if innodb_file_per_table is enabled
-    2017-02-24 15:45:05 DEBUG    innodb_file_per_table is enabled!
-    2017-02-24 15:45:05 DEBUG    Checking MySQL version
-    2017-02-24 15:45:05 DEBUG    MySQL Version is, 5.7.17-11-log
-    2017-02-24 15:45:05 DEBUG    You have correct version of MySQL
-    2017-02-24 15:45:05 DEBUG    Checking if database exists in MySQL
-    2017-02-24 15:45:05 DEBUG    Database exists!
-    2017-02-24 15:45:05 DEBUG    Checking if table exists in MySQL Server
-    2017-02-24 15:45:05 DEBUG    Table exists in MySQL Server.
-    2017-02-24 15:45:05 DEBUG    Applying write lock!
-    2017-02-24 15:45:05 DEBUG    Locked
-    2017-02-24 15:45:05 DEBUG    Discarding tablespace
-    2017-02-24 15:45:05 DEBUG    Tablespace discarded successfully
-    2017-02-24 15:45:05 DEBUG    Copying .ibd file back
-    2017-02-24 15:45:05 DEBUG    Running chown command!
-    2017-02-24 15:45:05 DEBUG    Chown command completed
-    2017-02-24 15:45:05 DEBUG    Importing Tablespace!
-    2017-02-24 15:45:05 DEBUG    Tablespace imported
-    2017-02-24 15:45:05 DEBUG    Unlocking tables!
-    2017-02-24 15:45:05 DEBUG    Unlocked!
-    2017-02-24 15:45:05 DEBUG    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
-    2017-02-24 15:45:05 DEBUG    Table Recovered! ...-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    2017-02-24 15:45:05 DEBUG    <pid.PidFile object at 0x7f3349583e08> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
-    2017-02-24 15:45:05 DEBUG    <pid.PidFile object at 0x7f3349583e08> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    2017-11-16 19:56:56 DEBUG    OK: Server is Up and running
+    2017-11-16 19:56:56 DEBUG    Checking if innodb_file_per_table is enabled
+    2017-11-16 19:56:56 DEBUG    OK: innodb_file_per_table is enabled!
+    2017-11-16 19:56:56 DEBUG    Checking MySQL version
+    2017-11-16 19:56:56 DEBUG    You have correct version of MySQL
+    2017-11-16 19:56:56 DEBUG    Checking if database exists in MySQL
+    2017-11-16 19:56:56 DEBUG    Database exists!
+    2017-11-16 19:56:56 DEBUG    Checking if table exists in MySQL Server
+    2017-11-16 19:56:57 DEBUG    Table exists in MySQL Server.
+    2017-11-16 19:56:57 DEBUG    Applying write lock!
+    2017-11-16 19:56:57 DEBUG    OK: Table is locked
+    2017-11-16 19:56:57 DEBUG    Discarding tablespace
+    2017-11-16 19:56:57 DEBUG    OK: Tablespace discarded successfully
+    2017-11-16 19:56:57 DEBUG    OK: Copying .ibd file back
+    2017-11-16 19:56:57 DEBUG    Running chown command!
+    2017-11-16 19:56:57 DEBUG    OK: Chown command completed
+    2017-11-16 19:56:57 DEBUG    Importing Tablespace!
+    2017-11-16 19:56:57 DEBUG    OK: Tablespace imported
+    2017-11-16 19:56:57 DEBUG    Unlocking tables!
+    2017-11-16 19:56:57 DEBUG    OK: Unlocked!
+    2017-11-16 19:56:57 DEBUG    OK: Table Recovered! ...
+    2017-11-16 19:56:57 DEBUG    <pid.PidFile object at 0x7f39212e4048> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    2017-11-16 19:56:57 DEBUG    <pid.PidFile object at 0x7f39212e4048> closing pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
 
 Congratulations you have restored table:
 

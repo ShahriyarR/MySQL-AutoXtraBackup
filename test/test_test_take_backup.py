@@ -2,6 +2,8 @@ import pytest
 from prepare_env_test_mode.take_backup import WrapperForBackupTest
 from general_conf.generalops import GeneralClass
 
+# Part of TEST MODE
+
 class TestTakeBackup:
     # Test class for take_backup.py
 

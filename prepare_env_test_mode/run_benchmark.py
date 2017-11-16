@@ -26,18 +26,34 @@ class RunBenchmark:
         return sock_file
 
     @staticmethod
-    def get_mysql_conn(basedir):
+    def get_mysql_conn(basedir, file_name=None):
         # Get mysql client connection
         logger.debug("Trying to get mysql client connection...")
-        get_conn = "cat {}/cl_noprompt_nobinary"
-        status, output = subprocess.getstatusoutput(get_conn.format(basedir))
+        if file_name is None:
+            get_conn = "cat {}/cl_noprompt_nobinary"
+            status, output = subprocess.getstatusoutput(get_conn.format(basedir))
+        else:
+            get_conn = "cat {}/{}"
+            status, output = subprocess.getstatusoutput(get_conn.format(basedir, file_name))
         if status == 0:
             logger.debug("Could get mysql client")
             return output
         else:
             logger.error("Failed to get mysql client connection")
             logger.error(output)
-            return False
+            raise RuntimeError("Failed to get mysql client connection")
+
+    @staticmethod
+    def run_sql_statement(basedir, sql_statement):
+        sql = '{} -e \"{}\"'.format(RunBenchmark.get_mysql_conn(basedir), sql_statement)
+        status, output = subprocess.getstatusoutput(sql)
+        if status == 0:
+            logger.debug("OK: Running -> {}".format(sql))
+            return True
+        else:
+            logger.error("FAILED: running SQL")
+            logger.error(output)
+            raise RuntimeError("FAILED: running SQL")
 
     def create_db(self, db_name, basedir):
         # Creating DB using mysql client
@@ -92,7 +108,7 @@ class RunBenchmark:
         else:
             logger.error("Failed to run sysbench")
             logger.error(output)
-            return False
+            raise RuntimeError("Failed to run sysbench")
 
 
     def run_sysbench_run(self, basedir):
@@ -128,4 +144,4 @@ class RunBenchmark:
         else:
             logger.error("Failed to run sysbench")
             logger.error(output)
-            return False
+            raise RuntimeError("Failed to run sysbench")
