@@ -32,7 +32,8 @@ You need BATS_. for this.
 After running this you will likely have something like in your test path:
 
 
-::
+.. code-block:: shell
+
     [shahriyar.rzaev@qaserver-02 ~]$ cd XB_TEST/
     [shahriyar.rzaev@qaserver-02 XB_TEST]$ ls
     server_dir
@@ -50,9 +51,10 @@ Running test mode
 
 For this, just run autoxtrabackup with respective config file:
 
-::
+.. code-block:: shell
 
-    autoxtrabackup -v -l DEBUG --test_mode --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf
+    autoxtrabackup -v -l DEBUG --test_mode \
+    --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf
 
 This will start autoxtrabackup in test mode and will run full cycle based on combinations of mysql options passed to PS.
 To be clear, for eg, we have 50 different combinations of starting PS, then we will have 50 cycles of backup/restore process.
@@ -78,12 +80,19 @@ For test mode [TestConf] category is relevant. Let's go through options
     mysql_options=--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,--innodb_page_size=4K 8K 16K 32K 64K
 
 ``ps_branches`` is for specifying PS branches in github.
+
 ``gitcmd`` is for passing git command for git clone.
+
 ``testpath`` is for passing the path for test mode.
+
 ``incremental_count`` specify how many incremental backups the tool should take.
+
 ``make_slaves`` specify if you want to create slave servers.
+
 ``xb_configs`` is for passing config files to be generated.
+
 ``default_mysql_options`` default mysql options to pass to PS start script.
+
 ``mysql_options`` option combinations are for passing mysql startup/initialization options to PS start script.
 
 Internally, based on mysql options, the combination of those options will be created.
