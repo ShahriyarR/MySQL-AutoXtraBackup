@@ -25,8 +25,7 @@ backups, also for preparing backups, as well as to restore. Here is project path
 Available Options
 -----------------
 
-::
-
+.. code-block:: shell
 
     $ sudo autoxtrabackup
     Usage: autoxtrabackup [OPTIONS]
