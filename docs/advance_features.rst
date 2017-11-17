@@ -7,7 +7,7 @@ Compressed backups:
 To enable compression support just uncomment the options under
 [Compress] category inside main configuration file:
 
-    ::
+::
 
     [Compress]
     #Optional
@@ -26,7 +26,7 @@ Encrypted backups
 To enable encryption support uncomment the options under [Encryption]
 category:
 
-    ::
+::
 
     [Encrypt]
     #Optional
@@ -51,7 +51,7 @@ then to take incremental backups based on this one table.
 You can achieve this by enabling ``partial_list`` option from config file:
 
 
-    ::
+::
 
     [Backup]
     #Optional: set pid directory
@@ -135,7 +135,7 @@ also automated. Let's see it in action. We have a dbtest database and t1 table:
 
 Dropping the database:
 
-    ::
+::
 
         > drop database test;
         Query OK, 1 row affected (1.08 sec)
@@ -143,7 +143,7 @@ Dropping the database:
 
 Trying to restore t1 table: It will figure out that specified database is missing and will prompt to create it.
 
-    ::
+::
 
 
         $ autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log \
@@ -190,7 +190,7 @@ Trying to restore t1 table: It will figure out that specified database is missin
 
 As you noticed, the ``mysqlfrm`` tool did the job and table is restored after drop:
 
-    ::
+::
 
         > select * from dbtest.t1;
         +----+
@@ -213,7 +213,7 @@ For testing purposes or just to show what is going on, with autoxtrabackup backu
 You can append ``--dry_run`` option, to show commands but not to run them.
 Taking backup:
 
-    ::
+::
 
 
         $ autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --backup --dry_run
@@ -243,7 +243,7 @@ Taking backup:
 
 Preparing backups:
 
-    ::
+::
 
 
         $ autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --prepare --dry_run

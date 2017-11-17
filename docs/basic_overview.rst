@@ -8,7 +8,7 @@ XtraBackup is a powerful open-source hot online backup tool for MySQL
 from Percona. This script is using XtraBackup for full and incremental
 backups, also for preparing backups, as well as to restore. Here is project path tree:
 
-    ::
+::
 
     * master_backup_script  -- Full and Incremental backup taker script.
     * backup_prepare        -- Backup prepare and restore script.
@@ -25,7 +25,7 @@ backups, also for preparing backups, as well as to restore. Here is project path
 Available Options
 -----------------
 
-    ::
+::
 
 
     $ sudo autoxtrabackup
@@ -58,7 +58,7 @@ Available Options
 Usage
 -----
 
-    ::
+::
 
     1. Install it.
     2. Edit /etc/bck.conf file to reflect your environment or create your own config.
