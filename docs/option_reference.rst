@@ -3,7 +3,7 @@ Option Reference
 
 The command line options to use:
 
-    ::
+.. code-block:: shell
 
 
     $ sudo autoxtrabackup
