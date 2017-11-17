@@ -7,7 +7,7 @@ Compressed backups:
 To enable compression support just uncomment the options under
 [Compress] category inside main configuration file:
 
-::
+.. code-block:: shell
 
     [Compress]
     #Optional
