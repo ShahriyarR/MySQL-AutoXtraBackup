@@ -141,7 +141,7 @@ class ConfigGenerator(CloneBuildStartServer):
                 config.add_section(section7)
                 config.set(section7, "start_mysql_command", "{}/start".format(basedir))
                 config.set(section7, "stop_mysql_command", "{}/stop".format(basedir))
-                config.set(section7, "chown_command", "chown -R vagrant:vagrant")
+                config.set(section7, "chown_command", "chown -R shahriyar.rzaev:shahriyar.rzaev")
 
                 section8 = "TestConf"
                 config.add_section(section8)
