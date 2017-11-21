@@ -68,7 +68,7 @@ class ConfigGenerator(CloneBuildStartServer):
                 config.set(section2, "#xtra_options", "--binlog-info=ON --galera-info")
                 if '5.7' in basedir:
                     config.set(section2, "xtra_options", "--slave-info --no-version-check --core-file "
-                                                         "--parallel=1 --throttle=40 "
+                                                         "--parallel=10 --throttle=40 "
                                                          "--keyring-file-data={}/mysql-keyring/keyring".format(basedir))
                 else:
                     config.set(section2, "xtra_options", "--slave-info --no-version-check --core-file "
