@@ -31,9 +31,9 @@ class WrapperForBackupTest(Backup):
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_optimize)
                 # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/196
                 # Adding JSON + virtual + stored columns here
-                sql_virtual_column = "alter table sysbench_test_db.sbtest{} add column json_test_v generated always as (json_array(k,c,pad)) virtual".format(i)
+                sql_virtual_column = "alter table sysbench_test_db.sbtest{} add column json_test_v json generated always as (json_array(k,c,pad)) virtual".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_virtual_column)
-                sql_stored_column = "alter table sysbench_test_db.sbtest{} add column json_test_s generated always as (json_array(k,c,pad)) stored".format(i)
+                sql_stored_column = "alter table sysbench_test_db.sbtest{} add column json_test_s json generated always as (json_array(k,c,pad)) stored".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_stored_column)
                 sql_create_json_column = "alter table sysbench_test_db.sbtest{} add column json_test_index varchar(255) generated always as (json_array(k,c,pad)) stored".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_json_column)
