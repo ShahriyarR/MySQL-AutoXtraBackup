@@ -68,7 +68,7 @@ class ConfigGenerator(CloneBuildStartServer):
                 config.set(section2, "#xtra_options", "--binlog-info=ON --galera-info")
                 if '5.7' in basedir:
                     config.set(section2, "xtra_options", "--slave-info --no-version-check --core-file "
-                                                         "--parallel=1 --throttle=40 "
+                                                         "--parallel=10 --throttle=40 "
                                                          "--keyring-file-data={}/mysql-keyring/keyring".format(basedir))
                 else:
                     config.set(section2, "xtra_options", "--slave-info --no-version-check --core-file "
@@ -141,7 +141,7 @@ class ConfigGenerator(CloneBuildStartServer):
                 config.add_section(section7)
                 config.set(section7, "start_mysql_command", "{}/start".format(basedir))
                 config.set(section7, "stop_mysql_command", "{}/stop".format(basedir))
-                config.set(section7, "chown_command", "chown -R vagrant:vagrant")
+                config.set(section7, "chown_command", "chown -R shahriyar.rzaev:shahriyar.rzaev")
 
                 section8 = "TestConf"
                 config.add_section(section8)
@@ -165,7 +165,7 @@ class ConfigGenerator(CloneBuildStartServer):
                 if '5_7' in conf_file:
                     config.set(section8, "mysql_options",
                                          "--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,"
-                                         "--innodb_page_size=64K 32K 16K 8K 4K")
+                                         "--innodb_page_size=4K 8K 16K 32K")
                 else:
                     config.set(section8, "mysql_options",
                                          "--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,"
