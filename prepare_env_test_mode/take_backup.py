@@ -24,11 +24,21 @@ class WrapperForBackupTest(Backup):
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_encrypt)
                 # Compression related issue -> https://bugs.launchpad.net/percona-xtrabackup/+bug/1641745
                 # Disabling for now
-                # TODO: Enable this after #1641745 is fixed.
+                # TODO: Enable this after #1641745 is fixed. Or disable 64K page size for MySQL;disabled.
                 sql_compress = "alter table sysbench_test_db.sbtest{} compression='lz4'".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_compress)
                 sql_optimize = "optimize table sysbench_test_db.sbtest{}".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_optimize)
+                # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/196
+                # Adding JSON + virtual + stored columns here
+                sql_virtual_column = "alter table sysbench_test_db.sbtest{} add column json_test_v generated always as (json_array(k,c,pad)) virtual".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_virtual_column)
+                sql_stored_column = "alter table sysbench_test_db.sbtest{} add column json_test_s generated always as (json_array(k,c,pad)) stored".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_stored_column)
+                sql_create_json_column = "alter table sysbench_test_db.sbtest{} add column json_test_index varchar(255) generated always as (json_array(k,c,pad)) stored".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_json_column)
+                sql_alter_add_index = "alter table sysbench_test_db.sbtest{} add index(json_test_index)".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_add_index)
             for i in range(10, 15):
                 sql_compress = "alter table sysbench_test_db.sbtest{} compression='zlib'".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_compress)
