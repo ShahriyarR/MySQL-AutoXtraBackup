@@ -165,7 +165,7 @@ class ConfigGenerator(CloneBuildStartServer):
                 if '5_7' in conf_file:
                     config.set(section8, "mysql_options",
                                          "--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,"
-                                         "--innodb_page_size=64K 32K 16K 8K 4K")
+                                         "--innodb_page_size=4K 8K 16K 32K")
                 else:
                     config.set(section8, "mysql_options",
                                          "--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,"

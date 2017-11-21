@@ -25,10 +25,13 @@ class WrapperForBackupTest(Backup):
                 # Compression related issue -> https://bugs.launchpad.net/percona-xtrabackup/+bug/1641745
                 # Disabling for now
                 # TODO: Enable this after #1641745 is fixed.
-                # sql_compress = "alter table sysbench_test_db.sbtest{} compression='lz4'".format(i)
-                # RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_compress)
-                # sql_optimize = "optimize table sysbench_test_db.sbtest{}".format(i)
-                # RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_optimize)
+                sql_compress = "alter table sysbench_test_db.sbtest{} compression='lz4'".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_compress)
+                sql_optimize = "optimize table sysbench_test_db.sbtest{}".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_optimize)
+            for i in range(10, 15):
+                sql_compress = "alter table sysbench_test_db.sbtest{} compression='zlib'".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_compress)
             # NOTE: PXB will ignore rocksdb tables, which is going to break pt-table-checksum
             # for i in range(10, 15):
             #     sql_alter = "alter table sysbench_test_db.sbtest{} engine=rocksdb".format(i)
