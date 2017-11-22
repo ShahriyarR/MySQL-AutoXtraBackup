@@ -943,6 +943,7 @@ class Prepare(GeneralClass):
 
         if status == 0:
             logger.debug("Running -> {}".format(copy_back))
+            logger.debug(output)
             logger.debug("Data copied back successfully!")
             return True
         else:
