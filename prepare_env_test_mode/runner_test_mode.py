@@ -66,11 +66,11 @@ class RunnerTestMode(GeneralClass):
             # --no-check-slave-tables
             command = "pt-table-checksum --user={} --socket={} " \
                       "--recursion-method dsn=h=localhost,D=test,t=dsns " \
-                      "--no-check-binlog-format".format("root", sock_file)
+                      "--no-check-binlog-format --no-check-slave-tables".format("root", sock_file)
         else:
             command = "pt-table-checksum {} " \
                       "--recursion-method dsn=h=localhost,D=test,t=dsns " \
-                      "--no-check-binlog-format".format(conn_options)
+                      "--no-check-binlog-format --no-check-slave-tables".format(conn_options)
         status, output = subprocess.getstatusoutput(command)
         if status == 0:
             logger.debug("pt-table-checksum succeeded on master")
