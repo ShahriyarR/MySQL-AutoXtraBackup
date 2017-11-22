@@ -48,7 +48,7 @@ class RunnerTestMode(GeneralClass):
         socket_file = "--socket={}/sock{}.sock".format(basedir, slave_number)
         port = "--port={}".format(RunnerTestMode.get_free_tcp_port())
         log_error = "--log-error={}/log/node{}".format(basedir, slave_number)
-        server_id = "--server_id={}".format(randint(10, 99))
+        server_id = "--server_id={}".format(randint(1111, 9999))
         return " ".join([tmpdir, datadir, socket_file, port, log_error, options, server_id])
 
     @staticmethod
@@ -62,13 +62,15 @@ class RunnerTestMode(GeneralClass):
         rb_obj = RunBenchmark()
         sock_file = rb_obj.get_sock(basedir=basedir)
         if conn_options is None:
+            # TODO: Temporarily disable check due to https://jira.percona.com/browse/PT-225
+            # --no-check-slave-tables
             command = "pt-table-checksum --user={} --socket={} " \
                       "--recursion-method dsn=h=localhost,D=test,t=dsns " \
-                      "--no-check-binlog-format".format("root", sock_file)
+                      "--no-check-binlog-format --no-check-slave-tables".format("root", sock_file)
         else:
             command = "pt-table-checksum {} " \
                       "--recursion-method dsn=h=localhost,D=test,t=dsns " \
-                      "--no-check-binlog-format".format(conn_options)
+                      "--no-check-binlog-format --no-check-slave-tables".format(conn_options)
         status, output = subprocess.getstatusoutput(command)
         if status == 0:
             logger.debug("pt-table-checksum succeeded on master")
@@ -399,6 +401,8 @@ class RunnerTestMode(GeneralClass):
                             self.create_slave_shutdown_file(basedir=basedir, num=1)
 
                             # Checking if node is up
+                            logger.debug("Pausing a bit here...")
+                            sleep(10)
                             chk_obj = CheckEnv(config=self.conf)
                             check_options = "--user={} --socket={}/sock{}.sock".format('root', basedir, 1)
                             chk_obj.check_mysql_uptime(options=check_options)
@@ -470,7 +474,8 @@ class RunnerTestMode(GeneralClass):
                                     self.create_slave_connection_file(basedir=basedir, num=2)
                                     # Creating shutdown file for new node
                                     self.create_slave_shutdown_file(basedir=basedir, num=2)
-
+                                    logger.debug("Pausing a bit here...")
+                                    sleep(10)
                                     check_options_2 = "--user={} --socket={}/sock{}.sock".format('root', basedir, 2)
                                     chk_obj.check_mysql_uptime(options=check_options_2)
 
