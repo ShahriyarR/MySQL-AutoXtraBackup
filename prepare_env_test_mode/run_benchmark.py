@@ -97,7 +97,7 @@ class RunBenchmark:
                                                                         sock_name)))
 
         status, output = subprocess.getstatusoutput(sysbench_cmd.format(1000,
-                                                                        100,
+                                                                        30,
                                                                         db_name,
                                                                         100,
                                                                         sock_name))
@@ -109,7 +109,6 @@ class RunBenchmark:
             logger.error("Failed to run sysbench")
             logger.error(output)
             raise RuntimeError("Failed to run sysbench")
-
 
     def run_sysbench_run(self, basedir):
         # Running sysbench run here
@@ -127,7 +126,7 @@ class RunBenchmark:
                        "--mysql-socket={} run"
 
         logger.debug("Running command -> {}".format(sysbench_cmd.format(1000,
-                                                                        100,
+                                                                        30,
                                                                         db_name,
                                                                         100,
                                                                         sock_name)))
