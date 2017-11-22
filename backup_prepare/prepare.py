@@ -932,8 +932,9 @@ class Prepare(GeneralClass):
 
     def run_xtra_copyback(self, datadir=None):
         # Running Xtrabackup with --copy-back option
-        copy_back = '{} --copy-back --target-dir={}/{} --datadir={}'.format(
+        copy_back = '{} --copy-back {} --target-dir={}/{} --datadir={}'.format(
                     self.backup_tool,
+                    self.xtra_options,
                     self.full_dir,
                     self.recent_full_backup_file(),
                     self.datadir if datadir is None else datadir)
@@ -941,6 +942,7 @@ class Prepare(GeneralClass):
         status, output = subprocess.getstatusoutput(copy_back)
 
         if status == 0:
+            logger.debug("Running -> {}".format(copy_back))
             logger.debug("Data copied back successfully!")
             return True
         else:
