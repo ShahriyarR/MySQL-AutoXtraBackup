@@ -399,6 +399,8 @@ class RunnerTestMode(GeneralClass):
                             self.create_slave_shutdown_file(basedir=basedir, num=1)
 
                             # Checking if node is up
+                            logger.debug("Pausing a bit here...")
+                            sleep(10)
                             chk_obj = CheckEnv(config=self.conf)
                             check_options = "--user={} --socket={}/sock{}.sock".format('root', basedir, 1)
                             chk_obj.check_mysql_uptime(options=check_options)
@@ -471,7 +473,7 @@ class RunnerTestMode(GeneralClass):
                                     # Creating shutdown file for new node
                                     self.create_slave_shutdown_file(basedir=basedir, num=2)
                                     logger.debug("Pausing a bit here...")
-                                    sleep(30)
+                                    sleep(10)
                                     check_options_2 = "--user={} --socket={}/sock{}.sock".format('root', basedir, 2)
                                     chk_obj.check_mysql_uptime(options=check_options_2)
 
