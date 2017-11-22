@@ -19,7 +19,7 @@ class WrapperForBackupTest(Backup):
         # Method for taking backups using master_backup_script.backuper.py::all_backup()
         RunBenchmark().run_sysbench_prepare(basedir=self.basedir)
         if '5.7' in self.basedir:
-            for i in range(1, 10):
+            for i in range(1, 5):
                 sql_encrypt = "alter table sysbench_test_db.sbtest{} encryption='Y'".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_encrypt)
                 # Compression related issue -> https://bugs.launchpad.net/percona-xtrabackup/+bug/1641745
@@ -39,7 +39,7 @@ class WrapperForBackupTest(Backup):
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_json_column)
                 sql_alter_add_index = "alter table sysbench_test_db.sbtest{} add index(json_test_index)".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_add_index)
-            for i in range(10, 15):
+            for i in range(5, 10):
                 sql_compress = "alter table sysbench_test_db.sbtest{} compression='zlib'".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_compress)
             # NOTE: PXB will ignore rocksdb tables, which is going to break pt-table-checksum

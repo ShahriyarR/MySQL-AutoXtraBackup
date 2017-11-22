@@ -62,6 +62,8 @@ class RunnerTestMode(GeneralClass):
         rb_obj = RunBenchmark()
         sock_file = rb_obj.get_sock(basedir=basedir)
         if conn_options is None:
+            # TODO: Temporarily disable check due to https://jira.percona.com/browse/PT-225
+            # --no-check-slave-tables
             command = "pt-table-checksum --user={} --socket={} " \
                       "--recursion-method dsn=h=localhost,D=test,t=dsns " \
                       "--no-check-binlog-format".format("root", sock_file)

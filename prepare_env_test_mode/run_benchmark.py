@@ -91,7 +91,7 @@ class RunBenchmark:
               "--mysql-socket={} prepare"
 
         logger.debug("Running command -> {}".format(sysbench_cmd.format(1000,
-                                                                        100,
+                                                                        30,
                                                                         db_name,
                                                                         100,
                                                                         sock_name)))
@@ -133,7 +133,7 @@ class RunBenchmark:
                                                                         sock_name)))
 
         status, output = subprocess.getstatusoutput(sysbench_cmd.format(1000,
-                                                                        100,
+                                                                        30,
                                                                         db_name,
                                                                         100,
                                                                         sock_name))
