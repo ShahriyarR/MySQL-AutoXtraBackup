@@ -48,7 +48,7 @@ class RunnerTestMode(GeneralClass):
         socket_file = "--socket={}/sock{}.sock".format(basedir, slave_number)
         port = "--port={}".format(RunnerTestMode.get_free_tcp_port())
         log_error = "--log-error={}/log/node{}".format(basedir, slave_number)
-        server_id = "--server_id={}".format(randint(10, 99))
+        server_id = "--server_id={}".format(randint(10, 999))
         return " ".join([tmpdir, datadir, socket_file, port, log_error, options, server_id])
 
     @staticmethod
