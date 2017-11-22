@@ -472,7 +472,7 @@ class RunnerTestMode(GeneralClass):
                                     self.create_slave_shutdown_file(basedir=basedir, num=2)
 
                                     check_options_2 = "--user={} --socket={}/sock{}.sock".format('root', basedir, 2)
-                                    sleep(10)
+                                    sleep(20)
                                     chk_obj.check_mysql_uptime(options=check_options_2)
 
                                     mysql_slave_client_cmd_2 = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir,
