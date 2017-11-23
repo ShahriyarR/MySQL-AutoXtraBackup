@@ -51,9 +51,9 @@ class RunBenchmark:
             logger.debug("OK: Running -> {}".format(sql))
             return True
         else:
-            logger.error("FAILED: running SQL")
+            logger.error("FAILED: running SQL -> {}".format(sql))
             logger.error(output)
-            raise RuntimeError("FAILED: running SQL")
+            raise RuntimeError("FAILED: running SQL -> {}".format(sql))
 
     def create_db(self, db_name, basedir):
         # Creating DB using mysql client
