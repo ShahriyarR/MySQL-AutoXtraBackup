@@ -64,7 +64,11 @@ class CloneBuildStartServer(TestModeConfCheck):
         for branch in ps_branches:
             new_path = "{}/PS-{}-trunk"
             os.chdir(new_path.format(self.testpath, branch))
-            build_cmd = "{}/percona-qa/build_5.x_debug_{}_for_pxb_tests.sh"
+            if '5.5' in branch:
+                # Use same script with 5.5 and 5.6 versions
+                build_cmd = "{}/percona-qa/build_5.x_debug_5.6_for_pxb_tests.sh"
+            else:
+                build_cmd = "{}/percona-qa/build_5.x_debug_{}_for_pxb_tests.sh"
             logger.debug("Started to build Percon Server from source...")
             status, output = subprocess.getstatusoutput(build_cmd.format(self.testpath, branch))
             if status == 0:
