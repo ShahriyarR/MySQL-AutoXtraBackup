@@ -52,9 +52,10 @@ class WrapperForBackupTest(Backup):
         # for i in range(15, 20):
         #     sql_alter = "alter table sysbench_test_db.sbtest{} engine=tokudb".format(i)
         #     RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter)
-        for i in range(1, 5):
-            sql_alter = "alter table sysbench_test_db.sbtest{} modify c char(120) CHARACTER SET utf8 COLLATE utf8_general50_ci NOT NULL DEFAULT".format(i)
-            RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter)
+        if '5.5' in self.basedir:
+            for i in range(1, 5):
+                sql_alter = "alter table sysbench_test_db.sbtest{} modify c char(120) CHARACTER SET utf8 COLLATE utf8_general50_ci NOT NULL DEFAULT".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter)
 
         flush_tables = "flush tables"
         RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=flush_tables)
