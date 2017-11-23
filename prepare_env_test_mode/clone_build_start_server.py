@@ -82,6 +82,24 @@ class CloneBuildStartServer(TestModeConfCheck):
 
         return True
 
+    def rename_basedirs(self):
+        logger.debug("Renaming basedir folder name...")
+        basedirs = []
+        for root, dirs, files in os.walk(self.testpath):
+            for dir_name in dirs:
+                obj = re.search('PS[0-9]', dir_name)
+                if obj:
+                    basedir_path = "{}/{}"
+                    basedirs.append(basedir_path.format(self.testpath, dir_name))
+        if len(basedirs) > 0:
+            for i in basedirs:
+                os.rename(i, i.replace('-percona-server', ''))
+            return True
+        else:
+            logger.warning("Could not get PS basedir path...")
+            logger.debug("It looks like you should build server first...")
+            return False
+
     def get_basedir(self):
         # Method for getting PS basedir path
         logger.debug("Trying to get basedir path...")
@@ -94,7 +112,7 @@ class CloneBuildStartServer(TestModeConfCheck):
                     basedirs.append(basedir_path.format(self.testpath, dir_name))
                     #return basedir_path.format(self.testpath, dir_name)
         if len(basedirs) > 0:
-            logger.debug("Could get PS basedir path returning...")
+            logger.debug("Could get PS basedir path...")
             return basedirs
         else:
             logger.warning("Could not get PS basedir path...")
