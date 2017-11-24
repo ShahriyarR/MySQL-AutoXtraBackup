@@ -307,6 +307,22 @@ class RunnerTestMode(GeneralClass):
             splitted = parse_me.split('\t')
             return splitted[0], splitted[1][:-1]
 
+    @staticmethod
+    def get_log_file_log_pos_slave(full_backup_dir):
+        """
+        The static method for getting master_log_file and master_log_pos from xtrabackup_binlog_info.
+        Note: for now using this for PS 5.5.
+        :param full_backup_dir: Full backup directory path
+        :return: Tuple of (MASTER_LOG_FILE, MASTER_LOG_POS)
+        """
+        file_name = "{}/{}".format(full_backup_dir, 'xtrabackup_slave_info')
+        with open(file_name, 'r') as slave_info:
+            parse_me = slave_info.readline()
+            splitted = parse_me.split(',')
+            #MASTER_LOG_FILE = splitted[0].split('=')[1].replace("\'", "")
+            #MASTER_LOG_POS = splitted[1].split('=')[1]
+            return splitted[0].split('=')[1].replace("\'", ""), splitted[1].split('=')[1]
+
     def run_change_master(self,
                           basedir,
                           full_backup_dir,
@@ -358,7 +374,12 @@ class RunnerTestMode(GeneralClass):
 
         # Change master
         if '5.5' in basedir:
-            file_pos = self.get_log_file_log_pos(full_backup_dir=full_backup_dir)
+            if is_slave is None:
+                file_pos = self.get_log_file_log_pos(full_backup_dir=full_backup_dir)
+            else:
+                file_pos = self.get_log_file_log_pos_slave(full_backup_dir=full_backup_dir)
+
+            print(file_pos)
             self.run_sql_command(
                 sql_change_master.format(mysql_slave_client_cmd,
                                          '127.0.0.1',
@@ -366,8 +387,7 @@ class RunnerTestMode(GeneralClass):
                                          'Baku12345',
                                          port[7:],
                                          file_pos[0],
-                                         file_pos[1])
-            )
+                                         file_pos[1]))
         else:
             self.run_sql_command(
                 sql_change_master.format(mysql_slave_client_cmd, '127.0.0.1', 'repl', 'Baku12345', port[7:]))
