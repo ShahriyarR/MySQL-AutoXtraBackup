@@ -378,8 +378,6 @@ class RunnerTestMode(GeneralClass):
                 file_pos = self.get_log_file_log_pos(full_backup_dir=full_backup_dir)
             else:
                 file_pos = self.get_log_file_log_pos_slave(full_backup_dir=full_backup_dir)
-
-            print(file_pos)
             self.run_sql_command(
                 sql_change_master.format(mysql_slave_client_cmd,
                                          '127.0.0.1',
