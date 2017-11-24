@@ -329,7 +329,7 @@ class RunnerTestMode(GeneralClass):
             sql_change_master = '{} -e "CHANGE MASTER TO MASTER_HOST=\'{}\', ' \
                             'MASTER_USER=\'{}\', MASTER_PASSWORD=\'{}\', ' \
                             'MASTER_PORT={}, ' \
-                            'MASTER_LOG_FILE={}, ' \
+                            'MASTER_LOG_FILE=\'{}\', ' \
                             'MASTER_LOG_POS={}"'
         else:
             sql_change_master = '{} -e "CHANGE MASTER TO MASTER_HOST=\'{}\', ' \
