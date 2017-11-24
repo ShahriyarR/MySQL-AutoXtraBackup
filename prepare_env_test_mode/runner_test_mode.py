@@ -293,13 +293,45 @@ class RunnerTestMode(GeneralClass):
         with open(file_name, 'r') as slave_info:
             return slave_info.readline()[:-1]
 
+    @staticmethod
+    def get_log_file_log_pos(full_backup_dir):
+        """
+        The static method for getting master_log_file and master_log_pos from xtrabackup_binlog_info.
+        Note: for now using this for PS 5.5.
+        :param full_backup_dir: Full backup directory path
+        :return: Tuple of (MASTER_LOG_FILE, MASTER_LOG_POS)
+        """
+        file_name = "{}/{}".format(full_backup_dir, 'xtrabackup_binlog_info')
+        with open(file_name, 'r') as binlog_file:
+            parse_me = binlog_file.readline()
+            splitted = parse_me.split('\t')
+            return splitted[0], splitted[1][:-1]
+
+    @staticmethod
+    def get_log_file_log_pos_slave(full_backup_dir):
+        """
+        The static method for getting master_log_file and master_log_pos from xtrabackup_binlog_info.
+        Note: for now using this for PS 5.5.
+        :param full_backup_dir: Full backup directory path
+        :return: Tuple of (MASTER_LOG_FILE, MASTER_LOG_POS)
+        """
+        file_name = "{}/{}".format(full_backup_dir, 'xtrabackup_slave_info')
+        with open(file_name, 'r') as slave_info:
+            parse_me = slave_info.readline()
+            splitted = parse_me.split(',')
+            #MASTER_LOG_FILE = splitted[0].split('=')[1].replace("\'", "")
+            #MASTER_LOG_POS = splitted[1].split('=')[1]
+            return splitted[0].split('=')[1].replace("\'", ""), splitted[1].split('=')[1]
+
     def run_change_master(self,
+                          basedir,
                           full_backup_dir,
                           mysql_slave_client_cmd,
                           mysql_master_client_cmd,
                           is_slave=None):
         """
         Method for making ordinary server as slave
+        :param basedir: Basedir path(it is for checking the passed PS version)
         :param full_backup_dir: Full backup directory path
         :param mysql_slave_client_cmd: Slave client string
         :param mysql_master_client_cmd: Master client string
@@ -309,7 +341,14 @@ class RunnerTestMode(GeneralClass):
 
         logger.debug("Started to make this new server as slave...")
         sql_port = "{} -e 'select @@port'"
-        sql_change_master = '{} -e "CHANGE MASTER TO MASTER_HOST=\'{}\', ' \
+        if '5.5' in basedir:
+            sql_change_master = '{} -e "CHANGE MASTER TO MASTER_HOST=\'{}\', ' \
+                            'MASTER_USER=\'{}\', MASTER_PASSWORD=\'{}\', ' \
+                            'MASTER_PORT={}, ' \
+                            'MASTER_LOG_FILE=\'{}\', ' \
+                            'MASTER_LOG_POS={}"'
+        else:
+            sql_change_master = '{} -e "CHANGE MASTER TO MASTER_HOST=\'{}\', ' \
                             'MASTER_USER=\'{}\', MASTER_PASSWORD=\'{}\', ' \
                             'MASTER_PORT={}, MASTER_AUTO_POSITION=1"'
         start_slave = "{} -e 'start slave'"
@@ -320,20 +359,36 @@ class RunnerTestMode(GeneralClass):
         reset_master = "{} -e 'reset master'"
         self.run_sql_command(reset_master.format(mysql_slave_client_cmd))
 
-        if is_slave is None:
-            # Run SET GLOBAL gtid_purged, get from master's xtrabackup_binlog_info
-            gtid_pos = self.get_gtid_address(full_backup_dir=full_backup_dir)
-            gtid_purged = '{} -e \'set global gtid_purged=\"{}\"\''.format(mysql_slave_client_cmd, gtid_pos)
-            self.run_sql_command(gtid_purged)
-        else:
-            # Run SET GLOBAL gtid_purged, get from slave's xtrabackup_slave_info
-            sql_cmd = self.get_gtid_xtrabackup_slave_info(full_backup_dir=full_backup_dir)
-            gtid_purged = '{} -e \"{}\"'.format(mysql_slave_client_cmd, sql_cmd)
-            self.run_sql_command(gtid_purged)
+        if '5.5' not in basedir:
+            if is_slave is None:
+                # Run SET GLOBAL gtid_purged, get from master's xtrabackup_binlog_info
+                gtid_pos = self.get_gtid_address(full_backup_dir=full_backup_dir)
+                gtid_purged = '{} -e \'set global gtid_purged=\"{}\"\''.format(
+                              mysql_slave_client_cmd, gtid_pos)
+                self.run_sql_command(gtid_purged)
+            else:
+                # Run SET GLOBAL gtid_purged, get from slave's xtrabackup_slave_info
+                sql_cmd = self.get_gtid_xtrabackup_slave_info(full_backup_dir=full_backup_dir)
+                gtid_purged = '{} -e \"{}\"'.format(mysql_slave_client_cmd, sql_cmd)
+                self.run_sql_command(gtid_purged)
 
         # Change master
-        self.run_sql_command(
-            sql_change_master.format(mysql_slave_client_cmd, '127.0.0.1', 'repl', 'Baku12345', port[7:]))
+        if '5.5' in basedir:
+            if is_slave is None:
+                file_pos = self.get_log_file_log_pos(full_backup_dir=full_backup_dir)
+            else:
+                file_pos = self.get_log_file_log_pos_slave(full_backup_dir=full_backup_dir)
+            self.run_sql_command(
+                sql_change_master.format(mysql_slave_client_cmd,
+                                         '127.0.0.1',
+                                         'repl',
+                                         'Baku12345',
+                                         port[7:],
+                                         file_pos[0],
+                                         file_pos[1]))
+        else:
+            self.run_sql_command(
+                sql_change_master.format(mysql_slave_client_cmd, '127.0.0.1', 'repl', 'Baku12345', port[7:]))
         # Start Slave
         self.run_sql_command(start_slave.format(mysql_slave_client_cmd))
         # Check Slave output for errors
@@ -411,7 +466,7 @@ class RunnerTestMode(GeneralClass):
                             # Create replication user on master server
                             self.run_sql_create_user(mysql_master_client_cmd)
                             # Drop blank users if PS version is 5.6 from master server
-                            if '5.6' in basedir:
+                            if '5.6' in basedir or '5.5' in basedir:
                                 self.drop_blank_mysql_users(mysql_master_client_cmd)
                             full_backup_dir = prepare_obj.recent_full_backup_file()
                             mysql_slave_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir,
@@ -421,7 +476,8 @@ class RunnerTestMode(GeneralClass):
                             self.create_dsns_table(mysql_master_client_cmd)
 
                             # Running change master and some other commands here
-                            if self.run_change_master(full_backup_dir="{}/{}".format(full_dir, full_backup_dir),
+                            if self.run_change_master(basedir=basedir,
+                                                      full_backup_dir="{}/{}".format(full_dir, full_backup_dir),
                                                       mysql_master_client_cmd=mysql_master_client_cmd,
                                                       mysql_slave_client_cmd=mysql_slave_client_cmd):
                                 sleep(10)
@@ -438,8 +494,12 @@ class RunnerTestMode(GeneralClass):
                                 slave_conf_file = 'xb_2_4_ps_5_7_slave.conf'
                             elif ('5.6' in basedir) and ('2_4_ps_5_6' in self.conf):
                                 slave_conf_file = 'xb_2_4_ps_5_6_slave.conf'
-                            elif ('5.6' in basedir) and ('2_3' in self.conf):
+                            elif ('5.6' in basedir) and ('2_3_ps_5_6' in self.conf):
                                 slave_conf_file = 'xb_2_3_ps_5_6_slave.conf'
+                            elif ('5.5' in basedir) and ('2_3_ps_5_5' in self.conf):
+                                slave_conf_file = 'xb_2_3_ps_5_5_slave.conf'
+                            elif ('5.5' in basedir) and ('2_4_ps_5_5' in self.conf):
+                                slave_conf_file = 'xb_2_4_ps_5_5_slave.conf'
 
                             cnf_obj.generate_config_files(test_path=self.testpath,
                                                           conf_file=slave_conf_file,
@@ -482,7 +542,8 @@ class RunnerTestMode(GeneralClass):
                                     mysql_slave_client_cmd_2 = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir,
                                                                                                              file_name="cl_node{}".format(2))
                                     full_backup_dir_2 = prepare_obj_2.recent_full_backup_file()
-                                    if self.run_change_master(full_backup_dir="{}/{}".format(
+                                    if self.run_change_master(basedir=basedir,
+                                                              full_backup_dir="{}/{}".format(
                                                                               full_dir_2, full_backup_dir_2),
                                                               mysql_master_client_cmd=mysql_master_client_cmd,
                                                               mysql_slave_client_cmd=mysql_slave_client_cmd_2,

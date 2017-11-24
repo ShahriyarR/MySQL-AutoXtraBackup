@@ -42,6 +42,8 @@ class WrapperForBackupTest(Backup):
             for i in range(5, 10):
                 sql_compress = "alter table sysbench_test_db.sbtest{} compression='zlib'".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_compress)
+                sql_optimize = "optimize table sysbench_test_db.sbtest{}".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_optimize)
             # NOTE: PXB will ignore rocksdb tables, which is going to break pt-table-checksum
             # for i in range(10, 15):
             #     sql_alter = "alter table sysbench_test_db.sbtest{} engine=rocksdb".format(i)
@@ -50,6 +52,10 @@ class WrapperForBackupTest(Backup):
         # for i in range(15, 20):
         #     sql_alter = "alter table sysbench_test_db.sbtest{} engine=tokudb".format(i)
         #     RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter)
+        if '5.5' in self.basedir:
+            for i in range(1, 5):
+                sql_alter = "alter table sysbench_test_db.sbtest{} modify c varchar(120) CHARACTER SET utf8 COLLATE utf8_general50_ci".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter)
 
         flush_tables = "flush tables"
         RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=flush_tables)

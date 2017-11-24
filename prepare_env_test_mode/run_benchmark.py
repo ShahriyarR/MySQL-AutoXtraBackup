@@ -51,9 +51,9 @@ class RunBenchmark:
             logger.debug("OK: Running -> {}".format(sql))
             return True
         else:
-            logger.error("FAILED: running SQL")
+            logger.error("FAILED: running SQL -> {}".format(sql))
             logger.error(output)
-            raise RuntimeError("FAILED: running SQL")
+            raise RuntimeError("FAILED: running SQL -> {}".format(sql))
 
     def create_db(self, db_name, basedir):
         # Creating DB using mysql client
@@ -91,7 +91,7 @@ class RunBenchmark:
               "--mysql-socket={} prepare"
 
         logger.debug("Running command -> {}".format(sysbench_cmd.format(1000,
-                                                                        30,
+                                                                        100,
                                                                         db_name,
                                                                         100,
                                                                         sock_name)))
@@ -126,7 +126,7 @@ class RunBenchmark:
                        "--mysql-socket={} run"
 
         logger.debug("Running command -> {}".format(sysbench_cmd.format(1000,
-                                                                        30,
+                                                                        100,
                                                                         db_name,
                                                                         100,
                                                                         sock_name)))

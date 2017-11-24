@@ -203,7 +203,11 @@ def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
                         test_obj.wipe_backup_prepare_copyback(basedir=basedir)
                     elif ('5.6' in basedir) and ('2_4_ps_5_6' in defaults_file):
                         test_obj.wipe_backup_prepare_copyback(basedir=basedir)
-                    elif ('5.6' in basedir) and ('2_3' in defaults_file):
+                    elif ('5.6' in basedir) and ('2_3_ps_5_6' in defaults_file):
+                        test_obj.wipe_backup_prepare_copyback(basedir=basedir)
+                    elif ('5.5' in basedir) and ('2_3_ps_5_5' in defaults_file):
+                        test_obj.wipe_backup_prepare_copyback(basedir=basedir)
+                    elif ('5.5' in basedir) and ('2_4_ps_5_5' in defaults_file):
                         test_obj.wipe_backup_prepare_copyback(basedir=basedir)
                     else:
                         logger.error("Please pass proper already generated config file!")

@@ -50,6 +50,10 @@ class ConfigGenerator(CloneBuildStartServer):
                     config.set(section2, "backupdir", "/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_6_x_2_4")
                 elif ('5.6' in basedir) and ('2_3' in conf_file):
                     config.set(section2, "backupdir", "/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_6_x_2_3")
+                elif ('5.5' in basedir) and ('2_3' in conf_file):
+                    config.set(section2, "backupdir", "/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_5_x_2_3")
+                elif ('5.5' in basedir) and ('2_4' in conf_file):
+                    config.set(section2, "backupdir", "/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_5_x_2_4")
                 if '2_4' in conf_file:
                     config.set(section2, "backup_tool",
                                "{}/target/percona-xtrabackup-2.4.x-debug/bin/xtrabackup".format(test_path))
@@ -145,12 +149,12 @@ class ConfigGenerator(CloneBuildStartServer):
 
                 section8 = "TestConf"
                 config.add_section(section8)
-                config.set(section8, "ps_branches", "5.6 5.7")
+                config.set(section8, "ps_branches", "5.5 5.6 5.7")
                 config.set(section8, "gitcmd",
                                      "--recursive --depth=1 https://github.com/percona/percona-server.git")
                 config.set(section8, "testpath", "/home/shahriyar.rzaev/XB_TEST/server_dir")
                 config.set(section8, "incremental_count", "3")
-                config.set(section8, "xb_configs", "xb_2_4_ps_5_6.conf xb_2_4_ps_5_7.conf xb_2_3_ps_5_6.conf")
+                config.set(section8, "xb_configs", "xb_2_4_ps_5_6.conf xb_2_4_ps_5_7.conf xb_2_3_ps_5_6.conf xb_2_3_ps_5_5.conf xb_2_4_ps_5_5.conf")
                 config.set(section8, "make_slaves", "1")
                 if '5_7' in conf_file:
                     config.set(section8, "default_mysql_options",
@@ -158,15 +162,24 @@ class ConfigGenerator(CloneBuildStartServer):
                                          "--keyring_file_data={}/mysql-keyring/keyring,"
                                          "--log-bin=mysql-bin,--log-slave-updates,--server-id={},"
                                          "--gtid-mode=ON,--enforce-gtid-consistency,--binlog-format=row")
-                else:
+                elif '5_6' in conf_file:
                     config.set(section8, "default_mysql_options",
                                          "--log-bin=mysql-bin,--log-slave-updates,--server-id={},"
                                          "--gtid-mode=ON,--enforce-gtid-consistency,--binlog-format=row")
+                elif '5_5' in conf_file:
+                    config.set(section8, "default_mysql_options",
+                               "--log-bin=mysql-bin,--log-slave-updates,--server-id={},"
+                               "--binlog-format=row")
+
                 if '5_7' in conf_file:
                     config.set(section8, "mysql_options",
                                          "--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,"
                                          "--innodb_page_size=4K 8K 16K 32K")
-                else:
+                elif '5_6' in conf_file:
+                    config.set(section8, "mysql_options",
+                                         "--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,"
+                                         "--innodb_page_size=4K 8K 16K")
+                elif '5_5' in conf_file:
                     config.set(section8, "mysql_options",
                                          "--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,"
                                          "--innodb_page_size=4K 8K 16K")
@@ -201,7 +214,19 @@ class ConfigGenerator(CloneBuildStartServer):
                                                basedir=basedir,
                                                datadir='data',
                                                sock_file=self.benchmark_obj.get_sock(basedir=basedir))
-                elif ('5.6' in basedir) and ('2_3' in conf_file):
+                elif ('5.6' in basedir) and ('2_3_ps_5_6' in conf_file):
+                    self.generate_config_files(test_path=self.testpath,
+                                               conf_file=conf_file,
+                                               basedir=basedir,
+                                               datadir='data',
+                                               sock_file=self.benchmark_obj.get_sock(basedir=basedir))
+                elif ('5.5' in basedir) and ('2_4_ps_5_5' in conf_file):
+                    self.generate_config_files(test_path=self.testpath,
+                                               conf_file=conf_file,
+                                               basedir=basedir,
+                                               datadir='data',
+                                               sock_file=self.benchmark_obj.get_sock(basedir=basedir))
+                elif ('5.5' in basedir) and ('2_3_ps_5_5' in conf_file):
                     self.generate_config_files(test_path=self.testpath,
                                                conf_file=conf_file,
                                                basedir=basedir,

@@ -15,8 +15,12 @@ class TestCloneBuildStartServer:
     def test_build_server(self, return_clone_obj):
         assert return_clone_obj.build_server() is True
 
+    def test_rename_basedirs(self, return_clone_obj):
+        assert return_clone_obj.rename_basedirs() is True
+
     def test_get_basedir(self, return_clone_obj):
         assert isinstance(return_clone_obj.get_basedir(), list)
+        assert len(return_clone_obj.get_basedir()) > 0
 
     @pytest.mark.usefixtures("return_basedir")
     def test_prepare_startup(self, return_clone_obj, return_basedir):
