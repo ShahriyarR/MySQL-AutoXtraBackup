@@ -476,8 +476,12 @@ class RunnerTestMode(GeneralClass):
                                 slave_conf_file = 'xb_2_4_ps_5_7_slave.conf'
                             elif ('5.6' in basedir) and ('2_4_ps_5_6' in self.conf):
                                 slave_conf_file = 'xb_2_4_ps_5_6_slave.conf'
-                            elif ('5.6' in basedir) and ('2_3' in self.conf):
+                            elif ('5.6' in basedir) and ('2_3_ps_5_6' in self.conf):
                                 slave_conf_file = 'xb_2_3_ps_5_6_slave.conf'
+                            elif ('5.5' in basedir) and ('2_3_ps_5_5' in self.conf):
+                                slave_conf_file = 'xb_2_3_ps_5_5_slave.conf'
+                            elif ('5.5' in basedir) and ('2_4_ps_5_5' in self.conf):
+                                slave_conf_file = 'xb_2_4_ps_5_5_slave.conf'
 
                             cnf_obj.generate_config_files(test_path=self.testpath,
                                                           conf_file=slave_conf_file,
