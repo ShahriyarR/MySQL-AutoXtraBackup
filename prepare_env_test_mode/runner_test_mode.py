@@ -448,7 +448,7 @@ class RunnerTestMode(GeneralClass):
                             # Create replication user on master server
                             self.run_sql_create_user(mysql_master_client_cmd)
                             # Drop blank users if PS version is 5.6 from master server
-                            if '5.6' in basedir:
+                            if '5.6' in basedir or '5.5' in basedir:
                                 self.drop_blank_mysql_users(mysql_master_client_cmd)
                             full_backup_dir = prepare_obj.recent_full_backup_file()
                             mysql_slave_client_cmd = RunBenchmark(config=self.conf).get_mysql_conn(basedir=basedir,
