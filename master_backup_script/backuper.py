@@ -438,7 +438,10 @@ class Backup(GeneralClass):
                     raise RuntimeError("xtrabackup: error: compressed and encrypted backups are "
                                        "incompatible with the 'tar' streaming format. Use --stream=xbstream instead.")
             elif hasattr(self, 'stream') and self.stream == 'tar':
-                untar_cmd = "tar -xf {}/{}/full_backup.tar".format(self.full_dir, recent_bck)
+                untar_cmd = "tar -xf {}/{}/full_backup.tar -C {}/{}".format(self.full_dir,
+                                                                            recent_bck,
+                                                                            self.full_dir,
+                                                                            recent_bck)
                 logger.debug("The following tar command will be executed -> {}".format(untar_cmd))
                 if self.dry == 0 and isfile("{}/{}/full_backup.tar".format(self.full_dir, recent_bck)):
                     status, output = subprocess.getstatusoutput(untar_cmd)
