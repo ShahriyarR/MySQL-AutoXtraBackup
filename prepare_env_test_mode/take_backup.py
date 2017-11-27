@@ -59,7 +59,7 @@ class WrapperForBackupTest(Backup):
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_json_column)
                 sql_alter_add_index = "alter table sysbench_test_db.sbtest{} add index(json_test_index)".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_add_index)
-                sql_alter_tablespace = "alter table sysbench_test_db.sbtest{} tablespace=ts1"
+                sql_alter_tablespace = "alter table sysbench_test_db.sbtest{} tablespace=ts1".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_tablespace)
             # NOTE: PXB will ignore rocksdb tables, which is going to break pt-table-checksum
             # for i in range(10, 15):
