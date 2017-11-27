@@ -250,10 +250,11 @@ class Backup(GeneralClass):
         logger.debug(str(cp.stdout.read()))
 
     def full_backup(self):
-        '''
+        """
         Method for taking full backups. It will construct the backup command based on config file.
-        :return: True on success, raise RuntimeError on error.
-        '''
+        :return: True on success.
+        :raise:  RuntimeError on error.
+        """
         full_backup_dir = self.create_backup_directory(self.full_dir)
 
         # Taking Full backup
@@ -349,11 +350,11 @@ class Backup(GeneralClass):
                 raise RuntimeError("FAILED: FULL BACKUP")
 
     def inc_backup(self):
-        '''
+        """
         Method for taking incremental backups.
-        :return: True if success
-        :raise: RuntimeError on error
-        '''
+        :return: True on success.
+        :raise: RuntimeError on error.
+        """
         # Get the recent full backup path
         recent_bck = self.recent_full_backup_file()
         # Get the recent incremental backup path
@@ -406,6 +407,15 @@ class Backup(GeneralClass):
             if hasattr(self, 'encrypt_chunk_size'):
                 args += " --encrypt-chunk-size={}".format(self.encrypt_chunk_size)
 
+            # Check here if stream=tar enabled.
+            # Because it is impossible to take incremental backup with streaming tar.
+            # raise RuntimeError.
+            if hasattr(self, 'stream') and self.stream == 'tar':
+                logger.error("xtrabackup: error: streaming incremental backups are incompatible with the "
+                             "'tar' streaming format. Use --stream=xbstream instead.")
+                raise RuntimeError("xtrabackup: error: streaming incremental backups are incompatible with the "
+                                   "'tar' streaming format. Use --stream=xbstream instead.")
+
             # Extract and decrypt streamed full backup prior to executing incremental backup
             if hasattr(self, 'stream') and self.stream == 'xbstream' \
                     and hasattr(self, 'encrypt') and hasattr(self, 'xbs_decrypt'):
@@ -431,26 +441,26 @@ class Backup(GeneralClass):
                         logger.error("FAILED: XBSTREAM COMMAND")
                         logger.error(output)
                         raise RuntimeError("FAILED: XBSTREAM COMMAND")
-            elif hasattr(self, 'stream') and self.stream == 'tar' \
-                    and (hasattr(self, 'encrypt') or hasattr(self, 'compress')):
-                    logger.error("xtrabackup: error: compressed and encrypted backups are "
-                                 "incompatible with the 'tar' streaming format")
-                    raise RuntimeError("xtrabackup: error: compressed and encrypted backups are "
-                                       "incompatible with the 'tar' streaming format. Use --stream=xbstream instead.")
-            elif hasattr(self, 'stream') and self.stream == 'tar':
-                untar_cmd = "tar -xf {}/{}/full_backup.tar -C {}/{}".format(self.full_dir,
-                                                                            recent_bck,
-                                                                            self.full_dir,
-                                                                            recent_bck)
-                logger.debug("The following tar command will be executed -> {}".format(untar_cmd))
-                if self.dry == 0 and isfile("{}/{}/full_backup.tar".format(self.full_dir, recent_bck)):
-                    status, output = subprocess.getstatusoutput(untar_cmd)
-                    if status == 0:
-                        logger.debug("OK: extracting full backup from tar.")
-                    else:
-                        logger.error("FAILED: extracting full backup from tar")
-                        logger.error(output)
-                        raise RuntimeError("FAILED: extracting full backup from tar")
+            # elif hasattr(self, 'stream') and self.stream == 'tar' \
+            #         and (hasattr(self, 'encrypt') or hasattr(self, 'compress')):
+            #         logger.error("xtrabackup: error: compressed and encrypted backups are "
+            #                      "incompatible with the 'tar' streaming format")
+            #         raise RuntimeError("xtrabackup: error: compressed and encrypted backups are "
+            #                            "incompatible with the 'tar' streaming format. Use --stream=xbstream instead.")
+            # elif hasattr(self, 'stream') and self.stream == 'tar':
+            #     untar_cmd = "tar -xf {}/{}/full_backup.tar -C {}/{}".format(self.full_dir,
+            #                                                                 recent_bck,
+            #                                                                 self.full_dir,
+            #                                                                 recent_bck)
+            #     logger.debug("The following tar command will be executed -> {}".format(untar_cmd))
+            #     if self.dry == 0 and isfile("{}/{}/full_backup.tar".format(self.full_dir, recent_bck)):
+            #         status, output = subprocess.getstatusoutput(untar_cmd)
+            #         if status == 0:
+            #             logger.debug("OK: extracting full backup from tar.")
+            #         else:
+            #             logger.error("FAILED: extracting full backup from tar")
+            #             logger.error(output)
+            #             raise RuntimeError("FAILED: extracting full backup from tar")
 
             # Extract streamed full backup prior to executing incremental backup
             elif hasattr(self, 'stream') and self.stream == 'xbstream':
@@ -518,17 +528,11 @@ class Backup(GeneralClass):
                 args += '--stream="{}"'.format(self.stream)
                 args += " > {}/inc_backup.stream".format(inc_backup_dir)
                 logger.warning("Streaming xbstream is enabled!")
-            elif hasattr(self, 'stream') and self.stream == 'tar' and \
-                    (hasattr(self, 'encrypt') or hasattr(self, 'compress')):
-                logger.error("xtrabackup: error: compressed and encrypted backups are "
-                             "incompatible with the 'tar' streaming format. Use --stream=xbstream instead.")
-                raise RuntimeError("xtrabackup: error: compressed and encrypted backups are "
-                                   "incompatible with the 'tar' streaming format. Use --stream=xbstream instead.")
             elif hasattr(self, 'stream') and self.stream == 'tar':
-                args += " "
-                args += '--stream="{}"'.format(self.stream)
-                args += " > {}/inc_backup.tar".format(inc_backup_dir)
-                logger.warning("Streaming tar is enabled!")
+                logger.error("xtrabackup: error: streaming incremental backups are incompatible with the "
+                             "'tar' streaming format. Use --stream=xbstream instead.")
+                raise RuntimeError("xtrabackup: error: streaming incremental backups are incompatible with the "
+                                   "'tar' streaming format. Use --stream=xbstream instead.")
 
             logger.debug("The following backup command will be executed {}".format(args))
             if self.dry == 0:
@@ -588,6 +592,15 @@ class Backup(GeneralClass):
                 args += " --encrypt-threads={}".format(self.encrypt_threads)
             if hasattr(self, 'encrypt_chunk_size'):
                 args += " --encrypt-chunk-size={}".format(self.encrypt_chunk_size)
+
+            # Check here if stream=tar enabled.
+            # Because it is impossible to take incremental backup with streaming tar.
+            # raise RuntimeError.
+            if hasattr(self, 'stream') and self.stream == 'tar':
+                logger.error("xtrabackup: error: streaming incremental backups are incompatible with the "
+                             "'tar' streaming format. Use --stream=xbstream instead.")
+                raise RuntimeError("xtrabackup: error: streaming incremental backups are incompatible with the "
+                                   "'tar' streaming format. Use --stream=xbstream instead.")
 
             # Extract and decrypt streamed full backup prior to executing incremental backup
             if hasattr(self, 'stream') \
