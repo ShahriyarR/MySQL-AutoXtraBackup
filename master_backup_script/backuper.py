@@ -311,11 +311,16 @@ class Backup(GeneralClass):
             logger.warning("Partial Backup is enabled!")
 
         # Checking if streaming enabled for backups
-        if hasattr(self, 'stream'):
+        if hasattr(self, 'stream') and self.stream == 'xbstream':
             args += " "
             args += '--stream="{}"'.format(self.stream)
             args += " > {}/full_backup.stream".format(full_backup_dir)
-            logger.warning("Streaming is enabled!")
+            logger.warning("Streaming xbstream is enabled!")
+        elif hasattr(self, 'stream') and self.stream == 'tar':
+            args += " "
+            args += '--stream="{}"'.format(self.stream)
+            args += " > {}/full_backup.tar".format(full_backup_dir)
+            logger.warning("Streaming tar is enabled!")
 
         logger.debug("The following backup command will be executed {}".format(args))
 
@@ -340,7 +345,8 @@ class Backup(GeneralClass):
     def inc_backup(self):
         '''
         Method for taking incremental backups.
-        :return:
+        :return: True if success
+        :raise: RuntimeError on error
         '''
         # Get the recent full backup path
         recent_bck = self.recent_full_backup_file()
@@ -395,7 +401,8 @@ class Backup(GeneralClass):
                 args += " --encrypt-chunk-size={}".format(self.encrypt_chunk_size)
 
             # Extract and decrypt streamed full backup prior to executing incremental backup
-            if hasattr(self, 'stream') and hasattr(self, 'encrypt') and hasattr(self, 'xbs_decrypt'):
+            if hasattr(self, 'stream') and self.stream == 'xbstream' \
+                    and hasattr(self, 'encrypt') and hasattr(self, 'xbs_decrypt'):
                 logger.debug("Using xbstream to extract and decrypt from full_backup.stream!")
                 xbstream_command = "{} {} --decrypt={} --encrypt-key={} --encrypt-threads={} " \
                                    "< {}/{}/full_backup.stream -C {}/{}".format(
@@ -418,6 +425,9 @@ class Backup(GeneralClass):
                         logger.error("FAILED: XBSTREAM COMMAND")
                         logger.error(output)
                         raise RuntimeError("FAILED: XBSTREAM COMMAND")
+            elif hasattr(self, 'stream') and self.stream == 'tar':
+                # TODO: implement untar + decrypt here
+                pass
 
             # Extract streamed full backup prior to executing incremental backup
             elif hasattr(self, 'stream'):
