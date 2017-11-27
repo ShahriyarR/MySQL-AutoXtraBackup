@@ -44,6 +44,23 @@ class WrapperForBackupTest(Backup):
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_compress)
                 sql_optimize = "optimize table sysbench_test_db.sbtest{}".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_optimize)
+
+            general_tablespace = "create tablespace ts1 add datafile 'ts1.ibd' engine=innodb"
+            RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=general_tablespace)
+
+            for i in range(10, 15):
+                sql_encrypt = "alter table sysbench_test_db.sbtest{} encryption='Y'".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_encrypt)
+                sql_virtual_column = "alter table sysbench_test_db.sbtest{} add column json_test_v json generated always as (json_array(k,c,pad)) virtual".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_virtual_column)
+                sql_stored_column = "alter table sysbench_test_db.sbtest{} add column json_test_s json generated always as (json_array(k,c,pad)) stored".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_stored_column)
+                sql_create_json_column = "alter table sysbench_test_db.sbtest{} add column json_test_index varchar(255) generated always as (json_array(k,c,pad)) stored".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_json_column)
+                sql_alter_add_index = "alter table sysbench_test_db.sbtest{} add index(json_test_index)".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_add_index)
+                sql_alter_tablespace = "alter table sysbench_test_db.sbtest{} tablespace=ts1"
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_tablespace)
             # NOTE: PXB will ignore rocksdb tables, which is going to break pt-table-checksum
             # for i in range(10, 15):
             #     sql_alter = "alter table sysbench_test_db.sbtest{} engine=rocksdb".format(i)
