@@ -49,8 +49,6 @@ class WrapperForBackupTest(Backup):
             RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=general_tablespace)
 
             for i in range(10, 15):
-                sql_encrypt = "alter table sysbench_test_db.sbtest{} encryption='Y'".format(i)
-                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_encrypt)
                 sql_virtual_column = "alter table sysbench_test_db.sbtest{} add column json_test_v json generated always as (json_array(k,c,pad)) virtual".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_virtual_column)
                 sql_stored_column = "alter table sysbench_test_db.sbtest{} add column json_test_s json generated always as (json_array(k,c,pad)) stored".format(i)
