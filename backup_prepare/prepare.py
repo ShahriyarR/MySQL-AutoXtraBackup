@@ -420,9 +420,24 @@ class Prepare(GeneralClass):
     ##########################################################################
 
     def prepare_only_full_backup(self):
-        if self.recent_full_backup_file():
+        recent_bck = self.recent_full_backup_file()
+        if recent_bck:
             if self.check_inc_backups() == 0:
                 logger.debug("- - - - Preparing Full Backup - - - -")
+                if hasattr(self, 'stream') and self.stream == 'tar':
+                    untar_cmd = "tar -xf {}/{}/full_backup.tar -C {}/{}".format(self.full_dir,
+                                                                                recent_bck,
+                                                                                self.full_dir,
+                                                                                recent_bck)
+                logger.debug("The following tar command will be executed -> {}".format(untar_cmd))
+                if self.dry == 0 and isfile("{}/{}/full_backup.tar".format(self.full_dir, recent_bck)):
+                    status, output = subprocess.getstatusoutput(untar_cmd)
+                    if status == 0:
+                        logger.debug("OK: extracting full backup from tar.")
+                    else:
+                        logger.error("FAILED: extracting full backup from tar")
+                        logger.error(output)
+                        raise RuntimeError("FAILED: extracting full backup from tar")
 
                 # Extract and decrypt streamed full backup prior to executing incremental backup
                 if hasattr(self, 'stream')  \
@@ -437,13 +452,13 @@ class Prepare(GeneralClass):
                                            self.encrypt_key,
                                            self.encrypt_threads,
                                            self.full_dir,
-                                           self.recent_full_backup_file(),
+                                           recent_bck,
                                            self.full_dir,
-                                           self.recent_full_backup_file())
+                                           recent_bck)
 
                     logger.debug("The following xbstream command will be executed {}".format(xbstream_command))
                     if self.dry == 0 and isfile("{}/{}/full_backup.stream".format(
-                                                self.full_dir, self.recent_full_backup_file())):
+                                                self.full_dir, recent_bck)):
                         status, output = subprocess.getstatusoutput(xbstream_command)
                         if status == 0:
                             logger.debug("OK: XBSTREAM command succeeded.")
@@ -459,14 +474,14 @@ class Prepare(GeneralClass):
                                         self.xbstream,
                                         self.xbstream_options,
                                         self.full_dir,
-                                        self.recent_full_backup_file(),
+                                        recent_bck,
                                         self.full_dir,
-                                        self.recent_full_backup_file())
+                                        recent_bck)
 
                     logger.debug("The following xbstream command will be executed {}".format(xbstream_command))
 
                     if self.dry == 0 and isfile("{}/{}/full_backup.stream".format(
-                                                self.full_dir, self.recent_full_backup_file())):
+                                                self.full_dir, recent_bck)):
                         status, output = subprocess.getstatusoutput(xbstream_command)
                         if status == 0:
                             logger.debug("OK: XBSTREAM command succeeded.")
@@ -483,14 +498,14 @@ class Prepare(GeneralClass):
                                 self.decrypt,
                                 self.encrypt_key,
                                 self.full_dir,
-                                self.recent_full_backup_file())
+                                recent_bck)
                     else:
                         decr = "{} --decrypt={} --encrypt-key={} --target-dir={}/{}".format(
                                  self.backup_tool,
                                  self.decrypt,
                                  self.encrypt_key,
                                  self.full_dir,
-                                 self.recent_full_backup_file())
+                                 recent_bck)
                     logger.debug("Trying to decrypt backup")
                     logger.debug("Running decrypt command -> {}".format(decr))
                     if self.dry == 0:
@@ -510,13 +525,13 @@ class Prepare(GeneralClass):
                                  self.backup_tool,
                                  self.decompress,
                                  self.full_dir,
-                                 self.recent_full_backup_file())
+                                 recent_bck)
                     else:
                         decmp = "{} --decompress={} --target-dir={}/{} --remove-original".format(
                                  self.backup_tool,
                                  self.decompress,
                                  self.full_dir,
-                                 self.recent_full_backup_file())
+                                 recent_bck)
                     logger.debug("Trying to decompress backup")
                     logger.debug("Running decompress command -> {}".format(decmp))
                     if self.dry == 0:
@@ -533,7 +548,7 @@ class Prepare(GeneralClass):
                 args = "{} --prepare --target-dir={}/{}".format(
                         self.backup_tool,
                         self.full_dir,
-                        self.recent_full_backup_file())
+                        recent_bck)
 
                 # Checking if extra options were passed:
                 if hasattr(self, 'xtra_options'):
