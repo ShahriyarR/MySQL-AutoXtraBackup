@@ -429,18 +429,18 @@ class Prepare(GeneralClass):
                                                                                 recent_bck,
                                                                                 self.full_dir,
                                                                                 recent_bck)
-                logger.debug("The following tar command will be executed -> {}".format(untar_cmd))
-                if self.dry == 0 and isfile("{}/{}/full_backup.tar".format(self.full_dir, recent_bck)):
-                    status, output = subprocess.getstatusoutput(untar_cmd)
-                    if status == 0:
-                        logger.debug("OK: extracting full backup from tar.")
-                    else:
-                        logger.error("FAILED: extracting full backup from tar")
-                        logger.error(output)
-                        raise RuntimeError("FAILED: extracting full backup from tar")
+                    logger.debug("The following tar command will be executed -> {}".format(untar_cmd))
+                    if self.dry == 0 and isfile("{}/{}/full_backup.tar".format(self.full_dir, recent_bck)):
+                        status, output = subprocess.getstatusoutput(untar_cmd)
+                        if status == 0:
+                            logger.debug("OK: extracting full backup from tar.")
+                        else:
+                            logger.error("FAILED: extracting full backup from tar")
+                            logger.error(output)
+                            raise RuntimeError("FAILED: extracting full backup from tar")
 
                 # Extract and decrypt streamed full backup prior to executing incremental backup
-                if hasattr(self, 'stream')  \
+                if hasattr(self, 'stream') and self.stream == 'xbstream' \
                         and hasattr(self, 'encrypt') \
                         and hasattr(self, 'xbs_decrypt'):
                     logger.debug("Using xbstream to extract and decrypt from full_backup.stream!")
@@ -468,7 +468,7 @@ class Prepare(GeneralClass):
                             raise RuntimeError("FAILED: XBSTREAM command.")
 
                 # Extract streamed full backup prior to executing incremental backup
-                elif hasattr(self, 'stream'):
+                elif hasattr(self, 'stream') and self.stream == 'xbstream':
                     logger.debug("Using xbstream to extract from full_backup.stream!")
                     xbstream_command = "{} {} < {}/{}/full_backup.stream -C {}/{}".format(
                                         self.xbstream,
