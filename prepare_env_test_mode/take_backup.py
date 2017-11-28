@@ -19,7 +19,7 @@ class WrapperForBackupTest(Backup):
         # Method for taking backups using master_backup_script.backuper.py::all_backup()
         RunBenchmark().run_sysbench_prepare(basedir=self.basedir)
         if '5.7' in self.basedir:
-            sql_create_dictionary = "CREATE COMPRESSION_DICTIONARY numbers(08566691963-88624912351-16662227201-46648573979-64646226163-77505759394-75470094713-41097360717-15161106334-50535565977')"
+            sql_create_dictionary = "CREATE COMPRESSION_DICTIONARY numbers('08566691963-88624912351-16662227201-46648573979-64646226163-77505759394-75470094713-41097360717-15161106334-50535565977')"
             RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_dictionary)
             for i in range(1, 5):
                 sql_encrypt = "alter table sysbench_test_db.sbtest{} encryption='Y'".format(i)
