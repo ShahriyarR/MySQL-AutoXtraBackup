@@ -19,8 +19,8 @@ class WrapperForBackupTest(Backup):
         # Method for taking backups using master_backup_script.backuper.py::all_backup()
         RunBenchmark().run_sysbench_prepare(basedir=self.basedir)
         if '5.7' in self.basedir:
-            sql_create_dictionary = "CREATE COMPRESSION_DICTIONARY numbers('08566691963-88624912351-16662227201-46648573979-64646226163-77505759394-75470094713-41097360717-15161106334-50535565977')"
-            RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_dictionary)
+            # sql_create_dictionary = "CREATE COMPRESSION_DICTIONARY numbers('08566691963-88624912351-16662227201-46648573979-64646226163-77505759394-75470094713-41097360717-15161106334-50535565977')"
+            # RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_dictionary)
             for i in range(1, 5):
                 sql_encrypt = "alter table sysbench_test_db.sbtest{} encryption='Y'".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_encrypt)
@@ -43,16 +43,16 @@ class WrapperForBackupTest(Backup):
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_add_index)
                 # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/205
                 # Adding compression column with predefined dictionary.
-                sql_alter_compression_dict = "alter table sysbench_test_db.sbtest{} modify c varchar(250) column_format compressed with compression_dictionary numbers".format(i)
-                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_compression_dict)
+                # sql_alter_compression_dict = "alter table sysbench_test_db.sbtest{} modify c varchar(250) column_format compressed with compression_dictionary numbers".format(i)
+                # RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_compression_dict)
 
             for i in range(5, 10):
                 sql_compress = "alter table sysbench_test_db.sbtest{} compression='zlib'".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_compress)
                 sql_optimize = "optimize table sysbench_test_db.sbtest{}".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_optimize)
-                sql_alter_compression_dict = "alter table sysbench_test_db.sbtest{} modify c varchar(250) column_format compressed with compression_dictionary numbers".format(i)
-                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_compression_dict)
+                # sql_alter_compression_dict = "alter table sysbench_test_db.sbtest{} modify c varchar(250) column_format compressed with compression_dictionary numbers".format(i)
+                # RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_compression_dict)
 
             general_tablespace = "create tablespace ts1 add datafile 'ts1.ibd' engine=innodb"
             RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=general_tablespace)
@@ -70,8 +70,8 @@ class WrapperForBackupTest(Backup):
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_add_index)
                 sql_alter_tablespace = "alter table sysbench_test_db.sbtest{} tablespace=ts1".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_tablespace)
-                sql_alter_compression_dict = "alter table sysbench_test_db.sbtest{} modify c varchar(250) column_format compressed with compression_dictionary numbers".format(i)
-                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_compression_dict)
+                # sql_alter_compression_dict = "alter table sysbench_test_db.sbtest{} modify c varchar(250) column_format compressed with compression_dictionary numbers".format(i)
+                # RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_compression_dict)
             # NOTE: PXB will ignore rocksdb tables, which is going to break pt-table-checksum
             # for i in range(10, 15):
             #     sql_alter = "alter table sysbench_test_db.sbtest{} engine=rocksdb".format(i)
