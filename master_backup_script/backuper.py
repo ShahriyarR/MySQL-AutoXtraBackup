@@ -43,7 +43,7 @@ class Backup(GeneralClass):
         :return: True if no exception
         """
         with open('{}/backup_tags.txt'.format(backup_dir), 'a') as bcktags:
-            bcktags.write("{0}\t{1}\t{2}\t'{3}'\t'{4}'\n".format(backup_name, type, backup_status, backup_end_time, tag_string))
+            bcktags.write("{0}\t{1}\t{2}\t{3}\t'{4}'\n".format(backup_name, type, backup_status, backup_end_time, tag_string))
 
         return True
 
@@ -52,7 +52,11 @@ class Backup(GeneralClass):
         if os.path.isfile("{}/backup_tags.txt".format(backup_dir)):
             with open('{}/backup_tags.txt'.format(backup_dir), 'r') as bcktags:
                 from_file = bcktags.read()
-            column_names = "{0}\t{1}\t{2}\tTAG\n".format("Backup".ljust(19), "Type".ljust(4), "Status".ljust(2))
+            column_names = "{0}\t{1}\t{2}\t{3}\tTAG\n".format(
+                "Backup".ljust(19),
+                "Type".ljust(4),
+                "Status".ljust(2),
+                "Completion time")
             extra_str = "{}\n".format("-"*(len(column_names)+7))
             print(column_names + extra_str + from_file)
         else:
