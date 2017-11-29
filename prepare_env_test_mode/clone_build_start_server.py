@@ -43,10 +43,13 @@ class CloneBuildStartServer(TestModeConfCheck):
         # Clone PS server[the value coming from config file]
         ps_branches = self.ps_branches.split()
         for branch in ps_branches:
-            clone_cmd = "git clone {} -b {} {}/PS-{}-trunk"
+            if branch != '5.5':
+                clone_cmd = "git clone {} -b {} {}/PS-{}-trunk".format(self.gitcmd, branch, self.testpath, branch)
+            else:
+                clone_cmd = "git clone {} -b {} {}/PS-{}-trunk".format(self.gitcmd.split()[-1], branch, self.testpath, branch)
             if not os.path.exists("{}/PS-{}-trunk".format(self.testpath, branch)):
                 logger.debug("Started to clone Percona Server...")
-                status, output = subprocess.getstatusoutput(clone_cmd.format(self.gitcmd, branch, self.testpath, branch))
+                status, output = subprocess.getstatusoutput(clone_cmd)
                 if status == 0:
                     logger.debug("PS-{} cloned ready to build".format(branch))
                 else:
