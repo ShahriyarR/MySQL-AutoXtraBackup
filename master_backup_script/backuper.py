@@ -32,20 +32,49 @@ class Backup(GeneralClass):
         super().__init__(self.conf)
 
     @staticmethod
-    def add_tag(backup_dir, backup_name, type, backup_end_time, tag_string, backup_status):
+    def add_tag(backup_dir,
+                backup_name,
+                backup_type,
+                backup_end_time,
+                backup_size,
+                tag_string,
+                backup_status):
         """
         Static method for adding backup tags
         :param backup_dir: The backup dir path
         :param backup_name: The backup name(timestamped)
-        :param type: The backup type - Full/Inc
+        :param backup_type: The backup type - Full/Inc
+        :param backup_end_time: The backup completion time
+        :param backup_size: The size of the backup in human readable format
         :param tag_string: The passed tag string
         :param backup_status: Status: OK or Status: Failed
         :return: True if no exception
         """
         with open('{}/backup_tags.txt'.format(backup_dir), 'a') as bcktags:
-            bcktags.write("{0}\t{1}\t{2}\t{3}\t'{4}'\n".format(backup_name, type, backup_status, backup_end_time, tag_string))
+            bcktags.write("{0}\t{1}\t{2}\t{3}\t{4}\t'{5}'\n".format(backup_name,
+                                                                    backup_type,
+                                                                    backup_status,
+                                                                    backup_end_time,
+                                                                    backup_size,
+                                                                    tag_string))
 
         return True
+
+    @staticmethod
+    def get_folder_size(path):
+        """
+        Static method to calculate given folder size. Using 'du' command here.
+        :param path: The full path to be calculated
+        :return: String with human readable size info, for eg, 5.3M
+        """
+        du_cmd = 'du -hs {}'.format(path)
+        status, output = subprocess.getstatusoutput(du_cmd)
+        if status == 0:
+            return output.split()[0]
+        else:
+            logger.error("Failed to get the folder size")
+            return False
+
 
     @staticmethod
     def show_tags(backup_dir):
@@ -65,21 +94,21 @@ class Backup(GeneralClass):
 
     @staticmethod
     def sorted_ls(path):
-        '''
+        """
         Static Method for sorting given path
         :param path: Directory path
         :return: The list of sorted directories
-        '''
+        """
         mtime = lambda f: os.stat(os.path.join(path, f)).st_mtime
         return list(sorted(os.listdir(path), key=mtime))
 
     @staticmethod
     def get_directory_size(path):
-        '''
+        """
         Calculate total size of given directory path
         :param path: Directory path
         :return: Total size of directory
-        '''
+        """
         total_size = 0
         for dirpath, dirnames, filenames in os.walk(path):
             for f in filenames:
@@ -88,10 +117,10 @@ class Backup(GeneralClass):
         return total_size
 
     def last_full_backup_date(self):
-        '''
+        """
         Check if last full backup date retired or not.
         :return: 1 if last full backup date older than given interval, 0 if it is newer.
-        '''
+        """
         # Finding last full backup date from dir/folder name
 
         max_dir = self.recent_full_backup_file()
@@ -107,11 +136,11 @@ class Backup(GeneralClass):
 
     @staticmethod
     def create_backup_directory(directory):
-        '''
+        """
         Static method for creating timestamped directory on given path
         :param directory: Directory path
         :return: Created new directory path
-        '''
+        """
         new_backup_dir = join(directory, datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
         try:
             # Creating backup directory
@@ -346,8 +375,9 @@ class Backup(GeneralClass):
                     completion_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
                     self.add_tag(backup_dir=self.backupdir,
                                  backup_name=self.recent_full_backup_file(),
-                                 type='Full',
+                                 backup_type='Full',
                                  backup_end_time=completion_time,
+                                 backup_size=self.get_folder_size(full_backup_dir),
                                  tag_string=self.tag,
                                  backup_status='OK')
                 return True
@@ -359,8 +389,9 @@ class Backup(GeneralClass):
                     completion_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
                     self.add_tag(backup_dir=self.backupdir,
                                  backup_name=self.recent_full_backup_file(),
-                                 type='Full',
+                                 backup_type='Full',
                                  backup_end_time=completion_time,
+                                 backup_size=self.get_folder_size(full_backup_dir),
                                  tag_string=self.tag,
                                  backup_status='FAILED')
                 raise RuntimeError("FAILED: FULL BACKUP")
@@ -561,7 +592,7 @@ class Backup(GeneralClass):
                         completion_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
                         self.add_tag(backup_dir=self.backupdir,
                                      backup_name=self.recent_inc_backup_file(),
-                                     type='Inc',
+                                     backup_type='Inc',
                                      backup_end_time=completion_time,
                                      tag_string=self.tag,
                                      backup_status='OK')
@@ -574,7 +605,7 @@ class Backup(GeneralClass):
                         completion_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
                         self.add_tag(backup_dir=self.backupdir,
                                      backup_name=self.recent_inc_backup_file(),
-                                     type='Inc',
+                                     backup_type='Inc',
                                      backup_end_time=completion_time,
                                      tag_string=self.tag,
                                      backup_status='FAILED')
@@ -736,7 +767,7 @@ class Backup(GeneralClass):
                         completion_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
                         self.add_tag(backup_dir=self.backupdir,
                                      backup_name=self.recent_inc_backup_file(),
-                                     type='Inc',
+                                     backup_type='Inc',
                                      backup_end_time=completion_time,
                                      tag_string=self.tag,
                                      backup_status='OK')
@@ -749,7 +780,7 @@ class Backup(GeneralClass):
                         completion_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
                         self.add_tag(backup_dir=self.backupdir,
                                      backup_name=self.recent_inc_backup_file(),
-                                     type='Inc',
+                                     backup_type='Inc',
                                      tag_string=self.tag,
                                      backup_end_time=completion_time,
                                      backup_status='FAILED')
