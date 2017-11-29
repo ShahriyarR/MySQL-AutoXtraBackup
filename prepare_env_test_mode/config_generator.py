@@ -150,8 +150,10 @@ class ConfigGenerator(CloneBuildStartServer):
                 section8 = "TestConf"
                 config.add_section(section8)
                 config.set(section8, "ps_branches", "5.5 5.6 5.7")
+                config.set(section8, "pxb_branches", "2.3 2.4")
                 config.set(section8, "gitcmd",
                                      "--recursive --depth=1 https://github.com/percona/percona-server.git")
+                config.set(section8, "pxb_gitcmd", "https://github.com/percona/percona-xtrabackup.git")
                 config.set(section8, "testpath", "/home/shahriyar.rzaev/XB_TEST/server_dir")
                 config.set(section8, "incremental_count", "3")
                 config.set(section8, "xb_configs", "xb_2_4_ps_5_6.conf xb_2_4_ps_5_7.conf xb_2_3_ps_5_6.conf xb_2_3_ps_5_5.conf xb_2_4_ps_5_5.conf")

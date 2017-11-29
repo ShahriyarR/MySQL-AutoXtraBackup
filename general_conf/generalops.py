@@ -125,7 +125,9 @@ class GeneralClass:
 
             TEST = con['TestConf']
             self.ps_branches = TEST['ps_branches']
+            self.pxb_branches = TEST['pxb_branches']
             self.gitcmd = TEST['gitcmd']
+            self.pxb_gitcmd = TEST['pxb_gitcmd']
             self.testpath = TEST['testpath']
             self.incremental_count = TEST['incremental_count']
             self.xb_configs = TEST['xb_configs']

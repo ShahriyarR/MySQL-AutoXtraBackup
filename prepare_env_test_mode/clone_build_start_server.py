@@ -1,4 +1,5 @@
 from prepare_env_test_mode.test_check_env import TestModeConfCheck
+from shutil import rmtree
 import subprocess
 import os
 import re
@@ -42,16 +43,58 @@ class CloneBuildStartServer(TestModeConfCheck):
         # Clone PS server[the value coming from config file]
         ps_branches = self.ps_branches.split()
         for branch in ps_branches:
-            clone_cmd = "git clone {} -b {} {}/PS-{}-trunk"
+            if branch != '5.5':
+                clone_cmd = "git clone {} -b {} {}/PS-{}-trunk".format(self.gitcmd, branch, self.testpath, branch)
+            else:
+                clone_cmd = "git clone {} -b {} {}/PS-{}-trunk".format(self.gitcmd.split()[-1], branch, self.testpath, branch)
             if not os.path.exists("{}/PS-{}-trunk".format(self.testpath, branch)):
                 logger.debug("Started to clone Percona Server...")
-                status, output = subprocess.getstatusoutput(clone_cmd.format(self.gitcmd, branch, self.testpath, branch))
+                status, output = subprocess.getstatusoutput(clone_cmd)
                 if status == 0:
                     logger.debug("PS-{} cloned ready to build".format(branch))
                 else:
                     logger.error("Cloning PS-{} failed".format(branch))
                     logger.error(output)
                     return False
+
+        return True
+
+    def clone_pxb(self):
+        # Clone PXB
+        pxb_branches = self.pxb_branches.split()
+        for branch in pxb_branches:
+            clone_cmd = "git clone {} -b {} {}/PXB-{}"
+            if not os.path.exists("{}/PXB-{}".format(self.testpath, branch)):
+                logger.debug("Started to clone PXB...")
+                status, output = subprocess.getstatusoutput(
+                    clone_cmd.format(self.pxb_gitcmd, branch, self.testpath, branch))
+                if status == 0:
+                    logger.debug("PXB-{} cloned ready to build".format(branch))
+                else:
+                    logger.error("Cloning PXB-{} failed".format(branch))
+                    logger.error(output)
+                    return False
+        return True
+
+    def build_pxb(self):
+        # Building pxb from source
+        # For this purpose will use build_{}_pxb.sh scripts from this folder
+        pxb_branches = self.pxb_branches.split()
+        saved_path = os.getcwd()
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        for branch in pxb_branches:
+            pxb_path = "{}/PXB-{}".format(self.testpath, branch)
+            os.chdir(pxb_path)
+            build_cmd = "{}/build_{}_pxb.sh {}".format(dir_path, branch, self.testpath)
+            status, output = subprocess.getstatusoutput(build_cmd)
+            if status == 0:
+                logger.debug("PXB build succeeded")
+                os.chdir(saved_path)
+            else:
+                logger.error("PXB build failed")
+                logger.error(output)
+                os.chdir(saved_path)
+                return False
 
         return True
 
@@ -110,7 +153,7 @@ class CloneBuildStartServer(TestModeConfCheck):
                 if obj:
                     basedir_path = "{}/{}"
                     basedirs.append(basedir_path.format(self.testpath, dir_name))
-                    #return basedir_path.format(self.testpath, dir_name)
+                    # return basedir_path.format(self.testpath, dir_name)
         if len(basedirs) > 0:
             logger.debug("Could get PS basedir path...")
             return basedirs
@@ -176,22 +219,6 @@ class CloneBuildStartServer(TestModeConfCheck):
             logger.error(output)
             os.chdir(saved_path)
             return False
-
-    def get_xb_packages(self, file_name, url):
-        # General method for getting XB packages
-        wget_cmd = "wget {} -P {}"
-        if not os.path.isfile("{}/{}".format(self.testpath, file_name)):
-            status, output = subprocess.getstatusoutput(wget_cmd.format(url, self.testpath))
-            if status == 0:
-                logger.debug("Downloaded {}".format(file_name))
-                return True
-            else:
-                logger.error("Failed to download {}".format(file_name))
-                logger.error(output)
-                return False
-        else:
-            logger.debug("The {} is already there".format(file_name))
-            return True
 
     def extract_xb_archive(self, file_name):
         # General method for extracting XB archives

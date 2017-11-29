@@ -12,6 +12,12 @@ class TestCloneBuildStartServer:
     def test_clone_ps_server_from_conf(self, return_clone_obj):
         assert return_clone_obj.clone_ps_server_from_conf() is True
 
+    def test_clone_pxb(self, return_clone_obj):
+        assert return_clone_obj.clone_pxb() is True
+
+    def test_build_pxb(self, return_clone_obj):
+        assert return_clone_obj.build_pxb() is True
+
     def test_build_server(self, return_clone_obj):
         assert return_clone_obj.build_server() is True
 
@@ -39,12 +45,6 @@ class TestCloneBuildStartServer:
         basedirs = return_basedir
         for basedir in basedirs:
             assert return_clone_obj.wipe_server_all(basedir_path=basedir) is True
-
-    def test_get_xb_packages(self, return_clone_obj):
-        url_2_4 = "http://jenkins.percona.com/view/QA/job/qa.pxb24.build/BUILD_TYPE=debug,label_exp=centos7-64/lastSuccessfulBuild/artifact/target/percona-xtrabackup-2.4.x-debug.tar.gz"
-        url_2_3 = "http://jenkins.percona.com/view/QA/job/qa.pxb23.build/BUILD_TYPE=debug,label_exp=centos7-64/lastSuccessfulBuild/artifact/target/percona-xtrabackup-2.3.x-debug.tar.gz"
-        assert return_clone_obj.get_xb_packages(url_2_4[-37:], url_2_4) is True
-        assert return_clone_obj.get_xb_packages(url_2_3[-37:], url_2_3) is True
 
     def test_extract_xb_archive(self, return_clone_obj):
         archive_2_4 = "percona-xtrabackup-2.4.x-debug.tar.gz"
