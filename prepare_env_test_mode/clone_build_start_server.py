@@ -162,7 +162,8 @@ class CloneBuildStartServer(TestModeConfCheck):
             logger.debug("It looks like you should build server first...")
             return False
 
-    def prepare_startup(self, basedir_path):
+    @staticmethod
+    def prepare_startup(basedir_path):
         # Method for calling startup.sh file from percona-qa folder
         saved_path = os.getcwd()
         os.chdir(basedir_path)
@@ -176,6 +177,26 @@ class CloneBuildStartServer(TestModeConfCheck):
             return True
         else:
             logger.error("Running startup.sh failed")
+            logger.error(output)
+            os.chdir(saved_path)
+            return False
+
+    @staticmethod
+    def prepare_start_dynamic(basedir_path):
+        # Method for calling start_dynamic.sh from basedir.
+        # It will generated start_dynamuc executables in basedir.
+        saved_path = os.getcwd()
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        os.chdir(basedir_path)
+        start_dynamic = "{}/start_dynamic.sh".format(dir_path)
+        logger.debug("Running start_dynamic.sh here...")
+        status, output = subprocess.getstatusoutput(start_dynamic)
+        if status == 0:
+            logger.debug("Running start_dynamic.sh succeeded")
+            os.chdir(saved_path)
+            return True
+        else:
+            logger.error("Running start_dynamic.sh failed")
             logger.error(output)
             os.chdir(saved_path)
             return False
