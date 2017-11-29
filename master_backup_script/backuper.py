@@ -56,7 +56,7 @@ class Backup(GeneralClass):
                 "Backup".ljust(19),
                 "Type".ljust(4),
                 "Status".ljust(2),
-                "Completion time".ljust(19))
+                "Completion_time".ljust(19))
             extra_str = "{}\n".format("-"*(len(column_names)+14))
             print(column_names + extra_str + from_file)
         else:
@@ -558,14 +558,26 @@ class Backup(GeneralClass):
                     # logger.debug(output[-27:])
                     if self.tag is not None:
                         logger.debug("Adding backup tags")
-                        self.add_tag(self.backupdir, self.recent_inc_backup_file(), 'Inc', self.tag, 'OK')
+                        completion_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+                        self.add_tag(backup_dir=self.backupdir,
+                                     backup_name=self.recent_inc_backup_file(),
+                                     type='Inc',
+                                     backup_end_time=completion_time,
+                                     tag_string=self.tag,
+                                     backup_status='OK')
                     return True
                 else:
                     logger.error("FAILED: INCREMENTAL BACKUP")
                     logger.error(output)
                     if self.tag is not None:
                         logger.debug("Adding backup tags")
-                        self.add_tag(self.backupdir, self.recent_inc_backup_file(), 'Inc', self.tag, 'FAILED')
+                        completion_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+                        self.add_tag(backup_dir=self.backupdir,
+                                     backup_name=self.recent_inc_backup_file(),
+                                     type='Inc',
+                                     backup_end_time=completion_time,
+                                     tag_string=self.tag,
+                                     backup_status='FAILED')
                     raise RuntimeError("FAILED: INCREMENTAL BACKUP")
 
         else:  # If there is already existing incremental backup
@@ -721,14 +733,26 @@ class Backup(GeneralClass):
                     # logger.debug(output[-27:])
                     if self.tag is not None:
                         logger.debug("Adding backup tags")
-                        self.add_tag(self.backupdir, self.recent_inc_backup_file(), 'Inc', self.tag, 'OK')
+                        completion_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+                        self.add_tag(backup_dir=self.backupdir,
+                                     backup_name=self.recent_inc_backup_file(),
+                                     type='Inc',
+                                     backup_end_time=completion_time,
+                                     tag_string=self.tag,
+                                     backup_status='OK')
                     return True
                 else:
                     logger.error("FAILED: INCREMENT BACKUP")
                     logger.error(output)
                     if self.tag is not None:
                         logger.debug("Adding backup tags")
-                        self.add_tag(self.backupdir, self.recent_inc_backup_file(), 'Inc', self.tag, 'FAILED')
+                        completion_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+                        self.add_tag(backup_dir=self.backupdir,
+                                     backup_name=self.recent_inc_backup_file(),
+                                     type='Inc',
+                                     tag_string=self.tag,
+                                     backup_end_time=completion_time,
+                                     backup_status='FAILED')
                     raise RuntimeError("FAILED: INCREMENT BACKUP")
 
     def all_backup(self):
