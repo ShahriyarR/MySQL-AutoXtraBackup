@@ -56,7 +56,7 @@ class Backup(GeneralClass):
                 "Backup".ljust(19),
                 "Type".ljust(4),
                 "Status".ljust(2),
-                "Completion time".ljust(5))
+                "Completion time".ljust(19))
             extra_str = "{}\n".format("-"*(len(column_names)+7))
             print(column_names + extra_str + from_file)
         else:
