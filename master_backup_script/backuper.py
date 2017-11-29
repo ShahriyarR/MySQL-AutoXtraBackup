@@ -81,12 +81,13 @@ class Backup(GeneralClass):
         if os.path.isfile("{}/backup_tags.txt".format(backup_dir)):
             with open('{}/backup_tags.txt'.format(backup_dir), 'r') as bcktags:
                 from_file = bcktags.read()
-            column_names = "{0}\t{1}\t{2}\t{3}\tTAG\n".format(
+            column_names = "{0}\t{1}\t{2}\t{3}\t{4}\tTAG\n".format(
                 "Backup".ljust(19),
                 "Type".ljust(4),
                 "Status".ljust(2),
-                "Completion_time".ljust(19))
-            extra_str = "{}\n".format("-"*(len(column_names)+14))
+                "Completion_time".ljust(19),
+                "Backup_size".ljust(2))
+            extra_str = "{}\n".format("-"*(len(column_names)+21))
             print(column_names + extra_str + from_file)
         else:
             logger.warning("Could not find backup_tags.txt inside given backup directory. Can't print tags.")
