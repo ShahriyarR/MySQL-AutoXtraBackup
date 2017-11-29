@@ -32,8 +32,8 @@ class Backup(GeneralClass):
         super().__init__(self.conf)
 
     @staticmethod
-    def add_tag(backup_dir, backup_name, type, tag_string, backup_status):
-        '''
+    def add_tag(backup_dir, backup_name, type, backup_end_time, tag_string, backup_status):
+        """
         Static method for adding backup tags
         :param backup_dir: The backup dir path
         :param backup_name: The backup name(timestamped)
@@ -41,9 +41,9 @@ class Backup(GeneralClass):
         :param tag_string: The passed tag string
         :param backup_status: Status: OK or Status: Failed
         :return: True if no exception
-        '''
+        """
         with open('{}/backup_tags.txt'.format(backup_dir), 'a') as bcktags:
-            bcktags.write("{0}\t{1}\t{2}\t'{3}'\n".format(backup_name, type, backup_status, tag_string))
+            bcktags.write("{0}\t{1}\t{2}\t'{3}'\t'{4}'\n".format(backup_name, type, backup_status, backup_end_time, tag_string))
 
         return True
 
@@ -339,14 +339,26 @@ class Backup(GeneralClass):
                 # logger.debug(output[-27:])
                 if self.tag is not None:
                     logger.debug("Adding backup tags")
-                    self.add_tag(self.backupdir, self.recent_full_backup_file(), 'Full', self.tag, 'OK')
+                    completion_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+                    self.add_tag(backup_dir=self.backupdir,
+                                 backup_name=self.recent_full_backup_file(),
+                                 type='Full',
+                                 backup_end_time=completion_time,
+                                 tag_string=self.tag,
+                                 backup_status='OK')
                 return True
             else:
                 logger.error("FAILED: FULL BACKUP")
                 logger.error(output)
                 if self.tag is not None:
                     logger.debug("Adding backup tags")
-                    self.add_tag(self.backupdir, self.recent_full_backup_file(), 'Full', self.tag, 'FAILED')
+                    completion_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+                    self.add_tag(backup_dir=self.backupdir,
+                                 backup_name=self.recent_full_backup_file(),
+                                 type='Full',
+                                 backup_end_time=completion_time,
+                                 tag_string=self.tag,
+                                 backup_status='FAILED')
                 raise RuntimeError("FAILED: FULL BACKUP")
 
     def inc_backup(self):
