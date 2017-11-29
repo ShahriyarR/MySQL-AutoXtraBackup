@@ -55,6 +55,22 @@ class CloneBuildStartServer(TestModeConfCheck):
 
         return True
 
+    def clone_pxb(self):
+        pxb_branches = self.pxb_branches.split()
+        for branch in pxb_branches:
+            clone_cmd = "git clone {} -b {} {}/PXB-{}"
+            if not os.path.exists("{}/PXB-{}".format(self.testpath, branch)):
+                logger.debug("Started to clone PXB...")
+                status, output = subprocess.getstatusoutput(
+                    clone_cmd.format(self.pxb_gitcmd, branch, self.testpath, branch))
+                if status == 0:
+                    logger.debug("PXB-{} cloned ready to build".format(branch))
+                else:
+                    logger.error("Cloning PXB-{} failed".format(branch))
+                    logger.error(output)
+                    return False
+        return True
+
     def build_server(self):
         # Building server from source
         # For this purpose; I am going to use build_5.x_debug.sh script from percona-qa
@@ -177,21 +193,21 @@ class CloneBuildStartServer(TestModeConfCheck):
             os.chdir(saved_path)
             return False
 
-    def get_xb_packages(self, file_name, url):
-        # General method for getting XB packages
-        wget_cmd = "wget {} -P {}"
-        if not os.path.isfile("{}/{}".format(self.testpath, file_name)):
-            status, output = subprocess.getstatusoutput(wget_cmd.format(url, self.testpath))
-            if status == 0:
-                logger.debug("Downloaded {}".format(file_name))
-                return True
-            else:
-                logger.error("Failed to download {}".format(file_name))
-                logger.error(output)
-                return False
-        else:
-            logger.debug("The {} is already there".format(file_name))
-            return True
+    # def get_xb_packages(self, file_name, url):
+    #     # General method for getting XB packages
+    #     wget_cmd = "wget {} -P {}"
+    #     if not os.path.isfile("{}/{}".format(self.testpath, file_name)):
+    #         status, output = subprocess.getstatusoutput(wget_cmd.format(url, self.testpath))
+    #         if status == 0:
+    #             logger.debug("Downloaded {}".format(file_name))
+    #             return True
+    #         else:
+    #             logger.error("Failed to download {}".format(file_name))
+    #             logger.error(output)
+    #             return False
+    #     else:
+    #         logger.debug("The {} is already there".format(file_name))
+    #         return True
 
     def extract_xb_archive(self, file_name):
         # General method for extracting XB archives
