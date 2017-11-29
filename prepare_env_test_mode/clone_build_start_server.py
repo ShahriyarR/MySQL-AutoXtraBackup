@@ -150,7 +150,7 @@ class CloneBuildStartServer(TestModeConfCheck):
                 if obj:
                     basedir_path = "{}/{}"
                     basedirs.append(basedir_path.format(self.testpath, dir_name))
-                    #return basedir_path.format(self.testpath, dir_name)
+                    # return basedir_path.format(self.testpath, dir_name)
         if len(basedirs) > 0:
             logger.debug("Could get PS basedir path...")
             return basedirs
@@ -216,22 +216,6 @@ class CloneBuildStartServer(TestModeConfCheck):
             logger.error(output)
             os.chdir(saved_path)
             return False
-
-    # def get_xb_packages(self, file_name, url):
-    #     # General method for getting XB packages
-    #     wget_cmd = "wget {} -P {}"
-    #     if not os.path.isfile("{}/{}".format(self.testpath, file_name)):
-    #         status, output = subprocess.getstatusoutput(wget_cmd.format(url, self.testpath))
-    #         if status == 0:
-    #             logger.debug("Downloaded {}".format(file_name))
-    #             return True
-    #         else:
-    #             logger.error("Failed to download {}".format(file_name))
-    #             logger.error(output)
-    #             return False
-    #     else:
-    #         logger.debug("The {} is already there".format(file_name))
-    #         return True
 
     def extract_xb_archive(self, file_name):
         # General method for extracting XB archives

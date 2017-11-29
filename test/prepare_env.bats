@@ -22,6 +22,12 @@ DIRNAME=$BATS_TEST_DIRNAME
   [ $status -eq 0 ]
 }
 
+@test "Running test_build_pxb" {
+  run python -m pytest -vv ${DIRNAME}/test_clone_build_start_server.py::TestCloneBuildStartServer::test_build_pxb
+  echo $output
+  [ $status -eq 0 ]
+}
+
 @test "Running test_build_server" {
   run python -m pytest -vv ${DIRNAME}/test_clone_build_start_server.py::TestCloneBuildStartServer::test_build_server
   echo $output
