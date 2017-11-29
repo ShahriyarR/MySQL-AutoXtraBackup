@@ -595,6 +595,7 @@ class Backup(GeneralClass):
                                      backup_name=self.recent_inc_backup_file(),
                                      backup_type='Inc',
                                      backup_end_time=completion_time,
+                                     backup_size=self.get_folder_size(inc_backup_dir),
                                      tag_string=self.tag,
                                      backup_status='OK')
                     return True
@@ -608,6 +609,7 @@ class Backup(GeneralClass):
                                      backup_name=self.recent_inc_backup_file(),
                                      backup_type='Inc',
                                      backup_end_time=completion_time,
+                                     backup_size=self.get_folder_size(inc_backup_dir),
                                      tag_string=self.tag,
                                      backup_status='FAILED')
                     raise RuntimeError("FAILED: INCREMENTAL BACKUP")
@@ -770,6 +772,7 @@ class Backup(GeneralClass):
                                      backup_name=self.recent_inc_backup_file(),
                                      backup_type='Inc',
                                      backup_end_time=completion_time,
+                                     backup_size=self.get_folder_size(inc_backup_dir),
                                      tag_string=self.tag,
                                      backup_status='OK')
                     return True
@@ -784,6 +787,7 @@ class Backup(GeneralClass):
                                      backup_type='Inc',
                                      tag_string=self.tag,
                                      backup_end_time=completion_time,
+                                     backup_size=self.get_folder_size(inc_backup_dir),
                                      backup_status='FAILED')
                     raise RuntimeError("FAILED: INCREMENT BACKUP")
 
