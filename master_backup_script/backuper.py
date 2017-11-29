@@ -57,7 +57,7 @@ class Backup(GeneralClass):
                 "Type".ljust(4),
                 "Status".ljust(2),
                 "Completion time".ljust(19))
-            extra_str = "{}\n".format("-"*(len(column_names)+7))
+            extra_str = "{}\n".format("-"*(len(column_names)+14))
             print(column_names + extra_str + from_file)
         else:
             logger.warning("Could not find backup_tags.txt inside given backup directory. Can't print tags.")
