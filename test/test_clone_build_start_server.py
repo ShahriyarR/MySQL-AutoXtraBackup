@@ -35,6 +35,12 @@ class TestCloneBuildStartServer:
             assert return_clone_obj.prepare_startup(basedir_path=basedir) is True
 
     @pytest.mark.usefixtures("return_basedir")
+    def test_prepare_start_dynamic(self, return_clone_obj, return_basedir):
+        basedir_list = return_basedir
+        for basedir in basedir_list:
+            assert return_clone_obj.prepare_start_dynamic(basedir_path=basedir) is True
+
+    @pytest.mark.usefixtures("return_basedir")
     def test_start_server(self, return_clone_obj, return_basedir):
         basedirs = return_basedir
         for basedir in basedirs:
