@@ -86,7 +86,7 @@ class Backup(GeneralClass):
                 "Type".ljust(4),
                 "Status".ljust(2),
                 "Completion_time".ljust(19),
-                "Backup_size".ljust(2))
+                "Backup_size".ljust(19))
             extra_str = "{}\n".format("-"*(len(column_names)+21))
             print(column_names + extra_str + from_file)
         else:
