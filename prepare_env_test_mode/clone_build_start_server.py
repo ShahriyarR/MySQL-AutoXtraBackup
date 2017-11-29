@@ -1,4 +1,5 @@
 from prepare_env_test_mode.test_check_env import TestModeConfCheck
+from shutil import rmtree
 import subprocess
 import os
 import re
@@ -56,6 +57,7 @@ class CloneBuildStartServer(TestModeConfCheck):
         return True
 
     def clone_pxb(self):
+        # Clone PXB
         pxb_branches = self.pxb_branches.split()
         for branch in pxb_branches:
             clone_cmd = "git clone {} -b {} {}/PXB-{}"
@@ -69,6 +71,28 @@ class CloneBuildStartServer(TestModeConfCheck):
                     logger.error("Cloning PXB-{} failed".format(branch))
                     logger.error(output)
                     return False
+        return True
+
+    def build_pxb(self):
+        # Building pxb from source
+        # For this purpose will use build_{}_pxb.sh scripts from this folder
+        pxb_branches = self.pxb_branches.split()
+        saved_path = os.getcwd()
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        for branch in pxb_branches:
+            pxb_path = "{}/PXB-{}".format(self.testpath, branch)
+            os.chdir(pxb_path)
+            build_cmd = "{}/build_{}_pxb.sh {}".format(dir_path, branch, self.testpath)
+            status, output = subprocess.getstatusoutput(build_cmd)
+            if status == 0:
+                logger.debug("PXB build succeeded")
+                os.chdir(saved_path)
+            else:
+                logger.error("PXB build failed")
+                logger.error(output)
+                os.chdir(saved_path)
+                return False
+
         return True
 
     def build_server(self):

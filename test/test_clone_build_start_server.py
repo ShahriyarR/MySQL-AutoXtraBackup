@@ -15,6 +15,9 @@ class TestCloneBuildStartServer:
     def test_clone_pxb(self, return_clone_obj):
         assert return_clone_obj.clone_pxb() is True
 
+    def test_build_pxb(self, return_clone_obj):
+        assert return_clone_obj.build_pxb() is True
+
     def test_build_server(self, return_clone_obj):
         assert return_clone_obj.build_server() is True
 
