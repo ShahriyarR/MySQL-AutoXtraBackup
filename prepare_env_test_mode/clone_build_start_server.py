@@ -183,7 +183,8 @@ class CloneBuildStartServer(TestModeConfCheck):
 
     @staticmethod
     def prepare_start_dynamic(basedir_path):
-        # Method for calling start_dynamic.sh from project folder
+        # Method for calling start_dynamic.sh from basedir.
+        # It will generated start_dynamuc executables in basedir.
         saved_path = os.getcwd()
         dir_path = os.path.dirname(os.path.realpath(__file__))
         os.chdir(basedir_path)
