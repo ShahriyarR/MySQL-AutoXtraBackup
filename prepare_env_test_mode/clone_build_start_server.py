@@ -162,8 +162,7 @@ class CloneBuildStartServer(TestModeConfCheck):
             logger.debug("It looks like you should build server first...")
             return False
 
-    @staticmethod
-    def prepare_startup(basedir_path):
+    def prepare_startup(self, basedir_path):
         # Method for calling startup.sh file from percona-qa folder
         saved_path = os.getcwd()
         os.chdir(basedir_path)
