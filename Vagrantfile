@@ -13,6 +13,7 @@ Vagrant.configure("2") do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
   config.vm.box = "centos/7"
+  config.disksize.size = '50GB'
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -98,12 +99,22 @@ Vagrant.configure("2") do |config|
      sudo pip3.5 install memory_profiler
      sudo pip3.5 install psutil
      sudo pip3.5 install matplotlib
+     sudo pip3.5 install virtualenv
+     cd /home/vagrant
+     virtualenv -p /usr/bin/python3.5 py_3_5_autoxtrabackup
      cd /vagrant
-     sudo python3.5 setup.py install
+     sudo /home/vagrant/py_3_5_autoxtrabackup/bin/python setup.py install
+     sudo sed -i "0,/^[ \t]*testpath[ \t]*=.*$/s|^[ \t]*testpath[ \t]*=.*$|testpath=\/home\/vagrant\/XB_TEST\/server_dir|" /etc/bck.conf
      cd /home/vagrant
      touch python-sudo.sh
      echo "#!/bin/bash" > python-sudo.sh
      echo 'sudo /usr/bin/python3.5 "$@"' >> python-sudo.sh
      chmod +x python-sudo.sh
+     git clone https://github.com/sstephenson/bats.git
+     cd bats
+     ./install.sh /usr/local
+     cd /vagrant/test
+     source /home/vagrant/py_3_5_autoxtrabackup/bin/activate
+     /usr/local/bin/bats prepare_env.bats
    SHELL
 end
