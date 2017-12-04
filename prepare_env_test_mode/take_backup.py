@@ -44,6 +44,13 @@ class WrapperForBackupTest(Backup):
                 sql_alter_add_index = "alter table sysbench_test_db.sbtest{} add index(json_test_index)".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_add_index)
 
+            general_tablespace = "create tablespace ts1 add datafile 'ts1.ibd' engine=innodb"
+            RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=general_tablespace)
+
+            # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/219
+            general_out_tablespace = "create tablespace out_ts1 add datafile '{}/ts1.ibd' engine=innodb".format(self.basedir)
+            RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=general_out_tablespace)
+
             for i in range(5, 10):
                 sql_compress = "alter table sysbench_test_db.sbtest{} compression='zlib'".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_compress)
@@ -51,9 +58,8 @@ class WrapperForBackupTest(Backup):
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_optimize)
                 sql_alter_compression_dict = "alter table sysbench_test_db.sbtest{} modify c varchar(250) column_format compressed with compression_dictionary numbers".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_compression_dict)
-
-            general_tablespace = "create tablespace ts1 add datafile 'ts1.ibd' engine=innodb"
-            RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=general_tablespace)
+                sql_alter_tablespace = "alter table sysbench_test_db.sbtest{} tablespace=out_ts1".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_tablespace)
 
             for i in range(10, 15):
                 # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/206
