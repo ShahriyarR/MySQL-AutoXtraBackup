@@ -521,6 +521,8 @@ class RunnerTestMode(GeneralClass):
                                                                       inc_dir=inc_dir_2)
                                 if prepare_obj_2.run_prepare_backup():
                                     # Creating slave datadir
+                                    if os.path.isfile('{}/out_ts1.ibd'.format(basedir)):
+                                        os.remove('{}/out_ts1.ibd'.format(basedir))
                                     slave_datadir_2 = self.create_slave_datadir(basedir=basedir, num=2)
                                     prepare_obj_2.run_xtra_copyback(datadir=slave_datadir_2)
                                     prepare_obj_2.giving_chown(datadir=slave_datadir_2)

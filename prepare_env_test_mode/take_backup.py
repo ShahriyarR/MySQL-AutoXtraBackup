@@ -48,6 +48,7 @@ class WrapperForBackupTest(Backup):
             general_tablespace = "create tablespace ts1 add datafile 'ts1.ibd' engine=innodb"
             RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=general_tablespace)
 
+            # Disable this due to failed slaves
             if path.isfile('{}/out_ts1.ibd'.format(self.basedir)):
                 remove('{}/out_ts1.ibd'.format(self.basedir))
             # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/219
