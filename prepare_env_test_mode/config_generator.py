@@ -73,13 +73,13 @@ class ConfigGenerator(CloneBuildStartServer):
                 if '5.7' in basedir:
                     config.set(section2, "xtra_options", "--slave-info --no-version-check --core-file "
                                                          "--parallel=10 --throttle=40 --check-privileges "
-                                                         "--kill-wait-query-type=all --kill-long-queries-timeout=10 "
-                                                         "--kill-long-query-type=all "
+                                                         "--kill-wait-query-type=all "
+                                                         "--kill-long-query-type=SELECT "
                                                          "--keyring-file-data={}/mysql-keyring/keyring ".format(basedir))
                 else:
                     config.set(section2, "xtra_options", "--slave-info --no-version-check --core-file "
-                                                         "--kill-wait-query-type=all --kill-long-queries-timeout=10 "
-                                                         "--kill-long-query-type=all "   
+                                                         "--kill-wait-query-type=all "
+                                                         "--kill-long-query-type=SELECT "   
                                                          "--parallel=10 --throttle=40 --check-privileges ")
                 config.set(section2, "#Optional: set archive and rotation")
                 config.set(section2, "#archive_dir", "/home/shahriyar.rzaev/XB_TEST/backup_archives")
