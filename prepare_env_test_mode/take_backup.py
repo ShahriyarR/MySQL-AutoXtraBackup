@@ -44,7 +44,7 @@ class WrapperForBackupTest(Backup):
     @staticmethod
     def parallel_sleep_queries(basedir, sock):
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        bash_command = "{}/create_sleep_queries.sh {} {} {}".format(dir_path, basedir, 50, sock)
+        bash_command = "{}/create_sleep_queries.sh {} {} {}".format(dir_path, basedir, 100, sock)
         try:
             process = Popen(
                 split(bash_command),
@@ -163,14 +163,14 @@ class WrapperForBackupTest(Backup):
 
         flush_tables = "flush tables"
         RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=flush_tables)
+        with concurrent.futures.ProcessPoolExecutor(max_workers=10) as pool:
+            for _ in range(10):
+                pool.submit(
+                    self.parallel_sleep_queries(basedir=self.basedir, sock="{}/socket.sock".format(self.basedir)))
         sleep(20)
 
         for _ in range(int(self.incremental_count) + 1):
             RunBenchmark().run_sysbench_run(basedir=self.basedir)
-            with concurrent.futures.ProcessPoolExecutor(max_workers=10) as pool:
-                for _ in range(10):
-                    pool.submit(
-                        self.parallel_sleep_queries(basedir=self.basedir, sock="{}/socket.sock".format(self.basedir)))
             self.all_backup()
 
         if os.path.isfile('{}/out_ts1.ibd'.format(self.basedir)):
