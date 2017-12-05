@@ -5,6 +5,8 @@ import os
 import shutil
 import logging
 import concurrent.futures
+from shlex import split
+from subprocess import Popen
 logger = logging.getLogger(__name__)
 
 
@@ -40,16 +42,25 @@ class WrapperForBackupTest(Backup):
             logger.error(err)
 
     @staticmethod
-    def parallel_sleep_queries(basedir):
-        sleep_q = "select sleep(50)"
-        with concurrent.futures.ProcessPoolExecutor(max_workers=50) as executor:
-            for _ in range(50):
-                executor.submit(RunBenchmark.run_sql_statement(basedir=basedir, sql_statement=sleep_q))
-
+    def parallel_sleep_queries(basedir, sock):
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        bash_command = "{}/create_sleep_queries.sh {} {} {}".format(dir_path, basedir, 50, sock)
+        try:
+            process = Popen(
+                split(bash_command),
+                stdin=None,
+                stdout=None,
+                stderr=None)
+        except Exception as e:
+            print(e)
 
     def run_all_backup(self):
         # Method for taking backups using master_backup_script.backuper.py::all_backup()
         RunBenchmark().run_sysbench_prepare(basedir=self.basedir)
+        with concurrent.futures.ProcessPoolExecutor(max_workers=10) as pool:
+            for _ in range(10):
+                pool.submit(
+                    self.parallel_sleep_queries(basedir=self.basedir, sock="{}/socket.sock".format(self.basedir)))
         if '5.7' in self.basedir:
             # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/205
             # Adding compression column with predefined dictionary.
@@ -160,7 +171,6 @@ class WrapperForBackupTest(Backup):
 
         for _ in range(int(self.incremental_count) + 1):
             RunBenchmark().run_sysbench_run(basedir=self.basedir)
-            self.parallel_sleep_queries(basedir=self.basedir)
             self.all_backup()
 
         if os.path.isfile('{}/out_ts1.ibd'.format(self.basedir)):
