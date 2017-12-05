@@ -3,7 +3,8 @@ from prepare_env_test_mode.run_benchmark import RunBenchmark
 from time import sleep
 import os
 import shutil
-
+import logging
+logger = logging.getLogger(__name__)
 
 
 class WrapperForBackupTest(Backup):
@@ -17,6 +18,25 @@ class WrapperForBackupTest(Backup):
             self.inc_dir = inc_dir
         if basedir is not None:
             self.basedir = basedir
+
+    @staticmethod
+    def general_tablespace_rel(basedir):
+        directory = "{}/relative_path".format(basedir)
+
+        if os.path.exists(directory):
+            try:
+                logger.debug("Removing relative_path...")
+                shutil.rmtree(directory)
+            except Exception as err:
+                logger.debug("FAILED: Removing relative_path")
+                logger.error(err)
+
+        try:
+            logger.debug("Creating relative_path...")
+            os.makedirs(directory)
+        except Exception as err:
+            logger.debug("FAILED: Creating relative_path")
+            logger.error(err)
 
     def run_all_backup(self):
         # Method for taking backups using master_backup_script.backuper.py::all_backup()
@@ -57,12 +77,10 @@ class WrapperForBackupTest(Backup):
             general_out_tablespace = "create tablespace out_ts1 add datafile '{}' engine=innodb".format(outside_tablespace_full_path)
             RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=general_out_tablespace)
             # Create general tablespace with relative path
-            directory = "{}/relative_path".format(self.basedir)
-            if os.path.exists(directory):
-                shutil.rmtree(directory)
-            os.makedirs(directory)
-            general_out_relative = "create tablespace out_rel_ts1 add datafile '../relative_path/out_rel_ts1.ibd' engine=innodb"
-            RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=general_out_relative)
+            # TODO: enable this after fix for https://bugs.launchpad.net/percona-xtrabackup/+bug/1736380
+            # self.general_tablespace_rel(self.basedir)
+            # general_out_relative = "create tablespace out_rel_ts1 add datafile '../relative_path/out_rel_ts1.ibd' engine=innodb"
+            # RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=general_out_relative)
 
             for i in range(5, 10):
                 sql_compress = "alter table sysbench_test_db.sbtest{} compression='zlib'".format(i)
@@ -98,20 +116,21 @@ class WrapperForBackupTest(Backup):
                 sql_alter_tablespace = "alter table sysbench_test_db.sbtest{} tablespace=out_ts1".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_tablespace)
 
-            for i in range(20, 25):
-                sql_virtual_column = "alter table sysbench_test_db.sbtest{} add column json_test_v json generated always as (json_array(k,c,pad)) virtual".format(
-                    i)
-                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_virtual_column)
-                sql_stored_column = "alter table sysbench_test_db.sbtest{} add column json_test_s json generated always as (json_array(k,c,pad)) stored".format(
-                    i)
-                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_stored_column)
-                sql_create_json_column = "alter table sysbench_test_db.sbtest{} add column json_test_index varchar(255) generated always as (json_array(k,c,pad)) stored".format(
-                    i)
-                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_json_column)
-                sql_alter_add_index = "alter table sysbench_test_db.sbtest{} add index(json_test_index)".format(i)
-                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_add_index)
-                sql_alter_tablespace = "alter table sysbench_test_db.sbtest{} tablespace=out_rel_ts1".format(i)
-                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_tablespace)
+            # TODO: enable this after fix for https://bugs.launchpad.net/percona-xtrabackup/+bug/1736380
+            # for i in range(20, 25):
+            #     sql_virtual_column = "alter table sysbench_test_db.sbtest{} add column json_test_v json generated always as (json_array(k,c,pad)) virtual".format(
+            #         i)
+            #     RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_virtual_column)
+            #     sql_stored_column = "alter table sysbench_test_db.sbtest{} add column json_test_s json generated always as (json_array(k,c,pad)) stored".format(
+            #         i)
+            #     RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_stored_column)
+            #     sql_create_json_column = "alter table sysbench_test_db.sbtest{} add column json_test_index varchar(255) generated always as (json_array(k,c,pad)) stored".format(
+            #         i)
+            #     RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_json_column)
+            #     sql_alter_add_index = "alter table sysbench_test_db.sbtest{} add index(json_test_index)".format(i)
+            #     RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_add_index)
+            #     sql_alter_tablespace = "alter table sysbench_test_db.sbtest{} tablespace=out_rel_ts1".format(i)
+            #     RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_tablespace)
 
             # NOTE: PXB will ignore rocksdb tables, which is going to break pt-table-checksum
             # for i in range(10, 15):
@@ -137,9 +156,7 @@ class WrapperForBackupTest(Backup):
         if os.path.isfile('{}/out_ts1.ibd'.format(self.basedir)):
             os.remove('{}/out_ts1.ibd'.format(self.basedir))
 
-        directory = "{}/relative_path".format(self.basedir)
-        if os.path.exists(directory):
-            shutil.rmtree(directory)
-            os.makedirs(directory)
+        # TODO: enable this after fix for https://bugs.launchpad.net/percona-xtrabackup/+bug/1736380
+        # self.general_tablespace_rel(self.basedir)
 
         return True
