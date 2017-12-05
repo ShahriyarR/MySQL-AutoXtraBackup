@@ -4,6 +4,7 @@ from time import sleep
 import os
 import shutil
 import logging
+import concurrent.futures
 logger = logging.getLogger(__name__)
 
 
@@ -37,6 +38,14 @@ class WrapperForBackupTest(Backup):
         except Exception as err:
             logger.debug("FAILED: Creating relative_path")
             logger.error(err)
+
+    @staticmethod
+    def parallel_sleep_queries(basedir):
+        sleep_q = "select sleep(50)"
+        with concurrent.futures.ProcessPoolExecutor(max_workers=10) as executor:
+            for _ in range(50):
+                executor.submit(RunBenchmark.run_sql_statement(basedir=basedir, sql_statement=sleep_q))
+
 
     def run_all_backup(self):
         # Method for taking backups using master_backup_script.backuper.py::all_backup()
@@ -151,6 +160,7 @@ class WrapperForBackupTest(Backup):
 
         for _ in range(int(self.incremental_count) + 1):
             RunBenchmark().run_sysbench_run(basedir=self.basedir)
+            self.parallel_sleep_queries(basedir=self.basedir)
             self.all_backup()
 
         if os.path.isfile('{}/out_ts1.ibd'.format(self.basedir)):
