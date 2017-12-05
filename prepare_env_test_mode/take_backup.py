@@ -42,7 +42,7 @@ class WrapperForBackupTest(Backup):
     @staticmethod
     def parallel_sleep_queries(basedir):
         sleep_q = "select sleep(50)"
-        with concurrent.futures.ProcessPoolExecutor(max_workers=10) as executor:
+        with concurrent.futures.ProcessPoolExecutor(max_workers=50) as executor:
             for _ in range(50):
                 executor.submit(RunBenchmark.run_sql_statement(basedir=basedir, sql_statement=sleep_q))
 
