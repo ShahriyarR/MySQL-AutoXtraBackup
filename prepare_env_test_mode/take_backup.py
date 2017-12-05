@@ -60,7 +60,7 @@ class WrapperForBackupTest(Backup):
             directory = "{}/relative_path".format(self.basedir)
             if os.path.exists(directory):
                 shutil.rmtree(directory)
-                os.makedirs(directory)
+            os.makedirs(directory)
             general_out_relative = "create tablespace out_rel_ts1 add datafile '../relative_path/out_rel_ts1.ibd' engine=innodb"
             RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=general_out_relative)
 
