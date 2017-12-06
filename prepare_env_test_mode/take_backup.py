@@ -178,7 +178,7 @@ class WrapperForBackupTest(Backup):
                     pool.submit(
                         self.parallel_sleep_queries(basedir=self.basedir,
                                                     sock="{}/socket.sock".format(self.basedir),
-                                                    sql="select benchmark(99999, md5(c)) from sysbench_test_db.sbtest{}".format(
+                                                    sql="select benchmark(999999, md5(c)) from sysbench_test_db.sbtest{}".format(
                                                         i)))
 
         for _ in range(int(self.incremental_count) + 1):
