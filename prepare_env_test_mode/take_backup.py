@@ -42,9 +42,9 @@ class WrapperForBackupTest(Backup):
             logger.error(err)
 
     @staticmethod
-    def parallel_sleep_queries(basedir, sock):
+    def parallel_sleep_queries(basedir, sock, sql):
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        bash_command = "{}/create_sleep_queries.sh {} {} {}".format(dir_path, basedir, 100, sock)
+        bash_command = "{}/run_sql_queries.sh {} {} {}".format(dir_path, basedir, sql, sock)
         try:
             process = Popen(
                 split(bash_command),
@@ -161,13 +161,23 @@ class WrapperForBackupTest(Backup):
                 sql_alter = "alter table sysbench_test_db.sbtest{} modify c varchar(120) CHARACTER SET utf8 COLLATE utf8_general50_ci".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter)
 
+        # Altering some of the table engines from innodb to myisam
+        for i in range(20, 25):
+            sql_alter_engine = "alter table sysbench_test_db.sbtest{} engine=myisam".format(i)
+            RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_engine)
+
         flush_tables = "flush tables"
         RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=flush_tables)
-        with concurrent.futures.ProcessPoolExecutor(max_workers=10) as pool:
-            for _ in range(10):
-                pool.submit(
-                    self.parallel_sleep_queries(basedir=self.basedir, sock="{}/socket.sock".format(self.basedir)))
-        sleep(20)
+
+        # Concurrently running select on myisam based tables.
+        with concurrent.futures.ProcessPoolExecutor(max_workers=50) as pool:
+            for _ in range(5):
+                for i in range(20, 25):
+                    pool.submit(
+                        self.parallel_sleep_queries(basedir=self.basedir,
+                                                    sock="{}/socket.sock".format(self.basedir),
+                                                    sql="select benchmark(99999, md5(c)) from sysbench_test_db.sbtest{}".format(i)))
+        sleep(10)
 
         for _ in range(int(self.incremental_count) + 1):
             RunBenchmark().run_sysbench_run(basedir=self.basedir)
