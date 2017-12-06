@@ -42,9 +42,9 @@ class WrapperForBackupTest(Backup):
             logger.error(err)
 
     @staticmethod
-    def parallel_sleep_queries(basedir, sock, sql):
+    def parallel_sleep_queries(basedir, sql, sock):
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        bash_command = "{}/run_sql_queries.sh {} {} {}".format(dir_path, basedir, sql, sock)
+        bash_command = "{}/run_sql_queries.sh {} {} '{}'".format(dir_path, basedir, sock, sql)
         try:
             process = Popen(
                 split(bash_command),
