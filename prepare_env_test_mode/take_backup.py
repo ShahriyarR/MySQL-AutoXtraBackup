@@ -57,15 +57,6 @@ class WrapperForBackupTest(Backup):
     def run_all_backup(self):
         # Method for taking backups using master_backup_script.backuper.py::all_backup()
         RunBenchmark().run_sysbench_prepare(basedir=self.basedir)
-        # Concurrently running select on myisam based tables.
-        with concurrent.futures.ProcessPoolExecutor(max_workers=50) as pool:
-            for _ in range(5):
-                for i in range(20, 25):
-                    pool.submit(
-                        self.parallel_sleep_queries(basedir=self.basedir,
-                                                    sock="{}/socket.sock".format(self.basedir),
-                                                    sql="select benchmark(99999, md5(c)) from sysbench_test_db.sbtest{}".format(
-                                                        i)))
         if '5.7' in self.basedir:
             # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/205
             # Adding compression column with predefined dictionary.
@@ -179,6 +170,16 @@ class WrapperForBackupTest(Backup):
         RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=flush_tables)
 
         sleep(10)
+
+        # Concurrently running select on myisam based tables.
+        with concurrent.futures.ProcessPoolExecutor(max_workers=50) as pool:
+            for _ in range(5):
+                for i in range(20, 25):
+                    pool.submit(
+                        self.parallel_sleep_queries(basedir=self.basedir,
+                                                    sock="{}/socket.sock".format(self.basedir),
+                                                    sql="select benchmark(99999, md5(c)) from sysbench_test_db.sbtest{}".format(
+                                                        i)))
 
         for _ in range(int(self.incremental_count) + 1):
             RunBenchmark().run_sysbench_run(basedir=self.basedir)
