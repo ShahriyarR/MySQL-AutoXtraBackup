@@ -73,15 +73,21 @@ class ConfigGenerator(CloneBuildStartServer):
                 if '5.7' in basedir:
                     config.set(section2, "xtra_options", "--slave-info --no-version-check --core-file "
                                                          "--parallel=10 --throttle=40 --check-privileges "
-                                                         "--lock-wait-threshold=5 "
-                                                         "--lock-wait-query-type=all "   
+                                                         "--ftwrl-wait-timeout=0 "
+                                                         "--ftwrl-wait-query-type=all "
+                                                         "--ftwrl-wait-threshold=5 "   
+                                                         #"--lock-wait-threshold=5 "
+                                                         #"--lock-wait-query-type=all "   
                                                          "--kill-wait-query-type=all "
                                                          "--kill-long-query-type=all "
                                                          "--keyring-file-data={}/mysql-keyring/keyring ".format(basedir))
                 else:
                     config.set(section2, "xtra_options", "--slave-info --no-version-check --core-file "
-                                                         "--lock-wait-threshold=5 "
-                                                         "--lock-wait-query-type=all "   
+                                                         "--ftwrl-wait-timeout=0 "
+                                                         "--ftwrl-wait-query-type=all "
+                                                         "--ftwrl-wait-threshold=5 "  
+                                                         #"--lock-wait-threshold=5 "
+                                                         #"--lock-wait-query-type=all "   
                                                          "--kill-wait-query-type=all "
                                                          "--kill-long-query-type=all "   
                                                          "--parallel=10 --throttle=40 --check-privileges ")
