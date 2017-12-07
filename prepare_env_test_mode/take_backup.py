@@ -175,7 +175,7 @@ class WrapperForBackupTest(Backup):
             RunBenchmark().run_sysbench_run(basedir=self.basedir)
             # Concurrently running select on myisam based tables.
             with concurrent.futures.ProcessPoolExecutor(max_workers=50) as pool:
-                for _ in range(5):
+                for _ in range(10):
                     for i in range(20, 25):
                         pool.submit(
                             self.parallel_sleep_queries(basedir=self.basedir,
