@@ -171,18 +171,17 @@ class WrapperForBackupTest(Backup):
 
         sleep(10)
 
-        # Concurrently running select on myisam based tables.
-        with concurrent.futures.ProcessPoolExecutor(max_workers=50) as pool:
-            for _ in range(5):
-                for i in range(20, 25):
-                    pool.submit(
-                        self.parallel_sleep_queries(basedir=self.basedir,
-                                                    sock="{}/socket.sock".format(self.basedir),
-                                                    sql="select benchmark(9999999, md5(c)) from sysbench_test_db.sbtest{}".format(
-                                                        i)))
-
         for _ in range(int(self.incremental_count) + 1):
             RunBenchmark().run_sysbench_run(basedir=self.basedir)
+            # Concurrently running select on myisam based tables.
+            with concurrent.futures.ProcessPoolExecutor(max_workers=50) as pool:
+                for _ in range(5):
+                    for i in range(20, 25):
+                        pool.submit(
+                            self.parallel_sleep_queries(basedir=self.basedir,
+                                                        sock="{}/socket.sock".format(self.basedir),
+                                                        sql="select benchmark(9999999, md5(c)) from sysbench_test_db.sbtest{}".format(
+                                                            i)))
             self.all_backup()
 
         if os.path.isfile('{}/out_ts1.ibd'.format(self.basedir)):
