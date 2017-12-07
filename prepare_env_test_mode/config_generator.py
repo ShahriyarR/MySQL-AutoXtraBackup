@@ -73,11 +73,10 @@ class ConfigGenerator(CloneBuildStartServer):
                 if '5.7' in basedir:
                     config.set(section2, "xtra_options", "--slave-info --no-version-check --core-file "
                                                          "--parallel=10 --throttle=40 --check-privileges "
-                                                         "--ftwrl-wait-timeout=-1 "
+                                                         "--ftwrl-wait-timeout=0 "
                                                          "--ftwrl-wait-query-type=all "
-                                                         "--ftwrl-wait-threshold=-1 "   
-                                                         "--lock-wait-threshold=-1 "
-                                                         "--lock-wait-query-type=all "   
+                                                         "--ftwrl-wait-threshold=1 "
+                                                         "--kill-long-queries-timeout=1 "   
                                                          "--kill-wait-query-type=all "
                                                          "--kill-long-query-type=all "
                                                          "--keyring-file-data={}/mysql-keyring/keyring ".format(basedir))
@@ -85,9 +84,8 @@ class ConfigGenerator(CloneBuildStartServer):
                     config.set(section2, "xtra_options", "--slave-info --no-version-check --core-file "
                                                          "--ftwrl-wait-timeout=0 "
                                                          "--ftwrl-wait-query-type=all "
-                                                         "--ftwrl-wait-threshold=0 "  
-                                                         "--lock-wait-threshold=0 "
-                                                         "--lock-wait-query-type=all "   
+                                                         "--ftwrl-wait-threshold=1 "
+                                                         "--kill-long-queries-timeout=1 "   
                                                          "--kill-wait-query-type=all "
                                                          "--kill-long-query-type=all "   
                                                          "--parallel=10 --throttle=40 --check-privileges ")
