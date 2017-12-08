@@ -85,7 +85,10 @@ class CloneBuildStartServer(TestModeConfCheck):
         for branch in pxb_branches:
             pxb_path = "{}/PXB-{}".format(self.testpath, branch)
             os.chdir(pxb_path)
-            build_cmd = "{}/build_{}_pxb.sh {}".format(dir_path, branch, self.testpath)
+            if '2.3' in branch:
+                build_cmd = "{}/build_{}_pxb.sh {}".format(dir_path, '2.3', self.testpath)
+            elif '2.4' in branch:
+                build_cmd = "{}/build_{}_pxb.sh {}".format(dir_path, '2.4', self.testpath)
             status, output = subprocess.getstatusoutput(build_cmd)
             if status == 0:
                 logger.debug("PXB build succeeded")
