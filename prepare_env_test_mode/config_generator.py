@@ -82,7 +82,7 @@ class ConfigGenerator(CloneBuildStartServer):
                                                          "--kill-long-queries-timeout=1 "   
                                                          "--kill-wait-query-type=all "
                                                          "--kill-long-query-type=all "
-                                                         "--no-backup-locks "   
+                                                         #"--no-backup-locks "   
                                                          "--keyring-file-data={}/mysql-keyring/keyring ".format(basedir))
                 else:
                     config.set(section2, "xtra_options", "--slave-info --no-version-check --core-file "
