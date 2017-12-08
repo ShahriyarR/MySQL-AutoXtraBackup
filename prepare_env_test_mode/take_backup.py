@@ -4,6 +4,9 @@ from time import sleep
 import os
 import shutil
 import logging
+import concurrent.futures
+from shlex import split
+from subprocess import Popen
 logger = logging.getLogger(__name__)
 
 
@@ -37,6 +40,19 @@ class WrapperForBackupTest(Backup):
         except Exception as err:
             logger.debug("FAILED: Creating relative_path")
             logger.error(err)
+
+    @staticmethod
+    def parallel_sleep_queries(basedir, sql, sock):
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        bash_command = "{}/run_sql_queries.sh {} {} '{}'".format(dir_path, basedir, sock, sql)
+        try:
+            process = Popen(
+                split(bash_command),
+                stdin=None,
+                stdout=None,
+                stderr=None)
+        except Exception as e:
+            print(e)
 
     def run_all_backup(self):
         # Method for taking backups using master_backup_script.backuper.py::all_backup()
@@ -145,12 +161,27 @@ class WrapperForBackupTest(Backup):
                 sql_alter = "alter table sysbench_test_db.sbtest{} modify c varchar(120) CHARACTER SET utf8 COLLATE utf8_general50_ci".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter)
 
+        # Altering some of the table engines from innodb to myisam
+        for i in range(20, 25):
+            sql_alter_engine = "alter table sysbench_test_db.sbtest{} engine=myisam".format(i)
+            RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_engine)
+
         flush_tables = "flush tables"
         RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=flush_tables)
-        sleep(20)
+
+        sleep(10)
 
         for _ in range(int(self.incremental_count) + 1):
             RunBenchmark().run_sysbench_run(basedir=self.basedir)
+            # Concurrently running select on myisam based tables.
+            with concurrent.futures.ProcessPoolExecutor(max_workers=50) as pool:
+                for _ in range(10):
+                    for i in range(20, 25):
+                        pool.submit(
+                            self.parallel_sleep_queries(basedir=self.basedir,
+                                                        sock="{}/socket.sock".format(self.basedir),
+                                                        sql="select benchmark(9999999, md5(c)) from sysbench_test_db.sbtest{}".format(
+                                                            i)))
             self.all_backup()
 
         if os.path.isfile('{}/out_ts1.ibd'.format(self.basedir)):
