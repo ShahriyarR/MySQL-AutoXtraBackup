@@ -62,6 +62,12 @@ class WrapperForBackupTest(Backup):
             # Adding compression column with predefined dictionary.
             sql_create_dictionary = "CREATE COMPRESSION_DICTIONARY numbers('08566691963-88624912351-16662227201-46648573979-64646226163-77505759394-75470094713-41097360717-15161106334-50535565977')"
             RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_dictionary)
+
+            # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/229
+            # Creating encrypted general tablespace
+            sql_create_tablespace = "create tablespace ts3_enc add datafile 'ts3_enc.ibd' encryption='Y'"
+            RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_tablespace)
+
             for i in range(1, 5):
                 sql_encrypt = "alter table sysbench_test_db.sbtest{} encryption='Y'".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_encrypt)
@@ -130,6 +136,26 @@ class WrapperForBackupTest(Backup):
                 sql_alter_add_index = "alter table sysbench_test_db.sbtest{} add index(json_test_index)".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_add_index)
                 sql_alter_tablespace = "alter table sysbench_test_db.sbtest{} tablespace=out_ts1".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_tablespace)
+
+            for i in range(25, 30):
+                # Altering encrypted tables to use encrypted general tablespace
+                sql_encrypt = "alter table sysbench_test_db.sbtest{} encryption='Y'".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_encrypt)
+
+                sql_virtual_column = "alter table sysbench_test_db.sbtest{} add column json_test_v json generated always as (json_array(k,c,pad)) virtual".format(
+                    i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_virtual_column)
+                sql_stored_column = "alter table sysbench_test_db.sbtest{} add column json_test_s json generated always as (json_array(k,c,pad)) stored".format(
+                    i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_stored_column)
+                sql_create_json_column = "alter table sysbench_test_db.sbtest{} add column json_test_index varchar(255) generated always as (json_array(k,c,pad)) stored".format(
+                    i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_json_column)
+                sql_alter_add_index = "alter table sysbench_test_db.sbtest{} add index(json_test_index)".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_add_index)
+
+                sql_alter_tablespace = "alter table sysbench_test_db.sbtest{} tablespace=ts3_enc".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_tablespace)
 
             # TODO: enable this after fix for https://bugs.launchpad.net/percona-xtrabackup/+bug/1736380
