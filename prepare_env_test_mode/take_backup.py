@@ -192,6 +192,16 @@ class WrapperForBackupTest(Backup):
             sql_alter_engine = "alter table sysbench_test_db.sbtest{} engine=myisam".format(i)
             RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_engine)
 
+        # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/222
+        # Creating table with data directory option
+        if '5.6' in self.basedir or '5.7' in self.basedir:
+            if os.path.exists('{}/{}'.format(self.basedir, 'sysbench_test_db')):
+                shutil.rmtree('{}/{}'.format(self.basedir, 'sysbench_test_db'))
+            sql_create_table = "create table sysbench_test_db.t1(c varchar(255)) data directory='{}'".format(self.basedir)
+            RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_table)
+            sql_insert_data = "insert into sysbench_test_db.t1 select c from sysbench_test_db.sbtest1"
+            RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_insert_data)
+
         flush_tables = "flush tables"
         RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=flush_tables)
 
@@ -212,6 +222,9 @@ class WrapperForBackupTest(Backup):
 
         if os.path.isfile('{}/out_ts1.ibd'.format(self.basedir)):
             os.remove('{}/out_ts1.ibd'.format(self.basedir))
+
+        if os.path.isfile('{}/sysbench_test_db/t1.ibd'.format(self.basedir)):
+            os.remove('{}/sysbench_test_db/t1.ibd'.format(self.basedir))
 
         # TODO: enable this after fix for https://bugs.launchpad.net/percona-xtrabackup/+bug/1736380
         # self.general_tablespace_rel(self.basedir)
