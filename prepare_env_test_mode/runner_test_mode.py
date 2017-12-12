@@ -520,9 +520,12 @@ class RunnerTestMode(GeneralClass):
                                                                       full_dir=full_dir_2,
                                                                       inc_dir=inc_dir_2)
                                 if prepare_obj_2.run_prepare_backup():
-                                    # Creating slave datadir
+                                    # Removing outside tablespace files
                                     if os.path.isfile('{}/out_ts1.ibd'.format(basedir)):
                                         os.remove('{}/out_ts1.ibd'.format(basedir))
+                                    if os.path.isfile('{}/sysbench_test_db/t1.ibd'.format(basedir)):
+                                        os.remove('{}/sysbench_test_db/t1.ibd'.format(basedir))
+                                    # Creating slave datadir
                                     slave_datadir_2 = self.create_slave_datadir(basedir=basedir, num=2)
                                     prepare_obj_2.run_xtra_copyback(datadir=slave_datadir_2)
                                     prepare_obj_2.giving_chown(datadir=slave_datadir_2)

@@ -223,6 +223,9 @@ class WrapperForBackupTest(Backup):
         if os.path.isfile('{}/out_ts1.ibd'.format(self.basedir)):
             os.remove('{}/out_ts1.ibd'.format(self.basedir))
 
+        if os.path.isfile('{}/sysbench_test_db/t1.ibd'.format(self.basedir)):
+            os.remove('{}/sysbench_test_db/t1.ibd'.format(self.basedir))
+
         # TODO: enable this after fix for https://bugs.launchpad.net/percona-xtrabackup/+bug/1736380
         # self.general_tablespace_rel(self.basedir)
 
