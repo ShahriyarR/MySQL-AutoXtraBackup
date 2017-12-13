@@ -53,6 +53,6 @@ class TestCloneBuildStartServer:
             assert return_clone_obj.wipe_server_all(basedir_path=basedir) is True
 
     def test_extract_xb_archive(self, return_clone_obj):
-        for branch in return_clone_obj.pxb_branches:
+        for branch in return_clone_obj.pxb_branches.split():
             archive_name = "percona-xtrabackup-{}.x-debug.tar.gz".format(branch)
             assert return_clone_obj.extract_xb_archive(file_name=archive_name) is True
