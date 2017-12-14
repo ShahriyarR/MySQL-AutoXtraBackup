@@ -29,6 +29,37 @@ You need BATS_. for this.
 
 .. _BATS: https://github.com/sstephenson/bats
 
+Prior actions can be taken to use setup in advance:
+
+* Edit /etc/bck.conf and specify testpath under [TestConf] - in which path the test environment should be constructed, created.
+* ps_branches - specify which branches of PS should be cloned and build.
+* pxb_branches - specify which branches of PXB should be cloned and build.
+* gitcmd - specify a link of PS repo.
+* pxb_gitcmd - specify a link of PXB repo.
+
+**Running whole environment setup**
+
+The thing you need is to run:
+
+``bats prepare_env.bats``
+
+That's it, it will do the all job.
+
+**Running specific bats files**
+
+I have prepared separate bats files to run specific things:
+
+* ``test_clone_percona_qa.bats`` -> will clone percona-qa repo.
+* ``test_clone_ps_server_from_conf.bats`` -> will clone PS servers based on specified branches.
+* ``test_clone_pxb.bats`` -> will clone specified PXB based on specified branches.
+* ``test_build_pxb.bats`` -> will build cloned PXBs and create separate binary archives for each branch.
+* ``test_build_server.bats`` -> will build PS servers.
+* ``test_prepare_startup.bats`` -> will run startup.sh from percona-qa inside PS basedirs.
+* ``test_prepare_start_dynamic.bats`` -> will create start_dynamic scripts inside PS basedirs, which is going to be used in slave setup etc.
+* ``test_start_server.bats`` -> will start PS servers with default values(executing start script inside basedirs).
+* ``test_extract_xb_archive.bats`` -> will extracting PXB binary archives to the target folder inside testpath(which is grabbed from config file).
+* ``test_generate_config_files.bats`` -> will generate specific config files based on PXB and PS versions.
+
 After running this you will likely have something like in your test path:
 
 
@@ -71,7 +102,9 @@ For test mode [TestConf] category is relevant. Let's go through options
     # Do not touch; this is for --test_mode, which is testing for XtraBackup itself.
     [TestConf]
     ps_branches=5.6 5.7
+    pxb_branches=2.3 2.4
     gitcmd=--recursive --depth=1 https://github.com/percona/percona-server.git
+    pxb_gitcmd=https://github.com/percona/percona-xtrabackup.git
     testpath=/home/shahriyar.rzaev/XB_TEST/server_dir
     incremental_count=3
     #make_slaves=1
@@ -79,7 +112,11 @@ For test mode [TestConf] category is relevant. Let's go through options
     default_mysql_options=--log-bin=mysql-bin,--log-slave-updates,--server-id={},--gtid-mode=ON,--enforce-gtid-consistency,--binlog-format=row
     mysql_options=--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,--innodb_page_size=4K 8K 16K 32K 64K
 
-``ps_branches`` is for specifying PS branches in github.
+``ps_branches`` is for specifying PS branches.
+
+``pxb_branches`` is for specifying PXB branches.
+
+``pxb_gitcmd`` is for passing repo link.
 
 ``gitcmd`` is for passing git command for git clone.
 
