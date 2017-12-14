@@ -37,5 +37,5 @@ I have prepared separate bats files to run specific things:
 * `test_prepare_start_dynamic.bats` -> will create start_dynamic scripts inside PS basedirs, which is going to be used in slave setup etc.
 * `test_start_server.bats` -> will start PS servers with default values(executing start script inside basedirs).
 * `test_extract_xb_archive.bats` -> will extracting PXB binary archives to the target folder inside testpath(which is grabbed from config file).
-* `test_generate_config_files.bats` -> # will generate specific config files based on PXB and PS versions.
+* `test_generate_config_files.bats` -> will generate specific config files based on PXB and PS versions.
 
