@@ -51,9 +51,9 @@ class RunBenchmark:
             logger.debug("OK: Running -> {}".format(sql))
             return True
         else:
-            logger.error("FAILED: running SQL")
+            logger.error("FAILED: running SQL -> {}".format(sql))
             logger.error(output)
-            raise RuntimeError("FAILED: running SQL")
+            raise RuntimeError("FAILED: running SQL -> {}".format(sql))
 
     def create_db(self, db_name, basedir):
         # Creating DB using mysql client
@@ -91,13 +91,13 @@ class RunBenchmark:
               "--mysql-socket={} prepare"
 
         logger.debug("Running command -> {}".format(sysbench_cmd.format(1000,
-                                                                        100,
+                                                                        35,
                                                                         db_name,
                                                                         100,
                                                                         sock_name)))
 
         status, output = subprocess.getstatusoutput(sysbench_cmd.format(1000,
-                                                                        100,
+                                                                        35,
                                                                         db_name,
                                                                         100,
                                                                         sock_name))
@@ -109,7 +109,6 @@ class RunBenchmark:
             logger.error("Failed to run sysbench")
             logger.error(output)
             raise RuntimeError("Failed to run sysbench")
-
 
     def run_sysbench_run(self, basedir):
         # Running sysbench run here
@@ -127,13 +126,13 @@ class RunBenchmark:
                        "--mysql-socket={} run"
 
         logger.debug("Running command -> {}".format(sysbench_cmd.format(1000,
-                                                                        100,
+                                                                        35,
                                                                         db_name,
                                                                         100,
                                                                         sock_name)))
 
         status, output = subprocess.getstatusoutput(sysbench_cmd.format(1000,
-                                                                        100,
+                                                                        35,
                                                                         db_name,
                                                                         100,
                                                                         sock_name))

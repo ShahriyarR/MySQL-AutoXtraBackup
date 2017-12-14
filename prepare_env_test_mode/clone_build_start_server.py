@@ -1,4 +1,5 @@
 from prepare_env_test_mode.test_check_env import TestModeConfCheck
+from shutil import rmtree
 import subprocess
 import os
 import re
@@ -42,16 +43,61 @@ class CloneBuildStartServer(TestModeConfCheck):
         # Clone PS server[the value coming from config file]
         ps_branches = self.ps_branches.split()
         for branch in ps_branches:
-            clone_cmd = "git clone {} -b {} {}/PS-{}-trunk"
+            if branch != '5.5':
+                clone_cmd = "git clone {} -b {} {}/PS-{}-trunk".format(self.gitcmd, branch, self.testpath, branch)
+            else:
+                clone_cmd = "git clone {} -b {} {}/PS-{}-trunk".format(self.gitcmd.split()[-1], branch, self.testpath, branch)
             if not os.path.exists("{}/PS-{}-trunk".format(self.testpath, branch)):
                 logger.debug("Started to clone Percona Server...")
-                status, output = subprocess.getstatusoutput(clone_cmd.format(self.gitcmd, branch, self.testpath, branch))
+                status, output = subprocess.getstatusoutput(clone_cmd)
                 if status == 0:
                     logger.debug("PS-{} cloned ready to build".format(branch))
                 else:
                     logger.error("Cloning PS-{} failed".format(branch))
                     logger.error(output)
                     return False
+
+        return True
+
+    def clone_pxb(self):
+        # Clone PXB
+        pxb_branches = self.pxb_branches.split()
+        for branch in pxb_branches:
+            clone_cmd = "git clone {} -b {} {}/PXB-{}"
+            if not os.path.exists("{}/PXB-{}".format(self.testpath, branch)):
+                logger.debug("Started to clone PXB...")
+                status, output = subprocess.getstatusoutput(
+                    clone_cmd.format(self.pxb_gitcmd, branch, self.testpath, branch))
+                if status == 0:
+                    logger.debug("PXB-{} cloned ready to build".format(branch))
+                else:
+                    logger.error("Cloning PXB-{} failed".format(branch))
+                    logger.error(output)
+                    return False
+        return True
+
+    def build_pxb(self):
+        # Building pxb from source
+        # For this purpose will use build_{}_pxb.sh scripts from this folder
+        pxb_branches = self.pxb_branches.split()
+        saved_path = os.getcwd()
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        for branch in pxb_branches:
+            pxb_path = "{}/PXB-{}".format(self.testpath, branch)
+            os.chdir(pxb_path)
+            if '2.3' in branch:
+                build_cmd = "{}/build_{}_pxb.sh {} {}".format(dir_path, '2.3', self.testpath, branch)
+            elif '2.4' in branch:
+                build_cmd = "{}/build_{}_pxb.sh {} {}".format(dir_path, '2.4', self.testpath, branch)
+            status, output = subprocess.getstatusoutput(build_cmd)
+            if status == 0:
+                logger.debug("PXB build succeeded")
+                os.chdir(saved_path)
+            else:
+                logger.error("PXB build failed")
+                logger.error(output)
+                os.chdir(saved_path)
+                return False
 
         return True
 
@@ -64,7 +110,11 @@ class CloneBuildStartServer(TestModeConfCheck):
         for branch in ps_branches:
             new_path = "{}/PS-{}-trunk"
             os.chdir(new_path.format(self.testpath, branch))
-            build_cmd = "{}/percona-qa/build_5.x_debug_{}_for_pxb_tests.sh"
+            if '5.5' in branch:
+                # Use same script with 5.5 and 5.6 versions
+                build_cmd = "{}/percona-qa/build_5.x_debug_5.6_for_pxb_tests.sh"
+            else:
+                build_cmd = "{}/percona-qa/build_5.x_debug_{}_for_pxb_tests.sh"
             logger.debug("Started to build Percon Server from source...")
             status, output = subprocess.getstatusoutput(build_cmd.format(self.testpath, branch))
             if status == 0:
@@ -78,6 +128,24 @@ class CloneBuildStartServer(TestModeConfCheck):
 
         return True
 
+    def rename_basedirs(self):
+        logger.debug("Renaming basedir folder name...")
+        basedirs = []
+        for root, dirs, files in os.walk(self.testpath):
+            for dir_name in dirs:
+                obj = re.search('PS[0-9]', dir_name)
+                if obj:
+                    basedir_path = "{}/{}"
+                    basedirs.append(basedir_path.format(self.testpath, dir_name))
+        if len(basedirs) > 0:
+            for i in basedirs:
+                os.rename(i, i.replace('-percona-server', ''))
+            return True
+        else:
+            logger.warning("Could not get PS basedir path...")
+            logger.debug("It looks like you should build server first...")
+            return False
+
     def get_basedir(self):
         # Method for getting PS basedir path
         logger.debug("Trying to get basedir path...")
@@ -88,9 +156,9 @@ class CloneBuildStartServer(TestModeConfCheck):
                 if obj:
                     basedir_path = "{}/{}"
                     basedirs.append(basedir_path.format(self.testpath, dir_name))
-                    #return basedir_path.format(self.testpath, dir_name)
+                    # return basedir_path.format(self.testpath, dir_name)
         if len(basedirs) > 0:
-            logger.debug("Could get PS basedir path returning...")
+            logger.debug("Could get PS basedir path...")
             return basedirs
         else:
             logger.warning("Could not get PS basedir path...")
@@ -111,6 +179,26 @@ class CloneBuildStartServer(TestModeConfCheck):
             return True
         else:
             logger.error("Running startup.sh failed")
+            logger.error(output)
+            os.chdir(saved_path)
+            return False
+
+    @staticmethod
+    def prepare_start_dynamic(basedir_path):
+        # Method for calling start_dynamic.sh from basedir.
+        # It will generated start_dynamuc executables in basedir.
+        saved_path = os.getcwd()
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        os.chdir(basedir_path)
+        start_dynamic = "{}/start_dynamic.sh".format(dir_path)
+        logger.debug("Running start_dynamic.sh here...")
+        status, output = subprocess.getstatusoutput(start_dynamic)
+        if status == 0:
+            logger.debug("Running start_dynamic.sh succeeded")
+            os.chdir(saved_path)
+            return True
+        else:
+            logger.error("Running start_dynamic.sh failed")
             logger.error(output)
             os.chdir(saved_path)
             return False
@@ -154,22 +242,6 @@ class CloneBuildStartServer(TestModeConfCheck):
             logger.error(output)
             os.chdir(saved_path)
             return False
-
-    def get_xb_packages(self, file_name, url):
-        # General method for getting XB packages
-        wget_cmd = "wget {} -P {}"
-        if not os.path.isfile("{}/{}".format(self.testpath, file_name)):
-            status, output = subprocess.getstatusoutput(wget_cmd.format(url, self.testpath))
-            if status == 0:
-                logger.debug("Downloaded {}".format(file_name))
-                return True
-            else:
-                logger.error("Failed to download {}".format(file_name))
-                logger.error(output)
-                return False
-        else:
-            logger.debug("The {} is already there".format(file_name))
-            return True
 
     def extract_xb_archive(self, file_name):
         # General method for extracting XB archives

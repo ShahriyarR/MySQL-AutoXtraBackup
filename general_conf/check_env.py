@@ -45,15 +45,23 @@ class CheckEnv(GeneralClass):
             statusargs = "{} {} status".format(self.mysqladmin, options)
         
         logger.debug("Running mysqladmin command -> {}".format(statusargs))
-        statusargs = shlex.split(statusargs)
-        myadmin = subprocess.Popen(statusargs, stdout=subprocess.PIPE)
+        #statusargs = shlex.split(statusargs)
+        status, output = subprocess.getstatusoutput(statusargs)
+        #myadmin = subprocess.Popen(statusargs, stdout=subprocess.PIPE)
 
-        if not ('Uptime' in str(myadmin.stdout.read())):
-            logger.error('FAILED: Server is NOT Up')
-            raise RuntimeError('FAILED: Server is NOT Up')
-        else:
+        if status == 0:
             logger.debug('OK: Server is Up and running')
             return True
+        else:
+            logger.error('FAILED: Server is NOT Up')
+            raise RuntimeError('FAILED: Server is NOT Up')
+
+        # if not ('Uptime' in str(myadmin.stdout.read())):
+        #     logger.error('FAILED: Server is NOT Up')
+        #     raise RuntimeError('FAILED: Server is NOT Up')
+        # else:
+        #     logger.debug('OK: Server is Up and running')
+        #     return True
 
     def check_mysql_conf(self):
         '''

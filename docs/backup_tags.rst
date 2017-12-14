@@ -6,6 +6,7 @@ Read discussions about feature requests below:
 
 `#163 <https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/163>`_.
 `#164 <https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/164>`_.
+`#210 <https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/210>`_.
 
 So basically how to take backups and create a tag for it?
 
@@ -15,7 +16,7 @@ Taking full backup:
 ::
 
     $ sudo autoxtrabackup --tag="My Full backup" -v \
-    -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log \
+    -lf /home/shahriyar.rzaev/autoxtrabackup_2_4_5_7.log \
     -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --backup
 
 Taking incremental one:
@@ -24,7 +25,7 @@ Taking incremental one:
 ::
 
     $ autoxtrabackup --tag="First incremental backup" -v \
-    -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log \
+    -lf /home/shahriyar.rzaev/autoxtrabackup_2_4_5_7.log \
     -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --backup
 
 Taking second incremental:
@@ -33,21 +34,20 @@ Taking second incremental:
 ::
 
     $ autoxtrabackup --tag="Second incremental backup" -v \
-    -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log \
+    -lf /home/shahriyar.rzaev/autoxtrabackup_2_4_5_7.log \
     -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --backup
 
 To list available tags(backups):
 -------------------------------
+For eg, if full backup failed, the result will be something like this:
 
 ::
 
     $ sudo autoxtrabackup --show_tags \
     --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf
-    Backup             	Type	Status	TAG
-    -------------------------------------------
-    2017-11-16_20-10-53	Full	OK	'My Full backup'
-    2017-11-16_20-12-23	Inc	    OK	'First incremental backup'
-    2017-11-16_20-13-39	Inc	    OK	'Second incremental backup'
+    Backup             	Type	Status	Completion_time    	Size	TAG
+    ----------------------------------------------------------------------------------
+    2017-12-14_12-01-11	Full	FAILED	2017-12-14_12-01-11	4,0K	'My Full backup'
 
 
 backup_tags.txt file
@@ -59,9 +59,8 @@ All tags are stored inside backup_tags.txt file, which will be created in backup
     [vagrant@localhost ps_5_7_x_2_4]$ ls
     backup_tags.txt  full  inc
     [vagrant@localhost ps_5_7_x_2_4]$ cat backup_tags.txt
-    2017-11-16_20-10-53	Full	OK	'My Full backup'
-    2017-11-16_20-12-23	Inc	    OK	'First incremental backup'
-    2017-11-16_20-13-39	Inc	    OK	'Second incremental backup'
+    $ cat backup_tags.txt
+    2017-12-14_12-01-11	Full	FAILED	2017-12-14_12-01-11	4,0K	'My Full backup'
 
 Preparing with tag
 ------------------
@@ -72,7 +71,7 @@ Say you want to prepare only first incremental and ignore second one(or others).
 ::
 
     $ autoxtrabackup --tag="First incremental backup" -v \
-    -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log \
+    -lf /home/shahriyar.rzaev/autoxtrabackup_2_4_5_7.log \
     -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --prepare
     2017-11-16 20:18:16 DEBUG    <pid.PidFile object at 0x7f7bc69d2048> entering setup
     2017-11-16 20:18:16 DEBUG    <pid.PidFile object at 0x7f7bc69d2048> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid

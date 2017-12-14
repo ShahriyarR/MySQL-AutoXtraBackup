@@ -50,6 +50,10 @@ class ConfigGenerator(CloneBuildStartServer):
                     config.set(section2, "backupdir", "/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_6_x_2_4")
                 elif ('5.6' in basedir) and ('2_3' in conf_file):
                     config.set(section2, "backupdir", "/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_6_x_2_3")
+                elif ('5.5' in basedir) and ('2_3' in conf_file):
+                    config.set(section2, "backupdir", "/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_5_x_2_3")
+                elif ('5.5' in basedir) and ('2_4' in conf_file):
+                    config.set(section2, "backupdir", "/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_5_x_2_4")
                 if '2_4' in conf_file:
                     config.set(section2, "backup_tool",
                                "{}/target/percona-xtrabackup-2.4.x-debug/bin/xtrabackup".format(test_path))
@@ -68,11 +72,31 @@ class ConfigGenerator(CloneBuildStartServer):
                 config.set(section2, "#xtra_options", "--binlog-info=ON --galera-info")
                 if '5.7' in basedir:
                     config.set(section2, "xtra_options", "--slave-info --no-version-check --core-file "
-                                                         "--parallel=1 --throttle=40 "
-                                                         "--keyring-file-data={}/mysql-keyring/keyring".format(basedir))
+                                                         "--parallel=10 --throttle=40 --check-privileges "
+                                                         "--ftwrl-wait-timeout=0 "
+                                                         "--ftwrl-wait-query-type=all "
+                                                         "--ftwrl-wait-threshold=1 "
+                                                         #"--lock-wait-timeout=0 "
+                                                         #"--lock-wait-query-type=all "
+                                                         #"--lock-wait-threshold=1 "   
+                                                         "--kill-long-queries-timeout=1 "   
+                                                         "--kill-wait-query-type=all "
+                                                         "--kill-long-query-type=all "
+                                                         "--no-backup-locks "   
+                                                         "--keyring-file-data={}/mysql-keyring/keyring ".format(basedir))
                 else:
                     config.set(section2, "xtra_options", "--slave-info --no-version-check --core-file "
-                                                         "--parallel=10 --throttle=40")
+                                                         "--ftwrl-wait-timeout=0 "
+                                                         "--ftwrl-wait-query-type=all "
+                                                         "--ftwrl-wait-threshold=1 "
+                                                         #"--lock-wait-timeout=0 "
+                                                         #"--lock-wait-query-type=all "
+                                                         #"--lock-wait-threshold=1 "
+                                                         "--kill-long-queries-timeout=1 "   
+                                                         "--kill-wait-query-type=all "
+                                                         "--kill-long-query-type=all "
+                                                         "--no-backup-locks "   
+                                                         "--parallel=10 --throttle=40 --check-privileges ")
                 config.set(section2, "#Optional: set archive and rotation")
                 config.set(section2, "#archive_dir", "/home/shahriyar.rzaev/XB_TEST/backup_archives")
                 config.set(section2, "#full_backup_interval", "1 day")
@@ -141,16 +165,18 @@ class ConfigGenerator(CloneBuildStartServer):
                 config.add_section(section7)
                 config.set(section7, "start_mysql_command", "{}/start".format(basedir))
                 config.set(section7, "stop_mysql_command", "{}/stop".format(basedir))
-                config.set(section7, "chown_command", "chown -R vagrant:vagrant")
+                config.set(section7, "chown_command", "chown -R shahriyar.rzaev:shahriyar.rzaev")
 
                 section8 = "TestConf"
                 config.add_section(section8)
-                config.set(section8, "ps_branches", "5.6 5.7")
+                config.set(section8, "ps_branches", "5.5 5.6 5.7")
+                config.set(section8, "pxb_branches", "2.3 2.4")
                 config.set(section8, "gitcmd",
                                      "--recursive --depth=1 https://github.com/percona/percona-server.git")
+                config.set(section8, "pxb_gitcmd", "https://github.com/percona/percona-xtrabackup.git")
                 config.set(section8, "testpath", "/home/shahriyar.rzaev/XB_TEST/server_dir")
                 config.set(section8, "incremental_count", "3")
-                config.set(section8, "xb_configs", "xb_2_4_ps_5_6.conf xb_2_4_ps_5_7.conf xb_2_3_ps_5_6.conf")
+                config.set(section8, "xb_configs", "xb_2_4_ps_5_6.conf xb_2_4_ps_5_7.conf xb_2_3_ps_5_6.conf xb_2_3_ps_5_5.conf xb_2_4_ps_5_5.conf")
                 config.set(section8, "make_slaves", "1")
                 if '5_7' in conf_file:
                     config.set(section8, "default_mysql_options",
@@ -158,15 +184,24 @@ class ConfigGenerator(CloneBuildStartServer):
                                          "--keyring_file_data={}/mysql-keyring/keyring,"
                                          "--log-bin=mysql-bin,--log-slave-updates,--server-id={},"
                                          "--gtid-mode=ON,--enforce-gtid-consistency,--binlog-format=row")
-                else:
+                elif '5_6' in conf_file:
                     config.set(section8, "default_mysql_options",
                                          "--log-bin=mysql-bin,--log-slave-updates,--server-id={},"
                                          "--gtid-mode=ON,--enforce-gtid-consistency,--binlog-format=row")
+                elif '5_5' in conf_file:
+                    config.set(section8, "default_mysql_options",
+                               "--log-bin=mysql-bin,--log-slave-updates,--server-id={},"
+                               "--binlog-format=row")
+
                 if '5_7' in conf_file:
                     config.set(section8, "mysql_options",
                                          "--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,"
-                                         "--innodb_page_size=64K 32K 16K 8K 4K")
-                else:
+                                         "--innodb_page_size=4K 8K 16K 32K")
+                elif '5_6' in conf_file:
+                    config.set(section8, "mysql_options",
+                                         "--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,"
+                                         "--innodb_page_size=4K 8K 16K")
+                elif '5_5' in conf_file:
                     config.set(section8, "mysql_options",
                                          "--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,"
                                          "--innodb_page_size=4K 8K 16K")
@@ -201,7 +236,19 @@ class ConfigGenerator(CloneBuildStartServer):
                                                basedir=basedir,
                                                datadir='data',
                                                sock_file=self.benchmark_obj.get_sock(basedir=basedir))
-                elif ('5.6' in basedir) and ('2_3' in conf_file):
+                elif ('5.6' in basedir) and ('2_3_ps_5_6' in conf_file):
+                    self.generate_config_files(test_path=self.testpath,
+                                               conf_file=conf_file,
+                                               basedir=basedir,
+                                               datadir='data',
+                                               sock_file=self.benchmark_obj.get_sock(basedir=basedir))
+                elif ('5.5' in basedir) and ('2_4_ps_5_5' in conf_file):
+                    self.generate_config_files(test_path=self.testpath,
+                                               conf_file=conf_file,
+                                               basedir=basedir,
+                                               datadir='data',
+                                               sock_file=self.benchmark_obj.get_sock(basedir=basedir))
+                elif ('5.5' in basedir) and ('2_3_ps_5_5' in conf_file):
                     self.generate_config_files(test_path=self.testpath,
                                                conf_file=conf_file,
                                                basedir=basedir,

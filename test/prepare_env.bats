@@ -16,6 +16,18 @@ DIRNAME=$BATS_TEST_DIRNAME
   [ $status -eq 0 ]
 }
 
+@test "Running test_clone_pxb" {
+  run python -m pytest -vv ${DIRNAME}/test_clone_build_start_server.py::TestCloneBuildStartServer::test_clone_pxb
+  echo $output
+  [ $status -eq 0 ]
+}
+
+@test "Running test_build_pxb" {
+  run python -m pytest -vv ${DIRNAME}/test_clone_build_start_server.py::TestCloneBuildStartServer::test_build_pxb
+  echo $output
+  [ $status -eq 0 ]
+}
+
 @test "Running test_build_server" {
   run python -m pytest -vv ${DIRNAME}/test_clone_build_start_server.py::TestCloneBuildStartServer::test_build_server
   echo $output
@@ -28,14 +40,14 @@ DIRNAME=$BATS_TEST_DIRNAME
   [ $status -eq 0 ]
 }
 
-@test "Running test_start_server" {
-  run python -m pytest -vv ${DIRNAME}/test_clone_build_start_server.py::TestCloneBuildStartServer::test_start_server
+@test "Running test_prepare_start_dynamic" {
+  run python -m pytest -vv ${DIRNAME}/test_clone_build_start_server.py::TestCloneBuildStartServer::test_prepare_start_dynamic
   echo $output
   [ $status -eq 0 ]
 }
 
-@test "Running test_get_xb_packages" {
-  run python -m pytest -vv ${DIRNAME}/test_clone_build_start_server.py::TestCloneBuildStartServer::test_get_xb_packages
+@test "Running test_start_server" {
+  run python -m pytest -vv ${DIRNAME}/test_clone_build_start_server.py::TestCloneBuildStartServer::test_start_server
   echo $output
   [ $status -eq 0 ]
 }
