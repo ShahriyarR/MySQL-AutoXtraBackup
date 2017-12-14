@@ -12,6 +12,7 @@ import time
 from datetime import datetime
 from general_conf.generalops import GeneralClass
 from general_conf.check_env import CheckEnv
+from backup_prepare.prepare import Prepare
 from os.path import join, isfile
 from os import makedirs
 
@@ -213,24 +214,20 @@ class Backup(GeneralClass):
     def create_backup_archives(self):
         # Creating .tar.gz archive files of taken backups
         for i in os.listdir(self.full_dir):
-            rm_dir = self.full_dir + '/' + i
-            if len(
-                os.listdir(
-                    self.full_dir)) == 1 or i != max(
-                os.listdir(
-                    self.full_dir)):
-                run_tar = "tar -zcf %s %s %s" % (
-                    self.archive_dir + '/' + i + '.tar.gz', self.full_dir, self.inc_dir)
-
-        logger.debug("Start to archive previous backups")
-        status, output = subprocess.getstatusoutput(run_tar)
-        if status == 0:
-            logger.debug("OK: Old full backup and incremental backups archived!")
-            return True
-        else:
-            logger.error("FAILED: Archiving ")
-            logger.error(output)
-            raise RuntimeError("FAILED: Archiving -> {}".format(output))
+            if len(os.listdir(self.full_dir)) == 1 or i != max(os.listdir(self.full_dir)):
+                run_tar = "tar -zcf %s %s %s" % (self.archive_dir + '/' + i + '.tar.gz', self.full_dir, self.inc_dir)
+                logger.debug("Preparing backups prior archiving them...")
+                prepare_obj = Prepare(config=self.conf, dry_run=self.dry, tag=self.tag)
+                prepare_obj.prepare_inc_full_backups()
+                logger.debug("Started to archive previous backups")
+                status, output = subprocess.getstatusoutput(run_tar)
+                if status == 0:
+                    logger.debug("OK: Old full backup and incremental backups archived!")
+                    return True
+                else:
+                    logger.error("FAILED: Archiving ")
+                    logger.error(output)
+                    raise RuntimeError("FAILED: Archiving -> {}".format(output))
 
     def clean_old_archives(self):
         logger.debug("Starting cleaning of old archives")
