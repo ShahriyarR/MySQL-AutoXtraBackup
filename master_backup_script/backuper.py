@@ -219,7 +219,7 @@ class Backup(GeneralClass):
                     self.full_dir)) == 1 or i != max(
                 os.listdir(
                     self.full_dir)):
-                run_tar = "/usr/bin/tar -zcf %s %s %s" % (
+                run_tar = "tar -zcf %s %s %s" % (
                     self.archive_dir + '/' + i + '.tar.gz', self.full_dir, self.inc_dir)
 
         logger.debug("Start to archive previous backups")
