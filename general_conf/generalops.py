@@ -120,27 +120,28 @@ class GeneralClass:
             self.stop_mysql = CM['stop_mysql_command']
             self.chown_command = CM['chown_command']
 
-            TEST = con['TestConf']
-            if 'ps_branches' in TEST:
-                self.ps_branches = TEST['ps_branches']
-            if 'pxb_branches' in TEST:
-                self.pxb_branches = TEST['pxb_branches']
-            if 'gitcmd' in TEST:
-                self.gitcmd = TEST['gitcmd']
-            if 'pxb_gitcmd' in TEST:
-                self.pxb_gitcmd = TEST['pxb_gitcmd']
-            if 'testpath' in TEST:
-                self.testpath = TEST['testpath']
-            if 'incremental_count' in TEST:
-                self.incremental_count = TEST['incremental_count']
-            if 'xb_configs' in TEST:
-                self.xb_configs = TEST['xb_configs']
-            if 'default_mysql_options' in TEST:
-                self.default_mysql_options = TEST['default_mysql_options']
-            if 'mysql_options' in TEST:
-                self.mysql_options = TEST['mysql_options']
-            if 'make_slaves' in TEST:
-                self.make_slaves = TEST['make_slaves']
+            if 'TestConf' in con:
+                TEST = con['TestConf']
+                if 'ps_branches' in TEST:
+                    self.ps_branches = TEST['ps_branches']
+                if 'pxb_branches' in TEST:
+                    self.pxb_branches = TEST['pxb_branches']
+                if 'gitcmd' in TEST:
+                    self.gitcmd = TEST['gitcmd']
+                if 'pxb_gitcmd' in TEST:
+                    self.pxb_gitcmd = TEST['pxb_gitcmd']
+                if 'testpath' in TEST:
+                    self.testpath = TEST['testpath']
+                if 'incremental_count' in TEST:
+                    self.incremental_count = TEST['incremental_count']
+                if 'xb_configs' in TEST:
+                    self.xb_configs = TEST['xb_configs']
+                if 'default_mysql_options' in TEST:
+                    self.default_mysql_options = TEST['default_mysql_options']
+                if 'mysql_options' in TEST:
+                    self.mysql_options = TEST['mysql_options']
+                if 'make_slaves' in TEST:
+                    self.make_slaves = TEST['make_slaves']
 
         else:
             logger.critical("Missing config file : /etc/bck.conf")
