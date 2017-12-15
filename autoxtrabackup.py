@@ -54,7 +54,7 @@ def check_file_content(file):
     with open(file, 'r') as config_file:
         file_content = config_file.read()
  
-    config_headers = ["MySQL", "Backup", "Encrypt", "Compress", "Commands", "TestConf"]
+    config_headers = ["MySQL", "Backup", "Encrypt", "Compress", "Commands"]
     config_keys = [
         "mysql",
         "mycnf",
