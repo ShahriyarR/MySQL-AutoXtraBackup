@@ -29,8 +29,7 @@ class GeneralClass:
             self.datadir = DB['datadir']
             # self.tmpdir = DB['tmpdir']
             # self.tmp = DB['tmp']
-            
-            
+
             BCK = con['Backup']
             if 'pid_dir' in BCK:
                 self.pid_dir = BCK['pid_dir']
@@ -68,8 +67,7 @@ class GeneralClass:
                     BCK['max_archive_duration'])
             if 'partial_list' in BCK:
                 self.partial_list = BCK['partial_list']
-                
-                
+
             if 'Remote' in con:
                 RM = con['Remote']
                 if 'remote_conn' in RM:
@@ -117,21 +115,28 @@ class GeneralClass:
             if 'xbs_decrypt' in XBS:
                 self.xbs_decrypt = XBS['xbs_decrypt']
 
-
             CM = con['Commands']
             self.start_mysql = CM['start_mysql_command']
             self.stop_mysql = CM['stop_mysql_command']
             self.chown_command = CM['chown_command']
 
             TEST = con['TestConf']
-            self.ps_branches = TEST['ps_branches']
-            self.pxb_branches = TEST['pxb_branches']
-            self.gitcmd = TEST['gitcmd']
-            self.pxb_gitcmd = TEST['pxb_gitcmd']
-            self.testpath = TEST['testpath']
-            self.incremental_count = TEST['incremental_count']
-            self.xb_configs = TEST['xb_configs']
-            self.default_mysql_options = TEST['default_mysql_options']
+            if 'ps_branches' in TEST:
+                self.ps_branches = TEST['ps_branches']
+            if 'pxb_branches' in TEST:
+                self.pxb_branches = TEST['pxb_branches']
+            if 'gitcmd' in TEST:
+                self.gitcmd = TEST['gitcmd']
+            if 'pxb_gitcmd' in TEST:
+                self.pxb_gitcmd = TEST['pxb_gitcmd']
+            if 'testpath' in TEST:
+                self.testpath = TEST['testpath']
+            if 'incremental_count' in TEST:
+                self.incremental_count = TEST['incremental_count']
+            if 'xb_configs' in TEST:
+                self.xb_configs = TEST['xb_configs']
+            if 'default_mysql_options' in TEST:
+                self.default_mysql_options = TEST['default_mysql_options']
             if 'mysql_options' in TEST:
                 self.mysql_options = TEST['mysql_options']
             if 'make_slaves' in TEST:
