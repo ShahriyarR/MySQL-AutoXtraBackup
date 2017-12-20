@@ -56,9 +56,9 @@ class WrapperForBackupTest(Backup):
 
     @staticmethod
     def run_ddl_test_sh(basedir, sock):
-        logger.debug("Trying to run ddl_test.sh")
+        logger.debug("Trying to run call_ddl_test.sh")
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        bash_command = "{}/ddl_test.sh {} {}".format(dir_path, basedir, sock)
+        bash_command = "{}/call_ddl_test.sh {} {} {}".format(dir_path, dir_path, basedir, sock)
         try:
             process = Popen(
                 split(bash_command),
@@ -73,8 +73,7 @@ class WrapperForBackupTest(Backup):
         RunBenchmark().run_sysbench_prepare(basedir=self.basedir)
         # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/243
         # Calling here ddl_test.sh file for running some DDLs.
-        for _ in range(10):
-            self.run_ddl_test_sh(basedir=self.basedir, sock="{}/socket.sock".format(self.basedir))
+        self.run_ddl_test_sh(basedir=self.basedir, sock="{}/socket.sock".format(self.basedir))
         if '5.7' in self.basedir:
             # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/205
             # Adding compression column with predefined dictionary.
