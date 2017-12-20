@@ -232,32 +232,33 @@ class WrapperForBackupTest(Backup):
 
         sleep(10)
 
-        for _ in range(int(self.incremental_count) + 1):
-            RunBenchmark().run_sysbench_run(basedir=self.basedir)
-            # Concurrently running select on myisam based tables.
-            with concurrent.futures.ProcessPoolExecutor(max_workers=50) as pool:
-                for _ in range(10):
-                    for i in range(20, 25):
-                        pool.submit(
-                            self.parallel_sleep_queries(basedir=self.basedir,
-                                                        sock="{}/socket.sock".format(self.basedir),
-                                                        sql="select benchmark(9999999, md5(c)) from sysbench_test_db.sbtest{}".format(
-                                                            i)))
-            try:
-                self.all_backup()
-            except Exception as err:
-                print(err)
-                raise
-            finally:
-                self.check_kill_process('call_ddl_test')
+        try:
+            for _ in range(int(self.incremental_count) + 1):
+                RunBenchmark().run_sysbench_run(basedir=self.basedir)
+                # Concurrently running select on myisam based tables.
+                with concurrent.futures.ProcessPoolExecutor(max_workers=50) as pool:
+                    for _ in range(10):
+                        for i in range(20, 25):
+                            pool.submit(
+                                self.parallel_sleep_queries(basedir=self.basedir,
+                                                            sock="{}/socket.sock".format(self.basedir),
+                                                            sql="select benchmark(9999999, md5(c)) from sysbench_test_db.sbtest{}".format(
+                                                                i)))
 
-                if os.path.isfile('{}/out_ts1.ibd'.format(self.basedir)):
-                    os.remove('{}/out_ts1.ibd'.format(self.basedir))
+                    self.all_backup()
+        except Exception as err:
+            print(err)
+            raise
+        finally:
+            self.check_kill_process('call_ddl_test')
 
-                if os.path.isfile('{}/sysbench_test_db/t1.ibd'.format(self.basedir)):
-                    os.remove('{}/sysbench_test_db/t1.ibd'.format(self.basedir))
+            if os.path.isfile('{}/out_ts1.ibd'.format(self.basedir)):
+                os.remove('{}/out_ts1.ibd'.format(self.basedir))
 
-                # TODO: enable this after fix for https://bugs.launchpad.net/percona-xtrabackup/+bug/1736380
-                # self.general_tablespace_rel(self.basedir)
+            if os.path.isfile('{}/sysbench_test_db/t1.ibd'.format(self.basedir)):
+                os.remove('{}/sysbench_test_db/t1.ibd'.format(self.basedir))
+
+            # TODO: enable this after fix for https://bugs.launchpad.net/percona-xtrabackup/+bug/1736380
+            # self.general_tablespace_rel(self.basedir)
 
         return True
