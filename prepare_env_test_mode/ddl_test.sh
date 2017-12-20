@@ -21,4 +21,3 @@ ${BASEDIR}/bin/mysql --user=${MYSQL_USER} --socket=${MYSQL_SOCK} -e "create uniq
 #echo "drop table if exists db2.sb1"|./use
 #echo "create table sb1 as select id,c from sbtest1 where id < 150000;"|./use db2
 #echo "create unique index ix on sb1 (id)"|./use db2
-done
