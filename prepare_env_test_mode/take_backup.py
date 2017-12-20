@@ -231,10 +231,11 @@ class WrapperForBackupTest(Backup):
 
         try:
             for _ in range(int(self.incremental_count) + 1):
-                #RunBenchmark().run_sysbench_run(basedir=self.basedir)
+                # RunBenchmark().run_sysbench_run(basedir=self.basedir)
+                # TODO: enable when you pass --lock-ddl-per-table or --lock-ddl; disabled by default
                 # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/243
                 # Calling here ddl_test.sh file for running some DDLs.
-                self.run_ddl_test_sh(basedir=self.basedir, sock="{}/socket.sock".format(self.basedir))
+                # self.run_ddl_test_sh(basedir=self.basedir, sock="{}/socket.sock".format(self.basedir))
                 # Concurrently running select on myisam based tables.
                 with concurrent.futures.ProcessPoolExecutor(max_workers=50) as pool:
                     for _ in range(10):
@@ -246,12 +247,11 @@ class WrapperForBackupTest(Backup):
                                                                 i)))
 
                     self.all_backup()
-                    self.check_kill_process('call_ddl_test')
+                    # self.check_kill_process('call_ddl_test')
         except Exception as err:
             print(err)
             raise
         else:
-
             if os.path.isfile('{}/out_ts1.ibd'.format(self.basedir)):
                 os.remove('{}/out_ts1.ibd'.format(self.basedir))
 
@@ -260,5 +260,9 @@ class WrapperForBackupTest(Backup):
 
             # TODO: enable this after fix for https://bugs.launchpad.net/percona-xtrabackup/+bug/1736380
             # self.general_tablespace_rel(self.basedir)
+        finally:
+            # self.check_kill_process('call_ddl_test')
+            pass
+
 
         return True
