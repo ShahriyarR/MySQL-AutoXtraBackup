@@ -231,7 +231,7 @@ class WrapperForBackupTest(Backup):
 
         try:
             for _ in range(int(self.incremental_count) + 1):
-                RunBenchmark().run_sysbench_run(basedir=self.basedir)
+                #RunBenchmark().run_sysbench_run(basedir=self.basedir)
                 # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/243
                 # Calling here ddl_test.sh file for running some DDLs.
                 self.run_ddl_test_sh(basedir=self.basedir, sock="{}/socket.sock".format(self.basedir))
