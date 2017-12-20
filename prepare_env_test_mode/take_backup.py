@@ -73,7 +73,8 @@ class WrapperForBackupTest(Backup):
         RunBenchmark().run_sysbench_prepare(basedir=self.basedir)
         # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/243
         # Calling here ddl_test.sh file for running some DDLs.
-        self.run_ddl_test_sh(basedir=self.basedir, sock="{}/socket.sock".format(self.basedir))
+        for _ in range(10):
+            self.run_ddl_test_sh(basedir=self.basedir, sock="{}/socket.sock".format(self.basedir))
         if '5.7' in self.basedir:
             # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/205
             # Adding compression column with predefined dictionary.
