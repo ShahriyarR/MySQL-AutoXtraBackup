@@ -56,6 +56,7 @@ class WrapperForBackupTest(Backup):
 
     @staticmethod
     def run_ddl_test_sh(basedir, sock):
+        logger.debug("Trying to run ddl_test.sh")
         dir_path = os.path.dirname(os.path.realpath(__file__))
         bash_command = "{}/ddl_test.sh {} {}".format(dir_path, basedir, sock)
         try:
