@@ -1,7 +1,7 @@
 from master_backup_script.backuper import Backup
 from prepare_env_test_mode.run_benchmark import RunBenchmark
 from time import sleep
-import os
+import os, signal
 import shutil
 import logging
 import concurrent.futures
@@ -53,6 +53,28 @@ class WrapperForBackupTest(Backup):
                 stderr=None)
         except Exception as e:
             print(e)
+
+    @staticmethod
+    def run_ddl_test_sh(basedir, sock):
+        logger.debug("Trying to run call_ddl_test.sh")
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        bash_command = "{}/call_ddl_test.sh {} {} {}".format(dir_path, dir_path, basedir, sock)
+        try:
+            process = Popen(
+                split(bash_command),
+                stdin=None,
+                stdout=None,
+                stderr=None)
+        except Exception as e:
+            print(e)
+
+    @staticmethod
+    def check_kill_process(pstring):
+        for line in os.popen("ps ax | grep " + pstring + " | grep -v grep"):
+            fields = line.split()
+            pid = fields[0]
+
+        os.kill(int(pid), signal.SIGKILL)
 
     def run_all_backup(self):
         # Method for taking backups using master_backup_script.backuper.py::all_backup()
@@ -207,26 +229,40 @@ class WrapperForBackupTest(Backup):
 
         sleep(10)
 
-        for _ in range(int(self.incremental_count) + 1):
-            RunBenchmark().run_sysbench_run(basedir=self.basedir)
-            # Concurrently running select on myisam based tables.
-            with concurrent.futures.ProcessPoolExecutor(max_workers=50) as pool:
-                for _ in range(10):
-                    for i in range(20, 25):
-                        pool.submit(
-                            self.parallel_sleep_queries(basedir=self.basedir,
-                                                        sock="{}/socket.sock".format(self.basedir),
-                                                        sql="select benchmark(9999999, md5(c)) from sysbench_test_db.sbtest{}".format(
-                                                            i)))
-            self.all_backup()
+        try:
+            for _ in range(int(self.incremental_count) + 1):
+                # RunBenchmark().run_sysbench_run(basedir=self.basedir)
+                # TODO: enable when you pass --lock-ddl-per-table or --lock-ddl; disabled by default
+                # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/243
+                # Calling here ddl_test.sh file for running some DDLs.
+                # self.run_ddl_test_sh(basedir=self.basedir, sock="{}/socket.sock".format(self.basedir))
+                # Concurrently running select on myisam based tables.
+                with concurrent.futures.ProcessPoolExecutor(max_workers=50) as pool:
+                    for _ in range(10):
+                        for i in range(20, 25):
+                            pool.submit(
+                                self.parallel_sleep_queries(basedir=self.basedir,
+                                                            sock="{}/socket.sock".format(self.basedir),
+                                                            sql="select benchmark(9999999, md5(c)) from sysbench_test_db.sbtest{}".format(
+                                                                i)))
 
-        if os.path.isfile('{}/out_ts1.ibd'.format(self.basedir)):
-            os.remove('{}/out_ts1.ibd'.format(self.basedir))
+                    self.all_backup()
+                    # self.check_kill_process('call_ddl_test')
+        except Exception as err:
+            print(err)
+            raise
+        else:
+            if os.path.isfile('{}/out_ts1.ibd'.format(self.basedir)):
+                os.remove('{}/out_ts1.ibd'.format(self.basedir))
 
-        if os.path.isfile('{}/sysbench_test_db/t1.ibd'.format(self.basedir)):
-            os.remove('{}/sysbench_test_db/t1.ibd'.format(self.basedir))
+            if os.path.isfile('{}/sysbench_test_db/t1.ibd'.format(self.basedir)):
+                os.remove('{}/sysbench_test_db/t1.ibd'.format(self.basedir))
 
-        # TODO: enable this after fix for https://bugs.launchpad.net/percona-xtrabackup/+bug/1736380
-        # self.general_tablespace_rel(self.basedir)
+            # TODO: enable this after fix for https://bugs.launchpad.net/percona-xtrabackup/+bug/1736380
+            # self.general_tablespace_rel(self.basedir)
+        finally:
+            # self.check_kill_process('call_ddl_test')
+            pass
+
 
         return True

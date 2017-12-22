@@ -82,7 +82,9 @@ class ConfigGenerator(CloneBuildStartServer):
                                                          "--kill-long-queries-timeout=1 "   
                                                          "--kill-wait-query-type=all "
                                                          "--kill-long-query-type=all "
-                                                         "--no-backup-locks "   
+                                                         "--no-backup-locks "
+                                                         #"--lock-ddl-per-table "
+                                                         #"--lock-ddl "   
                                                          "--keyring-file-data={}/mysql-keyring/keyring ".format(basedir))
                 else:
                     config.set(section2, "xtra_options", "--slave-info --no-version-check --core-file "
@@ -95,7 +97,7 @@ class ConfigGenerator(CloneBuildStartServer):
                                                          "--kill-long-queries-timeout=1 "   
                                                          "--kill-wait-query-type=all "
                                                          "--kill-long-query-type=all "
-                                                         "--no-backup-locks "   
+                                                         "--no-backup-locks "
                                                          "--parallel=10 --throttle=40 --check-privileges ")
                 config.set(section2, "#Optional: set archive and rotation")
                 config.set(section2, "#archive_dir", "/home/shahriyar.rzaev/XB_TEST/backup_archives")
