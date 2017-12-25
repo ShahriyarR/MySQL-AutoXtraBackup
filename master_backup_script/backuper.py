@@ -226,8 +226,8 @@ class Backup(GeneralClass):
                     dir_name = self.archive_dir + '/' + i
                     new_dir = self.create_backup_directory(dir_name)
                     try:
-                        shutil.copy(self.full_dir, new_dir)
-                        shutil.copy(self.inc_dir, new_dir)
+                        shutil.copytree(self.full_dir, new_dir)
+                        shutil.copytree(self.inc_dir, new_dir)
                     except Exception as err:
                         logger.error("FAILED: Archiving ")
                         logger.error(err)
