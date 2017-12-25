@@ -223,7 +223,7 @@ class Backup(GeneralClass):
                     prepare_obj.prepare_inc_full_backups()
 
                 if hasattr(self, 'move_archive') and (int(self.move_archive) == 1):
-                    dir_name = self.archive_dir + '/' + i
+                    dir_name = self.archive_dir + '/' + i + '_archive'
                     new_dir = self.create_backup_directory(dir_name)
                     try:
                         shutil.copytree(self.full_dir, new_dir)
