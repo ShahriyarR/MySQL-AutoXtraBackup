@@ -59,6 +59,10 @@ class GeneralClass:
                 self.full_backup_interval = 86400
             if 'archive_dir' in BCK:
                 self.archive_dir = BCK['archive_dir']
+            if 'prepare_archive' in BCK:
+                self.prepare_archive = BCK['prepare_archive']
+            if 'move_archive' in BCK:
+                self.move_archive = BCK['move_archive']
             if 'max_archive_size' in BCK:
                 self.max_archive_size = humanfriendly.parse_size(
                     BCK['max_archive_size'])
