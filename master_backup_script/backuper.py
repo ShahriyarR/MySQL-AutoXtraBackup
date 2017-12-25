@@ -224,10 +224,11 @@ class Backup(GeneralClass):
 
                 if hasattr(self, 'move_archive') and (int(self.move_archive) == 1):
                     dir_name = self.archive_dir + '/' + i + '_archive'
-                    new_dir = self.create_backup_directory(dir_name)
+                    #new_dir = self.create_backup_directory(dir_name)
                     try:
-                        shutil.copytree(self.full_dir, new_dir)
-                        shutil.copytree(self.inc_dir, new_dir)
+                        shutil.copytree(self.backupdir, dir_name)
+                        #shutil.copytree(self.full_dir, new_dir)
+                        #shutil.copytree(self.inc_dir, new_dir)
                     except Exception as err:
                         logger.error("FAILED: Archiving ")
                         logger.error(err)
