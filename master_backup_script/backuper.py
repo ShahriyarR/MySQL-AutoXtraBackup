@@ -222,7 +222,7 @@ class Backup(GeneralClass):
                     prepare_obj = Prepare(config=self.conf, dry_run=self.dry, tag=self.tag)
                     prepare_obj.prepare_inc_full_backups()
 
-                if hasattr(self, 'move_archive') and (self.move_archive == 1):
+                if hasattr(self, 'move_archive') and (int(self.move_archive) == 1):
                     dir_name = self.archive_dir + '/' + i
                     new_dir = self.create_backup_directory(dir_name)
                     try:
