@@ -215,8 +215,8 @@ class Backup(GeneralClass):
         # Creating .tar.gz archive files of taken backups
         for i in os.listdir(self.full_dir):
             if len(os.listdir(self.full_dir)) == 1 or i != max(os.listdir(self.full_dir)):
-
                 logger.debug("Preparing backups prior archiving them...")
+
                 if hasattr(self, 'prepare_archive'):
                     logger.debug("Started to prepare backups, prior archiving!")
                     prepare_obj = Prepare(config=self.conf, dry_run=self.dry, tag=self.tag)
@@ -224,11 +224,8 @@ class Backup(GeneralClass):
 
                 if hasattr(self, 'move_archive') and (int(self.move_archive) == 1):
                     dir_name = self.archive_dir + '/' + i + '_archive'
-                    #new_dir = self.create_backup_directory(dir_name)
                     try:
                         shutil.copytree(self.backupdir, dir_name)
-                        #shutil.copytree(self.full_dir, new_dir)
-                        #shutil.copytree(self.inc_dir, new_dir)
                     except Exception as err:
                         logger.error("FAILED: Archiving ")
                         logger.error(err)
@@ -238,8 +235,8 @@ class Backup(GeneralClass):
                 else:
                     run_tar = "tar -zcf %s %s %s" % (
                     self.archive_dir + '/' + i + '.tar.gz', self.full_dir, self.inc_dir)
-
                     logger.debug("Started to archive previous backups")
+
                     status, output = subprocess.getstatusoutput(run_tar)
                     if status == 0:
                         logger.debug("OK: Old full backup and incremental backups archived!")
