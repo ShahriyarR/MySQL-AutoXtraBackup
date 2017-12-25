@@ -101,6 +101,8 @@ class ConfigGenerator(CloneBuildStartServer):
                                                          "--parallel=10 --throttle=40 --check-privileges ")
                 config.set(section2, "#Optional: set archive and rotation")
                 config.set(section2, "#archive_dir", "/home/shahriyar.rzaev/XB_TEST/backup_archives")
+                config.set(section2, "#prepare_archive", "1")
+                config.set(section2, "#move_archive", "0")
                 config.set(section2, "#full_backup_interval", "1 day")
                 config.set(section2, "#max_archive_size", "100GiB")
                 config.set(section2, "#max_archive_duration", "4 Days")
