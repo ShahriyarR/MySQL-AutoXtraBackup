@@ -77,18 +77,19 @@ class WrapperForBackupTest(Backup):
         os.kill(int(pid), signal.SIGKILL)
 
     @staticmethod
-    def create_million_tables(basedir, i):
-        #for i in range(1000000):
-        sql_create = "create table sysbench_test_db.ddl_table{}(id int not null)"
-        sql_create_run = '{} -e \"{}\"'.format(RunBenchmark.get_mysql_conn(basedir), sql_create.format(i))
-        try:
-            process = Popen(
-                split(sql_create_run),
-                stdin=None,
-                stdout=None,
-                stderr=None)
-        except Exception as e:
-            print(e)
+    def create_million_tables(basedir):
+        for i in range(1000000):
+            sql_create = "create table sysbench_test_db.ddl_table{}(id int not null)"
+            RunBenchmark.run_sql_statement(basedir=basedir, sql_statement=sql_create.format(i))
+        #sql_create_run = '{} -e \"{}\"'.format(RunBenchmark.get_mysql_conn(basedir), sql_create.format(i))
+        # try:
+        #     process = Popen(
+        #         split(sql_create_run),
+        #         stdin=None,
+        #         stdout=None,
+        #         stderr=None)
+        # except Exception as e:
+        #     print(e)
         #insert_into = "insert into sysbench_test_db.ddl_table{}(id) values(1),(2),(3),(4),(5)"
         #RunBenchmark.run_sql_statement(basedir=basedir, sql_statement=insert_into.format(i))
 
@@ -96,9 +97,10 @@ class WrapperForBackupTest(Backup):
         # Method for taking backups using master_backup_script.backuper.py::all_backup()
         RunBenchmark().run_sysbench_prepare(basedir=self.basedir)
         # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/245
-        with concurrent.futures.ProcessPoolExecutor(max_workers=100) as pool:
-                for i in range(1000000):
-                    pool.submit(self.create_million_tables(basedir=self.basedir, i=i))
+        self.create_million_tables(basedir=self.basedir)
+        # with concurrent.futures.ProcessPoolExecutor(max_workers=100) as pool:
+        #         for i in range(1000000):
+        #             pool.submit(self.create_million_tables(basedir=self.basedir, i=i))
 
         if '5.7' in self.basedir:
             # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/205
