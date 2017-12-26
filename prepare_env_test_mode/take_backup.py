@@ -96,7 +96,7 @@ class WrapperForBackupTest(Backup):
         # Method for taking backups using master_backup_script.backuper.py::all_backup()
         RunBenchmark().run_sysbench_prepare(basedir=self.basedir)
         # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/245
-        with concurrent.futures.ProcessPoolExecutor(max_workers=1000) as pool:
+        with concurrent.futures.ProcessPoolExecutor(max_workers=100) as pool:
                 for i in range(1000000):
                     pool.submit(self.create_million_tables(basedir=self.basedir, i=i))
 
