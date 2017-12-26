@@ -246,10 +246,6 @@ class Backup(GeneralClass):
                         logger.error(output)
                         raise RuntimeError("FAILED: Archiving -> {}".format(output))
 
-
-
-
-
     def clean_old_archives(self):
         logger.debug("Starting cleaning of old archives")
         for archive in self.sorted_ls(self.archive_dir):
