@@ -187,7 +187,8 @@ class ConfigGenerator(CloneBuildStartServer):
                                          "--early-plugin-load=keyring_file.so,"
                                          "--keyring_file_data={}/mysql-keyring/keyring,"
                                          "--log-bin=mysql-bin,--log-slave-updates,--server-id={},"
-                                         "--gtid-mode=ON,--enforce-gtid-consistency,--binlog-format=row")
+                                         "--gtid-mode=ON,--enforce-gtid-consistency,--binlog-format=row,"
+                                         "--encrypt_binlog=ON,--master_verify_checksum=ON,--binlog_checksum=CRC32"   )
                 elif '5_6' in conf_file:
                     config.set(section8, "default_mysql_options",
                                          "--log-bin=mysql-bin,--log-slave-updates,--server-id={},"
