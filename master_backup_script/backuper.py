@@ -249,8 +249,13 @@ class Backup(GeneralClass):
     def clean_old_archives(self):
         logger.debug("Starting cleaning of old archives")
         for archive in self.sorted_ls(self.archive_dir):
-            archive_date = datetime.strptime(
-                archive, "%Y-%m-%d_%H-%M-%S.tar.gz")
+            if '_archive' in archive:
+                archive_date = datetime.strptime(
+                    archive, "%Y-%m-%d_%H-%M-%S_archive")
+            else:
+                archive_date = datetime.strptime(
+                    archive, "%Y-%m-%d_%H-%M-%S.tar.gz")
+
             now = datetime.now()
 
             # Finding if last full backup older than the interval or more from
