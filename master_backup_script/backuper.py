@@ -268,7 +268,10 @@ class Backup(GeneralClass):
                     "/" +
                     archive +
                     " due to max archive age")
-                os.remove(self.archive_dir + "/" + archive)
+                if os.path.isdir(self.archive_dir + "/" + archive):
+                    shutil.rmtree(self.archive_dir + "/" + archive)
+                else:
+                    os.remove(self.archive_dir + "/" + archive)
             elif self.get_directory_size(self.archive_dir) > self.max_archive_size:
                 logger.debug(
                     "Removing archive: " +
@@ -276,7 +279,10 @@ class Backup(GeneralClass):
                     "/" +
                     archive +
                     " due to max archive size")
-                os.remove(self.archive_dir + "/" + archive)
+                if os.path.isdir(self.archive_dir + "/" + archive):
+                    shutil.rmtree(self.archive_dir + "/" + archive)
+                else:
+                    os.remove(self.archive_dir + "/" + archive)
 
     def clean_full_backup_dir(self):
         # Deleting old full backup after taking new full backup.
