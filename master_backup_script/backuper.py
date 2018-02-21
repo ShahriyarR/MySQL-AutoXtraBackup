@@ -268,7 +268,7 @@ class Backup(GeneralClass):
                     "/" +
                     archive +
                     " due to max archive age")
-                if os.path.isdir(archive):
+                if os.path.isdir(self.archive_dir + "/" + archive):
                     shutil.rmtree(self.archive_dir + "/" + archive)
                 else:
                     os.remove(self.archive_dir + "/" + archive)
@@ -279,7 +279,7 @@ class Backup(GeneralClass):
                     "/" +
                     archive +
                     " due to max archive size")
-                if os.path.isdir(archive):
+                if os.path.isdir(self.archive_dir + "/" + archive):
                     shutil.rmtree(self.archive_dir + "/" + archive)
                 else:
                     os.remove(self.archive_dir + "/" + archive)
