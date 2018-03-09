@@ -169,6 +169,9 @@ class WrapperForBackupTest(Backup):
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_json_column)
                 sql_alter_add_index = "alter table sysbench_test_db.sbtest{} add index(json_test_index)".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_add_index)
+                # Decrypting tables for -> https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/264
+                sql_encrypt = "alter table sysbench_test_db.sbtest{} encryption='N'".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_encrypt)
                 sql_alter_tablespace = "alter table sysbench_test_db.sbtest{} tablespace=ts1".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_tablespace)
 
@@ -181,6 +184,9 @@ class WrapperForBackupTest(Backup):
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_json_column)
                 sql_alter_add_index = "alter table sysbench_test_db.sbtest{} add index(json_test_index)".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_add_index)
+                # Decrypting tables for -> https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/264
+                sql_encrypt = "alter table sysbench_test_db.sbtest{} encryption='N'".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_encrypt)
                 sql_alter_tablespace = "alter table sysbench_test_db.sbtest{} tablespace=out_ts1".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_tablespace)
 
