@@ -240,9 +240,10 @@ class WrapperForBackupTest(Backup):
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter)
 
         # Altering some of the table engines from innodb to myisam
-        for i in range(20, 25):
-            sql_alter_engine = "alter table sysbench_test_db.sbtest{} engine=myisam".format(i)
-            RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_engine)
+        # Disabled based on -> https://bugs.mysql.com/bug.php?id=89977
+        # for i in range(20, 25):
+        #     sql_alter_engine = "alter table sysbench_test_db.sbtest{} engine=myisam".format(i)
+        #     RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_engine)
 
         # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/222
         # Creating table with data directory option
