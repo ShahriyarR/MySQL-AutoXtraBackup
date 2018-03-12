@@ -190,7 +190,8 @@ class ConfigGenerator(CloneBuildStartServer):
                                          "--gtid-mode=ON,--enforce-gtid-consistency,--binlog-format=row,"
                                          "--encrypt_binlog=ON,--master_verify_checksum=ON,--binlog_checksum=CRC32,"
                                          "--innodb_encrypt_tables=ON,"
-                                         "--innodb_encrypt_online_alter_logs=ON")
+                                         "--innodb_encrypt_online_alter_logs=ON,"
+                                         "--innodb_temp_tablespace_encrypt=ON")
                 elif '5_6' in conf_file:
                     config.set(section8, "default_mysql_options",
                                          "--log-bin=mysql-bin,--log-slave-updates,--server-id={},"
