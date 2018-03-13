@@ -114,6 +114,20 @@ class WrapperForBackupTest(Backup):
             sql_create_tablespace = "create tablespace ts3_enc add datafile 'ts3_enc.ibd' encryption='Y'"
             RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_tablespace)
 
+            # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/268
+            # Creating Temporary Tables
+            sql_create_tmp_table1 = "CREATE TEMPORARY TABLE sysbench_test_dbt.03 (a TEXT) ENGINE=InnoDB ENCRYPTION='N'"
+            sql_insert_into_tmp_table1 = "INSERT INTO sysbench_test_dbt.t03 VALUES ('Curabitur laoreet, velit non interdum venenatis')"
+            RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_tmp_table1)
+            RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_insert_into_tmp_table1)
+
+            sql_create_tmp_table2 = "CREATE TEMPORARY TABLE sysbench_test_dbt.t04 (a TEXT) ENGINE=InnoDB ROW_FORMAT=COMPRESSED"
+            sql_insert_into_tmp_table2 = "INSERT INTO sysbench_test_dbt.t04 VALUES ('Praesent tristique eros a tempus fringilla')"
+            RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_tmp_table2)
+            RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_insert_into_tmp_table2)
+
+
+
             for i in range(1, 5):
                 sql_encrypt = "alter table sysbench_test_db.sbtest{} encryption='Y'".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_encrypt)
