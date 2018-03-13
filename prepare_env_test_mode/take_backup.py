@@ -70,7 +70,7 @@ class WrapperForBackupTest(Backup):
 
     @staticmethod
     def run_temp_table_test_sh(basedir, sock):
-        logger.debug("Trying to run call_ddl_test.sh")
+        logger.debug("Trying to run call_temp_table_test.sh")
         dir_path = os.path.dirname(os.path.realpath(__file__))
         bash_command = "{}/call_temp_table_test.sh {} {} {}".format(dir_path, dir_path, basedir, sock)
         try:
@@ -127,6 +127,9 @@ class WrapperForBackupTest(Backup):
             # Creating encrypted general tablespace
             sql_create_tablespace = "create tablespace ts3_enc add datafile 'ts3_enc.ibd' encryption='Y'"
             RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_tablespace)
+
+            # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/268
+            self.run_temp_table_test_sh(basedir=self.basedir, sock="{}/socket.sock".format(self.basedir))
 
             for i in range(1, 5):
                 sql_encrypt = "alter table sysbench_test_db.sbtest{} encryption='Y'".format(i)
