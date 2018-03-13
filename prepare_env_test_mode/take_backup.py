@@ -116,7 +116,7 @@ class WrapperForBackupTest(Backup):
 
             # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/268
             # Creating Temporary Tables
-            sql_create_tmp_table1 = "CREATE TEMPORARY TABLE sysbench_test_dbt.03 (a TEXT) ENGINE=InnoDB ENCRYPTION='N'"
+            sql_create_tmp_table1 = "CREATE TEMPORARY TABLE sysbench_test_dbt.t03 (a TEXT) ENGINE=InnoDB ENCRYPTION='N'"
             sql_insert_into_tmp_table1 = "INSERT INTO sysbench_test_dbt.t03 VALUES ('Curabitur laoreet, velit non interdum venenatis')"
             RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_tmp_table1)
             RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_insert_into_tmp_table1)
