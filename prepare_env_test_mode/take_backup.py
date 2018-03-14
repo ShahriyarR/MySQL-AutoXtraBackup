@@ -70,6 +70,7 @@ class WrapperForBackupTest(Backup):
 
     @staticmethod
     def run_temp_table_test_sh(basedir, sock):
+        # Static method for calling call_temp_table.sh bash file.
         logger.debug("Trying to run call_temp_table_test.sh")
         dir_path = os.path.dirname(os.path.realpath(__file__))
         bash_command = "{}/call_temp_table_test.sh {} {} {}".format(dir_path, dir_path, basedir, sock)
@@ -83,7 +84,24 @@ class WrapperForBackupTest(Backup):
             print(e)
 
     @staticmethod
+    def run_call_create_index_temp_sh(basedir, sock):
+        # Static method for calling call_create_index_temp.sh bash file.
+        logger.debug("Trying to run call_temp_table_test.sh")
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        bash_command = "{}/call_create_index_temp.sh {} {} {}".format(dir_path, dir_path, basedir, sock)
+        try:
+            process = Popen(
+                split(bash_command),
+                stdin=None,
+                stdout=None,
+                stderr=None)
+        except Exception as e:
+            print(e)
+
+
+    @staticmethod
     def check_kill_process(pstring):
+        # Static method for killing given processes
         for line in os.popen("ps ax | grep " + pstring + " | grep -v grep"):
             fields = line.split()
             pid = fields[0]
@@ -129,7 +147,20 @@ class WrapperForBackupTest(Backup):
             RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_tablespace)
 
             # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/268
+            # Running create statement
+            sql_create_table = "CREATE TABLE sysbench_test_db.t10 (a INT AUTO_INCREMENT PRIMARY KEY, b INT)"
+            RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_table)
+            for _ in range(10):
+                insert_rand = "INSERT INTO t10 (b) VALUES (FLOOR(RAND() * 10000)), (FLOOR(RAND() * 10000)), (FLOOR(RAND() * 10000))"
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=insert_rand)
+
+            for _ in range(5):
+                insert_select = "INSERT INTO t10 (b) SELECT b FROM t10"
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=insert_select)
+
+            # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/268
             self.run_temp_table_test_sh(basedir=self.basedir, sock="{}/socket.sock".format(self.basedir))
+            self.run_call_create_index_temp_sh(basedir=self.basedir, sock="{}/socket.sock".format(self.basedir))
 
             for i in range(1, 5):
                 sql_encrypt = "alter table sysbench_test_db.sbtest{} encryption='Y'".format(i)
