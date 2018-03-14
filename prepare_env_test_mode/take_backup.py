@@ -155,7 +155,7 @@ class WrapperForBackupTest(Backup):
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=insert_rand)
 
             for _ in range(5):
-                insert_select = "INSERT INTO sysbench_test_db.t10 (b) SELECT b FROM t10"
+                insert_select = "INSERT INTO sysbench_test_db.t10 (b) SELECT b FROM sysbench_test_db.t10"
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=insert_select)
 
             # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/268
