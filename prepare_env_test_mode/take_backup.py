@@ -151,11 +151,11 @@ class WrapperForBackupTest(Backup):
             sql_create_table = "CREATE TABLE sysbench_test_db.t10 (a INT AUTO_INCREMENT PRIMARY KEY, b INT)"
             RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_table)
             for _ in range(10):
-                insert_rand = "INSERT INTO t10 (b) VALUES (FLOOR(RAND() * 10000)), (FLOOR(RAND() * 10000)), (FLOOR(RAND() * 10000))"
+                insert_rand = "INSERT INTO sysbench_test_db.t10 (b) VALUES (FLOOR(RAND() * 10000)), (FLOOR(RAND() * 10000)), (FLOOR(RAND() * 10000))"
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=insert_rand)
 
             for _ in range(5):
-                insert_select = "INSERT INTO t10 (b) SELECT b FROM t10"
+                insert_select = "INSERT INTO sysbench_test_db.t10 (b) SELECT b FROM t10"
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=insert_select)
 
             # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/268
