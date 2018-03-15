@@ -315,17 +315,19 @@ class WrapperForBackupTest(Backup):
                 # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/243
                 # Calling here ddl_test.sh file for running some DDLs.
                 # self.run_ddl_test_sh(basedir=self.basedir, sock="{}/socket.sock".format(self.basedir))
-                # Concurrently running select on myisam based tables.
-                with concurrent.futures.ProcessPoolExecutor(max_workers=50) as pool:
-                    for _ in range(10):
-                        for i in range(20, 25):
-                            pool.submit(
-                                self.parallel_sleep_queries(basedir=self.basedir,
-                                                            sock="{}/socket.sock".format(self.basedir),
-                                                            sql="select benchmark(9999999, md5(c)) from sysbench_test_db.sbtest{}".format(
-                                                                i)))
 
-                    self.all_backup()
+                # Disabled based on -> https://bugs.mysql.com/bug.php?id=89977
+                # Concurrently running select on myisam based tables.
+                # with concurrent.futures.ProcessPoolExecutor(max_workers=50) as pool:
+                #     for _ in range(10):
+                #         for i in range(20, 25):
+                #             pool.submit(
+                #                 self.parallel_sleep_queries(basedir=self.basedir,
+                #                                             sock="{}/socket.sock".format(self.basedir),
+                #                                             sql="select benchmark(9999999, md5(c)) from sysbench_test_db.sbtest{}".format(
+                #                                                 i)))
+
+                self.all_backup()
                     # self.check_kill_process('call_ddl_test')
         except Exception as err:
             print(err)
@@ -341,6 +343,8 @@ class WrapperForBackupTest(Backup):
             # self.general_tablespace_rel(self.basedir)
         finally:
             # self.check_kill_process('call_ddl_test')
+            self.check_kill_process('call_temp_table_test')
+            self.check_kill_process('call_create_index_temp')
             pass
 
 
