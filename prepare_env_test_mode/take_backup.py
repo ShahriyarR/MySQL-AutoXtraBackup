@@ -6,7 +6,7 @@ import shutil
 import logging
 import concurrent.futures
 from shlex import split
-from subprocess import Popen
+from subprocess import Popen, getstatusoutput
 logger = logging.getLogger(__name__)
 
 
@@ -98,6 +98,41 @@ class WrapperForBackupTest(Backup):
         except Exception as e:
             print(e)
 
+    @staticmethod
+    def run_call_innodb_online_alter_encryption_sql_sh(basedir, sock):
+        logger.debug("Trying to run call_innodb_online_alter_encryption_sql.sh")
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        bash_command = "{}/call_innodb_online_alter_encryption_sql.sh {} {} {}".format(dir_path,
+                                                                                   basedir,
+                                                                                   sock,
+                                                                                   dir_path)
+        status, output = getstatusoutput(bash_command)
+        if status == 0:
+            logger.debug("Running call_innodb_online_alter_encryption_sql.sh - OK")
+        else:
+            logger.error("Failed to run")
+            logger.error(output)
+
+    @staticmethod
+    def run_call_innodb_online_alter_encryption_alters_sh(basedir, sock):
+        logger.debug("Trying to run call_innodb_online_alter_encryption_alters.sh")
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        bash_command = "{}/call_innodb_online_alter_encryption_alters.sh {} {} {}".format(dir_path,
+                                                                                       basedir,
+                                                                                       sock,
+                                                                                       dir_path)
+
+        try:
+            process = Popen(
+                split(bash_command),
+                stdin=None,
+                stdout=None,
+                stderr=None)
+        except Exception as e:
+            print(e)
+
+
+
 
     @staticmethod
     def check_kill_process(pstring):
@@ -145,6 +180,11 @@ class WrapperForBackupTest(Backup):
             # Creating encrypted general tablespace
             sql_create_tablespace = "create tablespace ts3_enc add datafile 'ts3_enc.ibd' encryption='Y'"
             RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_tablespace)
+
+            # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/271
+            # Preparing env here
+            self.run_call_innodb_online_alter_encryption_sql_sh(basedir=self.basedir, sock="{}/socket.sock".format(self.basedir))
+            self.run_call_innodb_online_alter_encryption_alters_sh(basedir=self.basedir, sock="{}/socket.sock".format(self.basedir))
 
             # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/268
             # Running create statement
@@ -345,6 +385,8 @@ class WrapperForBackupTest(Backup):
             # self.check_kill_process('call_ddl_test')
             self.check_kill_process('call_temp_table_test')
             self.check_kill_process('call_create_index_temp')
+            self.check_kill_process('call_innodb_alter_encryption_alters')
+            self.check_kill_process('call_innodb_alter_encryption_sql')
             pass
 
 
