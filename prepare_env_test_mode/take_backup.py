@@ -385,6 +385,8 @@ class WrapperForBackupTest(Backup):
             # self.check_kill_process('call_ddl_test')
             self.check_kill_process('call_temp_table_test')
             self.check_kill_process('call_create_index_temp')
+            self.check_kill_process('call_innodb_alter_encryption_alters')
+            self.check_kill_process('call_innodb_alter_encryption_sql')
             pass
 
 
