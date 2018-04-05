@@ -1,4 +1,3 @@
-drop database alter_enc_inc;
 create database alter_enc_inc;
 use alter_enc_inc;
 
