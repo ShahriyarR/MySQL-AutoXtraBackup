@@ -178,7 +178,9 @@ class WrapperForBackupTest(Backup):
 
             # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/229
             # Creating encrypted general tablespace
-            sql_create_tablespace = "create tablespace ts3_enc add datafile 'ts3_enc.ibd' encryption='Y'"
+            sql_create_tablespace = "create tablespace ts3_enc add datafile 'ts3_enc.ibd' encryption='N'"
+            #TODO do not forget enable back!
+            #sql_create_tablespace = "create tablespace ts3_enc add datafile 'ts3_enc.ibd' encryption='Y'"
             RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_tablespace)
 
             # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/271
@@ -280,7 +282,9 @@ class WrapperForBackupTest(Backup):
 
             for i in range(25, 30):
                 # Altering encrypted tables to use encrypted general tablespace
-                sql_encrypt = "alter table sysbench_test_db.sbtest{} encryption='Y'".format(i)
+                sql_encrypt = "alter table sysbench_test_db.sbtest{} encryption='N'".format(i)
+                #TODO do not forget enable back!
+                #sql_encrypt = "alter table sysbench_test_db.sbtest{} encryption='Y'".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_encrypt)
 
                 sql_virtual_column = "alter table sysbench_test_db.sbtest{} add column json_test_v json generated always as (json_array(k,c,pad)) virtual".format(
