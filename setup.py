@@ -7,7 +7,7 @@ setup(
     version='1.5.2',
     packages=['general_conf', 'backup_prepare', 'partial_recovery', 'master_backup_script', 'prepare_env_test_mode'],
     package_data={
-        'prepare_env_test_mode': ['*.sh']
+        'prepare_env_test_mode': ['*.sh', '*.sql']
     },
     py_modules=['autoxtrabackup'],
     url='https://github.com/ShahriyarR/MySQL-AutoXtraBackup',
