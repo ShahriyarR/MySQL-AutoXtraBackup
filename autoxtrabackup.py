@@ -158,9 +158,16 @@ def validate_file(file):
               nargs=1,
               type=int,
               help="Set log file backup count")
+@click.option('--keyring_vault',
+              default=0,
+              show_default=True,
+              nargs=1,
+              type=int,
+              help="Enable this when you pass keyring_vault options in default mysqld options in config"
+                   "[Only for using with --test_mode]")
 @click.option('--test_mode',
               is_flag=True,
-              help="Enable test mode.Must be used with --defaults_file and only for TESTs for XtraBackup")
+              help="Enable test mode. Must be used with --defaults_file and only for TESTs for XtraBackup")
 @click.option('--help',
               is_flag=True,
               callback=print_help,
@@ -169,7 +176,9 @@ def validate_file(file):
               help="Print help message and exit.")
 @click.pass_context
 def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
-                  verbose, log_file, log, defaults_file, dry_run, test_mode, log_file_max_bytes, log_file_backup_count):
+                  verbose, log_file, log, defaults_file,
+                  dry_run, test_mode, log_file_max_bytes,
+                  log_file_backup_count, keyring_vault):
     logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
@@ -213,7 +222,10 @@ def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
                 test_obj = RunnerTestMode(config=defaults_file)
                 for basedir in test_obj.basedirs:
                     if ('5.7' in basedir) and ('2_4_ps_5_7' in defaults_file):
-                        test_obj.wipe_backup_prepare_copyback(basedir=basedir)
+                        if keyring_vault == 1:
+                            test_obj.wipe_backup_prepare_copyback(basedir=basedir, keyring_vault=1)
+                        else:
+                            test_obj.wipe_backup_prepare_copyback(basedir=basedir)
                     elif ('5.6' in basedir) and ('2_4_ps_5_6' in defaults_file):
                         test_obj.wipe_backup_prepare_copyback(basedir=basedir)
                     elif ('5.6' in basedir) and ('2_3_ps_5_6' in defaults_file):
