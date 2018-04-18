@@ -140,8 +140,8 @@ class WrapperForBackupTest(Backup):
         for line in os.popen("ps ax | grep " + pstring + " | grep -v grep"):
             fields = line.split()
             pid = fields[0]
-
-        os.kill(int(pid), signal.SIGKILL)
+            if pid:
+                os.kill(int(pid), signal.SIGKILL)
 
     @staticmethod
     def create_million_tables(basedir):
