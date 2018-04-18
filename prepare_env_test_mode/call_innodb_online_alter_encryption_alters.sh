@@ -8,4 +8,4 @@ MYSQL_SOCK=$2
 FILE_DIR=$3
 MYSQL_USER=root
 
-while true; do ${BASEDIR}/bin/mysql --user=${MYSQL_USER} --socket=${MYSQL_SOCK} < ${FILE_DIR}/innodb_online_alter_encryption_alters.sql; done
+while true; do ${BASEDIR}/bin/mysql --user=${MYSQL_USER} --socket=${MYSQL_SOCK} < ${FILE_DIR}/innodb_online_alter_encryption_alters.sql >> /dev/null 2>&1; done
