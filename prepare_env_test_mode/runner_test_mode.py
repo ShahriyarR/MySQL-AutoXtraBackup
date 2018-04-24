@@ -401,7 +401,7 @@ class RunnerTestMode(GeneralClass):
 
         return True
 
-    def wipe_backup_prepare_copyback(self, basedir):
+    def wipe_backup_prepare_copyback(self, basedir, keyring_vault=0):
         """
         Method Backup + Prepare and Copy-back actions.
         It is also going to create slave server from backup of master and start.
@@ -413,7 +413,13 @@ class RunnerTestMode(GeneralClass):
             c_count = c_count + 1
             options = " ".join(options)
             if '5.7' in basedir:
-                options = options + " " + self.df_mysql_options.format(basedir, c_count)
+                if keyring_vault == 0:
+                    options = options + " " + self.df_mysql_options.format(basedir, c_count)
+                elif keyring_vault == 1:
+                    # The keyring_vault options must be provided manually with full path in config.
+                    # Such as: --early-plugin-load=keyring_vault=keyring_vault.so,--loose-keyring_vault_config=/sda/vault_server/keyring_vault.cnf
+                    # It indicates that there is no need to pass basedir that's why only passing the [--server-id=c_count]
+                    options = options + " " + self.df_mysql_options.format(c_count)
             else:
                 options = options + " " + self.df_mysql_options.format(c_count)
             logger.debug("*********************************")
