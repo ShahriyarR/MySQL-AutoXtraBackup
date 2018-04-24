@@ -215,25 +215,47 @@ class Backup(GeneralClass):
         # Creating .tar.gz archive files of taken backups
         for i in os.listdir(self.full_dir):
             if len(os.listdir(self.full_dir)) == 1 or i != max(os.listdir(self.full_dir)):
-                run_tar = "tar -zcf %s %s %s" % (self.archive_dir + '/' + i + '.tar.gz', self.full_dir, self.inc_dir)
                 logger.debug("Preparing backups prior archiving them...")
-                prepare_obj = Prepare(config=self.conf, dry_run=self.dry, tag=self.tag)
-                prepare_obj.prepare_inc_full_backups()
-                logger.debug("Started to archive previous backups")
-                status, output = subprocess.getstatusoutput(run_tar)
-                if status == 0:
-                    logger.debug("OK: Old full backup and incremental backups archived!")
-                    return True
+
+                if hasattr(self, 'prepare_archive'):
+                    logger.debug("Started to prepare backups, prior archiving!")
+                    prepare_obj = Prepare(config=self.conf, dry_run=self.dry, tag=self.tag)
+                    prepare_obj.prepare_inc_full_backups()
+
+                if hasattr(self, 'move_archive') and (int(self.move_archive) == 1):
+                    dir_name = self.archive_dir + '/' + i + '_archive'
+                    try:
+                        shutil.copytree(self.backupdir, dir_name)
+                    except Exception as err:
+                        logger.error("FAILED: Archiving ")
+                        logger.error(err)
+                        raise
+                    else:
+                        return True
                 else:
-                    logger.error("FAILED: Archiving ")
-                    logger.error(output)
-                    raise RuntimeError("FAILED: Archiving -> {}".format(output))
+                    run_tar = "tar -zcf %s %s %s" % (
+                    self.archive_dir + '/' + i + '.tar.gz', self.full_dir, self.inc_dir)
+                    logger.debug("Started to archive previous backups")
+
+                    status, output = subprocess.getstatusoutput(run_tar)
+                    if status == 0:
+                        logger.debug("OK: Old full backup and incremental backups archived!")
+                        return True
+                    else:
+                        logger.error("FAILED: Archiving ")
+                        logger.error(output)
+                        raise RuntimeError("FAILED: Archiving -> {}".format(output))
 
     def clean_old_archives(self):
         logger.debug("Starting cleaning of old archives")
         for archive in self.sorted_ls(self.archive_dir):
-            archive_date = datetime.strptime(
-                archive, "%Y-%m-%d_%H-%M-%S.tar.gz")
+            if '_archive' in archive:
+                archive_date = datetime.strptime(
+                    archive, "%Y-%m-%d_%H-%M-%S_archive")
+            else:
+                archive_date = datetime.strptime(
+                    archive, "%Y-%m-%d_%H-%M-%S.tar.gz")
+
             now = datetime.now()
 
             # Finding if last full backup older than the interval or more from
@@ -246,7 +268,10 @@ class Backup(GeneralClass):
                     "/" +
                     archive +
                     " due to max archive age")
-                os.remove(self.archive_dir + "/" + archive)
+                if os.path.isdir(self.archive_dir + "/" + archive):
+                    shutil.rmtree(self.archive_dir + "/" + archive)
+                else:
+                    os.remove(self.archive_dir + "/" + archive)
             elif self.get_directory_size(self.archive_dir) > self.max_archive_size:
                 logger.debug(
                     "Removing archive: " +
@@ -254,7 +279,10 @@ class Backup(GeneralClass):
                     "/" +
                     archive +
                     " due to max archive size")
-                os.remove(self.archive_dir + "/" + archive)
+                if os.path.isdir(self.archive_dir + "/" + archive):
+                    shutil.rmtree(self.archive_dir + "/" + archive)
+                else:
+                    os.remove(self.archive_dir + "/" + archive)
 
     def clean_full_backup_dir(self):
         # Deleting old full backup after taking new full backup.

@@ -1,12 +1,12 @@
 from master_backup_script.backuper import Backup
 from prepare_env_test_mode.run_benchmark import RunBenchmark
 from time import sleep
-import os
+import os, signal
 import shutil
 import logging
 import concurrent.futures
 from shlex import split
-from subprocess import Popen
+from subprocess import Popen, getstatusoutput
 logger = logging.getLogger(__name__)
 
 
@@ -54,9 +54,122 @@ class WrapperForBackupTest(Backup):
         except Exception as e:
             print(e)
 
+    @staticmethod
+    def run_ddl_test_sh(basedir, sock):
+        logger.debug("Trying to run call_ddl_test.sh")
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        bash_command = "{}/call_ddl_test.sh {} {} {}".format(dir_path, dir_path, basedir, sock)
+        try:
+            process = Popen(
+                split(bash_command),
+                stdin=None,
+                stdout=None,
+                stderr=None)
+        except Exception as e:
+            print(e)
+
+    @staticmethod
+    def run_temp_table_test_sh(basedir, sock):
+        # Static method for calling call_temp_table.sh bash file.
+        logger.debug("Trying to run call_temp_table_test.sh")
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        bash_command = "{}/call_temp_table_test.sh {} {} {}".format(dir_path, dir_path, basedir, sock)
+        try:
+            process = Popen(
+                split(bash_command),
+                stdin=None,
+                stdout=None,
+                stderr=None)
+        except Exception as e:
+            print(e)
+
+    @staticmethod
+    def run_call_create_index_temp_sh(basedir, sock):
+        # Static method for calling call_create_index_temp.sh bash file.
+        logger.debug("Trying to run call_temp_table_test.sh")
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        bash_command = "{}/call_create_index_temp.sh {} {} {}".format(dir_path, dir_path, basedir, sock)
+        try:
+            process = Popen(
+                split(bash_command),
+                stdin=None,
+                stdout=None,
+                stderr=None)
+        except Exception as e:
+            print(e)
+
+    @staticmethod
+    def run_call_innodb_online_alter_encryption_sql_sh(basedir, sock):
+        logger.debug("Trying to run call_innodb_online_alter_encryption_sql.sh")
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        bash_command = "{}/call_innodb_online_alter_encryption_sql.sh {} {} {}".format(dir_path,
+                                                                                   basedir,
+                                                                                   sock,
+                                                                                   dir_path)
+        status, output = getstatusoutput(bash_command)
+        if status == 0:
+            logger.debug("Running call_innodb_online_alter_encryption_sql.sh - OK")
+        else:
+            logger.error("Failed to run")
+            logger.error(output)
+
+    @staticmethod
+    def run_call_innodb_online_alter_encryption_alters_sh(basedir, sock):
+        logger.debug("Trying to run call_innodb_online_alter_encryption_alters.sh")
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        bash_command = "{}/call_innodb_online_alter_encryption_alters.sh {} {} {}".format(dir_path,
+                                                                                       basedir,
+                                                                                       sock,
+                                                                                       dir_path)
+
+        try:
+            process = Popen(
+                split(bash_command),
+                stdin=None,
+                stdout=None,
+                stderr=None)
+        except Exception as e:
+            print(e)
+
+
+
+
+    @staticmethod
+    def check_kill_process(pstring):
+        # Static method for killing given processes
+        for line in os.popen("ps ax | grep " + pstring + " | grep -v grep"):
+            fields = line.split()
+            pid = fields[0]
+            if pid:
+                os.kill(int(pid), signal.SIGKILL)
+
+    @staticmethod
+    def create_million_tables(basedir):
+        for i in range(1000000):
+            sql_create = "create table sysbench_test_db.ddl_table{}(id int not null)"
+            RunBenchmark.run_sql_statement(basedir=basedir, sql_statement=sql_create.format(i))
+        #sql_create_run = '{} -e \"{}\"'.format(RunBenchmark.get_mysql_conn(basedir), sql_create.format(i))
+        # try:
+        #     process = Popen(
+        #         split(sql_create_run),
+        #         stdin=None,
+        #         stdout=None,
+        #         stderr=None)
+        # except Exception as e:
+        #     print(e)
+        #insert_into = "insert into sysbench_test_db.ddl_table{}(id) values(1),(2),(3),(4),(5)"
+        #RunBenchmark.run_sql_statement(basedir=basedir, sql_statement=insert_into.format(i))
+
     def run_all_backup(self):
         # Method for taking backups using master_backup_script.backuper.py::all_backup()
         RunBenchmark().run_sysbench_prepare(basedir=self.basedir)
+        # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/245
+        # Disabled for now
+        # self.create_million_tables(basedir=self.basedir)
+        # with concurrent.futures.ProcessPoolExecutor(max_workers=100) as pool:
+        #         for i in range(1000000):
+        #             pool.submit(self.create_million_tables(basedir=self.basedir, i=i))
+
         if '5.7' in self.basedir:
             # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/205
             # Adding compression column with predefined dictionary.
@@ -67,6 +180,27 @@ class WrapperForBackupTest(Backup):
             # Creating encrypted general tablespace
             sql_create_tablespace = "create tablespace ts3_enc add datafile 'ts3_enc.ibd' encryption='Y'"
             RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_tablespace)
+
+            # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/271
+            # Preparing env here
+            self.run_call_innodb_online_alter_encryption_sql_sh(basedir=self.basedir, sock="{}/socket.sock".format(self.basedir))
+            self.run_call_innodb_online_alter_encryption_alters_sh(basedir=self.basedir, sock="{}/socket.sock".format(self.basedir))
+
+            # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/268
+            # Running create statement
+            sql_create_table = "CREATE TABLE sysbench_test_db.t10 (a INT AUTO_INCREMENT PRIMARY KEY, b INT)"
+            RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_table)
+            for _ in range(10):
+                insert_rand = "INSERT INTO sysbench_test_db.t10 (b) VALUES (FLOOR(RAND() * 10000)), (FLOOR(RAND() * 10000)), (FLOOR(RAND() * 10000))"
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=insert_rand)
+
+            for _ in range(5):
+                insert_select = "INSERT INTO sysbench_test_db.t10 (b) SELECT b FROM sysbench_test_db.t10"
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=insert_select)
+
+            # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/268
+            self.run_temp_table_test_sh(basedir=self.basedir, sock="{}/socket.sock".format(self.basedir))
+            self.run_call_create_index_temp_sh(basedir=self.basedir, sock="{}/socket.sock".format(self.basedir))
 
             for i in range(1, 5):
                 sql_encrypt = "alter table sysbench_test_db.sbtest{} encryption='Y'".format(i)
@@ -123,6 +257,9 @@ class WrapperForBackupTest(Backup):
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_json_column)
                 sql_alter_add_index = "alter table sysbench_test_db.sbtest{} add index(json_test_index)".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_add_index)
+                # Decrypting tables for -> https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/264
+                sql_encrypt = "alter table sysbench_test_db.sbtest{} encryption='N'".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_encrypt)
                 sql_alter_tablespace = "alter table sysbench_test_db.sbtest{} tablespace=ts1".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_tablespace)
 
@@ -135,6 +272,9 @@ class WrapperForBackupTest(Backup):
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_json_column)
                 sql_alter_add_index = "alter table sysbench_test_db.sbtest{} add index(json_test_index)".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_add_index)
+                # Decrypting tables for -> https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/264
+                sql_encrypt = "alter table sysbench_test_db.sbtest{} encryption='N'".format(i)
+                RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_encrypt)
                 sql_alter_tablespace = "alter table sysbench_test_db.sbtest{} tablespace=out_ts1".format(i)
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_tablespace)
 
@@ -188,9 +328,10 @@ class WrapperForBackupTest(Backup):
                 RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter)
 
         # Altering some of the table engines from innodb to myisam
-        for i in range(20, 25):
-            sql_alter_engine = "alter table sysbench_test_db.sbtest{} engine=myisam".format(i)
-            RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_engine)
+        # Disabled based on -> https://bugs.mysql.com/bug.php?id=89977
+        # for i in range(20, 25):
+        #     sql_alter_engine = "alter table sysbench_test_db.sbtest{} engine=myisam".format(i)
+        #     RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_engine)
 
         # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/222
         # Creating table with data directory option
@@ -207,26 +348,46 @@ class WrapperForBackupTest(Backup):
 
         sleep(10)
 
-        for _ in range(int(self.incremental_count) + 1):
-            RunBenchmark().run_sysbench_run(basedir=self.basedir)
-            # Concurrently running select on myisam based tables.
-            with concurrent.futures.ProcessPoolExecutor(max_workers=50) as pool:
-                for _ in range(10):
-                    for i in range(20, 25):
-                        pool.submit(
-                            self.parallel_sleep_queries(basedir=self.basedir,
-                                                        sock="{}/socket.sock".format(self.basedir),
-                                                        sql="select benchmark(9999999, md5(c)) from sysbench_test_db.sbtest{}".format(
-                                                            i)))
-            self.all_backup()
+        try:
+            for _ in range(int(self.incremental_count) + 1):
+                # RunBenchmark().run_sysbench_run(basedir=self.basedir)
+                # TODO: enable when you pass --lock-ddl-per-table or --lock-ddl; disabled by default
+                # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/243
+                # Calling here ddl_test.sh file for running some DDLs.
+                # self.run_ddl_test_sh(basedir=self.basedir, sock="{}/socket.sock".format(self.basedir))
 
-        if os.path.isfile('{}/out_ts1.ibd'.format(self.basedir)):
-            os.remove('{}/out_ts1.ibd'.format(self.basedir))
+                # Disabled based on -> https://bugs.mysql.com/bug.php?id=89977
+                # Concurrently running select on myisam based tables.
+                # with concurrent.futures.ProcessPoolExecutor(max_workers=50) as pool:
+                #     for _ in range(10):
+                #         for i in range(20, 25):
+                #             pool.submit(
+                #                 self.parallel_sleep_queries(basedir=self.basedir,
+                #                                             sock="{}/socket.sock".format(self.basedir),
+                #                                             sql="select benchmark(9999999, md5(c)) from sysbench_test_db.sbtest{}".format(
+                #                                                 i)))
 
-        if os.path.isfile('{}/sysbench_test_db/t1.ibd'.format(self.basedir)):
-            os.remove('{}/sysbench_test_db/t1.ibd'.format(self.basedir))
+                self.all_backup()
+                    # self.check_kill_process('call_ddl_test')
+        except Exception as err:
+            print(err)
+            raise
+        else:
+            if os.path.isfile('{}/out_ts1.ibd'.format(self.basedir)):
+                os.remove('{}/out_ts1.ibd'.format(self.basedir))
 
-        # TODO: enable this after fix for https://bugs.launchpad.net/percona-xtrabackup/+bug/1736380
-        # self.general_tablespace_rel(self.basedir)
+            if os.path.isfile('{}/sysbench_test_db/t1.ibd'.format(self.basedir)):
+                os.remove('{}/sysbench_test_db/t1.ibd'.format(self.basedir))
+
+            # TODO: enable this after fix for https://bugs.launchpad.net/percona-xtrabackup/+bug/1736380
+            # self.general_tablespace_rel(self.basedir)
+        finally:
+            # self.check_kill_process('call_ddl_test')
+            self.check_kill_process('call_temp_table_test')
+            self.check_kill_process('call_create_index_temp')
+            self.check_kill_process('call_innodb_alter_encryption_alters')
+            self.check_kill_process('call_innodb_alter_encryption_sql')
+            pass
+
 
         return True

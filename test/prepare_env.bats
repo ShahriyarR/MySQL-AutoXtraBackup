@@ -34,6 +34,12 @@ DIRNAME=$BATS_TEST_DIRNAME
   [ $status -eq 0 ]
 }
 
+@test "Running test_rename_basedirs" {
+  run python -m pytest -vv ${DIRNAME}/test_clone_build_start_server.py::TestCloneBuildStartServer::test_rename_basedirs
+  echo $output
+  [ $status -eq 0 ]
+}
+
 @test "Running test_prepare_startup" {
   run python -m pytest -vv ${DIRNAME}/test_clone_build_start_server.py::TestCloneBuildStartServer::test_prepare_startup
   echo $output
