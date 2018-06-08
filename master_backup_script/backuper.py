@@ -233,8 +233,10 @@ class Backup(GeneralClass):
                     else:
                         return True
                 else:
-                    run_tar = "tar -zcf %s %s %s" % (
-                    self.archive_dir + '/' + i + '.tar.gz', self.full_dir, self.inc_dir)
+                    # Multi-core tar utilizing pigz.
+                    # Pigz default to number of cores available, or 8 if cannot be read.
+                    run_tar = "tar cf - %s %s | pigz %s" % (
+                        self.full_dir, self.inc_dir, self.archive_dir + '/' + i + '.tar.gz')
                     logger.debug("Started to archive previous backups")
 
                     status, output = subprocess.getstatusoutput(run_tar)
