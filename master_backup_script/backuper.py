@@ -5,6 +5,7 @@
 
 
 import os
+import re
 import subprocess
 import shlex
 import shutil
@@ -388,7 +389,10 @@ class Backup(GeneralClass):
             args += " > {}/full_backup.tar".format(full_backup_dir)
             logger.warning("Streaming tar is enabled!")
 
-        logger.debug("The following backup command will be executed {}".format(args))
+        # filter out password from argument list
+        filteredargs = re.sub("--password='?\w+'?", "--password='*'", args)
+
+        logger.debug("The following backup command will be executed {}".format(filteredargs))
 
         if self.dry == 0:
             logger.debug("Starting {}".format(self.backup_tool))
@@ -607,7 +611,11 @@ class Backup(GeneralClass):
                 raise RuntimeError("xtrabackup: error: streaming incremental backups are incompatible with the "
                                    "'tar' streaming format. Use --stream=xbstream instead.")
 
-            logger.debug("The following backup command will be executed {}".format(args))
+            # filter out password from argument list
+            filteredargs = re.sub("--password='?\w+'?", "--password='*'", args)
+
+            logger.debug("The following backup command will be executed {}".format(filteredargs))
+
             if self.dry == 0:
                 status, output = subprocess.getstatusoutput(args)
                 if status == 0:
@@ -783,7 +791,10 @@ class Backup(GeneralClass):
                 args += " > {}/inc_backup.stream".format(inc_backup_dir)
                 logger.warning("Streaming is enabled!")
 
-            logger.debug("The following backup command will be executed {}".format(args))
+            # filter out password from argument list
+                filteredargs = re.sub("--password='?\w+'?", "--password='*'", args)
+
+            logger.debug("The following backup command will be executed {}".format(filteredargs))
 
             if self.dry == 0:
                 status, output = subprocess.getstatusoutput(args)
