@@ -261,7 +261,7 @@ class Backup(GeneralClass):
             # Finding if last full backup older than the interval or more from
             # now!
 
-            if (now - archive_date).total_seconds() >= self.max_archive_duration:
+            if hasattr(self, 'max_archive_duration') and (now - archive_date).total_seconds() >= self.max_archive_duration:
                 logger.debug(
                     "Removing archive: " +
                     self.archive_dir +
@@ -272,7 +272,7 @@ class Backup(GeneralClass):
                     shutil.rmtree(self.archive_dir + "/" + archive)
                 else:
                     os.remove(self.archive_dir + "/" + archive)
-            elif self.get_directory_size(self.archive_dir) > self.max_archive_size:
+            elif hasattr(self, 'max_archive_size') and self.get_directory_size(self.archive_dir) > self.max_archive_size:
                 logger.debug(
                     "Removing archive: " +
                     self.archive_dir +
