@@ -239,7 +239,7 @@ class Backup(GeneralClass):
                     # Test if pigz is available.
                     try:
                         subprocess.call(["pigz", "-q"])
-                        run_tar = "tar cf - %s %s | pigz %s" % (
+                        run_tar = "tar cf - %s %s | pigz > %s" % (
                             self.full_dir, self.inc_dir, self.archive_dir + '/' + i + '.tar.gz')
                     except OSError as e:
                         if e.errno == os.errno.ENOENT:
