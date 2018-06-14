@@ -6,7 +6,7 @@ The command line options to use:
 .. code-block:: shell
 
 
-    $ sudo autoxtrabackup
+    $ autoxtrabackup --help
     Usage: autoxtrabackup [OPTIONS]
 
     Options:
@@ -24,10 +24,19 @@ The command line options to use:
                                       /var/log/autoxtrabackup.log]
       -l, --log [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                       Set log level  [default: WARNING]
-      --test_mode                     Enable test mode.Must be used with
+      --log_file_max_bytes INTEGER    Set log file max size in bytes  [default:
+                                      1073741824]
+      --log_file_backup_count INTEGER
+                                      Set log file backup count  [default: 7]
+      --keyring_vault INTEGER         Enable this when you pass keyring_vault
+                                      options in default mysqld options in
+                                      config[Only for using with --test_mode]
+                                      [default: 0]
+      --test_mode                     Enable test mode. Must be used with
                                       --defaults_file and only for TESTs for
                                       XtraBackup
       --help                          Print help message and exit.
+
 
 
 dry_run
@@ -106,6 +115,13 @@ test_mode
 This option enables Test Mode and must be used with --defaults_file option.
 WARNING: It is not for daily usage. It is only and only for testing XtraBackup.
 
+keyring_vault
+-------------
+
+--keyring_vault
+Enable this when you pass keyring_vault options in default mysqld options in
+config[Only for using with --test_mode] [default: 0]
+This is for keyring_vault plugin testing.
 
 help
 ----
