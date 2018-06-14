@@ -336,7 +336,7 @@ class RunnerTestMode(GeneralClass):
         :param mysql_slave_client_cmd: Slave client string
         :param mysql_master_client_cmd: Master client string
         :param is_slave: flag for passing if set global gtid_purged grabbed from slave or not
-        :return: True if succes or raise RuntimeError exception fom run_sql_command()
+        :return: True if success or raise RuntimeError exception fom run_sql_command()
         """
 
         logger.debug("Started to make this new server as slave...")
