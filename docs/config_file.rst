@@ -28,6 +28,7 @@ The [MySQL] category is for specifying information about MySQL instance.
     datadir=/var/lib/mysql
 
 [Backup]
+--------
 
 The [Backup] category is for specifying information about backup/prepare process itself.
 
@@ -102,6 +103,7 @@ The [Backup] category is for specifying information about backup/prepare process
 +----------------------+----------+-----------------------------------------------------------------------------+
 
 [Compress]
+----------
 
 The [Compress] category is for enabling backup compression.
 
@@ -120,6 +122,7 @@ The options will be passed to XtraBackup.
     #remove_original=FALSE
 
 [Encrypt]
+---------
 
 The [Encrypt] category is for enabling backup encryption.
 
@@ -142,6 +145,7 @@ The options will be passed to XtraBackup.
     #remove_original=FALSE
 
 [Xbstream]
+----------
 
 The [Xbstream] category is for enabling backup streaming.
 
@@ -173,6 +177,7 @@ Deprecated feature, will be removed in next releases
     #remote_dir=/home/sh/Documents
 
 [Commands]
+----------
 
 The [Commands] category is for specifying some options for copy-back/restore actions.
 
@@ -185,6 +190,7 @@ The [Commands] category is for specifying some options for copy-back/restore act
     chown_command=chown -R mysql:mysql
 
 [TestConf]
+----------
 
 The [TestConf] category is part of XtraBackup testing procedures and is not for daily usage.
 
