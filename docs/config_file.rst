@@ -27,6 +27,8 @@ The [MySQL] category is for specifying information about MySQL instance.
     mysql_port=3306
     datadir=/var/lib/mysql
 
+[Backup]
+--------
 
 The [Backup] category is for specifying information about backup/prepare process itself.
 
@@ -58,8 +60,53 @@ The [Backup] category is for specifying information about backup/prepare process
     #Optional WARNING(Enable this if you want to take partial backups). Specify database names or table names.
     #partial_list=test.t1 test.t2 dbtest
 
++----------------------+----------+-----------------------------------------------------------------------------+
+| **Key**              | Required | **Description**                                                             |
++----------------------+----------+-----------------------------------------------------------------------------+
+| pid_dir              | no       | Directory where the PID file will be created in                             |
++----------------------+----------+-----------------------------------------------------------------------------+
+| tmpdir               | no       | Used for moving current running mysql-datadir to when copying-back          |
+|                      |          | (restoring) an archive                                                      |
++----------------------+----------+-----------------------------------------------------------------------------+
+| backupdir            | yes      | Directory will be used for storing the backups. Subdirs ./full and ./inc    |
+|                      |          | will be created                                                             |
++----------------------+----------+-----------------------------------------------------------------------------+
+| backup_tool          | no       | Full path to Percona xtrabackup executable used when making backup          |
++----------------------+----------+-----------------------------------------------------------------------------+
+| prepare_tool         | no       | Full path to Percona xtrabackup executable used when preparing (restoring)  |
++----------------------+----------+-----------------------------------------------------------------------------+
+| xtra_prepare         | yes      | Options passed to xtrabackup when preparing.                                |
+|                      |          | '--apply-log-only' is essential to allow further incremental                |
+|                      |          | backups to be made. See[1]                                                  |
++----------------------+----------+-----------------------------------------------------------------------------+
+| xtra_backup          | no       | pass additional options for backup stage                                    |
++----------------------+----------+-----------------------------------------------------------------------------+
+| xtra_prepare_options | no       | pass additional options for prepare stage                                   |
++----------------------+----------+-----------------------------------------------------------------------------+
+| xtra_options         | no       | pass general additional options; it will go to both for backup and prepare  |
++----------------------+----------+-----------------------------------------------------------------------------+
+| archive_dir          | no       | Directory for storing archives (tar.gz or otherwise). Cannot be inside the  |
+|                      |          | 'backupdir' above                                                           |
++----------------------+----------+-----------------------------------------------------------------------------+
+| prepare_archive      | no       | ?                                                                           |
++----------------------+----------+-----------------------------------------------------------------------------+
+| move_archive         | no       | When rotating backups to archive move instead of compressing with tar.gz    |
++----------------------+----------+-----------------------------------------------------------------------------+
+| full_backup_interval | no       | Maximum interval after which a new full backup will be made                 |
++----------------------+----------+-----------------------------------------------------------------------------+
+| max_archive_size     | no       | Delete archived backups after X GiB                                         |
++----------------------+----------+-----------------------------------------------------------------------------+
+| max_archive_duration | no       | Delete archived backups after X Days                                        |
++----------------------+----------+-----------------------------------------------------------------------------+
+| partial_list         | no       | Specify database names or table names.                                      |
+|                      |          | **WARNING**: Enable this if you want to take partial backups                |
++----------------------+----------+-----------------------------------------------------------------------------+
+
+[Compress]
+----------
 
 The [Compress] category is for enabling backup compression.
+
 The options will be passed to XtraBackup.
 
 ::
@@ -74,7 +121,11 @@ The options will be passed to XtraBackup.
     #Enable if you want to remove .qp files after decompression.(Not available yet, will be released with XB 2.3.7 and 2.4.6)
     #remove_original=FALSE
 
+[Encrypt]
+---------
+
 The [Encrypt] category is for enabling backup encryption.
+
 The options will be passed to XtraBackup.
 
 ::
@@ -93,7 +144,11 @@ The options will be passed to XtraBackup.
     #Enable if you want to remove .qp files after decompression.(Not available yet, will be released with XB 2.3.7 and 2.4.6)
     #remove_original=FALSE
 
+[Xbstream]
+----------
+
 The [Xbstream] category is for enabling backup streaming.
+
 The options will be passed to XtraBackup.
 
 ::
@@ -121,6 +176,9 @@ Deprecated feature, will be removed in next releases
     #remote_conn=root@xxx.xxx.xxx.xxx
     #remote_dir=/home/sh/Documents
 
+[Commands]
+----------
+
 The [Commands] category is for specifying some options for copy-back/restore actions.
 
 ::
@@ -131,7 +189,11 @@ The [Commands] category is for specifying some options for copy-back/restore act
     #Change user:group respectively
     chown_command=chown -R mysql:mysql
 
+[TestConf]
+----------
+
 The [TestConf] category is part of XtraBackup testing procedures and is not for daily usage.
+
 So just ignore this, it is actually for myself :)
 
 ::
@@ -148,3 +210,6 @@ So just ignore this, it is actually for myself :)
     xb_configs=xb_2_4_ps_5_6.conf xb_2_4_ps_5_7.conf xb_2_3_ps_5_6.conf xb_2_3_ps_5_5.conf xb_2_4_ps_5_5.conf
     default_mysql_options=--log-bin=mysql-bin,--log-slave-updates,--server-id={},--gtid-mode=ON,--enforce-gtid-consistency,--binlog-format=row
     mysql_options=--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,--innodb_page_size=4K 8K 16K 32K 64K
+
+[1]: https://www.percona.com/doc/percona-xtrabackup/LATEST/xtrabackup_bin/incremental_backups.html#preparing-the-incremental-backups
+

@@ -102,13 +102,13 @@ log_file, lf
 Pass, the path for log file, for autoxtrabackup. Default is ``/var/log/autoxtrabackup.log``
 
 log_file_backup_count
----------------------
+------------
 
 --log_file_backup_count
 Set log file backup count. Default is 7
 
 log_file_max_bytes
-------------------
+------------
 
 --log_file_max_bytes
 Set log file max size in bytes. Default: 1073741824 bytes.
