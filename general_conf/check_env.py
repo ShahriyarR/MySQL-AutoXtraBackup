@@ -1,5 +1,5 @@
 #!/opt/Python-3.3.2/bin/python3
-
+import re
 import shlex
 import subprocess
 import os
@@ -43,8 +43,12 @@ class CheckEnv(GeneralClass):
                 raise RuntimeError("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
         else:
             statusargs = "{} {} status".format(self.mysqladmin, options)
-        
-        logger.debug("Running mysqladmin command -> {}".format(statusargs))
+
+        # filter out password from argument list
+        filteredargs = re.sub("--password='?\w+'?", "--password='*'", statusargs)
+
+        logger.debug("Running mysqladmin command -> {}".format(filteredargs))
+
         #statusargs = shlex.split(statusargs)
         status, output = subprocess.getstatusoutput(statusargs)
         #myadmin = subprocess.Popen(statusargs, stdout=subprocess.PIPE)
