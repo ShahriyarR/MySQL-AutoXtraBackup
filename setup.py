@@ -1,6 +1,8 @@
 from setuptools import setup
+from os.path import expanduser
+home = expanduser("~")
 
-datafiles = [('//etc', ['general_conf/bck.conf'])]
+datafiles = [(home+'/.autoxtrabackup', ['general_conf/bck.conf'])]
 
 setup(
     name='mysql-autoxtrabackup',
