@@ -135,7 +135,7 @@ def validate_file(file):
               help="Be verbose (print to console)")
 @click.option('-lf',
               '--log_file',
-              default='/var/log/autoxtrabackup.log',
+              default=path_config.log_file_path,
               show_default=True,
               help="Set log file")
 @click.option('-l',
