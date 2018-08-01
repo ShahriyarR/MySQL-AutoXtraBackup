@@ -1,10 +1,9 @@
 #!/opt/Python-3.3.2/bin/python3
 import re
-import shlex
 import subprocess
 import os
-import time
 from general_conf.generalops import GeneralClass
+from general_conf import path_config
 
 import logging
 logger = logging.getLogger(__name__)
@@ -12,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class CheckEnv(GeneralClass):
 
-    def __init__(self, config='/etc/bck.conf', full_dir=None, inc_dir=None):
+    def __init__(self, config=path_config.config_path_file, full_dir=None, inc_dir=None):
         self.conf = config
         GeneralClass.__init__(self, self.conf)
         if full_dir is not None:

@@ -3,12 +3,13 @@ from prepare_env_test_mode.run_benchmark import RunBenchmark
 import configparser
 from itertools import product
 import logging
+from general_conf import path_config
 logger = logging.getLogger(__name__)
 
 
 class ConfigGenerator(CloneBuildStartServer):
 
-    def __init__(self, config='/etc/bck.conf'):
+    def __init__(self, config=path_config.config_path_file):
         self.conf = config
         super().__init__(config=self.conf)
         # For getting socket file path using RunBenchmark()

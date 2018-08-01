@@ -14,15 +14,17 @@ import humanfriendly
 import logging
 import logging.handlers
 from logging.handlers import RotatingFileHandler
-
+from general_conf import path_config
 
 logger = logging.getLogger('')
 
 
 destinations_hash = {'linux':'/dev/log', 'linux2': '/dev/log', 'darwin':'/var/run/syslog'}
 
+
 def address_matcher(plt):
     return destinations_hash.get(plt, ('localhost', 514))
+
 
 handler = logging.handlers.SysLogHandler(address=address_matcher(_platform))
 
@@ -93,14 +95,14 @@ def validate_file(file):
     """
     if os.path.isfile(file):
         # filename extension should be .conf
-        pattern = re.compile(r'.*\.conf')
+        pattern = re.compile(r'.*\.cnf')
 
         if pattern.match(file):
             # Lastly the file should have all 5 required headers
             if check_file_content(file):
                 return
         else:
-            raise ValueError("Invalid file extension. Expecting .conf")
+            raise ValueError("Invalid file extension. Expecting .cnf")
     else:
         raise FileNotFoundError("Specified file does not exist.")
 
@@ -121,7 +123,7 @@ def validate_file(file):
               is_eager=True,
               help="Version information.")
 @click.option('--defaults_file',
-              default='/etc/bck.conf',
+              default=path_config.config_path_file,
               show_default=True,
               help="Read options from the given file")
 @click.option('--tag',

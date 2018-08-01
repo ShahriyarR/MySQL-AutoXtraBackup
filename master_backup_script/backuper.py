@@ -16,6 +16,7 @@ from general_conf.check_env import CheckEnv
 from backup_prepare.prepare import Prepare
 from os.path import join, isfile
 from os import makedirs
+from general_conf import path_config
 
 import logging
 logger = logging.getLogger(__name__)
@@ -26,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 class Backup(GeneralClass):
 
-    def __init__(self, config='/etc/bck.conf', dry_run=0, tag=None):
+    def __init__(self, config=path_config.config_path_file, dry_run=0, tag=None):
         self.conf = config
         self.dry = dry_run
         self.tag = tag

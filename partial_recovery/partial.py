@@ -4,7 +4,7 @@ import subprocess
 from general_conf.generalops import GeneralClass
 import re
 from general_conf import check_env
-import sys
+from general_conf import path_config
 
 import logging
 logger = logging.getLogger(__name__)
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class PartialRecovery(GeneralClass):
 
-    def __init__(self, config='/etc/bck.conf'):
+    def __init__(self, config=path_config.config_path_file):
         self.conf = config
         GeneralClass.__init__(self, self.conf)
         if shutil.which('mysqlfrm') is None:
