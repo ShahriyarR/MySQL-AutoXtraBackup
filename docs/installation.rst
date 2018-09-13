@@ -100,9 +100,10 @@ Installing from source:
     sudo python3 setup.py install
 
 Using Vagrant:
-Just do
 
 ::
+
     vagrant up
+
 
 It will bring up CentOS 7 and install necessary things for --test_mode
