@@ -4,7 +4,9 @@ The structure of configuration file
 Defaults file explained
 -----------------------
 
-The default config file is located /etc/bck.conf.
+There are some changes related to default config file.
+First and foremost it is renamed and now located in home of user in .autoxtrabackup folder.
+The default config file is located ~/.autoxtrabackup/autoxrtabackup.cnf
 The available options are divided into optional and primary options.
 Options are quite self-explanatory.
 I have tried to make them similar to existing options in XtraBackup and MySQL.

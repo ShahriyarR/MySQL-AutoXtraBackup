@@ -14,15 +14,15 @@ The flow is as described:
 * Get 2.3 and 2.4 versions of XtraBackup.
 * Generate autoxtrabackup .conf files for each versions PS and XtraBackup:
 
-  xb_2_3_ps_5_5.conf
+  xb_2_3_ps_5_5.cnf
 
-  xb_2_3_ps_5_6.conf
+  xb_2_3_ps_5_6.cnf
 
-  xb_2_4_ps_5_5.conf
+  xb_2_4_ps_5_5.cnf
 
-  xb_2_4_ps_5_6.conf
+  xb_2_4_ps_5_6.cnf
 
-  xb_2_4_ps_5_7.conf
+  xb_2_4_ps_5_7.cnf
 
 
 * Pass different combination of options to PS(MySQL) start command; Initialize PS servers each time with different options.
@@ -46,17 +46,23 @@ You need BATS_. for this.
 .. _BATS: https://github.com/sstephenson/bats
 
 Prior actions can be taken we should setup all necessary things. Please note that I have tested those things only under Centos 7 and Ubuntu Bionic.
-The setup process is using default config file /etc/bck.conf. By default --test_mode settings are disabled in it. So please enable them and update respectively:
+The setup process is using default config file ~/.autoxtrabackup/autoxrtabackup.cnf. By default --test_mode settings are disabled in it. So please enable them and update respectively:
 
 # Do not touch; this is for --test_mode, which is testing for XtraBackup itself.
-[TestConf]
-ps_branches=5.5 5.6 5.7
-pxb_branches=2.3 2.4
-gitcmd=--recursive --depth=1 https://github.com/percona/percona-server.git
-pxb_gitcmd=https://github.com/percona/percona-xtrabackup.git
-testpath=/home/shahriyar.rzaev/XB_TEST/server_dir
-incremental_count=3
-make_slaves=1
+
+::
+
+    [TestConf]
+    ps_branches = 5.5 5.6 5.7
+    pxb_branches = 2.3 2.4
+    gitcmd = --recursive --depth=1 https://github.com/percona/percona-server.git
+    pxb_gitcmd = https://github.com/percona/percona-xtrabackup.git
+    testpath = /home/shahriyar.rzaev/XB_TEST/server_dir
+    incremental_count = 3
+    xb_configs = xb_2_4_ps_5_6.conf xb_2_4_ps_5_7.conf xb_2_3_ps_5_6.conf xb_2_3_ps_5_5.conf xb_2_4_ps_5_5.conf
+    make_slaves = 1
+    default_mysql_options = --early-plugin-load=keyring_file.so,--keyring_file_data={}/mysql-keyring/keyring,--log-bin=mysql-bin,--log-slave-updates,--server-id={},--gtid-mode=ON,--enforce-gtid-consistency,--binlog-format=row,--encrypt_binlog=ON,--master_verify_checksum=ON,--binlog_checksum=CRC32,--innodb_encrypt_tables=ON,--innodb_encrypt_online_alter_logs=ON,--innodb_temp_tablespace_encrypt=ON
+    mysql_options = --innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,--innodb_page_size=4K 8K 16K 32K
 
 I think the options are quite clear.
 The only thing is specify testpath under [TestConf] - in which path the test environment should be constructed, created.
@@ -90,11 +96,11 @@ After running this you will likely have something like in your test path:
 .. code-block:: shell
 
     $ ls
-    percona-qa                                PS250418-5.7.21-21-linux-x86_64-debug                           PS-5.5-trunk_dbg  PXB-2.3             xb_2_4_ps_5_5.conf
-    percona-xtrabackup-2.3.x-debug.tar.gz     PS250418-percona-server-5.5.59-38.11-linux-x86_64-debug.tar.gz  PS-5.6-trunk      PXB-2.4             xb_2_4_ps_5_6.conf
-    percona-xtrabackup-2.4.x-debug.tar.gz     PS250418-percona-server-5.6.39-83.1-linux-x86_64-debug.tar.gz   PS-5.6-trunk_dbg  target              xb_2_4_ps_5_7.conf
-    PS250418-5.5.59-38.11-linux-x86_64-debug  PS250418-percona-server-5.7.21-21-linux-x86_64-debug.tar.gz     PS-5.7-trunk      xb_2_3_ps_5_5.conf
-    PS250418-5.6.39-83.1-linux-x86_64-debug   PS-5.5-trunk                                                    PS-5.7-trunk_dbg  xb_2_3_ps_5_6.conf                                                 target
+    percona-qa                                PS250418-5.7.21-21-linux-x86_64-debug                           PS-5.5-trunk_dbg  PXB-2.3             xb_2_4_ps_5_5.cnf
+    percona-xtrabackup-2.3.x-debug.tar.gz     PS250418-percona-server-5.5.59-38.11-linux-x86_64-debug.tar.gz  PS-5.6-trunk      PXB-2.4             xb_2_4_ps_5_6.cnf
+    percona-xtrabackup-2.4.x-debug.tar.gz     PS250418-percona-server-5.6.39-83.1-linux-x86_64-debug.tar.gz   PS-5.6-trunk_dbg  target              xb_2_4_ps_5_7.cnf
+    PS250418-5.5.59-38.11-linux-x86_64-debug  PS250418-percona-server-5.7.21-21-linux-x86_64-debug.tar.gz     PS-5.7-trunk      xb_2_3_ps_5_5.cnf
+    PS250418-5.6.39-83.1-linux-x86_64-debug   PS-5.5-trunk                                                    PS-5.7-trunk_dbg  xb_2_3_ps_5_6.cnf                                                 target
 
 So you have everything you need to run combination of tests for XtraBackup. Even configs are generated for you.
 
@@ -107,7 +113,7 @@ For this, just run autoxtrabackup with respective config file which was generate
 .. code-block:: shell
 
     autoxtrabackup -lf /home/shahriyar.rzaev/XB_TEST/autoxtrabackup.log \
-    --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf -v -l DEBUG --test_mode
+    --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.cnf -v -l DEBUG --test_mode
 
 This will start autoxtrabackup in test mode and will run full cycle based on combinations of mysql options passed to PS.
 To be clear, for eg, we have 50 different combinations of starting PS, then we will have 50 cycles of backup/restore process.

@@ -5,7 +5,6 @@ The command line options to use:
 
 .. code-block:: shell
 
-
     $ autoxtrabackup --help
     Usage: autoxtrabackup [OPTIONS]
 
@@ -16,12 +15,11 @@ The command line options to use:
       --partial                       Recover specified table (partial recovery).
       --version                       Version information.
       --defaults_file TEXT            Read options from the given file  [default:
-                                      /etc/bck.conf]
+                                    ~/.autoxtrabackup/autoxtrabackup.cnf]
       --tag TEXT                      Pass the tag string for each backup
       --show_tags                     Show backup tags and exit
       -v, --verbose                   Be verbose (print to console)
-      -lf, --log_file TEXT            Set log file  [default:
-                                      /var/log/autoxtrabackup.log]
+      -lf, --log_file TEXT            Set log file  [default: ~/.autoxtrabackup/autoxtrabackup.log]
       -l, --log [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                       Set log level  [default: WARNING]
       --log_file_max_bytes INTEGER    Set log file max size in bytes  [default:
@@ -36,7 +34,6 @@ The command line options to use:
                                       --defaults_file and only for TESTs for
                                       XtraBackup
       --help                          Print help message and exit.
-
 
 
 dry_run
@@ -76,7 +73,7 @@ defaults_file
 -------------
 
 --defaults_file
-The main config file to path to ``autoxtrabackup``. The default one is ``/etc/bck.conf``.
+The main config file to path to ``autoxtrabackup``. The default one is ``~/.autoxtrabackup/autoxtrabackup.cnf``.
 In default config, the compression, encryption and streaming backups are disabled by defualt.
 
 tag
@@ -99,7 +96,7 @@ log_file, lf
 ------------
 
 -lf, --log_file
-Pass, the path for log file, for autoxtrabackup. Default is ``/var/log/autoxtrabackup.log``
+Pass, the path for log file, for autoxtrabackup. Default is ``~/.autoxtrabackup/autoxtrabackup.log``
 
 log_file_backup_count
 ------------

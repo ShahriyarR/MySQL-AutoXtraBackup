@@ -5,7 +5,7 @@ Compressed backups:
 -------------------
 
 To enable compression support just uncomment the options under
-[Compress] category inside main configuration file:
+[Compress] category inside main cnfiguration file:
 
 .. code-block:: shell
 
@@ -48,7 +48,7 @@ Partial backups
 
 It is possible to take partial full and incremental backups. The idea is, to take specified table(or database) as full backup,
 then to take incremental backups based on this one table.
-You can achieve this by enabling ``partial_list`` option from config file:
+You can achieve this by enabling ``partial_list`` option from cnfig file:
 
 
 ::
@@ -147,7 +147,7 @@ Trying to restore t1 table: It will figure out that specified database is missin
 
 
         $ autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log \
-        -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --partial
+        -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.cnf --partial
         2017-11-16 20:38:16 DEBUG    <pid.PidFile object at 0x7f4f1ac6a048> entering setup
         2017-11-16 20:38:16 DEBUG    <pid.PidFile object at 0x7f4f1ac6a048> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
         2017-11-16 20:38:16 DEBUG    <pid.PidFile object at 0x7f4f1ac6a048> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
@@ -216,7 +216,7 @@ Taking backup:
 ::
 
 
-        $ autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --backup --dry_run
+        $ autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.cnf --backup --dry_run
         2017-11-16 20:40:47 DEBUG    <pid.PidFile object at 0x7f0cf71a4048> entering setup
         2017-11-16 20:40:47 DEBUG    <pid.PidFile object at 0x7f0cf71a4048> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
         2017-11-16 20:40:47 DEBUG    <pid.PidFile object at 0x7f0cf71a4048> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
@@ -246,7 +246,7 @@ Preparing backups:
 ::
 
 
-        $ autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --prepare --dry_run
+        $ autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.cnf --prepare --dry_run
         2017-11-16 20:41:49 DEBUG    <pid.PidFile object at 0x7fac08f9e048> entering setup
         2017-11-16 20:41:49 DEBUG    <pid.PidFile object at 0x7fac08f9e048> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
         2017-11-16 20:41:49 DEBUG    <pid.PidFile object at 0x7fac08f9e048> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid

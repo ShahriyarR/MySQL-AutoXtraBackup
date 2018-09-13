@@ -19,7 +19,7 @@ backups, also for preparing backups, as well as to restore. Here is project path
     * setup.py              -- Setuptools Setup file.
     * autoxtrabackup.py     -- Commandline Tool provider script.
     * VagrantFile           -- The Vagrant thing for starting using this tool[will be useful to contributors].
-    * /etc/bck.conf         -- Config file will be created from general_conf/bck.conf
+    * ~/.autoxtrabackup/autoxtrabackup.cnf        -- Config file will be created from general_conf/autoxtrabackup.cnf
 
 
 Available Options
@@ -37,12 +37,11 @@ Available Options
       --partial                       Recover specified table (partial recovery).
       --version                       Version information.
       --defaults_file TEXT            Read options from the given file  [default:
-                                      /etc/bck.conf]
+                                    ~/.autoxtrabackup/autoxtrabackup.cnf]
       --tag TEXT                      Pass the tag string for each backup
       --show_tags                     Show backup tags and exit
       -v, --verbose                   Be verbose (print to console)
-      -lf, --log_file TEXT            Set log file  [default:
-                                      /var/log/autoxtrabackup.log]
+      -lf, --log_file TEXT            Set log file  [default: ~/.autoxtrabackup/autoxtrabackup.log]
       -l, --log [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                       Set log level  [default: WARNING]
       --log_file_max_bytes INTEGER    Set log file max size in bytes  [default:
