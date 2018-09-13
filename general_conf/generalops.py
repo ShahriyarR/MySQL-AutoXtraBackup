@@ -1,14 +1,14 @@
 import configparser
 from os.path import isfile
 import humanfriendly
-
 import logging
+from general_conf import path_config
 logger = logging.getLogger(__name__)
 
 
 class GeneralClass:
 
-    def __init__(self, config='/etc/bck.conf'):
+    def __init__(self, config=path_config.config_path_file):
 
         if isfile(config):
             con = configparser.ConfigParser()
@@ -148,4 +148,4 @@ class GeneralClass:
                     self.make_slaves = TEST['make_slaves']
 
         else:
-            logger.critical("Missing config file : /etc/bck.conf")
+            logger.critical("Missing config file : /etc/autoxtrabackup.cnf")

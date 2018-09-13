@@ -5,6 +5,7 @@
 
 
 import os
+import re
 import subprocess
 import shlex
 import shutil
@@ -15,6 +16,7 @@ from general_conf.check_env import CheckEnv
 from backup_prepare.prepare import Prepare
 from os.path import join, isfile
 from os import makedirs
+from general_conf import path_config
 
 import logging
 logger = logging.getLogger(__name__)
@@ -25,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 class Backup(GeneralClass):
 
-    def __init__(self, config='/etc/bck.conf', dry_run=0, tag=None):
+    def __init__(self, config=path_config.config_path_file, dry_run=0, tag=None):
         self.conf = config
         self.dry = dry_run
         self.tag = tag
@@ -233,9 +235,26 @@ class Backup(GeneralClass):
                     else:
                         return True
                 else:
-                    run_tar = "tar -zcf %s %s %s" % (
-                    self.archive_dir + '/' + i + '.tar.gz', self.full_dir, self.inc_dir)
+                    # Multi-core tar utilizing pigz.
+                    # Pigz default to number of cores available, or 8 if cannot be read.
+
+                    # Test if pigz is available.
+                    try:
+                        subprocess.call(["pigz", "-q"])
+                        run_tar = "tar cf - %s %s | pigz > %s" % (
+                            self.full_dir, self.inc_dir, self.archive_dir + '/' + i + '.tar.gz')
+                    except OSError as e:
+                        if e.errno == os.errno.ENOENT:
+                            # handle file not found error.
+                            logger.warning("pigz executeable not available. Defaulting to singlecore tar")
+                            run_tar = "tar -zcf %s %s %s" % (
+                                self.archive_dir + '/' + i + '.tar.gz', self.full_dir, self.inc_dir)
+                        else:
+                            # Something else went wrong while trying to run `wget`
+                            raise RuntimeError("FAILED: Archiving -> {}".format(e))
+
                     logger.debug("Started to archive previous backups")
+                    logger.debug("The following backup command will be executed {}".format(run_tar))
 
                     status, output = subprocess.getstatusoutput(run_tar)
                     if status == 0:
@@ -261,7 +280,7 @@ class Backup(GeneralClass):
             # Finding if last full backup older than the interval or more from
             # now!
 
-            if (now - archive_date).total_seconds() >= self.max_archive_duration:
+            if hasattr(self, 'max_archive_duration') and (now - archive_date).total_seconds() >= self.max_archive_duration:
                 logger.debug(
                     "Removing archive: " +
                     self.archive_dir +
@@ -272,7 +291,7 @@ class Backup(GeneralClass):
                     shutil.rmtree(self.archive_dir + "/" + archive)
                 else:
                     os.remove(self.archive_dir + "/" + archive)
-            elif self.get_directory_size(self.archive_dir) > self.max_archive_size:
+            elif hasattr(self, 'max_archive_size') and self.get_directory_size(self.archive_dir) > self.max_archive_size:
                 logger.debug(
                     "Removing archive: " +
                     self.archive_dir +
@@ -388,7 +407,10 @@ class Backup(GeneralClass):
             args += " > {}/full_backup.tar".format(full_backup_dir)
             logger.warning("Streaming tar is enabled!")
 
-        logger.debug("The following backup command will be executed {}".format(args))
+        # filter out password from argument list
+        filteredargs = re.sub("--password='?\w+'?", "--password='*'", args)
+
+        logger.debug("The following backup command will be executed {}".format(filteredargs))
 
         if self.dry == 0:
             logger.debug("Starting {}".format(self.backup_tool))
@@ -607,7 +629,11 @@ class Backup(GeneralClass):
                 raise RuntimeError("xtrabackup: error: streaming incremental backups are incompatible with the "
                                    "'tar' streaming format. Use --stream=xbstream instead.")
 
-            logger.debug("The following backup command will be executed {}".format(args))
+            # filter out password from argument list
+            filteredargs = re.sub("--password='?\w+'?", "--password='*'", args)
+
+            logger.debug("The following backup command will be executed {}".format(filteredargs))
+
             if self.dry == 0:
                 status, output = subprocess.getstatusoutput(args)
                 if status == 0:
@@ -783,7 +809,10 @@ class Backup(GeneralClass):
                 args += " > {}/inc_backup.stream".format(inc_backup_dir)
                 logger.warning("Streaming is enabled!")
 
-            logger.debug("The following backup command will be executed {}".format(args))
+            # filter out password from argument list
+                filteredargs = re.sub("--password='?\w+'?", "--password='*'", args)
+
+            logger.debug("The following backup command will be executed {}".format(filteredargs))
 
             if self.dry == 0:
                 status, output = subprocess.getstatusoutput(args)

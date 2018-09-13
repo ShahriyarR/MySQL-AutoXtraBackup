@@ -2,6 +2,7 @@ from general_conf.generalops import GeneralClass
 from prepare_env_test_mode.clone_build_start_server import CloneBuildStartServer
 import subprocess
 import logging
+from general_conf import path_config
 logger = logging.getLogger(__name__)
 
 
@@ -10,7 +11,7 @@ class RunBenchmark:
     General class for running all kind of Benchmarks; For now running sysbench against started server.
     """
 
-    def __init__(self, config="/etc/bck.conf"):
+    def __init__(self, config=path_config.config_path_file):
         self.conf = config
         self.testpath = GeneralClass(self.conf).testpath
         self.basedir = CloneBuildStartServer(self.conf).get_basedir()

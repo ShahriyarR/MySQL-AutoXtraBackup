@@ -10,14 +10,14 @@ import shutil
 import time
 from general_conf.generalops import GeneralClass
 from os.path import isfile
-
+from general_conf import path_config
 import logging
 logger = logging.getLogger(__name__)
 
 
 class Prepare(GeneralClass):
 
-    def __init__(self, config="/etc/bck.conf", dry_run=0, tag=None):
+    def __init__(self, config=path_config.config_path_file, dry_run=0, tag=None):
         self.conf = config
         self.dry = dry_run
         self.tag = tag

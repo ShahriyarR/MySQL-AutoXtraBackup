@@ -1,9 +1,9 @@
 from backup_prepare.prepare import Prepare
-
+from general_conf import path_config
 
 class WrapperForPrepareTest(Prepare):
 
-    def __init__(self, config='/etc/bck.conf', full_dir=None, inc_dir=None):
+    def __init__(self, config=path_config.config_path_file, full_dir=None, inc_dir=None):
         self.conf = config
         super().__init__(config=self.conf)
         if full_dir is not None:

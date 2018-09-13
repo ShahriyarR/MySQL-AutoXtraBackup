@@ -19,6 +19,20 @@ Installing dependencies:
 
     yum install openssl openssl-devel zlib zlib-devel
 
+On Debian/Ubuntu
+::
+
+    apt-get install openssl libssl-dev zlib1g zlib1g-dev
+
+(Optional) for multicore zipping install pigz
+::
+
+    yum install pigz
+
+::
+
+    apt-get install pigz
+
 Installing latest XtraBackup:
 For more options please refer to official documentation -> `Installing Percona XtraBackup 2.4 <https://www.percona.com/doc/percona-xtrabackup/2.4/installation.html>`_
 

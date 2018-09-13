@@ -1,10 +1,9 @@
 #!/opt/Python-3.3.2/bin/python3
-
-import shlex
+import re
 import subprocess
 import os
-import time
 from general_conf.generalops import GeneralClass
+from general_conf import path_config
 
 import logging
 logger = logging.getLogger(__name__)
@@ -12,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class CheckEnv(GeneralClass):
 
-    def __init__(self, config='/etc/bck.conf', full_dir=None, inc_dir=None):
+    def __init__(self, config=path_config.config_path_file, full_dir=None, inc_dir=None):
         self.conf = config
         GeneralClass.__init__(self, self.conf)
         if full_dir is not None:
@@ -43,8 +42,12 @@ class CheckEnv(GeneralClass):
                 raise RuntimeError("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
         else:
             statusargs = "{} {} status".format(self.mysqladmin, options)
-        
-        logger.debug("Running mysqladmin command -> {}".format(statusargs))
+
+        # filter out password from argument list
+        filteredargs = re.sub("--password='?\w+'?", "--password='*'", statusargs)
+
+        logger.debug("Running mysqladmin command -> {}".format(filteredargs))
+
         #statusargs = shlex.split(statusargs)
         status, output = subprocess.getstatusoutput(statusargs)
         #myadmin = subprocess.Popen(statusargs, stdout=subprocess.PIPE)
