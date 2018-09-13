@@ -86,10 +86,11 @@ class CloneBuildStartServer(TestModeConfCheck):
         for branch in pxb_branches:
             pxb_path = "{}/PXB-{}".format(self.testpath, branch)
             os.chdir(pxb_path)
-            if '2.3' in branch:
-                build_cmd = "{}/build_{}_pxb.sh {} {}".format(dir_path, '2.3', self.testpath, branch)
-            elif '2.4' in branch:
-                build_cmd = "{}/build_{}_pxb.sh {} {}".format(dir_path, '2.4', self.testpath, branch)
+            # if '2.3' in branch:
+            #     build_cmd = "{}/build_{}_pxb.sh {} {}".format(dir_path, '2.3', self.testpath, branch)
+            # elif '2.4' in branch:
+            #     build_cmd = "{}/build_{}_pxb.sh {} {}".format(dir_path, '2.4', self.testpath, branch)
+            build_cmd = "{}/build_pxb.sh {} {}".format(dir_path, self.testpath, branch)
             status, output = subprocess.getstatusoutput(build_cmd)
             if status == 0:
                 logger.debug("PXB build succeeded")
@@ -187,7 +188,7 @@ class CloneBuildStartServer(TestModeConfCheck):
     @staticmethod
     def prepare_start_dynamic(basedir_path):
         # Method for calling start_dynamic.sh from basedir.
-        # It will generated start_dynamuc executables in basedir.
+        # It will generate start_dynamic executables in basedir.
         saved_path = os.getcwd()
         dir_path = os.path.dirname(os.path.realpath(__file__))
         os.chdir(basedir_path)

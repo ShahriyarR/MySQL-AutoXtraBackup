@@ -90,13 +90,13 @@ chown_command=chown -R mysql:mysql
 
 # Do not touch; this is for --test_mode, which is testing for XtraBackup itself.
 #[TestConf]
-#ps_branches=5.5 5.6 5.7
-#pxb_branches=2.3 2.4
+#ps_branches=5.5 5.6 5.7 8.0
+#pxb_branches=2.3 2.4 8.0
 #gitcmd=--recursive --depth=1 https://github.com/percona/percona-server.git
 #pxb_gitcmd=https://github.com/percona/percona-xtrabackup.git
 #testpath=/home/shahriyar.rzaev/XB_TEST/server_dir
 #incremental_count=3
 #make_slaves=1
-#xb_configs=xb_2_4_ps_5_6.cnf xb_2_4_ps_5_7.cnf xb_2_3_ps_5_6.cnf xb_2_3_ps_5_5.cnf xb_2_4_ps_5_5.cnf
+#xb_configs=xb_2_4_ps_5_6.cnf xb_2_4_ps_5_7.cnf xb_2_3_ps_5_6.cnf xb_2_3_ps_5_5.cnf xb_2_4_ps_5_5.cnf xb_8_0_ps_8_0.cnf
 #default_mysql_options=--log-bin=mysql-bin,--log-slave-updates,--server-id={},--gtid-mode=ON,--enforce-gtid-consistency,--binlog-format=row
 #mysql_options=--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,--innodb_page_size=4K 8K 16K 32K 64K
