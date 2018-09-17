@@ -18,12 +18,14 @@ def return_basedir():
     basedir = clb_obj.get_basedir()
     return basedir
 
+
 rb_obj = RunBenchmark()
 
 
 @pytest.fixture()
 def return_run_benchmark_obj():
     return rb_obj
+
 
 cg_obj = ConfigGenerator()
 
@@ -34,15 +36,15 @@ def return_config_generator_obj():
 
 @pytest.fixture()
 def return_runner_test_mode_obj_5_6_xb_2_3():
-    obj = RunnerTestMode(config="{}/{}".format(clb_obj.testpath, 'xb_2_3_ps_5_6.conf'))
+    obj = RunnerTestMode(config="{}/{}".format(clb_obj.testpath, 'xb_2_3_ps_5_6.cnf'))
     return obj
 
 @pytest.fixture()
 def return_runner_test_mode_obj_5_6_xb_2_4():
-    obj = RunnerTestMode(config="{}/{}".format(clb_obj.testpath, 'xb_2_4_ps_5_6.conf'))
+    obj = RunnerTestMode(config="{}/{}".format(clb_obj.testpath, 'xb_2_4_ps_5_6.cnf'))
     return obj
 
 @pytest.fixture()
 def return_runner_test_mode_obj_5_7_xb_2_4():
-    obj = RunnerTestMode(config="{}/{}".format(clb_obj.testpath, 'xb_2_4_ps_5_7.conf'))
+    obj = RunnerTestMode(config="{}/{}".format(clb_obj.testpath, 'xb_2_4_ps_5_7.cnf'))
     return obj

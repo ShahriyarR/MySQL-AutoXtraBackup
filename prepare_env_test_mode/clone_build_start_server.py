@@ -61,7 +61,7 @@ class CloneBuildStartServer(TestModeConfCheck):
         return True
 
     def clone_pxb(self):
-        # Clone PXB
+        # Clone PXB from github based on branch values from config file.
         pxb_branches = self.pxb_branches.split()
         for branch in pxb_branches:
             clone_cmd = "git clone {} -b {} {}/PXB-{}"
@@ -86,10 +86,6 @@ class CloneBuildStartServer(TestModeConfCheck):
         for branch in pxb_branches:
             pxb_path = "{}/PXB-{}".format(self.testpath, branch)
             os.chdir(pxb_path)
-            # if '2.3' in branch:
-            #     build_cmd = "{}/build_{}_pxb.sh {} {}".format(dir_path, '2.3', self.testpath, branch)
-            # elif '2.4' in branch:
-            #     build_cmd = "{}/build_{}_pxb.sh {} {}".format(dir_path, '2.4', self.testpath, branch)
             build_cmd = "{}/build_pxb.sh {} {}".format(dir_path, self.testpath, branch)
             status, output = subprocess.getstatusoutput(build_cmd)
             if status == 0:
@@ -115,6 +111,8 @@ class CloneBuildStartServer(TestModeConfCheck):
             if '5.5' in branch:
                 # Use same script with 5.5 and 5.6 versions
                 build_cmd = "{}/percona-qa/build_5.x_debug_5.6_for_pxb_tests.sh"
+            elif '8.0' in branch:
+                build_cmd = "{}/percona-qa/build_psms_debug.sh"
             else:
                 build_cmd = "{}/percona-qa/build_5.x_debug_{}_for_pxb_tests.sh"
             logger.debug("Started to build Percon Server from source...")
