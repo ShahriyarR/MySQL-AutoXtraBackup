@@ -55,13 +55,14 @@ class ConfigGenerator(CloneBuildStartServer):
                 get_ps_version = conf_file[3:6]
                 # Getting XB version from conf_file name
                 get_xb_version = conf_file[-7:-4]
+                get_xb_version_replaced = get_xb_version.replace('_', '.')
                 config.set(section2, "backupdir",
                            join(home_path, "XB_TEST/backup_dir/ps_{}_x_{}".format(get_ps_version,
                                                                                   get_xb_version)))
 
                 config.set(section2, "backup_tool",
                            "{}/target/percona-xtrabackup-{}.x-debug/bin/xtrabackup".format(test_path,
-                                                                                           get_xb_version.replace('_', '.')))
+                                                                                           get_xb_version_replaced))
 
 
                 config.set(section2, "#Optional: specify different path/version of xtrabackup here for prepare")
@@ -133,7 +134,7 @@ class ConfigGenerator(CloneBuildStartServer):
 
                 config.set(section4, "xbcrypt",
                            "{}/target/percona-xtrabackup-{}.x-debug/bin/xbcrypt".format(test_path,
-                                                                                        get_xb_version.replace('_', '.')))
+                                                                                        get_xb_version_replaced))
                 config.set(section4, "encrypt", "AES256")
                 config.set(section4, "#Please note that --encrypt-key and --encrypt-key-file are mutually exclusive")
                 config.set(section4, "encrypt_key", 'VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K')
@@ -152,7 +153,7 @@ class ConfigGenerator(CloneBuildStartServer):
 
                 config.set(section5, "xbstream",
                            "{}/target/percona-xtrabackup-{}.x-debug/bin/xbstream".format(test_path,
-                                                                                         get_xb_version.replace('_', '.')))
+                                                                                         get_xb_version_replaced))
                 config.set(section5, "stream", "xbstream")
                 config.set(section5, "xbstream_options", "-x --parallel=100")
                 config.set(section5, "xbs_decrypt", "1")
@@ -199,7 +200,7 @@ class ConfigGenerator(CloneBuildStartServer):
                                          "--innodb_encrypt_tables=ON,"
                                          "--innodb_encrypt_online_alter_logs=ON,"
                                          "--innodb_temp_tablespace_encrypt=ON")
-                elif '8.0' in conf_file:
+                elif '8_0' in conf_file:
                     # For now make similar to 5.7
                     config.set(section8, "default_mysql_options",
                                "--early-plugin-load=keyring_file.so,"
@@ -246,8 +247,6 @@ class ConfigGenerator(CloneBuildStartServer):
         # The method for calling config generator based on if statements
         conf_list = self.xb_configs.split()
         basedirs = self.get_basedir()
-        print(basedirs)
-        print(conf_list)
         for basedir in basedirs:
             for conf_file in conf_list:
                 if ('8.0' in basedir) and ('8_0_ps_8_0' in conf_file):

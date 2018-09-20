@@ -115,7 +115,7 @@ class CloneBuildStartServer(TestModeConfCheck):
                 build_cmd = "{}/percona-qa/build_psms_debug.sh"
             else:
                 build_cmd = "{}/percona-qa/build_5.x_debug_{}_for_pxb_tests.sh"
-            logger.debug("Started to build Percon Server from source...")
+            logger.debug("Started to build Percona Server from source...")
             status, output = subprocess.getstatusoutput(build_cmd.format(self.testpath, branch))
             if status == 0:
                 logger.debug("PS build succeeded")

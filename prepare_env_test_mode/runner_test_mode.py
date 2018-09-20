@@ -413,7 +413,7 @@ class RunnerTestMode(GeneralClass):
         for options in ConfigGenerator(config=self.conf).options_combination_generator(self.mysql_options):
             c_count = c_count + 1
             options = " ".join(options)
-            if '5.7' in basedir:
+            if '5.7' in basedir or '8.0' in basedir:
                 if keyring_vault == 0:
                     options = options + " " + self.df_mysql_options.format(basedir, c_count)
                 elif keyring_vault == 1:
@@ -498,15 +498,17 @@ class RunnerTestMode(GeneralClass):
                             cnf_obj = ConfigGenerator(config=self.conf)
                             slave_conf_path = self.backupdir + "/cycle{}".format(c_count)
                             if ('5.7' in basedir) and ('2_4_ps_5_7' in self.conf):
-                                slave_conf_file = 'xb_2_4_ps_5_7_slave.conf'
+                                slave_conf_file = 'xb_2_4_ps_5_7_slave.cnf'
+                            elif ('8.0' in basedir) and ('8_0_ps_8_0' in self.conf):
+                                slave_conf_file = 'xb_8_0_ps_8_0_slave.cnf'
                             elif ('5.6' in basedir) and ('2_4_ps_5_6' in self.conf):
-                                slave_conf_file = 'xb_2_4_ps_5_6_slave.conf'
+                                slave_conf_file = 'xb_2_4_ps_5_6_slave.cnf'
                             elif ('5.6' in basedir) and ('2_3_ps_5_6' in self.conf):
-                                slave_conf_file = 'xb_2_3_ps_5_6_slave.conf'
+                                slave_conf_file = 'xb_2_3_ps_5_6_slave.cnf'
                             elif ('5.5' in basedir) and ('2_3_ps_5_5' in self.conf):
-                                slave_conf_file = 'xb_2_3_ps_5_5_slave.conf'
+                                slave_conf_file = 'xb_2_3_ps_5_5_slave.cnf'
                             elif ('5.5' in basedir) and ('2_4_ps_5_5' in self.conf):
-                                slave_conf_file = 'xb_2_4_ps_5_5_slave.conf'
+                                slave_conf_file = 'xb_2_4_ps_5_5_slave.cnf'
 
                             cnf_obj.generate_config_files(test_path=self.testpath,
                                                           conf_file=slave_conf_file,

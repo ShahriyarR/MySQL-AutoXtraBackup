@@ -227,6 +227,11 @@ def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
                             test_obj.wipe_backup_prepare_copyback(basedir=basedir, keyring_vault=1)
                         else:
                             test_obj.wipe_backup_prepare_copyback(basedir=basedir)
+                    elif ('8.0' in basedir) and ('8_0_ps_8_0' in defaults_file):
+                        if keyring_vault == 1:
+                            test_obj.wipe_backup_prepare_copyback(basedir=basedir, keyring_vault=1)
+                        else:
+                            test_obj.wipe_backup_prepare_copyback(basedir=basedir)
                     elif ('5.6' in basedir) and ('2_4_ps_5_6' in defaults_file):
                         test_obj.wipe_backup_prepare_copyback(basedir=basedir)
                     elif ('5.6' in basedir) and ('2_3_ps_5_6' in defaults_file):
