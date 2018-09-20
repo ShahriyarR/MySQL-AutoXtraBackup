@@ -148,4 +148,4 @@ class GeneralClass:
                     self.make_slaves = TEST['make_slaves']
 
         else:
-            logger.critical("Missing config file : /etc/autoxtrabackup.cnf")
+            logger.critical("Missing config file : {}".format(path_config.config_path_file))
