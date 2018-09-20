@@ -218,12 +218,16 @@ def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
                 b = Backup(config=defaults_file)
                 b.show_tags(backup_dir=b.backupdir)
             elif test_mode and defaults_file:
-                # TODO: do staff here to implement all in one things for running test mode
                 logger.warning("Enabled Test Mode!!!")
                 logger.debug("Starting Test Mode")
                 test_obj = RunnerTestMode(config=defaults_file)
                 for basedir in test_obj.basedirs:
                     if ('5.7' in basedir) and ('2_4_ps_5_7' in defaults_file):
+                        if keyring_vault == 1:
+                            test_obj.wipe_backup_prepare_copyback(basedir=basedir, keyring_vault=1)
+                        else:
+                            test_obj.wipe_backup_prepare_copyback(basedir=basedir)
+                    elif ('8.0' in basedir) and ('8_0_ps_8_0' in defaults_file):
                         if keyring_vault == 1:
                             test_obj.wipe_backup_prepare_copyback(basedir=basedir, keyring_vault=1)
                         else:

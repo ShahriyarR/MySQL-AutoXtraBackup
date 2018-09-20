@@ -112,7 +112,7 @@ Vagrant.configure("2") do |config|
      virtualenv -p /usr/bin/python3.5 py_3_5_autoxtrabackup
      cd /vagrant
      sudo /home/vagrant/py_3_5_autoxtrabackup/bin/python setup.py install
-     sudo sed -i "0,/^[ \t]*testpath[ \t]*=.*$/s|^[ \t]*testpath[ \t]*=.*$|testpath=\/home\/vagrant\/XB_TEST\/server_dir|" /etc/bck.conf
+     sudo sed -i "0,/^[ \t]*testpath[ \t]*=.*$/s|^[ \t]*testpath[ \t]*=.*$|testpath=\/home\/vagrant\/XB_TEST\/server_dir|" /home/vagrant/.autoxtrabackup/autoxtrabackup.cnf
      cd /home/vagrant
      sudo chown -R vagrant:vagrant *
      touch python-sudo.sh
