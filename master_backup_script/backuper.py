@@ -810,7 +810,7 @@ class Backup(GeneralClass):
                 logger.warning("Streaming is enabled!")
 
             # filter out password from argument list
-                filteredargs = re.sub("--password='?\w+'?", "--password='*'", args)
+            filteredargs = re.sub("--password='?\w+'?", "--password='*'", args)
 
             logger.debug("The following backup command will be executed {}".format(filteredargs))
 
