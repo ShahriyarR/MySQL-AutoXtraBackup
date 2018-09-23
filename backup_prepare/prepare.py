@@ -23,16 +23,18 @@ class Prepare(GeneralClass):
         self.tag = tag
         GeneralClass.__init__(self, self.conf)
         # If prepare_tool option enabled in config, make backup_tool to use this.
-        if hasattr(self, 'prepare_tool'):
+        try:
             self.backup_tool = self.prepare_tool
-        if self.tag is not None:
+        except AttributeError:
+            pass
+
+        if self.tag:
             if not os.path.isfile("{}/backup_tags.txt".format(self.backupdir)):
                 raise RuntimeError("Could not find backup_tags.txt inside backup directory. "
                                    "Please run without --tag option")
 
     def recent_full_backup_file(self):
         # Return last full backup dir name
-
         if len(os.listdir(self.full_dir)) > 0:
             return max(os.listdir(self.full_dir))
         else:
@@ -40,20 +42,19 @@ class Prepare(GeneralClass):
 
     def check_inc_backups(self):
         # Check for Incremental backups
-
         if len(os.listdir(self.inc_dir)) > 0:
             return 1
         return 0
 
     @staticmethod
     def parse_backup_tags(backup_dir, tag_name):
-        '''
+        """
         Static Method for returning the backup directory name and backup type
         :param backup_dir: The backup directory path
         :param tag_name: The tag name to search
         :return: Tuple of (backup directory, backup type) (2017-11-09_19-37-16, Full).
         :raises: RuntimeError if there is no such tag inside backup_tags.txt
-        '''
+        """
         if os.path.isfile("{}/backup_tags.txt".format(backup_dir)):
             with open('{}/backup_tags.txt'.format(backup_dir), 'r') as bcktags:
                 f = bcktags.readlines()
@@ -198,7 +199,6 @@ class Prepare(GeneralClass):
                     status, output = subprocess.getstatusoutput(args)
                     if status == 0:
                         logger.debug(output)
-                        # logger.debug(output[-27:])
                     else:
                         logger.error("FAILED: FULL BACKUP prepare.")
                         logger.error(output)
@@ -298,7 +298,6 @@ class Prepare(GeneralClass):
                                 status, output = subprocess.getstatusoutput(args)
                                 if status == 0:
                                     logger.debug(output)
-                                    # logger.debug(output[-27:])
                                 else:
                                     logger.error("FAILED: Incremental BACKUP prepare")
                                     logger.error(output)
