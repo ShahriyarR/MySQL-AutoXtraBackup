@@ -4,6 +4,7 @@ import subprocess
 import os
 import re
 import logging
+from general_conf import path_config
 logger = logging.getLogger(__name__)
 
 
@@ -13,7 +14,7 @@ class CloneBuildStartServer(TestModeConfCheck):
     This class will include all necessary actions for preparing test environment.
     Please see specific methods for clarity.
     """
-    def __init__(self, config='/etc/bck.conf'):
+    def __init__(self, config=path_config.config_path_file):
         self.conf = config
         super().__init__(config=self.conf)
         #self.git_cmd = GeneralClass().gitcmd

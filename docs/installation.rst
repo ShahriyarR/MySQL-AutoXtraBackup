@@ -19,6 +19,20 @@ Installing dependencies:
 
     yum install openssl openssl-devel zlib zlib-devel
 
+On Debian/Ubuntu
+::
+
+    apt-get install openssl libssl-dev zlib1g zlib1g-dev
+
+(Optional) for multicore zipping install pigz
+::
+
+    yum install pigz
+
+::
+
+    apt-get install pigz
+
 Installing latest XtraBackup:
 For more options please refer to official documentation -> `Installing Percona XtraBackup 2.4 <https://www.percona.com/doc/percona-xtrabackup/2.4/installation.html>`_
 
@@ -84,3 +98,12 @@ Installing from source:
     cd /home git clone https://github.com/ShahriyarR/MySQL-AutoXtraBackup.git
     cd /home/MySQL-AutoXtraBackup/
     sudo python3 setup.py install
+
+Using Vagrant:
+
+::
+
+    vagrant up
+
+
+It will bring up CentOS 7 and install necessary things for --test_mode

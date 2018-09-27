@@ -5,8 +5,7 @@ The command line options to use:
 
 .. code-block:: shell
 
-
-    $ sudo autoxtrabackup
+    $ autoxtrabackup --help
     Usage: autoxtrabackup [OPTIONS]
 
     Options:
@@ -16,15 +15,22 @@ The command line options to use:
       --partial                       Recover specified table (partial recovery).
       --version                       Version information.
       --defaults_file TEXT            Read options from the given file  [default:
-                                      /etc/bck.conf]
+                                    ~/.autoxtrabackup/autoxtrabackup.cnf]
       --tag TEXT                      Pass the tag string for each backup
       --show_tags                     Show backup tags and exit
       -v, --verbose                   Be verbose (print to console)
-      -lf, --log_file TEXT            Set log file  [default:
-                                      /var/log/autoxtrabackup.log]
+      -lf, --log_file TEXT            Set log file  [default: ~/.autoxtrabackup/autoxtrabackup.log]
       -l, --log [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                       Set log level  [default: WARNING]
-      --test_mode                     Enable test mode.Must be used with
+      --log_file_max_bytes INTEGER    Set log file max size in bytes  [default:
+                                      1073741824]
+      --log_file_backup_count INTEGER
+                                      Set log file backup count  [default: 7]
+      --keyring_vault INTEGER         Enable this when you pass keyring_vault
+                                      options in default mysqld options in
+                                      config[Only for using with --test_mode]
+                                      [default: 0]
+      --test_mode                     Enable test mode. Must be used with
                                       --defaults_file and only for TESTs for
                                       XtraBackup
       --help                          Print help message and exit.
@@ -67,7 +73,7 @@ defaults_file
 -------------
 
 --defaults_file
-The main config file to path to ``autoxtrabackup``. The default one is ``/etc/bck.conf``.
+The main config file to path to ``autoxtrabackup``. The default one is ``~/.autoxtrabackup/autoxtrabackup.cnf``.
 In default config, the compression, encryption and streaming backups are disabled by defualt.
 
 tag
@@ -90,14 +96,26 @@ log_file, lf
 ------------
 
 -lf, --log_file
-Pass, the path for log file, for autoxtrabackup. Default is ``/var/log/autoxtrabackup.log``
+Pass, the path for log file, for autoxtrabackup. Default is ``~/.autoxtrabackup/autoxtrabackup.log``
+
+log_file_backup_count
+------------
+
+--log_file_backup_count
+Set log file backup count. Default is 7
+
+log_file_max_bytes
+------------
+
+--log_file_max_bytes
+Set log file max size in bytes. Default: 1073741824 bytes.
 
 log
 ----
 
 -l, --log
 
-Set the log level for tool.
+Set the log level for tool. Can be DEBUG, INFO, WARNING, ERROR or CRITICAL. Default is WARNING.
 
 test_mode
 ---------
@@ -106,6 +124,13 @@ test_mode
 This option enables Test Mode and must be used with --defaults_file option.
 WARNING: It is not for daily usage. It is only and only for testing XtraBackup.
 
+keyring_vault
+-------------
+
+--keyring_vault
+Enable this when you pass keyring_vault options in default mysqld options in
+config[Only for using with --test_mode] [default: 0]
+This is for keyring_vault plugin testing.
 
 help
 ----

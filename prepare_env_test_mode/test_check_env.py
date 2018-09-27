@@ -1,15 +1,17 @@
 from general_conf.generalops import GeneralClass
 import os
 import sys
-
 import logging
+from general_conf import path_config
+
 logger = logging.getLogger(__name__)
+
 
 class TestModeConfCheck(GeneralClass):
     """
     Class for checking environment for running Test Mode.
     """
-    def __init__(self, config='/etc/bck.conf'):
+    def __init__(self, config=path_config.config_path_file):
         self.conf = config
         super().__init__(config=self.conf)
         if hasattr(self, 'gitcmd') and hasattr(self, 'testpath'):

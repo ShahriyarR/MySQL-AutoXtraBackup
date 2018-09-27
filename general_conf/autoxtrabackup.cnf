@@ -97,6 +97,6 @@ chown_command=chown -R mysql:mysql
 #testpath=/home/shahriyar.rzaev/XB_TEST/server_dir
 #incremental_count=3
 #make_slaves=1
-#xb_configs=xb_2_4_ps_5_6.conf xb_2_4_ps_5_7.conf xb_2_3_ps_5_6.conf xb_2_3_ps_5_5.conf xb_2_4_ps_5_5.conf
+#xb_configs=xb_2_4_ps_5_6.cnf xb_2_4_ps_5_7.cnf xb_2_3_ps_5_6.cnf xb_2_3_ps_5_5.cnf xb_2_4_ps_5_5.cnf
 #default_mysql_options=--log-bin=mysql-bin,--log-slave-updates,--server-id={},--gtid-mode=ON,--enforce-gtid-consistency,--binlog-format=row
 #mysql_options=--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,--innodb_page_size=4K 8K 16K 32K 64K

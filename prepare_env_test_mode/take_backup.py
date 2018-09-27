@@ -7,12 +7,13 @@ import logging
 import concurrent.futures
 from shlex import split
 from subprocess import Popen, getstatusoutput
+from general_conf import path_config
 logger = logging.getLogger(__name__)
 
 
 class WrapperForBackupTest(Backup):
     # The Backup class child to do some staff for backup in --test_mode
-    def __init__(self, config='/etc/bck.conf', full_dir=None, inc_dir=None, basedir=None):
+    def __init__(self, config=path_config.config_path_file, full_dir=None, inc_dir=None, basedir=None):
         self.conf = config
         super().__init__(config=self.conf)
         if full_dir is not None:
