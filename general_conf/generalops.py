@@ -124,6 +124,8 @@ class GeneralClass:
             self.stop_mysql = CM['stop_mysql_command']
             self.chown_command = CM['chown_command']
 
+            # Will be generated only for test environment.
+            # Not generated for production things.
             if 'TestConf' in con:
                 TEST = con['TestConf']
                 if 'ps_branches' in TEST:

@@ -1,0 +1,119 @@
+# Generate the default config file dynamically.
+# As part of - https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/331
+
+from general_conf import path_config
+import configparser
+from os.path import join, exists
+from os import makedirs
+
+
+class GenerateDefaultConfig:
+
+    def __init__(self, config=path_config.config_path_file):
+        self.conf = config
+        self.home = path_config.home
+        try:
+            if not exists(path_config.config_path):
+                makedirs(path_config.config_path)
+        except:
+            pass
+
+    def generate_config_file(self):
+        with open(self.conf, 'w+') as cfgfile:
+            config = configparser.ConfigParser(allow_no_value=True)
+            section1 = 'MySQL'
+            config.add_section(section1)
+            config.set(section1, "mysql", "/usr/bin/mysql")
+            config.set(section1, "mycnf", "")
+            config.set(section1, "mysqladmin", "/usr/bin/mysqladmin")
+            config.set(section1, "mysql_user", "root")
+            config.set(section1, "mysql_password", "")
+            config.set(section1, "#Use either socket or port + host combination")
+            config.set(section1, "mysql_socket", "/var/lib/mysql/mysql.sock")
+            config.set(section1, "#mysql_host", "127.0.0.1")
+            config.set(section1, "#mysql_port", "3306")
+            config.set(section1, "datadir", "/var/lib/mysql")
+
+            section2 = 'Backup'
+            config.add_section(section2)
+            config.set(section2, "#Optional: set pid directory")
+            config.set(section2, "pid_dir", "/tmp/MySQL-AutoXtraBackup")
+            config.set(section2, "tmpdir", join(self.home, "XB_TEST/mysql_datadirs"))
+            config.set(section2, "#Optional: set warning if pid of backup us running for longer than X")
+            config.set(section2, "pid_runtime_warning", "2 Hours")
+            config.set(section2, "backupdir", join(self.home, "XB_TEST/backup_dir"))
+            config.set(section2, "backup_tool", "/usr/bin/xtrabackup")
+            config.set(section2, "#Optional: specify different path/version of xtrabackup here for prepare")
+            config.set(section2, "#prepare_tool", "")
+            config.set(section2, "xtra_prepare", "--apply-log-only")
+            config.set(section2, "#Optional: pass additional options for backup stage")
+            config.set(section2, "#xtra_backup", "--compact")
+            config.set(section2, "#Optional: pass additional options for prepare stage")
+            config.set(section2, "#xtra_prepare_options", "--rebuild-indexes")
+            config.set(section2,
+                       "#Optional: pass general additional options; it will go to both for backup and prepare")
+            config.set(section2, "#xtra_options", "--binlog-info=ON --galera-info")
+            config.set(section2, "#Optional: set archive and rotation")
+            config.set(section2, "#archive_dir", join(self.home, "XB_TEST/backup_archives"))
+            config.set(section2, "#prepare_archive", "1")
+            config.set(section2, "#move_archive", "0")
+            config.set(section2, "#full_backup_interval", "1 day")
+            config.set(section2, "#max_archive_size", "100GiB")
+            config.set(section2, "#max_archive_duration", "4 Days")
+            config.set(section2, "#Optional: WARNING(Enable this if you want to take partial backups). "
+                                 "Specify database names or table names.")
+            config.set(section2, "#partial_list", "test.t1 test.t2 dbtest")
+
+            section3 = "Compress"
+            config.add_section(section3)
+            config.set(section3, "#optional")
+            config.set(section3, "#Enable only if you want to use compression.")
+            config.set(section3, "compress", "quicklz")
+            config.set(section3, "compress_chunk_size", "65536")
+            config.set(section3, "compress_threads", "4")
+            config.set(section3, "decompress", "TRUE")
+            config.set(section3, "#Enable if you want to remove .qp files after decompression."
+                                 "(Not available yet, will be released with XB 2.3.7 and 2.4.6)")
+            config.set(section3, "remove_original", "FALSE")
+
+            section4 = "Encrypt"
+            config.add_section(section4)
+            config.set(section4, "#Optional")
+            config.set(section4, "#Enable only if you want to create encrypted backups")
+            config.set(section4, "xbcrypt", "/usr/bin/xbcrypt")
+            config.set(section4, "encrypt", "AES256")
+            config.set(section4, "#Please note that --encrypt-key and --encrypt-key-file are mutually exclusive")
+            config.set(section4, "encrypt_key", 'VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K')
+            config.set(section4, "#encrypt_key_file", "/path/to/file/with_encrypt_key")
+            config.set(section4, "encrypt_threads", "4")
+            config.set(section4, "encrypt_chunk_size", "65536")
+            config.set(section4, "decrypt", "AES256")
+            config.set(section4, "#Enable if you want to remove .qp files after decompression."
+                                 "(Not available yet, will be released with XB 2.3.7 and 2.4.6)")
+            config.set(section4, "remove_original", "FALSE")
+
+            section5 = "Xbstream"
+            config.add_section(section5)
+            config.set(section5, "#EXPERIMENTAL")
+            config.set(section5, "#Enable this, if you want to stream your backups")
+            config.set(section5, "xbstream", "/usr/bin/xbstream")
+            config.set(section5, "stream", "xbstream")
+            config.set(section5, "xbstream_options", "-x --parallel=100")
+            config.set(section5, "xbs_decrypt", "1")
+            config.set(section5, "# WARN, enable this, if you want to stream your backups to remote host")
+            config.set(section5, "#remote_stream", "ssh xxx.xxx.xxx.xxx")
+
+            section6 = "Remote"
+            config.add_section(section6)
+            config.set(section6, "#Optional remote syncing")
+            config.set(section6, "#remote_conn", "root@xxx.xxx.xxx.xxx")
+            config.set(section6, "#remote_dir", "{}".format(join(self.home, 'Documents')))
+
+            section7 = "Commands"
+            config.add_section(section7)
+            config.set(section7, "start_mysql_command", "service mysql start")
+            config.set(section7, "stop_mysql_command", "service mysql stop")
+            # Getting System Username - equal to run whoami
+            config.set(section7, "chown_command", "chown -R mysql:mysql")
+
+            config.write(cfgfile)
