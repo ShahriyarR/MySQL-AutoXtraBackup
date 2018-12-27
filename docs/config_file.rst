@@ -67,7 +67,7 @@ The [Backup] category is for specifying information about backup/prepare process
 +----------------------+----------+-----------------------------------------------------------------------------+
 | pid_dir              | no       | Directory where the PID file will be created in                             |
 +----------------------+----------+-----------------------------------------------------------------------------+
-| tmpdir               | no       | Used for moving current running mysql-datadir to when copying-back          |
+| tmpdir               | yes       | Used for moving current running mysql-datadir to when copying-back          |
 |                      |          | (restoring) an archive                                                      |
 +----------------------+----------+-----------------------------------------------------------------------------+
 | backupdir            | yes      | Directory will be used for storing the backups. Subdirs ./full and ./inc    |
@@ -195,7 +195,7 @@ The [Commands] category is for specifying some options for copy-back/restore act
 ----------
 
 The [TestConf] category is part of XtraBackup testing procedures and is not for daily usage.
-
+Will not be added to default autoxtrabackup.cnf(change in 1.5.4 version).
 So just ignore this, it is actually for myself :)
 
 ::
