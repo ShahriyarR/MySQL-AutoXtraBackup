@@ -2,7 +2,6 @@ from setuptools import setup
 from general_conf import path_config
 from general_conf.generate_default_conf import GenerateDefaultConfig
 
-#datafiles = [(path_config.config_path, ['general_conf/autoxtrabackup.cnf'])]
 datafiles = [(path_config.config_path, [])]
 gen_conf = GenerateDefaultConfig()
 gen_conf.generate_config_file()
