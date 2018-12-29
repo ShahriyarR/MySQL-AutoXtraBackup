@@ -1,0 +1,16 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+click = ">=3.3"
+mysql-connector = "==2.1.4"
+pid = ">=2.0"
+humanfriendly = ">=2.0"
+pytest = "*"
+
+[requires]
+python_version = "3.5"
