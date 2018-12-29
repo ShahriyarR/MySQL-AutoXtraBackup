@@ -14,7 +14,7 @@ The command for taking full backup with DEBUG enabled, i.e first run of the tool
 ::
 
     $ sudo autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_4_5_7.log \
-    -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --backup
+    -l DEBUG --defaults-file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --backup
 
     2017-11-16 19:37:52 DEBUG    <pid.PidFile object at 0x7fdb6f78b048> entering setup
     2017-11-16 19:37:52 DEBUG    <pid.PidFile object at 0x7fdb6f78b048> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
@@ -47,7 +47,7 @@ The result of second run; it will take an incremental backup.
 ::
 
     $ sudo autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_4_5_7.log \
-    -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --backup
+    -l DEBUG --defaults-file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --backup
     2017-11-16 19:43:07 DEBUG    <pid.PidFile object at 0x7fb688315048> entering setup
     2017-11-16 19:43:07 DEBUG    <pid.PidFile object at 0x7fb688315048> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
     2017-11-16 19:43:07 DEBUG    <pid.PidFile object at 0x7fb688315048> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
@@ -126,7 +126,7 @@ For now let's choose 1:
 ::
 
     $ autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_4_5_7.log \
-    -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --prepare
+    -l DEBUG --defaults-file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --prepare
     2017-11-16 19:50:33 DEBUG    <pid.PidFile object at 0x7fea1d28c048> entering setup
     2017-11-16 19:50:33 DEBUG    <pid.PidFile object at 0x7fea1d28c048> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
     2017-11-16 19:50:33 DEBUG    <pid.PidFile object at 0x7fea1d28c048> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
@@ -183,7 +183,7 @@ Restoring single table, the ``--partial`` option must be used for this:
 
 
     $ sudo autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_4_5_7.log \
-    -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --partial
+    -l DEBUG --defaults-file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --partial
     2017-11-16 19:56:32 DEBUG    <pid.PidFile object at 0x7f39212e4048> entering setup
     2017-11-16 19:56:32 DEBUG    <pid.PidFile object at 0x7f39212e4048> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
     2017-11-16 19:56:32 DEBUG    <pid.PidFile object at 0x7f39212e4048> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid

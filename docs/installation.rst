@@ -106,4 +106,4 @@ Using Vagrant:
     vagrant up
 
 
-It will bring up CentOS 7 and install necessary things for --test_mode
+It will bring up CentOS 7 and install necessary things for --test-mode

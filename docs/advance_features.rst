@@ -16,7 +16,7 @@ To enable compression support just uncomment the options under
     compress_chunk_size=65536
     compress_threads=4
     decompress=TRUE
-    #Enable if you want to remove .qp files after decompression.(Not available yet, will be released with XB 2.3.7 and 2.4.6)
+    #Enable if you want to remove .qp files after decompression.(Available from PXB 2.3.7 and 2.4.6)
     remove_original=FALSE
 
 
@@ -29,18 +29,18 @@ category:
 ::
 
     [Encrypt]
-    #Optional
-    #Enable only if you want to create encrypted backups
-    xbcrypt=/home/shahriyar.rzaev/Percona_Xtrabackups/xb_2.4/usr/local/xtrabackup/bin/xbcrypt
-    encrypt=AES256
-    # Please note that --encrypt-key and --encrypt-key-file are mutually exclusive
-    encrypt_key='VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K'
-    #encrypt_key_file=/path/to/file/with_encrypt_key
-    encrypt_threads=4
-    encrypt_chunk_size=65536
-    decrypt=AES256
-    #Enable if you want to remove .qp files after decompression.(Not available yet, will be released with XB 2.3.7 and 2.4.6)
-    remove_original=True
+    #optional
+    #enable only if you want to create encrypted backups
+    xbcrypt = /usr/bin/xbcrypt
+    encrypt = AES256
+    #please note that --encrypt-key and --encrypt-key-file are mutually exclusive
+    encrypt_key = VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K
+    #encrypt_key_file = /path/to/file/with_encrypt_key
+    encrypt_threads = 4
+    encrypt_chunk_size = 65536
+    decrypt = AES256
+    #enable if you want to remove .qp files after decompression.(Available from PXB 2.3.7 and 2.4.6)
+    remove_original = FALSE
 
 
 Partial backups
@@ -54,30 +54,31 @@ You can achieve this by enabling ``partial_list`` option from cnfig file:
 ::
 
     [Backup]
-    #Optional: set pid directory
-    pid_dir=/tmp/MySQL-AutoXtraBackup
-    tmpdir=/home/shahriyar.rzaev/XB_TEST/mysql_datadirs
-    #Optional: set warning if pid of backup us running for longer than X
-    pid_runtime_warning=2 Hours
-    backupdir=/home/shahriyar.rzaev/XB_TEST/backup_dir
-    backup_tool=/usr/bin/xtrabackup
-    #Optional: specify different path/version of xtrabackup here for prepare
-    #prepare_tool=
-    xtra_prepare=--apply-log-only
-    #Optional: pass additional options for backup stage
-    #xtra_backup=--compact
-    #Optional: pass additional options for prepare stage
-    #xtra_prepare_options=--rebuild-indexes
-    #Optional: pass general additional options; it will go to both for backup and prepare
-    #xtra_options=--binlog-info=ON --galera-info
-    xtra_options=--no-version-check
-    #Optional: set archive and rotation
-    #archive_dir=/home/shahriyar.rzaev/XB_TEST/backup_archives
-    #full_backup_interval=1 day
-    #max_archive_size=100GiB
-    #max_archive_duration=4 Days
-    #Optional WARNING(Enable this if you want to take partial backups). Specify database names or table names.
-    partial_list=test.t1 test.t2 dbtest
+    #optional: set pid directory
+    pid_dir = /tmp/MySQL-AutoXtraBackup
+    tmp_dir = /home/shako/XB_TEST/mysql_datadirs
+    #optional: set warning if pid of backup us running for longer than x
+    pid_runtime_warning = 2 Hours
+    backup_dir = /home/shako/XB_TEST/backup_dir
+    backup_tool = /usr/bin/xtrabackup
+    #optional: specify different path/version of xtrabackup here for prepare
+    #prepare_tool =
+    xtra_prepare = --apply-log-only
+    #optional: pass additional options for backup stage
+    #xtra_backup = --compact
+    #optional: pass additional options for prepare stage
+    #xtra_prepare_options = --rebuild-indexes
+    #optional: pass general additional options; it will go to both for backup and prepare
+    #xtra_options = --binlog-info=ON --galera-info
+    #optional: set archive and rotation
+    #archive_dir = /home/shako/XB_TEST/backup_archives
+    #prepare_archive = 1
+    #move_archive = 0
+    #full_backup_interval = 1 day
+    #archive_max_size = 100GiB
+    #archive_max_duration = 4 Days
+    #optional: warning(enable this if you want to take partial backups). specify database names or table names.
+    #partial_list = test.t1 test.t2 dbtest
 
 
 Run it and notice that backup command has changed (see ``--databases`` option for xtrabackup command):
@@ -147,7 +148,7 @@ Trying to restore t1 table: It will figure out that specified database is missin
 
 
         $ autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log \
-        -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.cnf --partial
+        -l DEBUG --defaults-file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.cnf --partial
         2017-11-16 20:38:16 DEBUG    <pid.PidFile object at 0x7f4f1ac6a048> entering setup
         2017-11-16 20:38:16 DEBUG    <pid.PidFile object at 0x7f4f1ac6a048> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
         2017-11-16 20:38:16 DEBUG    <pid.PidFile object at 0x7f4f1ac6a048> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
@@ -216,7 +217,7 @@ Taking backup:
 ::
 
 
-        $ autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.cnf --backup --dry_run
+        $ autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log -l DEBUG --defaults-file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.cnf --backup --dry_run
         2017-11-16 20:40:47 DEBUG    <pid.PidFile object at 0x7f0cf71a4048> entering setup
         2017-11-16 20:40:47 DEBUG    <pid.PidFile object at 0x7f0cf71a4048> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
         2017-11-16 20:40:47 DEBUG    <pid.PidFile object at 0x7f0cf71a4048> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
@@ -246,7 +247,7 @@ Preparing backups:
 ::
 
 
-        $ autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.cnf --prepare --dry_run
+        $ autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log -l DEBUG --defaults-file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.cnf --prepare --dry_run
         2017-11-16 20:41:49 DEBUG    <pid.PidFile object at 0x7fac08f9e048> entering setup
         2017-11-16 20:41:49 DEBUG    <pid.PidFile object at 0x7fac08f9e048> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
         2017-11-16 20:41:49 DEBUG    <pid.PidFile object at 0x7fac08f9e048> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid

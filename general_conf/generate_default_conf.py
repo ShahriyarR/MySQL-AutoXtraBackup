@@ -81,7 +81,7 @@ class GenerateDefaultConfig:
             config.set(section4, "compress_threads", "4")
             config.set(section4, "decompress", "TRUE")
             config.set(section4, "#Enable if you want to remove .qp files after decompression."
-                                 "(Not available yet, will be released with XB 2.3.7 and 2.4.6)")
+                                 "(Available from PXB 2.3.7 and 2.4.6)")
             config.set(section4, "remove_original", "FALSE")
 
             section5 = "Encrypt"
@@ -97,7 +97,7 @@ class GenerateDefaultConfig:
             config.set(section5, "encrypt_chunk_size", "65536")
             config.set(section5, "decrypt", "AES256")
             config.set(section5, "#Enable if you want to remove .qp files after decompression."
-                                 "(Not available yet, will be released with XB 2.3.7 and 2.4.6)")
+                                 "(Available from PXB 2.3.7 and 2.4.6)")
             config.set(section5, "remove_original", "FALSE")
 
             section6 = "Xbstream"

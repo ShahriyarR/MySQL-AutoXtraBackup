@@ -17,7 +17,7 @@ Taking full backup:
 
     $ sudo autoxtrabackup --tag="My Full backup" -v \
     -lf /home/shahriyar.rzaev/autoxtrabackup_2_4_5_7.log \
-    -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --backup
+    -l DEBUG --defaults-file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --backup
 
 Taking incremental one:
 ----------------------
@@ -26,7 +26,7 @@ Taking incremental one:
 
     $ autoxtrabackup --tag="First incremental backup" -v \
     -lf /home/shahriyar.rzaev/autoxtrabackup_2_4_5_7.log \
-    -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --backup
+    -l DEBUG --defaults-file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --backup
 
 Taking second incremental:
 -------------------------
@@ -35,7 +35,7 @@ Taking second incremental:
 
     $ autoxtrabackup --tag="Second incremental backup" -v \
     -lf /home/shahriyar.rzaev/autoxtrabackup_2_4_5_7.log \
-    -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --backup
+    -l DEBUG --defaults-file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --backup
 
 To list available tags(backups):
 -------------------------------
@@ -44,7 +44,7 @@ For eg, if full backup failed, the result will be something like this:
 ::
 
     $ sudo autoxtrabackup --show_tags \
-    --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf
+    --defaults-file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf
     Backup             	Type	Status	Completion_time    	Size	TAG
     ----------------------------------------------------------------------------------
     2017-12-14_12-01-11	Full	FAILED	2017-12-14_12-01-11	4,0K	'My Full backup'
@@ -72,7 +72,7 @@ Say you want to prepare only first incremental and ignore second one(or others).
 
     $ autoxtrabackup --tag="First incremental backup" -v \
     -lf /home/shahriyar.rzaev/autoxtrabackup_2_4_5_7.log \
-    -l DEBUG --defaults_file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --prepare
+    -l DEBUG --defaults-file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --prepare
     2017-11-16 20:18:16 DEBUG    <pid.PidFile object at 0x7f7bc69d2048> entering setup
     2017-11-16 20:18:16 DEBUG    <pid.PidFile object at 0x7f7bc69d2048> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
     2017-11-16 20:18:16 DEBUG    <pid.PidFile object at 0x7f7bc69d2048> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid

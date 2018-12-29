@@ -6,13 +6,18 @@ Defaults file explained
 
 There are some changes related to default config file.
 First and foremost it is renamed and now located in home of user in .autoxtrabackup folder.
-The default config file is located ~/.autoxtrabackup/autoxrtabackup.cnf
+Keep in mind that config file is going to be dynamically generated during setup process.
+The default config will be located ~/.autoxtrabackup/autoxtrabackup.cnf.
 The available options are divided into optional and primary options.
 Options are quite self-explanatory.
 I have tried to make them similar to existing options in XtraBackup and MySQL.
 You can use another configuration file using ``--defaults_file`` option.
 
 Let's clarify the config file structure a bit.
+
+[MySQL]
+--------
+
 The [MySQL] category is for specifying information about MySQL instance.
 
 ::
@@ -23,11 +28,25 @@ The [MySQL] category is for specifying information about MySQL instance.
     mysqladmin=/usr/bin/mysqladmin
     mysql_user=root
     mysql_password=12345
-    #Set either mysql_socket or host and post. If both are set socket is used
+    ## Set either mysql_socket only, OR host + port. If both are set mysql_socket is used
     #mysql_socket=/var/lib/mysql/mysql.sock
     mysql_host=127.0.0.1
     mysql_port=3306
     datadir=/var/lib/mysql
+
+
+[Logging]
+--------
+
+Options for logging mechanism of tool.(added in 1.5.4 version)
+
+::
+
+    [Logging]
+    #[debug,info,warning,error,critical]
+    log = DEBUG
+    log_file_max_bytes = 1073741824
+    log_file_backup_count = 7
 
 [Backup]
 --------
@@ -37,43 +56,44 @@ The [Backup] category is for specifying information about backup/prepare process
 ::
 
     [Backup]
-    #Optional: set pid directory
-    pid_dir=/tmp/MySQL-AutoXtraBackup
-    tmpdir=/home/shahriyar.rzaev/XB_TEST/mysql_datadirs
-    #Optional: set warning if pid of backup us running for longer than X
-    pid_runtime_warning=2 Hours
-    backupdir=/home/shahriyar.rzaev/XB_TEST/backup_dir
-    backup_tool=/usr/bin/xtrabackup
-    #Optional: specify different path/version of xtrabackup here for prepare
-    #prepare_tool=
-    xtra_prepare=--apply-log-only
-    #Optional: pass additional options for backup stage
-    #xtra_backup=--compact
-    #Optional: pass additional options for prepare stage
-    #xtra_prepare_options=--rebuild-indexes
-    #Optional: pass general additional options; it will go to both for backup and prepare
-    #xtra_options=--binlog-info=ON --galera-info
-    xtra_options=--no-version-check
-    #Optional: set archive and rotation
-    #archive_dir=/home/shahriyar.rzaev/XB_TEST/backup_archives
-    #full_backup_interval=1 day
-    #max_archive_size=100GiB
-    #max_archive_duration=4 Days
-    #Optional WARNING(Enable this if you want to take partial backups). Specify database names or table names.
-    #partial_list=test.t1 test.t2 dbtest
+    #optional: set pid directory
+    pid_dir = /tmp/MySQL-AutoXtraBackup
+    tmp_dir = /home/shako/XB_TEST/mysql_datadirs
+    #optional: set warning if pid of backup us running for longer than x
+    pid_runtime_warning = 2 Hours
+    backup_dir = /home/shako/XB_TEST/backup_dir
+    backup_tool = /usr/bin/xtrabackup
+    #optional: specify different path/version of xtrabackup here for prepare
+    #prepare_tool =
+    xtra_prepare = --apply-log-only
+    #optional: pass additional options for backup stage
+    #xtra_backup = --compact
+    #optional: pass additional options for prepare stage
+    #xtra_prepare_options = --rebuild-indexes
+    #optional: pass general additional options; it will go to both for backup and prepare
+    #xtra_options = --binlog-info=ON --galera-info
+    #optional: set archive and rotation
+    #archive_dir = /home/shako/XB_TEST/backup_archives
+    #prepare_archive = 1
+    #move_archive = 0
+    #full_backup_interval = 1 day
+    #archive_max_size = 100GiB
+    #archive_max_duration = 4 Days
+    #optional: warning(enable this if you want to take partial backups). specify database names or table names.
+    #partial_list = test.t1 test.t2 dbtest
 
 +----------------------+----------+-----------------------------------------------------------------------------+
 | **Key**              | Required | **Description**                                                             |
 +----------------------+----------+-----------------------------------------------------------------------------+
 | pid_dir              | no       | Directory where the PID file will be created in                             |
 +----------------------+----------+-----------------------------------------------------------------------------+
-| tmpdir               | yes       | Used for moving current running mysql-datadir to when copying-back          |
+| tmp_dir               | yes       | Used for moving current running mysql-datadir to when copying-back          |
 |                      |          | (restoring) an archive                                                      |
 +----------------------+----------+-----------------------------------------------------------------------------+
-| backupdir            | yes      | Directory will be used for storing the backups. Subdirs ./full and ./inc    |
+| backup_dir            | yes      | Directory will be used for storing the backups. Subdirs ./full and ./inc    |
 |                      |          | will be created                                                             |
 +----------------------+----------+-----------------------------------------------------------------------------+
-| backup_tool          | no       | Full path to Percona xtrabackup executable used when making backup          |
+| backup_tool          | yes       | Full path to Percona xtrabackup executable used when making backup          |
 +----------------------+----------+-----------------------------------------------------------------------------+
 | prepare_tool         | no       | Full path to Percona xtrabackup executable used when preparing (restoring)  |
 +----------------------+----------+-----------------------------------------------------------------------------+
@@ -90,15 +110,15 @@ The [Backup] category is for specifying information about backup/prepare process
 | archive_dir          | no       | Directory for storing archives (tar.gz or otherwise). Cannot be inside the  |
 |                      |          | 'backupdir' above                                                           |
 +----------------------+----------+-----------------------------------------------------------------------------+
-| prepare_archive      | no       | ?                                                                           |
+| prepare_archive      | no       | Prepare backups before archiving them.                                      |
 +----------------------+----------+-----------------------------------------------------------------------------+
 | move_archive         | no       | When rotating backups to archive move instead of compressing with tar.gz    |
 +----------------------+----------+-----------------------------------------------------------------------------+
 | full_backup_interval | no       | Maximum interval after which a new full backup will be made                 |
 +----------------------+----------+-----------------------------------------------------------------------------+
-| max_archive_size     | no       | Delete archived backups after X GiB                                         |
+| archive_max_size     | no       | Delete archived backups after X GiB                                         |
 +----------------------+----------+-----------------------------------------------------------------------------+
-| max_archive_duration | no       | Delete archived backups after X Days                                        |
+| archive_max_duration | no       | Delete archived backups after X Days                                        |
 +----------------------+----------+-----------------------------------------------------------------------------+
 | partial_list         | no       | Specify database names or table names.                                      |
 |                      |          | **WARNING**: Enable this if you want to take partial backups                |
@@ -114,14 +134,14 @@ The options will be passed to XtraBackup.
 ::
 
     [Compress]
-    #Optional
-    #Enable only if you want to use compression.
-    #compress=quicklz
-    #compress_chunk_size=65536
-    #compress_threads=4
-    #decompress=TRUE
-    #Enable if you want to remove .qp files after decompression.(Not available yet, will be released with XB 2.3.7 and 2.4.6)
-    #remove_original=FALSE
+    #optional
+    #enable only if you want to use compression.
+    compress = quicklz
+    compress_chunk_size = 65536
+    compress_threads = 4
+    decompress = TRUE
+    #enable if you want to remove .qp files after decompression.(Available from PXB 2.3.7 and 2.4.6)
+    remove_original = FALSE
 
 [Encrypt]
 ---------
@@ -133,18 +153,18 @@ The options will be passed to XtraBackup.
 ::
 
     [Encrypt]
-    #Optional
-    #Enable only if you want to create encrypted backups
-    #xbcrypt=/usr/bin/xbcrypt
-    #encrypt=AES256
-    # Please note that --encrypt-key and --encrypt-key-file are mutually exclusive
-    #encrypt_key='VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K'
-    #encrypt_key_file=/path/to/file/with_encrypt_key
-    #encrypt_threads=4
-    #encrypt_chunk_size=65536
-    #decrypt=AES256
-    #Enable if you want to remove .qp files after decompression.(Not available yet, will be released with XB 2.3.7 and 2.4.6)
-    #remove_original=FALSE
+    #optional
+    #enable only if you want to create encrypted backups
+    xbcrypt = /usr/bin/xbcrypt
+    encrypt = AES256
+    #please note that --encrypt-key and --encrypt-key-file are mutually exclusive
+    encrypt_key = VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K
+    #encrypt_key_file = /path/to/file/with_encrypt_key
+    encrypt_threads = 4
+    encrypt_chunk_size = 65536
+    decrypt = AES256
+    #enable if you want to remove .qp files after decompression.(Available from PXB 2.3.7 and 2.4.6)
+    remove_original = FALSE
 
 [Xbstream]
 ----------
@@ -156,17 +176,14 @@ The options will be passed to XtraBackup.
 ::
 
     [Xbstream]
-    #EXPERIMENTAL
-    # Enable this, if you want to stream your backups
-    #xbstream=/usr/bin/xbstream
-    #stream=xbstream
-    #Optional
-    #Please enable this and disable all other options here, for tar streaming
-    #stream=tar
-    #xbstream_options=-x --parallel=100
-    #xbs_decrypt=1
-    # WARN, enable this, if you want to stream your backups to remote host
-    #remote_stream=ssh xxx.xxx.xxx.xxx
+    #experimental
+    #enable this, if you want to stream your backups
+    xbstream = /usr/bin/xbstream
+    stream = xbstream
+    xbstream_options = -x --parallel=100
+    xbs_decrypt = 1
+    # warn, enable this, if you want to stream your backups to remote host
+    #remote_stream = ssh xxx.xxx.xxx.xxx
 
 
 Deprecated feature, will be removed in next releases

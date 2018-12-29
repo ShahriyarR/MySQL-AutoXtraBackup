@@ -9,34 +9,37 @@ The command line options to use:
     Usage: autoxtrabackup [OPTIONS]
 
     Options:
-      --dry_run                       Enable the dry run.
+      --dry-run                       Enable the dry run.
       --prepare                       Prepare/recover backups.
       --backup                        Take full and incremental backups.
       --partial                       Recover specified table (partial recovery).
       --version                       Version information.
-      --defaults_file TEXT            Read options from the given file  [default:
-                                    ~/.autoxtrabackup/autoxtrabackup.cnf]
+      --defaults-file TEXT            Read options from the given file  [default: /
+                                      home/shako/.autoxtrabackup/autoxtrabackup.cn
+                                      f]
       --tag TEXT                      Pass the tag string for each backup
-      --show_tags                     Show backup tags and exit
+      --show-tags                     Show backup tags and exit
       -v, --verbose                   Be verbose (print to console)
-      -lf, --log_file TEXT            Set log file  [default: ~/.autoxtrabackup/autoxtrabackup.log]
-      -l, --log [DEBUG|INFO|WARNING|ERROR|CRITICAL]
-                                      Set log level  [default: WARNING]
-      --log_file_max_bytes INTEGER    Set log file max size in bytes  [default:
+      -lf, --log-file TEXT            Set log file  [default: /home/shako/.autoxtr
+                                      abackup/autoxtrabackup.log]
+      -l, --log, --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                      Set log level  [default: DEBUG]
+      --log-file-max-bytes INTEGER    Set log file max size in bytes  [default:
                                       1073741824]
-      --log_file_backup_count INTEGER
+      --log-file-backup-count INTEGER
                                       Set log file backup count  [default: 7]
-      --keyring_vault INTEGER         Enable this when you pass keyring_vault
+      --keyring-vault INTEGER         Enable this when you pass keyring_vault
                                       options in default mysqld options in
-                                      config[Only for using with --test_mode]
+                                      config[Only for using with --test-mode]
                                       [default: 0]
-      --test_mode                     Enable test mode. Must be used with
-                                      --defaults_file and only for TESTs for
+      --test-mode                     Enable test mode. Must be used with
+                                      --defaults-file and only for TESTs for
                                       XtraBackup
       --help                          Print help message and exit.
 
 
-dry_run
+
+dry-run
 -------
 
 --dry-run
@@ -69,10 +72,10 @@ version
 --version
 Prints version information.
 
-defaults_file
+defaults-file
 -------------
 
---defaults_file
+--defaults-file
 The main config file to path to ``autoxtrabackup``. The default one is ``~/.autoxtrabackup/autoxtrabackup.cnf``.
 In default config, the compression, encryption and streaming backups are disabled by defualt.
 
@@ -82,7 +85,7 @@ tag
 This option enables creation of tags for backups.
 The backup_tags.txt file will be created and stored inside backup directory.
 
-show_tags
+show-tags
 ---------
 It will show the backup tags and exit.
 
@@ -92,39 +95,40 @@ verbose, v
 --verbose, -v
 This option enables to print to console the logging messages.
 
-log_file, lf
+log-file, lf
 ------------
 
--lf, --log_file
+-lf, --log-file
 Pass, the path for log file, for autoxtrabackup. Default is ``~/.autoxtrabackup/autoxtrabackup.log``
 
-log_file_backup_count
-------------
+log-file-backup_count
+---------------------
 
 --log_file_backup_count
 Set log file backup count. Default is 7
 
-log_file_max_bytes
-------------
+log-file-max-bytes
+------------------
 
 --log_file_max_bytes
 Set log file max size in bytes. Default: 1073741824 bytes.
 
-log
-----
+log, log-level
+--------------
 
--l, --log
+-l, --log, --log-level
 
-Set the log level for tool. Can be DEBUG, INFO, WARNING, ERROR or CRITICAL. Default is WARNING.
+Set the log level for tool. Can be DEBUG, INFO, WARNING, ERROR or CRITICAL. Default is DEBUG.
 
-test_mode
+test-mode
 ---------
 
---test_mode
-This option enables Test Mode and must be used with --defaults_file option.
+--test-mode
+This option enables Test Mode and must be used with --defaults-file option.
+Will not be available in default configuration file.
 WARNING: It is not for daily usage. It is only and only for testing XtraBackup.
 
-keyring_vault
+keyring-vault
 -------------
 
 --keyring_vault
