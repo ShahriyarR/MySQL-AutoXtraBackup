@@ -172,7 +172,8 @@ class Backup(GeneralClass):
         """
         It is highly recomended to flush binary logs before each full backup for easy maintenance.
         That's why we will execute "flush logs" command before each full backup!
-        :return: True on success, raise RuntimError on error.
+        :return: True on success.
+        :raise: RuntimError on error.
         """
         if hasattr(self, 'mysql_socket'):
             command_connection = '{} --defaults-file={} -u{} --password={}'
@@ -305,7 +306,6 @@ class Backup(GeneralClass):
 
     def clean_full_backup_dir(self):
         # Deleting old full backup after taking new full backup.
-
         for i in os.listdir(self.full_dir):
             rm_dir = self.full_dir + '/' + i
             if i != max(os.listdir(self.full_dir)):
@@ -313,7 +313,6 @@ class Backup(GeneralClass):
 
     def clean_inc_backup_dir(self):
         # Deleting incremental backups after taking new fresh full backup.
-
         for i in os.listdir(self.inc_dir):
             rm_dir = self.inc_dir + '/' + i
             shutil.rmtree(rm_dir)
@@ -326,6 +325,67 @@ class Backup(GeneralClass):
         copy_it = shlex.split(copy_it)
         cp = subprocess.Popen(copy_it, stdout=subprocess.PIPE)
         logger.debug(str(cp.stdout.read()))
+
+    def general_command_builder(self):
+        """
+        Method for building general options for backup command.
+        :return: String of constructed options.
+        """
+        args = ""
+
+        if hasattr(self, 'mysql_socket'):
+            args += " --socket={}".format(self.mysql_socket)
+        elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
+            args += " --host={}".format(self.mysql_host)
+            args += " --port={}".format(self.mysql_port)
+        else:
+            logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
+            raise RuntimeError("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
+
+        # Adding compression support for backup
+        try:
+            args += " --compress={}" \
+                    " --compress-chunk-size={}" \
+                    " --compress-threads={}".format(self.compress,
+                                                    self.compress_chunk_size,
+                                                    self.compress_threads)
+        except AttributeError:
+            pass
+
+        # Adding encryption support for full backup
+        try:
+            args += " --encrypt={}" \
+                    " --encrypt-key={}" \
+                    " --encrypt-key-file={}" \
+                    " --encrypt-threads={}" \
+                    " --encrypt-chunk-size={}".format(self.encrypt,
+                                                      self.encrypt_key,
+                                                      self.encrypt_key_file,
+                                                      self.encrypt_threads,
+                                                      self.encrypt_chunk_size)
+        except AttributeError:
+            pass
+
+        # Checking if extra options were passed:
+        try:
+            args += " {}".format(self.xtra_options)
+        except AttributeError:
+            pass
+
+        # Checking if extra backup options were passed:
+        try:
+            args += " {}".format(self.xtra_backup)
+        except AttributeError:
+            pass
+
+        # Checking if partial recovery list is available
+        try:
+            args += ' --databases="{}"'.format(self.partial_list)
+            logger.warning("Partial Backup is enabled!")
+        except AttributeError:
+            pass
+
+        return args
 
     def full_backup(self):
         """
@@ -344,50 +404,8 @@ class Backup(GeneralClass):
                 self.mysql_password,
                 full_backup_dir)
 
-        if hasattr(self, 'mysql_socket'):
-            args += " --socket={}".format(self.mysql_socket)
-        elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
-            args += " --host={}".format(self.mysql_host)
-            args += " --port={}".format(self.mysql_port)
-        else:
-            logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
-            raise RuntimeError("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
-
-        # Adding compression support for full backup
-        if hasattr(self, 'compress'):
-            args += " --compress={}".format(self.compress)
-        if hasattr(self, 'compress_chunk_size'):
-            args += " --compress-chunk-size={}".format(self.compress_chunk_size)
-        if hasattr(self, 'compress_threads'):
-            args += " --compress-threads={}".format(self.compress_threads)
-
-        # Adding encryption support for full backup
-        if hasattr(self, 'encrypt'):
-            args += " --encrypt={}".format(self.encrypt)
-        if hasattr(self, 'encrypt_key'):
-            args += " --encrypt-key={}".format(self.encrypt_key)
-        if hasattr(self, 'encrypt_key_file'):
-            args += " --encrypt-key-file={}".format(self.encrypt_key_file)
-        if hasattr(self, 'encrypt_threads'):
-            args += " --encrypt-threads={}".format(self.encrypt_threads)
-        if hasattr(self, 'encrypt_chunk_size'):
-            args += " --encrypt-chunk-size={}".format(self.encrypt_chunk_size)
-
-        # Checking if extra options were passed:
-        if hasattr(self, 'xtra_options'):
-            args += " "
-            args += self.xtra_options
-
-        # Checking if extra backup options were passed:
-        if hasattr(self, 'xtra_backup'):
-            args += " "
-            args += self.xtra_backup
-
-        # Checking if partial recovery list is available
-        if hasattr(self, 'partial_list'):
-            args += " "
-            args += '--databases="{}"'.format(self.partial_list)
-            logger.warning("Partial Backup is enabled!")
+        # Calling general options/command builder to add extra options
+        args += self.general_command_builder()
 
         # Checking if streaming enabled for backups
         if hasattr(self, 'stream') and self.stream == 'xbstream':
@@ -406,11 +424,11 @@ class Backup(GeneralClass):
             args += '--stream="{}"'.format(self.stream)
             args += " > {}/full_backup.tar".format(full_backup_dir)
             logger.warning("Streaming tar is enabled!")
-
+        
         # filter out password from argument list
-        filteredargs = re.sub("--password='?\w+'?", "--password='*'", args)
+        filtered_args = re.sub("--password='?\w+'?", "--password='*'", args)
 
-        logger.debug("The following backup command will be executed {}".format(filteredargs))
+        logger.debug("The following backup command will be executed {}".format(filtered_args))
 
         if self.dry == 0:
             logger.debug("Starting {}".format(self.backup_tool))
@@ -418,7 +436,7 @@ class Backup(GeneralClass):
             if status == 0:
                 logger.debug(output)
                 # logger.debug(output[-27:])
-                if self.tag is not None:
+                if self.tag:
                     logger.debug("Adding backup tags")
                     completion_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
                     self.add_tag(backup_dir=self.backupdir,
@@ -432,7 +450,7 @@ class Backup(GeneralClass):
             else:
                 logger.error("FAILED: FULL BACKUP")
                 logger.error(output)
-                if self.tag is not None:
+                if self.tag:
                     logger.debug("Adding backup tags")
                     completion_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
                     self.add_tag(backup_dir=self.backupdir,
@@ -473,34 +491,8 @@ class Backup(GeneralClass):
                     self.full_dir,
                     recent_bck)
 
-            if hasattr(self, 'mysql_socket'):
-                args += " --socket={}".format(self.mysql_socket)
-            elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
-                args += " --host={}".format(self.mysql_host)
-                args += " --port={}".format(self.mysql_port)
-            else:
-                logger.critical("Neither mysql_socket nor mysql_host and mysql_port are not defined in config!")
-                raise RuntimeError("Neither mysql_socket nor mysql_host and mysql_port are not defined in config!")
-
-            # Adding compression support for incremental backup
-            if hasattr(self, 'compress'):
-                args += " --compress={}".format(self.compress)
-            if hasattr(self, 'compress_chunk_size'):
-                args += " --compress-chunk-size={}".format(self.compress_chunk_size)
-            if hasattr(self, 'compress_threads'):
-                args += " --compress-threads={}".format(self.compress_threads)
-
-            # Adding encryption support for incremental backup
-            if hasattr(self, 'encrypt'):
-                args += " --encrypt={}".format(self.encrypt)
-            if hasattr(self, 'encrypt_key'):
-                args += " --encrypt-key={}".format(self.encrypt_key)
-            if hasattr(self, 'encrypt_key_file'):
-                args += " --encrypt_key_file={}".format(self.encrypt_key_file)
-            if hasattr(self, 'encrypt_threads'):
-                args += " --encrypt-threads={}".format(self.encrypt_threads)
-            if hasattr(self, 'encrypt_chunk_size'):
-                args += " --encrypt-chunk-size={}".format(self.encrypt_chunk_size)
+            # Calling general options/command builder to add extra options
+            args += self.general_command_builder()
 
             # Check here if stream=tar enabled.
             # Because it is impossible to take incremental backup with streaming tar.
@@ -536,26 +528,6 @@ class Backup(GeneralClass):
                         logger.error("FAILED: XBSTREAM COMMAND")
                         logger.error(output)
                         raise RuntimeError("FAILED: XBSTREAM COMMAND")
-            # elif hasattr(self, 'stream') and self.stream == 'tar' \
-            #         and (hasattr(self, 'encrypt') or hasattr(self, 'compress')):
-            #         logger.error("xtrabackup: error: compressed and encrypted backups are "
-            #                      "incompatible with the 'tar' streaming format")
-            #         raise RuntimeError("xtrabackup: error: compressed and encrypted backups are "
-            #                            "incompatible with the 'tar' streaming format. Use --stream=xbstream instead.")
-            # elif hasattr(self, 'stream') and self.stream == 'tar':
-            #     untar_cmd = "tar -xf {}/{}/full_backup.tar -C {}/{}".format(self.full_dir,
-            #                                                                 recent_bck,
-            #                                                                 self.full_dir,
-            #                                                                 recent_bck)
-            #     logger.debug("The following tar command will be executed -> {}".format(untar_cmd))
-            #     if self.dry == 0 and isfile("{}/{}/full_backup.tar".format(self.full_dir, recent_bck)):
-            #         status, output = subprocess.getstatusoutput(untar_cmd)
-            #         if status == 0:
-            #             logger.debug("OK: extracting full backup from tar.")
-            #         else:
-            #             logger.error("FAILED: extracting full backup from tar")
-            #             logger.error(output)
-            #             raise RuntimeError("FAILED: extracting full backup from tar")
 
             # Extract streamed full backup prior to executing incremental backup
             elif hasattr(self, 'stream') and self.stream == 'xbstream':
@@ -601,22 +573,6 @@ class Backup(GeneralClass):
                         logger.error(output)
                         raise RuntimeError("FAILED: XBCRYPT command")
 
-            # Checking if extra options were passed:
-            if hasattr(self, 'xtra_options'):
-                args += " "
-                args += self.xtra_options
-
-            # Checking if extra backup options were passed:
-            if hasattr(self, 'xtra_backup'):
-                args += " "
-                args += self.xtra_backup
-
-            # Checking if partial recovery list is available
-            if hasattr(self, 'partial_list'):
-                args += " "
-                args += '--databases="{}"'.format(self.partial_list)
-                logger.warning("Partial Backup is enabled!")
-
             # Checking if streaming enabled for backups
             if hasattr(self, 'stream') and self.stream == 'xbstream':
                 args += " "
@@ -630,9 +586,9 @@ class Backup(GeneralClass):
                                    "'tar' streaming format. Use --stream=xbstream instead.")
 
             # filter out password from argument list
-            filteredargs = re.sub("--password='?\w+'?", "--password='*'", args)
+            filtered_args = re.sub("--password='?\w+'?", "--password='*'", args)
 
-            logger.debug("The following backup command will be executed {}".format(filteredargs))
+            logger.debug("The following backup command will be executed {}".format(filtered_args))
 
             if self.dry == 0:
                 status, output = subprocess.getstatusoutput(args)
@@ -677,34 +633,8 @@ class Backup(GeneralClass):
                     self.inc_dir,
                     recent_inc)
 
-            if hasattr(self, 'mysql_socket'):
-                args += " --socket={}".format(self.mysql_socket)
-            elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
-                args += " --host={}".format(self.mysql_host)
-                args += " --port={}".format(self.mysql_port)
-            else:
-                logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
-                raise RuntimeError("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
-
-            # Adding compression support for incremental backup
-            if hasattr(self, 'compress'):
-                args += " --compress={}".format(self.compress)
-            if hasattr(self, 'compress_chunk_size'):
-                args += " --compress_chunk_size={}".format(self.compress_chunk_size)
-            if hasattr(self, 'compress-threads'):
-                args += " --compress_threads={}".format(self.compress_threads)
-
-            # Adding encryption support for incremental backup
-            if hasattr(self, 'encrypt'):
-                args += " --encrypt={}".format(self.encrypt)
-            if hasattr(self, 'encrypt_key'):
-                args += " --encrypt-key={}".format(self.encrypt_key)
-            if hasattr(self, 'encrypt_key_file'):
-                args += " --encrypt-key-file={}".format(self.encrypt_key_file)
-            if hasattr(self, 'encrypt_threads'):
-                args += " --encrypt-threads={}".format(self.encrypt_threads)
-            if hasattr(self, 'encrypt_chunk_size'):
-                args += " --encrypt-chunk-size={}".format(self.encrypt_chunk_size)
+            # Calling general options/command builder to add extra options
+            args += self.general_command_builder()
 
             # Check here if stream=tar enabled.
             # Because it is impossible to take incremental backup with streaming tar.
@@ -786,22 +716,6 @@ class Backup(GeneralClass):
                         logger.error(output)
                         raise RuntimeError("FAILED: XBCRYPT command")
 
-            # Checking if extra options were passed:
-            if hasattr(self, 'xtra_options'):
-                args += " "
-                args += self.xtra_options
-
-            # Checking if extra backup options were passed:
-            if hasattr(self, 'xtra_backup'):
-                args += " "
-                args += self.xtra_backup
-
-            # Checking if partial recovery list is available
-            if hasattr(self, 'partial_list'):
-                args += " "
-                args += '--databases="{}"'.format(self.partial_list)
-                logger.warning("Partial Backup is enabled!")
-
             # Checking if streaming enabled for backups
             if hasattr(self, 'stream'):
                 args += " "
@@ -810,9 +724,9 @@ class Backup(GeneralClass):
                 logger.warning("Streaming is enabled!")
 
             # filter out password from argument list
-                filteredargs = re.sub("--password='?\w+'?", "--password='*'", args)
+            filtered_args = re.sub("--password='?\w+'?", "--password='*'", args)
 
-            logger.debug("The following backup command will be executed {}".format(filteredargs))
+            logger.debug("The following backup command will be executed {}".format(filtered_args))
 
             if self.dry == 0:
                 status, output = subprocess.getstatusoutput(args)

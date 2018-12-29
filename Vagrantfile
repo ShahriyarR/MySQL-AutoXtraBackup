@@ -13,7 +13,7 @@ Vagrant.configure("2") do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
   config.vm.box = "centos/7"
-  config.disksize.size = '50GB'
+  config.disksize.size = '80GB'
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -72,6 +72,11 @@ Vagrant.configure("2") do |config|
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
    config.vm.provision "shell", inline: <<-SHELL
+     sudo parted /dev/sda mkpart primary 42.9GB 100% set 4 lvm on quit
+     sudo pvcreate /dev/sda4
+     sudo vgextend VolGroup00 /dev/sda4
+     sudo lvextend /dev/mapper/VolGroup00-LogVol00 -rl +100%FREE
+     sudo xfs_growfs /dev/VolGroup00/LogVol00
      sudo yum -y update
      sudo yum -y install yum-utils
      sudo yum -y groupinstall development
@@ -107,7 +112,7 @@ Vagrant.configure("2") do |config|
      virtualenv -p /usr/bin/python3.5 py_3_5_autoxtrabackup
      cd /vagrant
      sudo /home/vagrant/py_3_5_autoxtrabackup/bin/python setup.py install
-     sudo sed -i "0,/^[ \t]*testpath[ \t]*=.*$/s|^[ \t]*testpath[ \t]*=.*$|testpath=\/home\/vagrant\/XB_TEST\/server_dir|" /etc/bck.conf
+     sudo sed -i "0,/^[ \t]*testpath[ \t]*=.*$/s|^[ \t]*testpath[ \t]*=.*$|testpath=\/home\/vagrant\/XB_TEST\/server_dir|" /home/vagrant/.autoxtrabackup/autoxtrabackup.cnf
      cd /home/vagrant
      sudo chown -R vagrant:vagrant *
      touch python-sudo.sh
@@ -123,5 +128,5 @@ Vagrant.configure("2") do |config|
      source /home/vagrant/py_3_5_autoxtrabackup/bin/activate
      /usr/local/bin/bats prepare_env.bats
      chown -R vagrant:vagrant *
-   SHELL
+SHELL
 end

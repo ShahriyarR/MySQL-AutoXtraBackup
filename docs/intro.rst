@@ -29,7 +29,7 @@ But still did a bunch of manual tasks, which was quite time consuming process. T
 implementing partial recovery functionality. So the necessary actions
 for restoring single table was added to automate this process as well.
 
-The recent thing is, --test_mode for testing XtraBackup[So it is for me, or for somebody who wants to find bug in XtraBackup]
+The recent thing is, --test-mode for testing XtraBackup[So it is for me, or for somebody who wants to find bug in XtraBackup]
 
 If you think that those reasons are not enough - Then just believe me
 you need this :)

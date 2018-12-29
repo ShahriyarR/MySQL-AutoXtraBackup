@@ -4,6 +4,8 @@ import configparser
 from itertools import product
 import logging
 from general_conf import path_config
+from os.path import join
+from getpass import getuser
 logger = logging.getLogger(__name__)
 
 
@@ -11,13 +13,16 @@ class ConfigGenerator(CloneBuildStartServer):
 
     def __init__(self, config=path_config.config_path_file):
         self.conf = config
+        self.home = path_config.home
         super().__init__(config=self.conf)
         # For getting socket file path using RunBenchmark()
         self.benchmark_obj = RunBenchmark()
 
+
     @staticmethod
-    def generate_config_files(test_path, conf_file, basedir, datadir, sock_file, backup_path=None):
-        # This method for generating separate config files for each XB versions based on PS versions
+    def generate_config_files(test_path, conf_file, basedir, datadir, sock_file, home_path, backup_path=None):
+        # This method for generating separate config files for each XB versions based on PS versions.
+        # There is only one config for PXB 8 - because there is only supported platform PS 8.
         try:
             if backup_path is None:
                 conf_path = "{}/{}".format(test_path, conf_file)
@@ -42,25 +47,24 @@ class ConfigGenerator(CloneBuildStartServer):
                 config.add_section(section2)
                 config.set(section2, "#Optional: set pid directory")
                 config.set(section2, "pid_dir", "/tmp/MySQL-AutoXtraBackup")
-                config.set(section2, "tmpdir", "/home/shahriyar.rzaev/XB_TEST/mysql_datadirs")
+                config.set(section2, "tmpdir", join(home_path, "XB_TEST/mysql_datadirs"))
                 config.set(section2, "#Optional: set warning if pid of backup us running for longer than X")
                 config.set(section2, "pid_runtime_warning", "2 Hours")
-                if ('5.7' in basedir) and ('2_4' in conf_file):
-                    config.set(section2, "backupdir", "/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_7_x_2_4")
-                elif ('5.6' in basedir) and ('2_4' in conf_file):
-                    config.set(section2, "backupdir", "/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_6_x_2_4")
-                elif ('5.6' in basedir) and ('2_3' in conf_file):
-                    config.set(section2, "backupdir", "/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_6_x_2_3")
-                elif ('5.5' in basedir) and ('2_3' in conf_file):
-                    config.set(section2, "backupdir", "/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_5_x_2_3")
-                elif ('5.5' in basedir) and ('2_4' in conf_file):
-                    config.set(section2, "backupdir", "/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_5_x_2_4")
-                if '2_4' in conf_file:
-                    config.set(section2, "backup_tool",
-                               "{}/target/percona-xtrabackup-2.4.x-debug/bin/xtrabackup".format(test_path))
-                else:
-                    config.set(section2, "backup_tool",
-                               "{}/target/percona-xtrabackup-2.3.x-debug/bin/xtrabackup".format(test_path))
+
+                # Getting PS version from conf_file name
+                get_ps_version = conf_file[3:6]
+                # Getting XB version from conf_file name
+                get_xb_version = conf_file[-7:-4]
+                get_xb_version_replaced = get_xb_version.replace('_', '.')
+                config.set(section2, "backupdir",
+                           join(home_path, "XB_TEST/backup_dir/ps_{}_x_{}".format(get_ps_version,
+                                                                                  get_xb_version)))
+
+                config.set(section2, "backup_tool",
+                           "{}/target/percona-xtrabackup-{}.x-debug/bin/xtrabackup".format(test_path,
+                                                                                           get_xb_version_replaced))
+
+
                 config.set(section2, "#Optional: specify different path/version of xtrabackup here for prepare")
                 config.set(section2, "#prepare_tool", "")
                 config.set(section2, "xtra_prepare", "--apply-log-only")
@@ -71,7 +75,7 @@ class ConfigGenerator(CloneBuildStartServer):
                 config.set(section2,
                            "#Optional: pass general additional options; it will go to both for backup and prepare")
                 config.set(section2, "#xtra_options", "--binlog-info=ON --galera-info")
-                if '5.7' in basedir:
+                if '5.7' in basedir or '8.0' in basedir:
                     config.set(section2, "xtra_options", "--slave-info --no-version-check --core-file "
                                                          "--parallel=10 --throttle=40 --check-privileges "
                                                          "--ftwrl-wait-timeout=0 "
@@ -101,7 +105,7 @@ class ConfigGenerator(CloneBuildStartServer):
                                                          "--no-backup-locks "
                                                          "--parallel=10 --throttle=40 --check-privileges ")
                 config.set(section2, "#Optional: set archive and rotation")
-                config.set(section2, "#archive_dir", "/home/shahriyar.rzaev/XB_TEST/backup_archives")
+                config.set(section2, "#archive_dir", join(home_path, "XB_TEST/backup_archives"))
                 config.set(section2, "#prepare_archive", "1")
                 config.set(section2, "#move_archive", "0")
                 config.set(section2, "#full_backup_interval", "1 day")
@@ -127,12 +131,10 @@ class ConfigGenerator(CloneBuildStartServer):
                 config.add_section(section4)
                 config.set(section4, "#Optional")
                 config.set(section4, "#Enable only if you want to create encrypted backups")
-                if '2_4' in conf_file:
-                    config.set(section4, "xbcrypt",
-                               "{}/target/percona-xtrabackup-2.4.x-debug/bin/xbcrypt".format(test_path))
-                else:
-                    config.set(section4, "xbcrypt",
-                               "{}/target/percona-xtrabackup-2.3.x-debug/bin/xbcrypt".format(test_path))
+
+                config.set(section4, "xbcrypt",
+                           "{}/target/percona-xtrabackup-{}.x-debug/bin/xbcrypt".format(test_path,
+                                                                                        get_xb_version_replaced))
                 config.set(section4, "encrypt", "AES256")
                 config.set(section4, "#Please note that --encrypt-key and --encrypt-key-file are mutually exclusive")
                 config.set(section4, "encrypt_key", 'VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K')
@@ -148,12 +150,10 @@ class ConfigGenerator(CloneBuildStartServer):
                 config.add_section(section5)
                 config.set(section5, "#EXPERIMENTAL")
                 config.set(section5, "#Enable this, if you want to stream your backups")
-                if '2_4' in conf_file:
-                    config.set(section5, "xbstream",
-                               "{}/target/percona-xtrabackup-2.4.x-debug/bin/xbstream".format(test_path))
-                else:
-                    config.set(section5, "xbstream",
-                               "{}/target/percona-xtrabackup-2.3.x-debug/bin/xbstream".format(test_path))
+
+                config.set(section5, "xbstream",
+                           "{}/target/percona-xtrabackup-{}.x-debug/bin/xbstream".format(test_path,
+                                                                                         get_xb_version_replaced))
                 config.set(section5, "stream", "xbstream")
                 config.set(section5, "xbstream_options", "-x --parallel=100")
                 config.set(section5, "xbs_decrypt", "1")
@@ -170,18 +170,25 @@ class ConfigGenerator(CloneBuildStartServer):
                 config.add_section(section7)
                 config.set(section7, "start_mysql_command", "{}/start".format(basedir))
                 config.set(section7, "stop_mysql_command", "{}/stop".format(basedir))
-                config.set(section7, "chown_command", "chown -R shahriyar.rzaev:shahriyar.rzaev")
+                # Getting System Username - equal to run whoami
+                sys_user = getuser()
+                config.set(section7, "chown_command", "chown -R {}:{}".format(sys_user, sys_user))
 
                 section8 = "TestConf"
                 config.add_section(section8)
-                config.set(section8, "ps_branches", "5.5 5.6 5.7")
-                config.set(section8, "pxb_branches", "2.3 2.4")
+                config.set(section8, "ps_branches", "5.5 5.6 5.7 8.0")
+                config.set(section8, "pxb_branches", "2.3 2.4 8.0")
                 config.set(section8, "gitcmd",
                                      "--recursive --depth=1 https://github.com/percona/percona-server.git")
                 config.set(section8, "pxb_gitcmd", "https://github.com/percona/percona-xtrabackup.git")
-                config.set(section8, "testpath", "/home/shahriyar.rzaev/XB_TEST/server_dir")
+                config.set(section8, "testpath", join(home_path, "XB_TEST/server_dir"))
                 config.set(section8, "incremental_count", "3")
-                config.set(section8, "xb_configs", "xb_2_4_ps_5_6.conf xb_2_4_ps_5_7.conf xb_2_3_ps_5_6.conf xb_2_3_ps_5_5.conf xb_2_4_ps_5_5.conf")
+                config.set(section8, "xb_configs", "xb_2_4_ps_5_6.cnf "
+                                                   "xb_2_4_ps_5_7.cnf "
+                                                   "xb_2_3_ps_5_6.cnf "
+                                                   "xb_2_3_ps_5_5.cnf "
+                                                   "xb_2_4_ps_5_5.cnf "
+                                                   "xb_8_0_ps_8_0.cnf")
                 config.set(section8, "make_slaves", "1")
                 if '5_7' in conf_file:
                     config.set(section8, "default_mysql_options",
@@ -193,6 +200,17 @@ class ConfigGenerator(CloneBuildStartServer):
                                          "--innodb_encrypt_tables=ON,"
                                          "--innodb_encrypt_online_alter_logs=ON,"
                                          "--innodb_temp_tablespace_encrypt=ON")
+                elif '8_0' in conf_file:
+                    # For now make similar to 5.7
+                    config.set(section8, "default_mysql_options",
+                               "--early-plugin-load=keyring_file.so,"
+                               "--keyring_file_data={}/mysql-keyring/keyring,"
+                               "--log-bin=mysql-bin,--log-slave-updates,--server-id={},"
+                               "--gtid-mode=ON,--enforce-gtid-consistency,--binlog-format=row,"
+                               "--encrypt_binlog=ON,--master_verify_checksum=ON,--binlog_checksum=CRC32,"
+                               "--innodb_encrypt_tables=ON,"
+                               "--innodb_encrypt_online_alter_logs=ON,"
+                               "--innodb_temp_tablespace_encrypt=ON")
                 elif '5_6' in conf_file:
                     config.set(section8, "default_mysql_options",
                                          "--log-bin=mysql-bin,--log-slave-updates,--server-id={},"
@@ -202,10 +220,10 @@ class ConfigGenerator(CloneBuildStartServer):
                                "--log-bin=mysql-bin,--log-slave-updates,--server-id={},"
                                "--binlog-format=row")
 
-                if '5_7' in conf_file:
+                if '5_7' in conf_file or '8_0' in conf_file:
                     config.set(section8, "mysql_options",
                                          "--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,"
-                                         "--innodb_page_size=4K 8K 16K 32K")
+                                         "--innodb_page_size=4K 8K 16K 32K 64K")
                 elif '5_6' in conf_file:
                     config.set(section8, "mysql_options",
                                          "--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,"
@@ -229,40 +247,50 @@ class ConfigGenerator(CloneBuildStartServer):
         # The method for calling config generator based on if statements
         conf_list = self.xb_configs.split()
         basedirs = self.get_basedir()
-        print(basedirs)
-        print(conf_list)
         for basedir in basedirs:
             for conf_file in conf_list:
+                if ('8.0' in basedir) and ('8_0_ps_8_0' in conf_file):
+                    self.generate_config_files(test_path=self.testpath,
+                                               conf_file=conf_file,
+                                               basedir=basedir,
+                                               datadir='data',
+                                               sock_file=self.benchmark_obj.get_sock(basedir=basedir),
+                                               home_path=self.home)
                 if ('5.7' in basedir) and ('2_4_ps_5_7' in conf_file):
                     self.generate_config_files(test_path=self.testpath,
                                                conf_file=conf_file,
                                                basedir=basedir,
                                                datadir='data',
-                                               sock_file=self.benchmark_obj.get_sock(basedir=basedir))
+                                               sock_file=self.benchmark_obj.get_sock(basedir=basedir),
+                                               home_path=self.home)
                 elif ('5.6' in basedir) and ('2_4_ps_5_6' in conf_file):
                     self.generate_config_files(test_path=self.testpath,
                                                conf_file=conf_file,
                                                basedir=basedir,
                                                datadir='data',
-                                               sock_file=self.benchmark_obj.get_sock(basedir=basedir))
+                                               sock_file=self.benchmark_obj.get_sock(basedir=basedir),
+                                               home_path=self.home)
                 elif ('5.6' in basedir) and ('2_3_ps_5_6' in conf_file):
                     self.generate_config_files(test_path=self.testpath,
                                                conf_file=conf_file,
                                                basedir=basedir,
                                                datadir='data',
-                                               sock_file=self.benchmark_obj.get_sock(basedir=basedir))
+                                               sock_file=self.benchmark_obj.get_sock(basedir=basedir),
+                                               home_path=self.home)
                 elif ('5.5' in basedir) and ('2_4_ps_5_5' in conf_file):
                     self.generate_config_files(test_path=self.testpath,
                                                conf_file=conf_file,
                                                basedir=basedir,
                                                datadir='data',
-                                               sock_file=self.benchmark_obj.get_sock(basedir=basedir))
+                                               sock_file=self.benchmark_obj.get_sock(basedir=basedir),
+                                               home_path=self.home)
                 elif ('5.5' in basedir) and ('2_3_ps_5_5' in conf_file):
                     self.generate_config_files(test_path=self.testpath,
                                                conf_file=conf_file,
                                                basedir=basedir,
                                                datadir='data',
-                                               sock_file=self.benchmark_obj.get_sock(basedir=basedir))
+                                               sock_file=self.benchmark_obj.get_sock(basedir=basedir),
+                                               home_path=self.home)
                 else:
                     continue
 

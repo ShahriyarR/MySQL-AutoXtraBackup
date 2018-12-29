@@ -27,19 +27,25 @@ class GeneralClass:
             if 'mysql_port' in DB:
                 self.mysql_port = DB['mysql_port']
             self.datadir = DB['datadir']
-            # self.tmpdir = DB['tmpdir']
-            # self.tmp = DB['tmp']
+
+            LOG = con['Logging']
+            if 'log' in LOG:
+                self.log_level = LOG['log']
+            if 'log_file_max_bytes' in LOG:
+                self.log_file_max_bytes = LOG['log_file_max_bytes']
+            if 'log_file_backup_count' in LOG:
+                self.log_file_backup_count = LOG['log_file_backup_count']
 
             BCK = con['Backup']
             if 'pid_dir' in BCK:
                 self.pid_dir = BCK['pid_dir']
             else:
                 self.pid_dir = "/tmp/"
-            self.tmpdir = BCK['tmpdir']
+            self.tmpdir = BCK['tmp_dir']
             if 'pid_runtime_warning' in BCK:
                 self.pid_runtime_warning = humanfriendly.parse_timespan(
                     BCK['pid_runtime_warning'])
-            self.backupdir = BCK['backupdir']
+            self.backupdir = BCK['backup_dir']
             self.full_dir = self.backupdir + '/full'
             self.inc_dir = self.backupdir + '/inc'
             self.backup_tool = BCK['backup_tool']
@@ -65,10 +71,10 @@ class GeneralClass:
                 self.move_archive = BCK['move_archive']
             if 'max_archive_size' in BCK:
                 self.max_archive_size = humanfriendly.parse_size(
-                    BCK['max_archive_size'])
+                    BCK['archive_max_size'])
             if 'max_archive_duration' in BCK:
                 self.max_archive_duration = humanfriendly.parse_timespan(
-                    BCK['max_archive_duration'])
+                    BCK['archive_max_duration'])
             if 'partial_list' in BCK:
                 self.partial_list = BCK['partial_list']
 
@@ -124,6 +130,8 @@ class GeneralClass:
             self.stop_mysql = CM['stop_mysql_command']
             self.chown_command = CM['chown_command']
 
+            # Will be generated only for test environment.
+            # Not generated for production things.
             if 'TestConf' in con:
                 TEST = con['TestConf']
                 if 'ps_branches' in TEST:
@@ -148,4 +156,4 @@ class GeneralClass:
                     self.make_slaves = TEST['make_slaves']
 
         else:
-            logger.critical("Missing config file : /etc/autoxtrabackup.cnf")
+            logger.critical("Missing config file : {}".format(path_config.config_path_file))

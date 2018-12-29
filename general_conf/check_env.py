@@ -14,9 +14,9 @@ class CheckEnv(GeneralClass):
     def __init__(self, config=path_config.config_path_file, full_dir=None, inc_dir=None):
         self.conf = config
         GeneralClass.__init__(self, self.conf)
-        if full_dir is not None:
+        if full_dir:
             self.full_dir = full_dir
-        if inc_dir is not None:
+        if inc_dir:
             self.inc_dir = inc_dir
 
     def check_mysql_uptime(self, options=None):
@@ -48,9 +48,7 @@ class CheckEnv(GeneralClass):
 
         logger.debug("Running mysqladmin command -> {}".format(filteredargs))
 
-        #statusargs = shlex.split(statusargs)
         status, output = subprocess.getstatusoutput(statusargs)
-        #myadmin = subprocess.Popen(statusargs, stdout=subprocess.PIPE)
 
         if status == 0:
             logger.debug('OK: Server is Up and running')
@@ -58,13 +56,6 @@ class CheckEnv(GeneralClass):
         else:
             logger.error('FAILED: Server is NOT Up')
             raise RuntimeError('FAILED: Server is NOT Up')
-
-        # if not ('Uptime' in str(myadmin.stdout.read())):
-        #     logger.error('FAILED: Server is NOT Up')
-        #     raise RuntimeError('FAILED: Server is NOT Up')
-        # else:
-        #     logger.debug('OK: Server is Up and running')
-        #     return True
 
     def check_mysql_conf(self):
         '''
@@ -74,7 +65,7 @@ class CheckEnv(GeneralClass):
         if self.mycnf is None or self.mycnf == '':
             logger.debug("Skipping my.cnf check, because it is not specified")
             return True
-        elif not os.path.exists(self.mycnf) and (self.mycnf is not None):
+        elif not os.path.exists(self.mycnf) and self.mycnf:
             logger.error('FAILED: MySQL configuration file path does NOT exist')
             raise RuntimeError('FAILED: MySQL configuration file path does NOT exist')
         else:
@@ -86,65 +77,78 @@ class CheckEnv(GeneralClass):
         Method for checking mysql client path
         :return: True on success, raise RuntimeError on error.
         '''
-        if not os.path.exists(self.mysql):
-            logger.error('FAILED: {} doest NOT exist'.format(self.mysql))
-            raise RuntimeError('FAILED: {} doest NOT exist'.format(self.mysql))
-        else:
+        if os.path.exists(self.mysql):
             logger.debug('OK: {} exists'.format(self.mysql))
             return True
+        else:
+            logger.error('FAILED: {} doest NOT exist'.format(self.mysql))
+            raise RuntimeError('FAILED: {} doest NOT exist'.format(self.mysql))
 
     def check_mysql_mysqladmin(self):
         '''
         Method for checking mysqladmin path
         :return: True on success, raise RuntimeError on error.
         '''
-        if not os.path.exists(self.mysqladmin):
-            logger.error('FAILED: {} does NOT exist'.format(self.mysqladmin))
-            raise RuntimeError('FAILED: {} does NOT exist'.format(self.mysqladmin))
-        else:
+        if os.path.exists(self.mysqladmin):
             logger.debug('OK: {} exists'.format(self.mysqladmin))
             return True
+        else:
+            logger.error('FAILED: {} does NOT exist'.format(self.mysqladmin))
+            raise RuntimeError('FAILED: {} does NOT exist'.format(self.mysqladmin))
 
     def check_mysql_backuptool(self):
-        if not os.path.exists(self.backup_tool):
-            logger.error('FAILED: XtraBackup does NOT exist')
-            raise RuntimeError('FAILED: XtraBackup does NOT exist')
-        else:
+        """
+        Method for checking if given backup tool path is there or not.
+        :return: RuntimeError on failure, True on success
+        """
+        if os.path.exists(self.backup_tool):
             logger.debug('OK: XtraBackup exists')
             return True
+        else:
+            logger.error('FAILED: XtraBackup does NOT exist')
+            raise RuntimeError('FAILED: XtraBackup does NOT exist')
 
     def check_mysql_backupdir(self):
-        '''
+        """
         Check for MySQL backup directory.
         If directory exists already then, return True. If not, try to create it.
-        :return: True on success.
-        '''
-        if not (os.path.exists(self.backupdir)):
-            logger.debug('Main backup directory does not exist')
-            logger.debug('Creating Main Backup folder...')
-            os.makedirs(self.backupdir)
-            logger.debug('OK: Created')
-            return True
-        else:
+        :return: True on success. RuntimeError on failure.
+        """
+        if os.path.exists(self.backupdir):
             logger.debug('OK: Main backup directory exists')
             return True
+        else:
+            logger.debug('Main backup directory does not exist')
+            logger.debug('Creating Main Backup folder...')
+            try:
+                os.makedirs(self.backupdir)
+                logger.debug('OK: Created')
+                return True
+            except Exception as err:
+                logger.error("FAILED: Could not create directory, ", err)
+                raise RuntimeError("FAILED: Could not create directory")
+
 
     def check_mysql_archive_dir(self):
         '''
         Check for archive directory.
-        If archive_dir is given in config file and if it is does not exist, try to create.
-        :return: True on success.
+        If archive_dir is given in config file and if it does not exist, try to create.
+        :return: True on success. RuntimeError on failure.
         '''
         if hasattr(self, 'archive_dir'):
-            if not (os.path.exists(self.archive_dir)):
-                logger.debug('Archive backup directory does not exist')
-                logger.debug('Creating archive folder...')
-                os.makedirs(self.archive_dir)
-                logger.debug('OK: Created')
-                return True
-            else:
+            if os.path.exists(self.archive_dir):
                 logger.debug('OK: Archive folder directory exists')
                 return True
+            else:
+                logger.debug('Archive backup directory does not exist')
+                logger.debug('Creating archive folder...')
+                try:
+                    os.makedirs(self.archive_dir)
+                    logger.debug('OK: Created')
+                    return True
+                except Exception as err:
+                    logger.error("FAILED: Could not create directory, ", err)
+                    raise RuntimeError("FAILED: Could not create directory")
         else:
             return True
 
@@ -154,15 +158,19 @@ class CheckEnv(GeneralClass):
         If this path exists return True if not try to create.
         :return: True on success.
         '''
-        if not (os.path.exists(self.full_dir)):
-            logger.debug('Full Backup directory does not exist')
-            logger.debug('Creating full backup directory...')
-            os.makedirs(self.full_dir)
-            logger.debug('OK: Created')
-            return True
-        else:
+        if os.path.exists(self.full_dir):
             logger.debug("OK: Full Backup directory exists")
             return True
+        else:
+            logger.debug('Full Backup directory does not exist')
+            logger.debug('Creating full backup directory...')
+            try:
+                os.makedirs(self.full_dir)
+                logger.debug('OK: Created')
+                return True
+            except Exception as err:
+                logger.error("FAILED: Could not create directory, ", err)
+                raise RuntimeError("FAILED: Could not create directory")
 
     def check_mysql_incbackupdir(self):
         '''
@@ -170,15 +178,19 @@ class CheckEnv(GeneralClass):
         If this path exists return True if not try to create.
         :return: True on success.
         '''
-        if not (os.path.exists(self.inc_dir)):
-            logger.debug('Increment directory does not exist')
-            logger.debug('Creating increment backup directory...')
-            os.makedirs(self.inc_dir)
-            logger.debug('OK: Created')
-            return True
-        else:
+        if os.path.exists(self.inc_dir):
             logger.debug('OK: Increment directory exists')
             return True
+        else:
+            logger.debug('Increment directory does not exist')
+            logger.debug('Creating increment backup directory...')
+            try:
+                os.makedirs(self.inc_dir)
+                logger.debug('OK: Created')
+                return True
+            except Exception as err:
+                logger.error("FAILED: Could not create directory, ", err)
+                raise RuntimeError("FAILED: Could not create directory")
 
     def check_all_env(self):
         '''
