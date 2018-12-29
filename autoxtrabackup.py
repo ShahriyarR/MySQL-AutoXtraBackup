@@ -108,7 +108,7 @@ def validate_file(file):
 
 
 @click.command()
-@click.option('--dry_run', is_flag=True, help="Enable the dry run.")
+@click.option('--dry-run', is_flag=True, help="Enable the dry run.")
 @click.option('--prepare', is_flag=True, help="Prepare/recover backups.")
 @click.option('--backup',
               is_flag=True,
@@ -122,25 +122,26 @@ def validate_file(file):
               expose_value=False,
               is_eager=True,
               help="Version information.")
-@click.option('--defaults_file',
+@click.option('--defaults-file',
               default=path_config.config_path_file,
               show_default=True,
               help="Read options from the given file")
 @click.option('--tag',
               help="Pass the tag string for each backup")
-@click.option('--show_tags',
+@click.option('--show-tags',
               is_flag=True,
               help="Show backup tags and exit")
 @click.option('-v', '--verbose', is_flag=True,
               help="Be verbose (print to console)")
 @click.option('-lf',
-              '--log_file',
+              '--log-file',
               default=path_config.log_file_path,
               show_default=True,
               help="Set log file")
 @click.option('-l',
               '--log',
-              default='WARNING',
+              '--log-level',
+              default='DEBUG',
               show_default=True,
               type=click.Choice(['DEBUG',
                                  'INFO',
@@ -148,28 +149,28 @@ def validate_file(file):
                                  'ERROR',
                                  'CRITICAL']),
               help="Set log level")
-@click.option('--log_file_max_bytes',
+@click.option('--log-file-max-bytes',
               default=1073741824,
               show_default=True,
               nargs=1,
               type=int,
               help="Set log file max size in bytes")
-@click.option('--log_file_backup_count',
+@click.option('--log-file-backup-count',
               default=7,
               show_default=True,
               nargs=1,
               type=int,
               help="Set log file backup count")
-@click.option('--keyring_vault',
+@click.option('--keyring-vault',
               default=0,
               show_default=True,
               nargs=1,
               type=int,
               help="Enable this when you pass keyring_vault options in default mysqld options in config"
-                   "[Only for using with --test_mode]")
-@click.option('--test_mode',
+                   "[Only for using with --test-mode]")
+@click.option('--test-mode',
               is_flag=True,
-              help="Enable test mode. Must be used with --defaults_file and only for TESTs for XtraBackup")
+              help="Enable test mode. Must be used with --defaults-file and only for TESTs for XtraBackup")
 @click.option('--help',
               is_flag=True,
               callback=print_help,
@@ -181,7 +182,11 @@ def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
                   verbose, log_file, log, defaults_file,
                   dry_run, test_mode, log_file_max_bytes,
                   log_file_backup_count, keyring_vault):
-    logger.setLevel(log)
+    config = GeneralClass(defaults_file)
+    if config.log_level:
+        logger.setLevel(config.log_level)
+    else:
+        logger.setLevel(log)
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
 
@@ -192,16 +197,19 @@ def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
 
     if log_file:
         try:
-            file_handler = RotatingFileHandler(log_file, mode='a',
-                                               maxBytes=log_file_max_bytes, backupCount=log_file_backup_count)
+            if config.log_file_max_bytes and config.log_file_backup_count:
+                file_handler = RotatingFileHandler(log_file, mode='a',
+                                                   maxBytes=config.log_file_max_bytes,
+                                                   backupCount=config.log_file_backup_count)
+            else:
+                file_handler = RotatingFileHandler(log_file, mode='a',
+                                                   maxBytes=log_file_max_bytes, backupCount=log_file_backup_count)
             file_handler.setFormatter(formatter)
             logger.addHandler(file_handler)
         except PermissionError as err:
             exit("{} Please consider to run as root or sudo".format(err))
 
     validate_file(defaults_file)
-    config = GeneralClass(defaults_file)
-
     pid_file = pid.PidFile(piddir=config.pid_dir)
 
     try:
