@@ -65,8 +65,8 @@ def check_file_content(file):
         "mysql_password",
         "mysql_host",
         "datadir",
-        "tmpdir",
-        "backupdir",
+        "tmp_dir",
+        "backup_dir",
         "backup_tool",
         "xtra_prepare",
         "start_mysql_command",
@@ -199,8 +199,8 @@ def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
         try:
             if config.log_file_max_bytes and config.log_file_backup_count:
                 file_handler = RotatingFileHandler(log_file, mode='a',
-                                                   maxBytes=config.log_file_max_bytes,
-                                                   backupCount=config.log_file_backup_count)
+                                                   maxBytes=int(config.log_file_max_bytes),
+                                                   backupCount=int(config.log_file_backup_count))
             else:
                 file_handler = RotatingFileHandler(log_file, mode='a',
                                                    maxBytes=log_file_max_bytes, backupCount=log_file_backup_count)

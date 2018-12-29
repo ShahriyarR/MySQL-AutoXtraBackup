@@ -26,7 +26,7 @@ class GeneralClass:
                 self.mysql_host = DB['mysql_host']
             if 'mysql_port' in DB:
                 self.mysql_port = DB['mysql_port']
-            self.datadir = DB['data_dir']
+            self.datadir = DB['datadir']
 
             LOG = con['Logging']
             if 'log' in LOG:

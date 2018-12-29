@@ -32,7 +32,7 @@ class GenerateDefaultConfig:
             config.set(section1, "mysql_socket", "/var/lib/mysql/mysql.sock")
             config.set(section1, "#mysql_host", "127.0.0.1")
             config.set(section1, "#mysql_port", "3306")
-            config.set(section1, "data_dir", "/var/lib/mysql")
+            config.set(section1, "datadir", "/var/lib/mysql")
             
             # TODO: change this in test_mode related config generator as well
             section2 = 'Logging'
