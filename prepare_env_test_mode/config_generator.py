@@ -109,8 +109,8 @@ class ConfigGenerator(CloneBuildStartServer):
                 config.set(section2, "#prepare_archive", "1")
                 config.set(section2, "#move_archive", "0")
                 config.set(section2, "#full_backup_interval", "1 day")
-                config.set(section2, "#max_archive_size", "100GiB")
-                config.set(section2, "#max_archive_duration", "4 Days")
+                config.set(section2, "#archive_max_size", "100GiB")
+                config.set(section2, "#archive_max_duration", "4 Days")
                 config.set(section2, "#Optional: WARNING(Enable this if you want to take partial backups). "
                                      "Specify database names or table names.")
                 config.set(section2, "#partial_list", "test.t1 test.t2 dbtest")
