@@ -291,6 +291,7 @@ def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
                     c.final_actions()
                 else:
                     logger.critical("Dry run is not implemented for partial recovery!")
+            logger.debug("all_procedure completed without error!")
     except pid.PidFileAlreadyLockedError as error:
         if hasattr(config, 'pid_runtime_warning'):
             if time.time() - os.stat(pid_file.filename).st_ctime > config.pid_runtime_warning:
