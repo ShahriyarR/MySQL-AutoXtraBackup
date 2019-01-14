@@ -552,6 +552,10 @@ class Backup(GeneralClass):
             if self.dry == 0:
                 logger.debug("Starting {}".format(self.backup_tool))
                 status = ProcessRunner.run_command(xtrabackup_inc_cmd)
+                status_str = 'OK' if status is True else 'FAILED'
+                self.add_tag(backup_type='Inc',
+                             backup_size=self.get_folder_size(inc_backup_dir),
+                             backup_status=status_str)
                 return status
 
         else:  # If there is already existing incremental backup
@@ -659,8 +663,11 @@ class Backup(GeneralClass):
             if self.dry == 0:
                 logger.debug("Starting {}".format(self.backup_tool))
                 status = ProcessRunner().run_command(xtrabackup_inc_cmd)
+                status_str = 'OK' if status is True else 'FAILED'
+                self.add_tag(backup_type='Inc',
+                             backup_size=self.get_folder_size(inc_backup_dir),
+                             backup_status=status_str)
                 return status
-
 
     def all_backup(self):
         """
