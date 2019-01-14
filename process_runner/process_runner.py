@@ -24,7 +24,7 @@ class ProcessRunner(GeneralClass):
         GeneralClass.__init__(self, self.conf)
 
     @staticmethod
-    def run_xtrabackup_command(xtrabackup_command):
+    def run_command(xtrabackup_command):
         """
         executes a prepared xtrabackup command
 
@@ -35,12 +35,6 @@ class ProcessRunner(GeneralClass):
         :return: True if success, False if failure
         :rtype: bool
         """
-        # todo: implement this method
-        # some defensive statements to make sure it's only xtrabackup commands using this function for now.
-        # Should work for any subprocess we want real-time logging for
-        assert 'xtrabackup' in xtrabackup_command, "invalid xtrabackup command sent to run_xtrabackup_command()"
-        # todo: some logic to neatly summarize xtrabackup actions taken over the course of autoxtrabackup
-
         # filter out password from argument list, print command to execute
         filtered_xtrabackup_cmd = re.sub("--password='?\w+'?", "--password='*'", xtrabackup_command)
         logger.debug("SUBPROCESS STARTING: {}".format(filtered_xtrabackup_cmd))
@@ -57,16 +51,18 @@ class ProcessRunner(GeneralClass):
             logger.debug("SPC {} | {}".format(cmd_root, fixed_line.strip("\n")))
 
         # There can be a race condition as subprocess is exiting
-        # sleep() to ensure exit code is accurate
-        # 2 seconds is probably way too much (?) ...
+        # sleep() to ensure exit code is accurate... 2 seconds is probably way too much (?)
         time.sleep(2)
         exit_code = process.poll()
         logger.debug("SUBPROCESS {} COMPLETED with exit code: {}".format(cmd_root, exit_code))
 
-        # return True or False.
+
         # todo: optionally raise error instead of return false
         # todo: cnt'd or, if any subprocess fails, can we stop in a recoverable state?
+        # return True or False.
         if exit_code == 0:
             return True
         else:
+            # todo: optionally raise error instead of return false
+            # todo: cnt'd or, if any subprocess fails, can we stop in a recoverable state?
             return False

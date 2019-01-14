@@ -237,7 +237,7 @@ class Backup(GeneralClass):
                     # Test if pigz is available.
                     try:
                         subprocess.call(["pigz", "-q"])
-                        run_tar = "tar cf - %s %s | pigz > %s" % (
+                        run_tar = "tar cvvf - %s %s | pigz -v > %s" % (
                             self.full_dir, self.inc_dir, self.archive_dir + '/' + i + '.tar.gz')
                     except OSError as e:
                         if e.errno == os.errno.ENOENT:
@@ -251,15 +251,13 @@ class Backup(GeneralClass):
 
                     logger.debug("Started to archive previous backups")
                     logger.debug("The following command will be executed {}".format(run_tar))
-                    #todo: This one is slow; log it.
-                    status, output = subprocess.getstatusoutput(run_tar)
-                    if status == 0:
+                    status = ProcessRunner.run_command(run_tar)
+                    if status:
                         logger.debug("OK: Old full backup and incremental backups archived!")
                         return True
                     else:
                         logger.error("FAILED: Archiving ")
-                        logger.error(output)
-                        raise RuntimeError("FAILED: Archiving -> {}".format(output))
+                        raise RuntimeError("FAILED: Archiving -> {}".format(run_tar))
 
     def clean_old_archives(self):
         logger.debug("Starting cleaning of old archives")
@@ -421,7 +419,7 @@ class Backup(GeneralClass):
 
         # do the xtrabackup
         logger.debug("Starting {}".format(self.backup_tool))
-        status = ProcessRunner().run_xtrabackup_command(xtrabackup_cmd)
+        status = ProcessRunner().run_command(xtrabackup_cmd)
         status_str = 'OK' if status is True else 'FAILED'
         self.add_tag(backup_type='Full',
                      backup_size=self.get_folder_size(full_backup_dir),
@@ -553,7 +551,7 @@ class Backup(GeneralClass):
 
             if self.dry == 0:
                 logger.debug("Starting {}".format(self.backup_tool))
-                status = ProcessRunner.run_xtrabackup_command(xtrabackup_inc_cmd)
+                status = ProcessRunner.run_command(xtrabackup_inc_cmd)
                 return status
 
         else:  # If there is already existing incremental backup
@@ -660,7 +658,7 @@ class Backup(GeneralClass):
 
             if self.dry == 0:
                 logger.debug("Starting {}".format(self.backup_tool))
-                status = ProcessRunner().run_xtrabackup_command(xtrabackup_inc_cmd)
+                status = ProcessRunner().run_command(xtrabackup_inc_cmd)
                 return status
 
 

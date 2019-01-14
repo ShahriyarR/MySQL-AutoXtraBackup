@@ -144,7 +144,7 @@ class Prepare(GeneralClass):
                     logger.debug("Trying to decrypt backup")
                     logger.debug("Running decrypt command -> {}".format(decr))
                     if self.dry == 0:
-                        status = ProcessRunner.run_xtrabackup_command(decr)
+                        status = ProcessRunner.run_command(decr)
                         if status:
                             logger.debug("OK: Decrypted!")
                         else:
@@ -168,7 +168,7 @@ class Prepare(GeneralClass):
                     logger.debug("Trying to decompress backup")
                     logger.debug("Running decompress command -> {}".format(decmp))
                     if self.dry == 0:
-                        status = ProcessRunner.run_xtrabackup_command(decmp)
+                        status = ProcessRunner.run_command(decmp)
                         if status:
                             logger.debug("OK: Decompressed")
                         else:
@@ -192,7 +192,7 @@ class Prepare(GeneralClass):
                     xtrabackup_prepare_cmd += self.xtra_prepare_options
 
                 if self.dry == 0:
-                    status = ProcessRunner.run_xtrabackup_command(xtrabackup_prepare_cmd)
+                    status = ProcessRunner.run_command(xtrabackup_prepare_cmd)
                     if not status:
                         logger.error("FAILED: FULL BACKUP prepare.")
                         raise RuntimeError("FAILED: FULL BACKUP prepare.")
@@ -231,7 +231,7 @@ class Prepare(GeneralClass):
                                 logger.debug("Trying to decrypt backup")
                                 logger.debug("Running decrypt command -> {}".format(decr))
                                 if self.dry == 0:
-                                    status = ProcessRunner.run_xtrabackup_command(decr)
+                                    status = ProcessRunner.run_command(decr)
                                     if status:
                                         logger.debug("OK: Decrypted!")
                                     else:
@@ -258,7 +258,7 @@ class Prepare(GeneralClass):
                                 logger.debug(
                                     "Running decompress command -> {}".format(decmp))
                                 if self.dry == 0:
-                                    status = ProcessRunner.run_xtrabackup_command(decmp)
+                                    status = ProcessRunner.run_command(decmp)
                                     if status:
                                         logger.debug("OK: Decompressed")
                                     else:
@@ -286,7 +286,7 @@ class Prepare(GeneralClass):
 
                             logger.debug("Running prepare command -> {}".format(xtrabackup_prepare_cmd))
                             if self.dry == 0:
-                                status = ProcessRunner.run_xtrabackup_command(xtrabackup_prepare_cmd)
+                                status = ProcessRunner.run_command(xtrabackup_prepare_cmd)
                                 if not status:
                                     logger.error("FAILED: Incremental BACKUP prepare")
                                     raise RuntimeError("FAILED: Incremental BACKUP prepare")
@@ -336,7 +336,7 @@ class Prepare(GeneralClass):
                                 logger.debug("Trying to decrypt backup")
                                 logger.debug("Running decrypt command -> {}".format(decr))
                                 if self.dry == 0:
-                                    status = ProcessRunner.run_xtrabackup_command(decr)
+                                    status = ProcessRunner.run_command(decr)
                                     if status:
                                         logger.debug("OK: Decrypted!")
                                     else:
@@ -362,7 +362,7 @@ class Prepare(GeneralClass):
                                 logger.debug("Running decompress command -> {}".format(decmp))
 
                                 if self.dry == 0:
-                                    status = ProcessRunner.run_xtrabackup_command(decmp)
+                                    status = ProcessRunner.run_command(decmp)
                                     if status:
                                         logger.debug("OK: Decompressed")
                                     else:
@@ -388,7 +388,7 @@ class Prepare(GeneralClass):
 
                             logger.debug("Running prepare command -> {}".format(xtrabackup_prepare_inc_cmd))
                             if self.dry == 0:
-                                status2 = ProcessRunner.run_xtrabackup_command(xtrabackup_prepare_inc_cmd)
+                                status2 = ProcessRunner.run_command(xtrabackup_prepare_inc_cmd)
                                 if not status2:
                                     logger.error("FAILED: Incremental BACKUP prepare")
                                     raise RuntimeError("FAILED: Incremental BACKUP prepare")
@@ -488,7 +488,7 @@ class Prepare(GeneralClass):
                     logger.debug("Trying to decrypt backup")
                     logger.debug("Running decrypt command -> {}".format(decr))
                     if self.dry == 0:
-                        status = ProcessRunner.run_xtrabackup_command(decr)
+                        status = ProcessRunner.run_command(decr)
                         if status:
                             logger.debug("OK: Decrypted!")
                         else:
@@ -511,7 +511,7 @@ class Prepare(GeneralClass):
                                  recent_bck)
                     logger.debug("Trying to decompress backup")
                     if self.dry == 0:
-                        status = ProcessRunner.run_xtrabackup_command(decmp)
+                        status = ProcessRunner.run_command(decmp)
                         if status:
                             logger.debug("OK: Decompressed")
                         else:
@@ -537,7 +537,7 @@ class Prepare(GeneralClass):
                 logger.debug("Running prepare command -> {}".format(xtrabackup_prepare_cmd))
 
                 if self.dry == 0:
-                    status = ProcessRunner.run_xtrabackup_command(xtrabackup_prepare_cmd)
+                    status = ProcessRunner.run_command(xtrabackup_prepare_cmd)
                     if not status:
                         logger.error("FAILED: FULL BACKUP prepare.")
                         raise RuntimeError("FAILED: FULL BACKUP prepare.")
@@ -566,7 +566,7 @@ class Prepare(GeneralClass):
                     logger.debug("Trying to decrypt backup")
                     logger.debug("Running decrypt command -> {}".format(decr))
                     if self.dry == 0:
-                        status = ProcessRunner.run_xtrabackup_command(decr)
+                        status = ProcessRunner.run_command(decr)
                         if status:
                             logger.debug("OK: Decrypted!")
                         else:
@@ -591,7 +591,7 @@ class Prepare(GeneralClass):
                     logger.debug("Trying to decompress backup")
                     logger.debug("Running decompress command -> {}".format(decmp))
                     if self.dry == 0:
-                        status = ProcessRunner.run_xtrabackup_command(decmp)
+                        status = ProcessRunner.run_command(decmp)
                         if status:
                             logger.debug("OK: Decompressed")
                         else:
@@ -617,7 +617,7 @@ class Prepare(GeneralClass):
 
                 logger.debug("Running prepare command -> {}".format(xtrabackup_prepare_cmd))
                 if self.dry == 0:
-                    status = ProcessRunner.run_xtrabackup_command(xtrabackup_prepare_cmd)
+                    status = ProcessRunner.run_command(xtrabackup_prepare_cmd)
                     if not status:
                         logger.error("FAILED: One time FULL BACKUP")
                         raise RuntimeError("FAILED: One time FULL BACKUP")
@@ -660,7 +660,7 @@ class Prepare(GeneralClass):
                             logger.debug("Trying to decrypt backup")
                             logger.debug("Running decrypt command -> {}".format(decr))
                             if self.dry == 0:
-                                status = ProcessRunner.run_xtrabackup_command(decr)
+                                status = ProcessRunner.run_command(decr)
                                 if status:
                                     logger.debug("OK: Decrypted!")
                                 else:
@@ -686,7 +686,7 @@ class Prepare(GeneralClass):
                             logger.debug(
                                 "Running decompress command -> {}".format(decmp))
                             if self.dry == 0:
-                                status = ProcessRunner.run_xtrabackup_command(decmp)
+                                status = ProcessRunner.run_command(decmp)
                                 if status:
                                     logger.debug("OK: Decompressed")
                                 else:
@@ -715,7 +715,7 @@ class Prepare(GeneralClass):
 
                         logger.debug("Running prepare command -> {}".format(xtrabackup_prepare_inc_cmd))
                         if self.dry == 0:
-                            status = ProcessRunner.run_xtrabackup_command(xtrabackup_prepare_inc_cmd)
+                            status = ProcessRunner.run_command(xtrabackup_prepare_inc_cmd)
                             if not status:
                                 logger.error("FAILED: Incremental BACKUP prepare")
                                 raise RuntimeError("FAILED: Incremental BACKUP prepare")
@@ -764,7 +764,7 @@ class Prepare(GeneralClass):
                             logger.debug("Trying to decrypt backup")
                             logger.debug("Running decrypt command -> {}".format(decr))
                             if self.dry == 0:
-                                status = ProcessRunner.run_xtrabackup_command(decr)
+                                status = ProcessRunner.run_command(decr)
                                 if status:
                                     logger.debug("OK: Decrypted!")
                                 else:
@@ -785,12 +785,12 @@ class Prepare(GeneralClass):
                                          self.backup_tool,
                                          self.decompress,
                                          self.inc_dir,
-                                         i)                                
+                                         i)
                             logger.debug("Trying to decompress backup")
                             logger.debug("Running decompress command -> {}".format(decmp))
 
                             if self.dry == 0:
-                                status = ProcessRunner.run_xtrabackup_command(decmp)
+                                status = ProcessRunner.run_command(decmp)
                                 if status:
                                     logger.debug("OK: Decompressed")
                                 else:
@@ -816,7 +816,7 @@ class Prepare(GeneralClass):
 
                         logger.debug("Running prepare command -> {}".format(xtrabackup_prepare_inc_cmd))
                         if self.dry == 0:
-                            status = ProcessRunner.run_xtrabackup_command(xtrabackup_prepare_inc_cmd)
+                            status = ProcessRunner.run_command(xtrabackup_prepare_inc_cmd)
                             if not status:
                                 logger.error("FAILED: Incremental BACKUP prepare")
                                 raise RuntimeError("FAILED: Incremental BACKUP prepare")
@@ -901,7 +901,7 @@ class Prepare(GeneralClass):
                     self.full_dir,
                     self.recent_full_backup_file(),
                     self.datadir if datadir is None else datadir)
-        status = ProcessRunner.run_xtrabackup_command(copy_back)
+        status = ProcessRunner.run_command(copy_back)
         if status:
             logger.debug("Data copied back successfully!")
             return True
