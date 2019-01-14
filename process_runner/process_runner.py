@@ -56,9 +56,6 @@ class ProcessRunner(GeneralClass):
         exit_code = process.poll()
         logger.debug("SUBPROCESS {} COMPLETED with exit code: {}".format(cmd_root, exit_code))
 
-
-        # todo: optionally raise error instead of return false
-        # todo: cnt'd or, if any subprocess fails, can we stop in a recoverable state?
         # return True or False.
         if exit_code == 0:
             return True
