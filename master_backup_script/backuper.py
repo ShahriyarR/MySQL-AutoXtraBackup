@@ -280,25 +280,15 @@ class Backup(GeneralClass):
 
             # Finding if last full backup older than the interval or more from
             # now!
-
-            if hasattr(self, 'max_archive_duration') and (now - archive_date).total_seconds() >= self.max_archive_duration:
-                logger.debug(
-                    "Removing archive: " +
-                    self.archive_dir +
-                    "/" +
-                    archive +
-                    " due to max archive age")
+            cleanup_msg = "Removing archive {}/{} due to {}"
+            if hasattr(self, 'archive_max_duration') and (now - archive_date).total_seconds() >= self.archive_max_duration:
+                logger.debug(cleanup_msg.format(self.archive_dir, archive, 'archive_max_duration exceeded.'))
                 if os.path.isdir(self.archive_dir + "/" + archive):
                     shutil.rmtree(self.archive_dir + "/" + archive)
                 else:
                     os.remove(self.archive_dir + "/" + archive)
-            elif hasattr(self, 'max_archive_size') and self.get_directory_size(self.archive_dir) > self.max_archive_size:
-                logger.debug(
-                    "Removing archive: " +
-                    self.archive_dir +
-                    "/" +
-                    archive +
-                    " due to max archive size")
+            elif hasattr(self, 'archive_max_size') and self.get_directory_size(self.archive_dir) > self.archive_max_size:
+                logger.debug(cleanup_msg.format(self.archive_dir, archive, 'archive_max_size exceeded.'))
                 if os.path.isdir(self.archive_dir + "/" + archive):
                     shutil.rmtree(self.archive_dir + "/" + archive)
                 else:
@@ -795,8 +785,9 @@ class Backup(GeneralClass):
 
                 # Archiving backups
                 if hasattr(self, 'archive_dir'):
-                    if (hasattr(self, 'max_archive_duration') and self.max_archive_duration) \
-                            or (hasattr(self, 'max_archive_size') and self.max_archive_size):
+                    logger.debug("Archiving enabled; cleaning archive_dir & archiving previous Full Backup")
+                    if (hasattr(self, 'archive_max_duration') and self.archive_max_duration) \
+                            or (hasattr(self, 'archive_max_size') and self.archive_max_size):
                         self.clean_old_archives()
                     self.create_backup_archives()
                 else:
