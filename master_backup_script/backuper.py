@@ -715,11 +715,12 @@ class Backup(GeneralClass):
 
             # Flushing logs
             if self.mysql_connection_flush_logs():
-                logger.debug("must have flushed logs successfully...")
+
                 # Taking fullbackup
                 if self.full_backup():
                     # Removing full backups
                     self.clean_full_backup_dir()
+
                     # Removing inc backups
                     self.clean_inc_backup_dir()
 
