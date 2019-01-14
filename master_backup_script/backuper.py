@@ -297,7 +297,6 @@ class Backup(GeneralClass):
                 logger.debug("DELETING {}".format(rm_dir))
             else:
                 logger.debug("KEEPING {}".format(rm_dir))
-        time.sleep(10)
 
     def clean_inc_backup_dir(self):
         # Deleting incremental backups after taking new fresh full backup.
