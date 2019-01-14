@@ -8,14 +8,14 @@ gen_conf.generate_config_file()
 
 setup(
     name='mysql-autoxtrabackup',
-    version='1.5.4',
+    version='1.5.5',
     packages=['general_conf', 'backup_prepare', 'partial_recovery', 'master_backup_script', 'prepare_env_test_mode'],
     package_data={
         'prepare_env_test_mode': ['*.sh', '*.sql']
     },
     py_modules=['autoxtrabackup'],
     url='https://github.com/ShahriyarR/MySQL-AutoXtraBackup',
-    download_url='https://github.com/ShahriyarR/MySQL-AutoXtraBackup/archive/v1.5.4.zip',
+    download_url='https://github.com/ShahriyarR/MySQL-AutoXtraBackup/archive/v1.5.5.zip',
     license='MIT',
     author='Shahriyar Rzayev',
     author_email='rzayev.shahriyar@yandex.com',
