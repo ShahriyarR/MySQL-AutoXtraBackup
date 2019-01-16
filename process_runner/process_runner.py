@@ -16,9 +16,9 @@ class ProcessRunner(GeneralClass):
 
     def __init__(self, config=path_config.config_path_file):
         """
-        Class to run an xtrabackup command with logging
+        Class to run a command with real-time logging for process
 
-        centralizes logic for calls to xtrabackup, available to all other classes (Prepare, Backup, etc)
+        centralizes logic for subprocess calls, and is available to all other classes (Prepare, Backup, etc)
         """
         self.conf = config
         GeneralClass.__init__(self, self.conf)
