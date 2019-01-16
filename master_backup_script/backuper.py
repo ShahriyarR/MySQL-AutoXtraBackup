@@ -42,19 +42,27 @@ class Backup(GeneralClass):
         :return: True if no exception
 
         """
+        # skip tagging unless self.tag
         if not self.tag:
-            # skip tagging unless self.tag
             logger.debug("TAGGING SKIPPED")
             return True
-        backtag_timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+
+        # Currently only support Inc and Full types, calculate name based on this
+        assert backup_type in ('Full', 'Inc'), "add_tag() backup_type argument must be 'Full' or 'Inc'"
+        backup_name = self.recent_full_backup_file() if backup_type == 'Full' else self.recent_inc_backup_file()
+
+        # Calculate more tag fields, create string
+        backup_timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        backtag_str = "{bk_name}\t{bk_type}\t{bk_status}\t{bk_timestamp}\t{bk_size}\t'{bk_tag}'\n"
+
+        # Apply tag
         with open('{}/backup_tags.txt'.format(self.backupdir), 'a') as backtags_file:
-            backtag_str = "{0}\t{1}\t{2}\t{3}\t{4}\t'{5}'\n"
-            backtag_final = backtag_str.format(self.recent_full_backup_file(),
-                                               backup_type,
-                                               backup_status,
-                                               backtag_timestamp,
-                                               backup_size,
-                                               self.tag)
+            backtag_final = backtag_str.format(bk_name=backup_name,
+                                               bk_type=backup_type,
+                                               bk_status=backup_status,
+                                               bk_timestamp=backup_timestamp,
+                                               bk_size=backup_size,
+                                               bk_tag=self.tag)
             backtags_file.write(backtag_final)
         return True
 
