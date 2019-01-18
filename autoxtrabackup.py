@@ -94,7 +94,7 @@ def validate_file(file):
     configuration file, throw error.
     """
     if os.path.isfile(file):
-        # filename extension should be .conf
+        # filename extension should be .cnf
         pattern = re.compile(r'.*\.cnf')
 
         if pattern.match(file):
@@ -177,6 +177,7 @@ def validate_file(file):
               expose_value=False,
               is_eager=False,
               help="Print help message and exit.")
+
 @click.pass_context
 def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
                   verbose, log_file, log, defaults_file,
@@ -187,7 +188,7 @@ def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
         logger.setLevel(config.log_level)
     else:
         logger.setLevel(log)
-    formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
+    formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
 
     if verbose:
