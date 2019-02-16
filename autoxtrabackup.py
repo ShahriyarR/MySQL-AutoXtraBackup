@@ -1,25 +1,28 @@
 import click
-from master_backup_script.backuper import Backup
-from backup_prepare.prepare import Prepare
-from partial_recovery.partial import PartialRecovery
-from general_conf.generalops import GeneralClass
-from prepare_env_test_mode.runner_test_mode import RunnerTestMode
-from sys import platform as _platform
-from sys import exit
-import pid
-import time
-import re
-import os
 import humanfriendly
 import logging
 import logging.handlers
+import os
+import pid
+import re
+import time
+import sys
+
 from logging.handlers import RotatingFileHandler
+from sys import platform as _platform
+from sys import exit
+
+from backup_prepare.prepare import Prepare
+from general_conf.generalops import GeneralClass
 from general_conf import path_config
+from master_backup_script.backuper import Backup
+from partial_recovery.partial import PartialRecovery
+from prepare_env_test_mode.runner_test_mode import RunnerTestMode
+from process_runner.process_runner import ProcessRunner
+
 
 logger = logging.getLogger('')
-
-
-destinations_hash = {'linux':'/dev/log', 'linux2': '/dev/log', 'darwin':'/var/run/syslog'}
+destinations_hash = {'linux': '/dev/log', 'linux2': '/dev/log', 'darwin': '/var/run/syslog'}
 
 
 def address_matcher(plt):
@@ -37,6 +40,7 @@ def print_help(ctx, param, value):
         return
     click.echo(ctx.get_help())
     ctx.exit()
+
 
 def print_version(ctx, param, value):
     if not value or ctx.resilient_parsing:
@@ -178,21 +182,22 @@ def validate_file(file):
               is_eager=False,
               help="Print help message and exit.")
 
+
 @click.pass_context
 def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
                   verbose, log_file, log, defaults_file,
                   dry_run, test_mode, log_file_max_bytes,
                   log_file_backup_count, keyring_vault):
+
     config = GeneralClass(defaults_file)
-    if config.log_level:
-        logger.setLevel(config.log_level)
-    else:
-        logger.setLevel(log)
-    formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
+
+    formatter = logging.Formatter(fmt='%(asctime)s %(levelname)s [%(module)s:%(lineno)d] %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
 
     if verbose:
         ch = logging.StreamHandler()
+        # control console output log level
+        ch.setLevel(logging.INFO)
         ch.setFormatter(formatter)
         logger.addHandler(ch)
 
@@ -210,25 +215,36 @@ def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
         except PermissionError as err:
             exit("{} Please consider to run as root or sudo".format(err))
 
+    # set log level in order: 1. user argument 2. config file 3. @click default
+    if log is not None:
+        logger.setLevel(log)
+    elif 'log_level' in config.__dict__:
+        logger.setLevel(config.log_level)
+    else:
+        # this is the fallback default log-level.
+        logger.setLevel('INFO')
+
     validate_file(defaults_file)
     pid_file = pid.PidFile(piddir=config.pid_dir)
 
     try:
         with pid_file:  # User PidFile for locking to single instance
             if (prepare is False and
-                backup is False and
-                partial is False and
-                verbose is False and
-                dry_run is False and
-                test_mode is False and
-                show_tags is False):
+                    backup is False and
+                    partial is False and
+                    verbose is False and
+                    dry_run is False and
+                    test_mode is False and
+                    show_tags is False):
                 print_help(ctx, None, value=True)
+            
             elif show_tags and defaults_file:
                 b = Backup(config=defaults_file)
                 b.show_tags(backup_dir=b.backupdir)
+            
             elif test_mode and defaults_file:
                 logger.warning("Enabled Test Mode!!!")
-                logger.debug("Starting Test Mode")
+                logger.info("Starting Test Mode")
                 test_obj = RunnerTestMode(config=defaults_file)
                 for basedir in test_obj.basedirs:
                     if ('5.7' in basedir) and ('2_4_ps_5_7' in defaults_file):
