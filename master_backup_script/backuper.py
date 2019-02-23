@@ -40,7 +40,6 @@ class Backup(GeneralClass):
         :param backup_size: The size of the backup in human readable format
         :param backup_status: Status: OK or Status: Failed
         :return: True if no exception
-
         """
         # skip tagging unless self.tag
         if not self.tag:
@@ -239,7 +238,8 @@ class Backup(GeneralClass):
                     else:
                         return True
                 else:
-                    # Multi-core tar utilizing pigz.
+                    logger.info("move_archive is disabled. archiving / compressing current_backup.")
+                    # Multi-core tar utilizing pigz.f
                     # Pigz default to number of cores available, or 8 if cannot be read.
 
                     # Test if pigz is available.
@@ -392,7 +392,7 @@ class Backup(GeneralClass):
         full_backup_dir = self.create_backup_directory(self.full_dir)
 
         # Taking Full backup
-        xtrabackup_cmd = "{} --defaults-file={} --user={} --password='{}' " \
+        xtrabackup_cmd = "{} --defaults-file={} --user={} --password={} " \
                " --target-dir={} --backup".format(
                 self.backup_tool,
                 self.mycnf,
@@ -453,7 +453,7 @@ class Backup(GeneralClass):
         if recent_inc == 0:  # If there is no incremental backup
 
             # Taking incremental backup.
-            xtrabackup_inc_cmd = "{} --defaults-file={} --user={} --password='{}' " \
+            xtrabackup_inc_cmd = "{} --defaults-file={} --user={} --password={} " \
                    "--target-dir={} --incremental-basedir={}/{} --backup".format(
                     self.backup_tool,
                     self.mycnf,
@@ -568,7 +568,7 @@ class Backup(GeneralClass):
 
         else:  # If there is already existing incremental backup
 
-            xtrabackup_inc_cmd = "{} --defaults-file={} --user={} --password='{}'  " \
+            xtrabackup_inc_cmd = "{} --defaults-file={} --user={} --password={}  " \
                    "--target-dir={} --incremental-basedir={}/{} --backup".format(
                     self.backup_tool,
                     self.mycnf,

@@ -316,6 +316,11 @@ def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
     except pid.PidFileError as error:
         logger.warning("Generic error with pid file: " + str(error))
 
+    logger.info("Xtrabackup command history:")
+    for i in ProcessRunner.xtrabackup_history_log:
+        logger.info(str(i))
+    logger.info("Autoxtrabackup completed successfully!")
+    return True
 
 if __name__ == "__main__":
     all_procedure()
