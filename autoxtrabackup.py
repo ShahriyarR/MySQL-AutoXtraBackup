@@ -141,7 +141,7 @@ def validate_file(file):
 @click.option('-l',
               '--log',
               '--log-level',
-              default='DEBUG',
+              default='INFO',
               show_default=True,
               type=click.Choice(['DEBUG',
                                  'INFO',

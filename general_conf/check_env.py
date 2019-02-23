@@ -46,12 +46,12 @@ class CheckEnv(GeneralClass):
         # filter out password from argument list
         filteredargs = re.sub("--password='?\w+'?", "--password='*'", statusargs)
 
-        logger.debug("Running mysqladmin command -> {}".format(filteredargs))
+        logger.info("Running mysqladmin command -> {}".format(filteredargs))
 
         status, output = subprocess.getstatusoutput(statusargs)
 
         if status == 0:
-            logger.debug('OK: Server is Up and running')
+            logger.info('OK: Server is Up and running')
             return True
         else:
             logger.error('FAILED: Server is NOT Up')
@@ -63,13 +63,13 @@ class CheckEnv(GeneralClass):
         :return: True on success, raise RuntimeError on error.
         '''
         if self.mycnf is None or self.mycnf == '':
-            logger.debug("Skipping my.cnf check, because it is not specified")
+            logger.info("Skipping my.cnf check, because it is not specified")
             return True
         elif not os.path.exists(self.mycnf) and self.mycnf:
             logger.error('FAILED: MySQL configuration file path does NOT exist')
             raise RuntimeError('FAILED: MySQL configuration file path does NOT exist')
         else:
-            logger.debug('OK: MySQL configuration file exists')
+            logger.info('OK: MySQL configuration file exists')
             return True
 
     def check_mysql_mysql(self):
@@ -78,7 +78,7 @@ class CheckEnv(GeneralClass):
         :return: True on success, raise RuntimeError on error.
         '''
         if os.path.exists(self.mysql):
-            logger.debug('OK: {} exists'.format(self.mysql))
+            logger.info('OK: {} exists'.format(self.mysql))
             return True
         else:
             logger.error('FAILED: {} doest NOT exist'.format(self.mysql))
@@ -90,7 +90,7 @@ class CheckEnv(GeneralClass):
         :return: True on success, raise RuntimeError on error.
         '''
         if os.path.exists(self.mysqladmin):
-            logger.debug('OK: {} exists'.format(self.mysqladmin))
+            logger.info('OK: {} exists'.format(self.mysqladmin))
             return True
         else:
             logger.error('FAILED: {} does NOT exist'.format(self.mysqladmin))
@@ -102,7 +102,7 @@ class CheckEnv(GeneralClass):
         :return: RuntimeError on failure, True on success
         """
         if os.path.exists(self.backup_tool):
-            logger.debug('OK: XtraBackup exists')
+            logger.info('OK: XtraBackup exists')
             return True
         else:
             logger.error('FAILED: XtraBackup does NOT exist')
@@ -115,14 +115,14 @@ class CheckEnv(GeneralClass):
         :return: True on success. RuntimeError on failure.
         """
         if os.path.exists(self.backupdir):
-            logger.debug('OK: Main backup directory exists')
+            logger.info('OK: Main backup directory exists')
             return True
         else:
-            logger.debug('Main backup directory does not exist')
-            logger.debug('Creating Main Backup folder...')
+            logger.info('Main backup directory does not exist')
+            logger.info('Creating Main Backup folder...')
             try:
                 os.makedirs(self.backupdir)
-                logger.debug('OK: Created')
+                logger.info('OK: Created')
                 return True
             except Exception as err:
                 logger.error("FAILED: Could not create directory, ", err)
@@ -137,14 +137,14 @@ class CheckEnv(GeneralClass):
         '''
         if hasattr(self, 'archive_dir'):
             if os.path.exists(self.archive_dir):
-                logger.debug('OK: Archive folder directory exists')
+                logger.info('OK: Archive folder directory exists')
                 return True
             else:
-                logger.debug('Archive backup directory does not exist')
-                logger.debug('Creating archive folder...')
+                logger.info('Archive backup directory does not exist')
+                logger.info('Creating archive folder...')
                 try:
                     os.makedirs(self.archive_dir)
-                    logger.debug('OK: Created')
+                    logger.info('OK: Created')
                     return True
                 except Exception as err:
                     logger.error("FAILED: Could not create directory, ", err)
@@ -159,14 +159,14 @@ class CheckEnv(GeneralClass):
         :return: True on success.
         '''
         if os.path.exists(self.full_dir):
-            logger.debug("OK: Full Backup directory exists")
+            logger.info("OK: Full Backup directory exists")
             return True
         else:
-            logger.debug('Full Backup directory does not exist')
-            logger.debug('Creating full backup directory...')
+            logger.info('Full Backup directory does not exist')
+            logger.info('Creating full backup directory...')
             try:
                 os.makedirs(self.full_dir)
-                logger.debug('OK: Created')
+                logger.info('OK: Created')
                 return True
             except Exception as err:
                 logger.error("FAILED: Could not create directory, ", err)
@@ -179,14 +179,14 @@ class CheckEnv(GeneralClass):
         :return: True on success.
         '''
         if os.path.exists(self.inc_dir):
-            logger.debug('OK: Increment directory exists')
+            logger.info('OK: Increment directory exists')
             return True
         else:
-            logger.debug('Increment directory does not exist')
-            logger.debug('Creating increment backup directory...')
+            logger.info('Increment directory does not exist')
+            logger.info('Creating increment backup directory...')
             try:
                 os.makedirs(self.inc_dir)
-                logger.debug('OK: Created')
+                logger.info('OK: Created')
                 return True
             except Exception as err:
                 logger.error("FAILED: Could not create directory, ", err)
@@ -212,5 +212,5 @@ class CheckEnv(GeneralClass):
             logger.error(err)
             raise RuntimeError("FAILED: Check status")
         else:
-            logger.debug("OK: Check status")
+            logger.info("OK: Check status")
             return True
