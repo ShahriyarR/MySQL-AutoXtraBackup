@@ -56,14 +56,14 @@ class PartialRecovery(GeneralClass):
         statement = "select @@global.innodb_file_per_table"
         run_command = self.create_mysql_client_command(statement=statement)
 
-        logger.debug("Checking if innodb_file_per_table is enabled")
+        logger.info("Checking if innodb_file_per_table is enabled")
         status, output = subprocess.getstatusoutput(run_command)
 
         if status == 0 and int(output[-1]) == 1:
-            logger.debug("OK: innodb_file_per_table is enabled!")
+            logger.info("OK: innodb_file_per_table is enabled!")
             return True
         elif status == 0 and int(output[-1]) == 0:
-            logger.debug("OK: innodb_file_per_table is disabled!")
+            logger.info("OK: innodb_file_per_table is disabled!")
             return False
         else:
             logger.error("FAILED: InnoDB file per-table Check")
@@ -79,14 +79,14 @@ class PartialRecovery(GeneralClass):
         statement = "select @@version"
         run_command = self.create_mysql_client_command(statement=statement)
 
-        logger.debug("Checking MySQL version")
+        logger.info("Checking MySQL version")
         status, output = subprocess.getstatusoutput(run_command)
 
         if status == 0 and ('5.6' in output):
-            logger.debug("You have correct version of MySQL")
+            logger.info("You have correct version of MySQL")
             return True
         elif status == 0 and ('5.7' in output):
-            logger.debug("You have correct version of MySQL")
+            logger.info("You have correct version of MySQL")
             return True
         elif status == 0 and ('5.7' not in output) and ('5.6' not in output):
             logger.error("Your MySQL server is not supported. MySQL version must be >= 5.6")
@@ -106,22 +106,22 @@ class PartialRecovery(GeneralClass):
         statement = "SELECT count(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '%s'" % database_name
         run_command = self.create_mysql_client_command(statement=statement)
 
-        logger.debug("Checking if database exists in MySQL")
+        logger.info("Checking if database exists in MySQL")
         status, output = subprocess.getstatusoutput(run_command)
         if status == 0 and int(output[-1]) == 1:
-            logger.debug("Database exists!")
+            logger.info("Database exists!")
             return True
         if status == 0 and int(output[-1]) == 0:
-            logger.debug("There is no such database!")
-            logger.debug("Create Specified Database in MySQL Server, before restoring single table")
+            logger.info("There is no such database!")
+            logger.info("Create Specified Database in MySQL Server, before restoring single table")
             answer = input("We can create it for you do you want? (yes/no): ")
             if answer == 'yes':
                 create_db = "create database %s" % database_name
                 run_command = self.create_mysql_client_command(statement=create_db)
-                logger.debug("Creating specified database")
+                logger.info("Creating specified database")
                 status, output = subprocess.getstatusoutput(run_command)
                 if status == 0:
-                    logger.debug("OK: {} database created".format(database_name))
+                    logger.info("OK: {} database created".format(database_name))
                     return True
                 else:
                     logger.error("FAILED: to create database!")
@@ -155,15 +155,15 @@ class PartialRecovery(GeneralClass):
                 "and table_name =  '%s'" % (database_name, table_name)
 
         run_command = self.create_mysql_client_command(statement=statement)
-        logger.debug("Checking if table exists in MySQL Server")
+        logger.info("Checking if table exists in MySQL Server")
         status, output = subprocess.getstatusoutput(run_command)
         if status == 0 and int(output[-1]) == 1:
-            logger.debug("Table exists in MySQL Server.")
+            logger.info("Table exists in MySQL Server.")
             return True
         elif status == 0 and int(output[-1]) == 0:
-            logger.debug("Table does not exist in MySQL Server.")
-            logger.debug("You can not restore table, with not existing tablespace file(.ibd)!")
-            logger.debug("We will try to extract table create statement from .frm file, from backup folder")
+            logger.info("Table does not exist in MySQL Server.")
+            logger.info("You can not restore table, with not existing tablespace file(.ibd)!")
+            logger.info("We will try to extract table create statement from .frm file, from backup folder")
             create = self.run_mysqlfrm_utility(path_to_frm_file=path_to_frm_file)
             regex = re.compile(r'((\n)CREATE((?!#).)*ENGINE=\w+)', re.DOTALL)
             matches = [m.groups() for m in regex.finditer(create)]
@@ -173,7 +173,7 @@ class PartialRecovery(GeneralClass):
                 run_command = self.create_mysql_client_command(statement=new_create_table)
                 status, output = subprocess.getstatusoutput(run_command)
                 if status == 0:
-                    logger.debug("Table Created from .frm file!")
+                    logger.info("Table Created from .frm file!")
                     return True
                 else:
                     logger.error("Failed to create table from .frm file!")
@@ -187,10 +187,10 @@ class PartialRecovery(GeneralClass):
     @staticmethod
     def run_mysqlfrm_utility(path_to_frm_file):
         command = '/usr/bin/mysqlfrm --diagnostic %s' % path_to_frm_file
-        logger.debug("Running mysqlfrm tool")
+        logger.info("Running mysqlfrm tool")
         status, output = subprocess.getstatusoutput(command)
         if status == 0:
-            logger.debug("OK: Success to run mysqlfrm")
+            logger.info("OK: Success to run mysqlfrm")
             return output
         else:
             logger.error("FAILED: run mysqlfrm")
@@ -261,9 +261,9 @@ class PartialRecovery(GeneralClass):
         statement = "LOCK TABLES %s.%s WRITE" % (database_name, table_name)
         run_command = self.create_mysql_client_command(statement=statement)
         status, output = subprocess.getstatusoutput(run_command)
-        logger.debug("Applying write lock!")
+        logger.info("Applying write lock!")
         if status == 0:
-            logger.debug("OK: Table is locked")
+            logger.info("OK: Table is locked")
             return True
         else:
             logger.error("FAILED: to LOCK!")
@@ -276,9 +276,9 @@ class PartialRecovery(GeneralClass):
             database_name, table_name)
         run_command = self.create_mysql_client_command(statement=statement)
         status, output = subprocess.getstatusoutput(run_command)
-        logger.debug("Discarding tablespace")
+        logger.info("Discarding tablespace")
         if status == 0:
-            logger.debug("OK: Tablespace discarded successfully")
+            logger.info("OK: Tablespace discarded successfully")
             return True
         else:
             logger.error("FAILED: discard tablespace!")
@@ -289,7 +289,7 @@ class PartialRecovery(GeneralClass):
     def copy_ibd_file_back(path_of_ibd_file, path_to_mysql_database_dir):
         # Copy .ibd file back
         try:
-            logger.debug("OK: Copying .ibd file back")
+            logger.info("OK: Copying .ibd file back")
             shutil.copy(path_of_ibd_file, path_to_mysql_database_dir)
             return True
         except Exception as err:
@@ -301,9 +301,9 @@ class PartialRecovery(GeneralClass):
         # run chown command
         comm = '%s %s' % (self.chown_command, path_to_mysql_database_dir)
         status, output = subprocess.getstatusoutput(comm)
-        logger.debug("Running chown command!")
+        logger.info("Running chown command!")
         if status == 0:
-            logger.debug("OK: Chown command completed")
+            logger.info("OK: Chown command completed")
             return True
         else:
             logger.error("FAILED: Chown Command")
@@ -315,9 +315,9 @@ class PartialRecovery(GeneralClass):
             database_name, table_name)
         run_command = self.create_mysql_client_command(statement=statement)
         status, output = subprocess.getstatusoutput(run_command)
-        logger.debug("Importing Tablespace!")
+        logger.info("Importing Tablespace!")
         if status == 0:
-            logger.debug("OK: Tablespace imported")
+            logger.info("OK: Tablespace imported")
             return True
         else:
             logger.error("FAILED: Tablespace import")
@@ -329,9 +329,9 @@ class PartialRecovery(GeneralClass):
         statement = "unlock tables"
         run_command = self.create_mysql_client_command(statement=statement)
         status, output = subprocess.getstatusoutput(run_command)
-        logger.debug("Unlocking tables!")
+        logger.info("Unlocking tables!")
         if status == 0:
-            logger.debug("OK: Unlocked!")
+            logger.info("OK: Unlocked!")
             return True
         else:
             logger.error("FAILED: Unlocking")
@@ -375,5 +375,5 @@ class PartialRecovery(GeneralClass):
                 logger.error(err)
                 raise RuntimeError("FAILED: Table is not recovered")
             else:
-                logger.debug("OK: Table Recovered! ...")
+                logger.info("OK: Table Recovered! ...")
                 return True
