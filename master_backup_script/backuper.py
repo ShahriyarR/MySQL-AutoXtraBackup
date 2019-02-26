@@ -243,22 +243,19 @@ class Backup(GeneralClass):
                     # Pigz default to number of cores available, or 8 if cannot be read.
 
                     # Test if pigz is available.
-                    try:
-                        subprocess.call(["pigz", "-q"])
-                        run_tar = "tar cvvf - %s %s | pigz -v > %s" % (
-                            self.full_dir, self.inc_dir, self.archive_dir + '/' + i + '.tar.gz')
-                    except OSError as e:
-                        if e.errno == os.errno.ENOENT:
-                            # handle file not found error.
-                            logger.warning("pigz executeable not available. Defaulting to singlecore tar")
-                            run_tar = "tar -zcf %s %s %s" % (
-                                self.archive_dir + '/' + i + '.tar.gz', self.full_dir, self.inc_dir)
-                        else:
-                            # Something else went wrong while trying to run `wget`
-                            raise RuntimeError("FAILED: Archiving -> {}".format(e))
-
-                    logger.debug("Started to archive previous backups")
-                    logger.debug("The following command will be executed {}".format(run_tar))
+                    logger.info("testing for pigz...")
+                    status = ProcessRunner.run_command("pigz --version")
+                    archive_file = self.archive_dir + '/' + i + '.tar.gz'
+                    if status:
+                        logger.info("Found pigz...")
+                        # run_tar = "tar cvvf - {} {} | pigz -v > {}" \
+                        run_tar = "tar --use-compress-program=pigz -cvf {} {} {}" \
+                            .format(archive_file, self.full_dir, self.inc_dir)
+                    else:
+                        # handle file not found error.
+                        logger.warning("pigz executeable not available. Defaulting to singlecore tar")
+                        run_tar = "tar -zcf {} {} {}"\
+                            .format(archive_file, self.full_dir, self.inc_dir)
                     status = ProcessRunner.run_command(run_tar)
                     if status:
                         logger.debug("OK: Old full backup and incremental backups archived!")
@@ -427,7 +424,7 @@ class Backup(GeneralClass):
 
         # do the xtrabackup
         logger.debug("Starting {}".format(self.backup_tool))
-        status = ProcessRunner().run_command(xtrabackup_cmd)
+        status = ProcessRunner.run_command(xtrabackup_cmd)
         status_str = 'OK' if status is True else 'FAILED'
         self.add_tag(backup_type='Full',
                      backup_size=self.get_folder_size(full_backup_dir),
@@ -670,7 +667,7 @@ class Backup(GeneralClass):
 
             if self.dry == 0:
                 logger.debug("Starting {}".format(self.backup_tool))
-                status = ProcessRunner().run_command(xtrabackup_inc_cmd)
+                status = ProcessRunner.run_command(xtrabackup_inc_cmd)
                 status_str = 'OK' if status is True else 'FAILED'
                 self.add_tag(backup_type='Inc',
                              backup_size=self.get_folder_size(inc_backup_dir),
