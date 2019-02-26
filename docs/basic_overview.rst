@@ -15,6 +15,7 @@ backups, also for preparing backups, as well as to restore. Here is project path
     * partial_recovery      -- Partial table recovery script.
     * general_conf          -- All-in-one config file's and config reader class folder.
     * prepare_env_test_mode -- The directory for --test_mode actions.
+    * process_runner        -- The directory for process runner script.
     * test                  -- The directory for test things.
     * setup.py              -- Setuptools Setup file.
     * autoxtrabackup.py     -- Commandline Tool provider script.
