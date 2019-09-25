@@ -91,12 +91,20 @@ Using pip3:
 
     pip3 install mysql-autoxtrabackup
 
-Installing from source:
+Installing from source with pip:
 
 ::
 
-    cd /home git clone https://github.com/ShahriyarR/MySQL-AutoXtraBackup.git
-    cd /home/MySQL-AutoXtraBackup/
+    pip3 install git+https://github.com/ShahriyarR/MySQL-AutoXtraBackup
+
+
+Installing from source with python (not recommended because uninstalling is hard):
+
+::
+
+    cd /tmp
+    git clone https://github.com/ShahriyarR/MySQL-AutoXtraBackup.git
+    cd /tmp/MySQL-AutoXtraBackup/
     sudo python3 setup.py install
 
 Using Vagrant:
