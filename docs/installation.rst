@@ -36,13 +36,6 @@ On Debian/Ubuntu
 Installing latest XtraBackup:
 For more options please refer to official documentation -> `Installing Percona XtraBackup 2.4 <https://www.percona.com/doc/percona-xtrabackup/2.4/installation.html>`_
 
-::
-
-    yum install http://www.percona.com/downloads/percona-release/redhat/0.1-3/percona-release-0.1-3.noarch.rpm
-    yum install percona-xtrabackup
-    or
-    yum install percona-xtrabackup-24
-
 Installing Python 3 from source:
 
 ::
@@ -114,4 +107,5 @@ Using Vagrant:
     vagrant up
 
 
-It will bring up CentOS 7 and install necessary things for --test-mode
+It will bring up CentOS 7 and install necessary things for --test-mode[It is only for testing Percona XtraBackup itself]
+

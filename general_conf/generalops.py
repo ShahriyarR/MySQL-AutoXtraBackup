@@ -69,12 +69,16 @@ class GeneralClass:
                 self.prepare_archive = BCK['prepare_archive']
             if 'move_archive' in BCK:
                 self.move_archive = BCK['move_archive']
+            # backward compatible with old config 'max_archive_size' and newer 'archive_max_size'
             if 'max_archive_size' in BCK:
-                self.max_archive_size = humanfriendly.parse_size(
-                    BCK['archive_max_size'])
+                self.archive_max_size = humanfriendly.parse_size(BCK['max_archive_size'])
+            elif 'archive_max_size' in BCK:
+                self.archive_max_size = humanfriendly.parse_size(BCK['archive_max_size'])
+            # backward compatible with old config 'max_archive_duration' and newer 'archive_max_duration'
             if 'max_archive_duration' in BCK:
-                self.max_archive_duration = humanfriendly.parse_timespan(
-                    BCK['archive_max_duration'])
+                self.archive_max_duration = humanfriendly.parse_timespan(BCK['max_archive_duration'])
+            elif 'archive_max_duration' in BCK:
+                self.archive_max_duration = humanfriendly.parse_timespan(BCK['archive_max_duration'])
             if 'partial_list' in BCK:
                 self.partial_list = BCK['partial_list']
 

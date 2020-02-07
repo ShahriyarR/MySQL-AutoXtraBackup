@@ -13,62 +13,52 @@ The command for taking full backup with DEBUG enabled, i.e first run of the tool
 
 ::
 
-    $ sudo autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_4_5_7.log \
-    -l DEBUG --defaults-file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --backup
+    $ sudo autoxtrabackup -v -lf /home/shako/.autoxtrabackup/autoxtrabackup.log \
+    -l DEBUG --defaults-file=/home/shako/.autoxtrabackup/autoxtrabackup.cnf --backup
 
-    2017-11-16 19:37:52 DEBUG    <pid.PidFile object at 0x7fdb6f78b048> entering setup
-    2017-11-16 19:37:52 DEBUG    <pid.PidFile object at 0x7fdb6f78b048> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
-    2017-11-16 19:37:52 DEBUG    <pid.PidFile object at 0x7fdb6f78b048> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
-    2017-11-16 19:37:52 DEBUG    Running mysqladmin command -> /home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/bin/mysqladmin --defaults-file= --user=root --password= status --socket=/home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/socket.sock
-    mysqladmin: [Warning] Using a password on the command line interface can be insecure.
-    2017-11-16 19:37:52 DEBUG    OK: Server is Up and running
-    2017-11-16 19:37:52 DEBUG    OK: /home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/bin/mysql exists
-    2017-11-16 19:37:52 DEBUG    OK: /home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/bin/mysqladmin exists
-    2017-11-16 19:37:52 DEBUG    Skipping my.cnf check, because it is not specified
-    2017-11-16 19:37:52 DEBUG    OK: XtraBackup exists
-    2017-11-16 19:37:52 DEBUG    Main backup directory does not exist
-    2017-11-16 19:37:52 DEBUG    Creating Main Backup folder...
-    2017-11-16 19:37:52 DEBUG    OK: Created
-    2017-11-16 19:37:52 DEBUG    Full Backup directory does not exist
-    2017-11-16 19:37:52 DEBUG    Creating full backup directory...
-    2017-11-16 19:37:52 DEBUG    OK: Created
-    2017-11-16 19:37:52 DEBUG    Increment directory does not exist
-    2017-11-16 19:37:52 DEBUG    Creating increment backup directory...
-    2017-11-16 19:37:52 DEBUG    OK: Created
-    2017-11-16 19:37:52 DEBUG    OK: Check status
-    2017-11-16 19:37:52 DEBUG    - - - - You have no backups : Taking very first Full Backup! - - - -
-    2017-11-16 19:37:52 DEBUG    Trying to flush logs
-    2017-11-16 19:37:52 DEBUG    OK: Log flushing completed
-    2017-11-16 19:37:52 WARNING  Streaming is enabled!
-    2017-11-16 19:37:52 DEBUG    The following backup command will be executed /home/shahriyar.rzaev/XB_TEST/server_dir/target/percona-xtrabackup-2.4.x-debug/bin/xtrabackup --defaults-file= --user=root --password=''  --target-dir=/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_7_x_2_4/full/2017-11-16_19-37-52 --backup --socket=/home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/socket.sock --compress=quicklz --compress-chunk-size=65536 --compress-threads=4 --encrypt=AES256 --encrypt-key=VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K --encrypt-threads=4 --encrypt-chunk-size=65536 --slave-info --no-version-check --core-file --parallel=1 --throttle=40 --keyring-file-data=/home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/mysql-keyring/keyring --stream="xbstream" > /home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_7_x_2_4/full/2017-11-16_19-37-52/full_backup.stream
+    2019-01-20 13:52:07 DEBUG    [__init__.py:71] <pid.PidFile object at 0x7f7cd6ebe7c8> entering setup
+    2019-01-20 13:52:07 DEBUG    [__init__.py:161] <pid.PidFile object at 0x7f7cd6ebe7c8> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    2019-01-20 13:52:07 DEBUG    [__init__.py:148] <pid.PidFile object at 0x7f7cd6ebe7c8> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    2019-01-20 13:52:07 DEBUG    [check_env.py:49] Running mysqladmin command -> /usr/bin/mysqladmin --defaults-file= --user=root --password='*' status --host=127.0.0.1 --port=3306
+    2019-01-20 13:52:07 DEBUG    [check_env.py:54] OK: Server is Up and running
+    2019-01-20 13:52:07 DEBUG    [check_env.py:81] OK: /usr/bin/mysql exists
+    2019-01-20 13:52:07 DEBUG    [check_env.py:93] OK: /usr/bin/mysqladmin exists
+    2019-01-20 13:52:07 DEBUG    [check_env.py:66] Skipping my.cnf check, because it is not specified
+    2019-01-20 13:52:07 DEBUG    [check_env.py:105] OK: XtraBackup exists
+    2019-01-20 13:52:07 DEBUG    [check_env.py:121] Main backup directory does not exist
+    2019-01-20 13:52:07 DEBUG    [check_env.py:122] Creating Main Backup folder...
+    2019-01-20 13:52:07 DEBUG    [check_env.py:125] OK: Created
+    2019-01-20 13:52:07 DEBUG    [check_env.py:165] Full Backup directory does not exist
+    2019-01-20 13:52:07 DEBUG    [check_env.py:166] Creating full backup directory...
+    2019-01-20 13:52:07 DEBUG    [check_env.py:169] OK: Created
+    2019-01-20 13:52:07 DEBUG    [check_env.py:185] Increment directory does not exist
+    2019-01-20 13:52:07 DEBUG    [check_env.py:186] Creating increment backup directory...
+    2019-01-20 13:52:07 DEBUG    [check_env.py:189] OK: Created
+    2019-01-20 13:52:07 DEBUG    [check_env.py:215] OK: Check status
+    2019-01-20 13:52:07 DEBUG    [backuper.py:694] - - - - You have no backups : Taking very first Full Backup! - - - -
 
 The result of second run; it will take an incremental backup.
 
 ::
 
-    $ sudo autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_4_5_7.log \
-    -l DEBUG --defaults-file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --backup
-    2017-11-16 19:43:07 DEBUG    <pid.PidFile object at 0x7fb688315048> entering setup
-    2017-11-16 19:43:07 DEBUG    <pid.PidFile object at 0x7fb688315048> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
-    2017-11-16 19:43:07 DEBUG    <pid.PidFile object at 0x7fb688315048> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
-    2017-11-16 19:43:07 DEBUG    Running mysqladmin command -> /home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/bin/mysqladmin --defaults-file= --user=root --password= status --socket=/home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/socket.sock
-    mysqladmin: [Warning] Using a password on the command line interface can be insecure.
-    2017-11-16 19:43:07 DEBUG    OK: Server is Up and running
-    2017-11-16 19:43:07 DEBUG    OK: /home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/bin/mysql exists
-    2017-11-16 19:43:07 DEBUG    OK: /home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/bin/mysqladmin exists
-    2017-11-16 19:43:07 DEBUG    Skipping my.cnf check, because it is not specified
-    2017-11-16 19:43:07 DEBUG    OK: XtraBackup exists
-    2017-11-16 19:43:07 DEBUG    OK: Main backup directory exists
-    2017-11-16 19:43:07 DEBUG    OK: Full Backup directory exists
-    2017-11-16 19:43:07 DEBUG    OK: Increment directory exists
-    2017-11-16 19:43:07 DEBUG    OK: Check status
-    2017-11-16 19:43:07 DEBUG    - - - - You have a full backup that is less than 86400 seconds old. - - - -
-    2017-11-16 19:43:07 DEBUG    - - - - We will take an incremental one based on recent Full Backup - - - -
-    2017-11-16 19:43:10 DEBUG    Using xbstream to extract and decrypt from full_backup.stream!
-    2017-11-16 19:43:10 DEBUG    The following xbstream command will be executed /home/shahriyar.rzaev/XB_TEST/server_dir/target/percona-xtrabackup-2.4.x-debug/bin/xbstream -x --parallel=100 --decrypt=AES256 --encrypt-key=VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K --encrypt-threads=4 < /home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_7_x_2_4/full/2017-11-16_19-37-52/full_backup.stream -C /home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_7_x_2_4/full/2017-11-16_19-37-52
-    2017-11-16 19:43:10 DEBUG    OK: XBSTREAM command succeeded.
-    2017-11-16 19:43:10 WARNING  Streaming is enabled!
-    2017-11-16 19:43:10 DEBUG    The following backup command will be executed /home/shahriyar.rzaev/XB_TEST/server_dir/target/percona-xtrabackup-2.4.x-debug/bin/xtrabackup --defaults-file= --user=root --password='' --target-dir=/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_7_x_2_4/inc/2017-11-16_19-43-10 --incremental-basedir=/home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_7_x_2_4/full/2017-11-16_19-37-52 --backup --socket=/home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/socket.sock --compress=quicklz --compress-chunk-size=65536 --compress-threads=4 --encrypt=AES256 --encrypt-key=VVTBwgM4UhwkTTV98fhuj+D1zyWoA89K --encrypt-threads=4 --encrypt-chunk-size=65536 --slave-info --no-version-check --core-file --parallel=1 --throttle=40 --keyring-file-data=/home/shahriyar.rzaev/XB_TEST/server_dir/PS131117-percona-server-5.7.19-17-linux-x86_64/mysql-keyring/keyring --stream="xbstream" > /home/shahriyar.rzaev/XB_TEST/backup_dir/ps_5_7_x_2_4/inc/2017-11-16_19-43-10/inc_backup.stream
+    $ sudo autoxtrabackup -v -lf /home/shako/.autoxtrabackup/autoxtrabackup.log \
+    -l DEBUG --defaults-file=/home/shako/.autoxtrabackup/autoxtrabackup.cnf --backup
+
+    2019-01-20 13:53:56 DEBUG    [__init__.py:71] <pid.PidFile object at 0x7f021c775868> entering setup
+    2019-01-20 13:53:56 DEBUG    [__init__.py:161] <pid.PidFile object at 0x7f021c775868> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    2019-01-20 13:53:56 DEBUG    [__init__.py:148] <pid.PidFile object at 0x7f021c775868> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    2019-01-20 13:53:56 DEBUG    [check_env.py:49] Running mysqladmin command -> /usr/bin/mysqladmin --defaults-file= --user=root --password='*' status --host=127.0.0.1 --port=3306
+    2019-01-20 13:53:56 DEBUG    [check_env.py:54] OK: Server is Up and running
+    2019-01-20 13:53:56 DEBUG    [check_env.py:81] OK: /usr/bin/mysql exists
+    2019-01-20 13:53:56 DEBUG    [check_env.py:93] OK: /usr/bin/mysqladmin exists
+    2019-01-20 13:53:56 DEBUG    [check_env.py:66] Skipping my.cnf check, because it is not specified
+    2019-01-20 13:53:56 DEBUG    [check_env.py:105] OK: XtraBackup exists
+    2019-01-20 13:53:56 DEBUG    [check_env.py:118] OK: Main backup directory exists
+    2019-01-20 13:53:56 DEBUG    [check_env.py:162] OK: Full Backup directory exists
+    2019-01-20 13:53:56 DEBUG    [check_env.py:182] OK: Increment directory exists
+    2019-01-20 13:53:56 DEBUG    [check_env.py:215] OK: Check status
+    2019-01-20 13:53:56 DEBUG    [backuper.py:744] - - - - You have a full backup that is less than 86400 seconds old. - - - -
+    2019-01-20 13:53:56 DEBUG    [backuper.py:745] - - - - We will take an incremental one based on recent Full Backup - - - -
 
 
 
@@ -76,26 +66,26 @@ You will have 2 separate folders inside backup directory:
 
 ::
 
-    [vagrant@localhost backup_dir]$ ls
-    ps_5_7_x_2_4
-    [vagrant@localhost backup_dir]$ cd ps_5_7_x_2_4/
-    [vagrant@localhost ps_5_7_x_2_4]$ ls
+    (.venv) shako@shako-localhost:~/XB_TEST$ cd backup_dir/
+    (.venv) shako@shako-localhost:~/XB_TEST/backup_dir$ ls
     full  inc
+
 
 
 We took full backup and it should be under the ``full`` directory:
 
 ::
 
-    [vagrant@localhost ps_5_7_x_2_4]$ ls full/
-    2017-11-16_19-37-52
+    (.venv) shako@shako-localhost:~/XB_TEST/backup_dir$ ls full/
+    2019-01-20_13-52-07
+
 
 Incremental backups are inside ``inc`` directory:
 
 ::
 
-    [vagrant@localhost ps_5_7_x_2_4]$ ls inc/
-    2017-11-16_19-43-10
+    (.venv) shako@shako-localhost:~/XB_TEST/backup_dir$ ls inc/
+    2019-01-20_13-53-59
 
 If you want more incremental backups just run the same command again and again.
 
@@ -107,10 +97,11 @@ full and 2 incremental backups:
 
 ::
 
-    [vagrant@localhost ps_5_7_x_2_4]$ ls full/
-    2017-11-16_19-37-52
-    [vagrant@localhost ps_5_7_x_2_4]$ ls inc/
-    2017-11-16_19-43-10  2017-11-16_19-48-23
+    (.venv) shako@shako-localhost:~/XB_TEST/backup_dir$ ls full/
+    2019-01-20_13-52-07
+    (.venv) shako@shako-localhost:~/XB_TEST/backup_dir$ ls inc/
+    2019-01-20_13-53-59  2019-01-20_13-56-42
+
 
 All backups will be prepared
 automatically.
@@ -125,11 +116,10 @@ For now let's choose 1:
 
 ::
 
-    $ autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_4_5_7.log \
-    -l DEBUG --defaults-file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --prepare
-    2017-11-16 19:50:33 DEBUG    <pid.PidFile object at 0x7fea1d28c048> entering setup
-    2017-11-16 19:50:33 DEBUG    <pid.PidFile object at 0x7fea1d28c048> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
-    2017-11-16 19:50:33 DEBUG    <pid.PidFile object at 0x7fea1d28c048> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    $ sudo /home/shako/REPOS/MySQL-AutoXtraBackup/.venv/bin/autoxtrabackup --prepare -v -l DEBUG
+    2019-01-20 14:02:57 DEBUG    [__init__.py:71] <pid.PidFile object at 0x7f91306ce868> entering setup
+    2019-01-20 14:02:57 DEBUG    [__init__.py:161] <pid.PidFile object at 0x7f91306ce868> create pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
+    2019-01-20 14:02:57 DEBUG    [__init__.py:148] <pid.PidFile object at 0x7f91306ce868> check pidfile: /tmp/MySQL-AutoXtraBackup/autoxtrabackup.pid
     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     Preparing full/inc backups!
@@ -152,7 +142,7 @@ You can restore single table as displayed here:
 
 ::
 
-    > show create table t1\G
+    mysql> show create table t1\G
     *************************** 1. row ***************************
            Table: t1
     Create Table: CREATE TABLE t1 (
@@ -160,20 +150,19 @@ You can restore single table as displayed here:
     ) ENGINE=InnoDB DEFAULT CHARSET=latin1
     1 row in set (0.01 sec)
 
-    > select * from t1;
+    mysql> select * from t1;
     +----+
     | id |
     +----+
     |  1 |
-    |  1 |
-    |  2 |
-    |  1 |
     |  2 |
     |  3 |
+    |  4 |
+    |  5 |
     +----+
-    6 rows in set (0.01 sec)
+    5 rows in set (0.00 sec)
 
-    > delete from t1;
+    mysql> delete from t1;
     Query OK, 6 rows affected (0.12 sec)
 
 
