@@ -1,10 +1,12 @@
 from setuptools import setup
 from general_conf import path_config
 from general_conf.generate_default_conf import GenerateDefaultConfig
+from os.path import isfile
 
 datafiles = [(path_config.config_path, [])]
 gen_conf = GenerateDefaultConfig()
-gen_conf.generate_config_file()
+if not isfile(path_config.config_path_file):
+    gen_conf.generate_config_file()
 
 setup(
     name='mysql-autoxtrabackup',

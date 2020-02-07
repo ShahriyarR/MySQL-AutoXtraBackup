@@ -37,8 +37,7 @@ class Backup(GeneralClass):
         """
         Method for adding backup tags
         :param backup_type: The backup type - Full/Inc
-        :param backup_size: The size of the backup in human readab
-        le format
+        :param backup_size: The size of the backup in human readable format
         :param backup_status: Status: OK or Status: Failed
         :return: True if no exception
         """
@@ -135,12 +134,7 @@ class Backup(GeneralClass):
         dir_date = datetime.strptime(max_dir, "%Y-%m-%d_%H-%M-%S")
         now = datetime.now()
 
-        # Finding if last full backup older than the interval or more from now!
-
-        if (now - dir_date).total_seconds() >= self.full_backup_interval:
-            return 1
-        else:
-            return 0
+        return (now - dir_date).total_seconds() >= self.full_backup_interval
 
     @staticmethod
     def create_backup_directory(directory):
@@ -160,17 +154,13 @@ class Backup(GeneralClass):
 
     def recent_full_backup_file(self):
         # Return last full backup dir name
-
         if len(os.listdir(self.full_dir)) > 0:
             return max(os.listdir(self.full_dir))
-        return 0
 
     def recent_inc_backup_file(self):
         # Return last increment backup dir name
-
         if len(os.listdir(self.inc_dir)) > 0:
             return max(os.listdir(self.inc_dir))
-        return 0
 
     def mysql_connection_flush_logs(self):
         """
@@ -179,18 +169,11 @@ class Backup(GeneralClass):
         :return: True on success.
         :raise: RuntimeError on error.
         """
-        if hasattr(self, 'mysql_socket'):
-            command_connection = "{} --defaults-file={} -u{} --password='{}' "
-            command_execute = ' -e "flush logs"'
-        else:
-            command_connection = "{} --defaults-file={} -u{} --password='{}' --host={}"
-            command_execute = ' -e "flush logs"'
-
-        # Open connection
+        command_connection = "{} --defaults-file={} -u{} --password='{}' "
+        command_execute = ' -e "flush logs"'
 
         if hasattr(self, 'mysql_socket'):
             command_connection += ' --socket={}'
-            command_connection += command_execute
             new_command = command_connection.format(
                 self.mysql,
                 self.mycnf,
@@ -198,8 +181,7 @@ class Backup(GeneralClass):
                 self.mysql_password,
                 self.mysql_socket)
         else:
-            command_connection += ' --port={}'
-            command_connection += command_execute
+            command_connection += ' --host={} --port={} '
             new_command = command_connection.format(
                 self.mysql,
                 self.mycnf,
@@ -207,7 +189,9 @@ class Backup(GeneralClass):
                 self.mysql_password,
                 self.mysql_host,
                 self.mysql_port)
+
         logger.info("Trying to flush logs")
+        new_command += command_execute
         status, output = subprocess.getstatusoutput(new_command)
 
         if status == 0:
@@ -406,23 +390,22 @@ class Backup(GeneralClass):
         # Calling general options/command builder to add extra options
         xtrabackup_cmd += self.general_command_builder()
 
-        # Checking if streaming enabled for backups
-        if hasattr(self, 'stream') and self.stream == 'xbstream':
-            xtrabackup_cmd += " "
-            xtrabackup_cmd += '--stream="{}"'.format(self.stream)
-            xtrabackup_cmd += " > {}/full_backup.stream".format(full_backup_dir)
-            logger.warning("Streaming xbstream is enabled!")
-        elif hasattr(self, 'stream') and self.stream == 'tar' and \
-                (hasattr(self, 'encrypt') or hasattr(self, 'compress')):
-            logger.error("xtrabackup: error: compressed and encrypted backups are "
-                         "incompatible with the 'tar' streaming format. Use --stream=xbstream instead.")
-            raise RuntimeError("xtrabackup: error: compressed and encrypted backups are "
-                               "incompatible with the 'tar' streaming format. Use --stream=xbstream instead.")
-        elif hasattr(self, 'stream') and self.stream == 'tar':
-            xtrabackup_cmd += " "
-            xtrabackup_cmd += '--stream="{}"'.format(self.stream)
-            xtrabackup_cmd += " > {}/full_backup.tar".format(full_backup_dir)
-            logger.warning("Streaming tar is enabled!")
+        if hasattr(self, 'stream'):
+            if self.stream == 'xbstream':
+                xtrabackup_cmd += " "
+                xtrabackup_cmd += '--stream="{}"'.format(self.stream)
+                xtrabackup_cmd += " > {}/full_backup.stream".format(full_backup_dir)
+                logger.warning("Streaming xbstream is enabled!")
+            elif self.stream == 'tar' and (hasattr(self, 'encrypt') or hasattr(self, 'compress')):
+                logger.error("xtrabackup: error: compressed and encrypted backups are "
+                             "incompatible with the 'tar' streaming format. Use --stream=xbstream instead.")
+                raise RuntimeError("xtrabackup: error: compressed and encrypted backups are "
+                                   "incompatible with the 'tar' streaming format. Use --stream=xbstream instead.")
+            elif self.stream == 'tar':
+                xtrabackup_cmd += " "
+                xtrabackup_cmd += '--stream="{}"'.format(self.stream)
+                xtrabackup_cmd += " > {}/full_backup.tar".format(full_backup_dir)
+                logger.warning("Streaming tar is enabled!")
 
         if self.dry == 1:
             # If it's a dry run, skip running & tagging
@@ -693,25 +676,14 @@ class Backup(GeneralClass):
         check_env_obj = CheckEnv(self.conf, full_dir=self.full_dir, inc_dir=self.inc_dir)
 
         assert check_env_obj.check_all_env() is True, "environment checks failed!"
-        if self.recent_full_backup_file() == 0:
+        if not self.recent_full_backup_file():
             logger.info("- - - - You have no backups : Taking very first Full Backup! - - - -")
 
-            # Flushing Logs
-            if self.mysql_connection_flush_logs():
+            if self.mysql_connection_flush_logs() and self.full_backup():
+                # Removing old inc backups
+                self.clean_inc_backup_dir()
 
-                # Taking fullbackup
-                if self.full_backup():
-                    # Removing old inc backups
-                    self.clean_inc_backup_dir()
-
-            # Copying backups to remote server
-            if hasattr(self, 'remote_conn') and hasattr(self, 'remote_dir') \
-                    and self.remote_conn and self.remote_dir:
-                self.copy_backup_to_remote_host()
-
-            return True
-
-        elif self.last_full_backup_date() == 1:
+        elif self.last_full_backup_date():
             logger.info("- - - - Your full backup is timeout : Taking new Full Backup! - - - -")
 
             # Archiving backups
@@ -724,23 +696,13 @@ class Backup(GeneralClass):
             else:
                 logger.info("Archiving disabled. Skipping!")
 
-            # Flushing logs
-            if self.mysql_connection_flush_logs():
+            if self.mysql_connection_flush_logs() and self.full_backup():
+                # Removing full backups
+                self.clean_full_backup_dir()
 
-                # Taking fullbackup
-                if self.full_backup():
-                    # Removing full backups
-                    self.clean_full_backup_dir()
+                # Removing inc backups
+                self.clean_inc_backup_dir()
 
-                    # Removing inc backups
-                    self.clean_inc_backup_dir()
-
-            # Copying backups to remote server
-            if hasattr(self, 'remote_conn') and hasattr(self, 'remote_dir') \
-                    and self.remote_conn and self.remote_dir:
-                self.copy_backup_to_remote_host()
-
-            return True
         else:
 
             logger.info("- - - - You have a full backup that is less than {} seconds old. - - - -".format(
@@ -752,9 +714,9 @@ class Backup(GeneralClass):
             # Taking incremental backup
             self.inc_backup()
 
-            # Copying backups to remote server
-            if hasattr(self, 'remote_conn') and hasattr(self, 'remote_dir') \
-                    and self.remote_conn and self.remote_dir:
-                self.copy_backup_to_remote_host()
+        # Copying backups to remote server
+        if hasattr(self, 'remote_conn') and hasattr(self, 'remote_dir') \
+                and self.remote_conn and self.remote_dir:
+            self.copy_backup_to_remote_host()
 
-            return True
+        return True

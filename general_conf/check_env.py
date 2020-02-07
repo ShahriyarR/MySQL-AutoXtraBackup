@@ -1,4 +1,3 @@
-#!/opt/Python-3.3.2/bin/python3
 import re
 import subprocess
 import os
@@ -20,11 +19,11 @@ class CheckEnv(GeneralClass):
             self.inc_dir = inc_dir
 
     def check_mysql_uptime(self, options=None):
-        '''
+        """
         Method for checking if MySQL server is up or not.
         :param options: Passed options to connect to MySQL server if None, then going to get it from conf file
         :return: True on success, raise RuntimeError on error.
-        '''
+        """
         if options is None:
 
             statusargs = "{} --defaults-file={} --user={} --password='{}' status".format(self.mysqladmin,
@@ -58,10 +57,10 @@ class CheckEnv(GeneralClass):
             raise RuntimeError('FAILED: Server is NOT Up')
 
     def check_mysql_conf(self):
-        '''
+        """
         Method for checking passed MySQL my.cnf defaults file. If it is not passed then skip this check
         :return: True on success, raise RuntimeError on error.
-        '''
+        """
         if self.mycnf is None or self.mycnf == '':
             logger.info("Skipping my.cnf check, because it is not specified")
             return True
@@ -73,10 +72,10 @@ class CheckEnv(GeneralClass):
             return True
 
     def check_mysql_mysql(self):
-        '''
+        """
         Method for checking mysql client path
         :return: True on success, raise RuntimeError on error.
-        '''
+        """
         if os.path.exists(self.mysql):
             logger.info('OK: {} exists'.format(self.mysql))
             return True
@@ -85,10 +84,10 @@ class CheckEnv(GeneralClass):
             raise RuntimeError('FAILED: {} doest NOT exist'.format(self.mysql))
 
     def check_mysql_mysqladmin(self):
-        '''
+        """
         Method for checking mysqladmin path
         :return: True on success, raise RuntimeError on error.
-        '''
+        """
         if os.path.exists(self.mysqladmin):
             logger.info('OK: {} exists'.format(self.mysqladmin))
             return True
@@ -130,11 +129,11 @@ class CheckEnv(GeneralClass):
 
 
     def check_mysql_archive_dir(self):
-        '''
+        """
         Check for archive directory.
         If archive_dir is given in config file and if it does not exist, try to create.
         :return: True on success. RuntimeError on failure.
-        '''
+        """
         if hasattr(self, 'archive_dir'):
             if os.path.exists(self.archive_dir):
                 logger.info('OK: Archive folder directory exists')
@@ -149,15 +148,13 @@ class CheckEnv(GeneralClass):
                 except Exception as err:
                     logger.error("FAILED: Could not create directory, ", err)
                     raise RuntimeError("FAILED: Could not create directory")
-        else:
-            return True
 
     def check_mysql_fullbackupdir(self):
-        '''
+        """
         Check full backup directory path.
         If this path exists return True if not try to create.
         :return: True on success.
-        '''
+        """
         if os.path.exists(self.full_dir):
             logger.info("OK: Full Backup directory exists")
             return True
@@ -173,11 +170,11 @@ class CheckEnv(GeneralClass):
                 raise RuntimeError("FAILED: Could not create directory")
 
     def check_mysql_incbackupdir(self):
-        '''
+        """
         Check incremental backup directory path.
         If this path exists return True if not try to create.
         :return: True on success.
-        '''
+        """
         if os.path.exists(self.inc_dir):
             logger.info('OK: Increment directory exists')
             return True
@@ -193,10 +190,10 @@ class CheckEnv(GeneralClass):
                 raise RuntimeError("FAILED: Could not create directory")
 
     def check_all_env(self):
-        '''
+        """
         Method for running all checks
         :return: True on success, raise RuntimeError on error.
-        '''
+        """
         try:
             self.check_mysql_uptime()
             self.check_mysql_mysql()

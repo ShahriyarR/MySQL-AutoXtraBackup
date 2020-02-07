@@ -37,10 +37,7 @@ class GeneralClass:
                 self.log_file_backup_count = LOG['log_file_backup_count']
 
             BCK = con['Backup']
-            if 'pid_dir' in BCK:
-                self.pid_dir = BCK['pid_dir']
-            else:
-                self.pid_dir = "/tmp/"
+            self.pid_dir = BCK['pid_dir'] if 'pid_dir' in BCK else '/tmp/'
             self.tmpdir = BCK['tmp_dir']
             if 'pid_runtime_warning' in BCK:
                 self.pid_runtime_warning = humanfriendly.parse_timespan(
@@ -57,7 +54,7 @@ class GeneralClass:
             if 'xtra_prepare_options' in BCK:
                 self.xtra_prepare_options = BCK['xtra_prepare_options']
             if 'xtra_options' in BCK:
-                self.xtra_options = BCK['xtra_options'] 
+                self.xtra_options = BCK['xtra_options']
             if 'full_backup_interval' in BCK:
                 self.full_backup_interval = humanfriendly.parse_timespan(
                     BCK['full_backup_interval'])
