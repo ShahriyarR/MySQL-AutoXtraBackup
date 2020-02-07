@@ -436,7 +436,7 @@ class Backup(GeneralClass):
 
         # Checking if there is any incremental backup
 
-        if recent_inc == 0:  # If there is no incremental backup
+        if not recent_inc:  # If there is no incremental backup
 
             # Taking incremental backup.
             xtrabackup_inc_cmd = "{} --defaults-file={} --user={} --password={} " \
