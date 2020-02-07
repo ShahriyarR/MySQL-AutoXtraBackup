@@ -27,7 +27,7 @@ class CheckEnv(GeneralClass):
         '''
         if options is None:
 
-            statusargs = '{} --defaults-file={} --user={} --password={} status'.format(self.mysqladmin,
+            statusargs = "{} --defaults-file={} --user={} --password='{}' status".format(self.mysqladmin,
                                                                                    self.mycnf,
                                                                                    self.mysql_user,
                                                                                    self.mysql_password)

@@ -84,13 +84,20 @@ Using pip3:
 
     pip3 install mysql-autoxtrabackup
 
-Installing from source:
+Installing from source with pip:
 
 ::
 
-    cd ~
+    pip3 install git+https://github.com/ShahriyarR/MySQL-AutoXtraBackup
+
+
+Installing from source with python (not recommended because uninstalling is hard):
+
+::
+
+    cd /tmp
     git clone https://github.com/ShahriyarR/MySQL-AutoXtraBackup.git
-    cd MySQL-AutoXtraBackup/
+    cd /tmp/MySQL-AutoXtraBackup/
     sudo python3 setup.py install
 
 Using Vagrant:
@@ -101,3 +108,4 @@ Using Vagrant:
 
 
 It will bring up CentOS 7 and install necessary things for --test-mode[It is only for testing Percona XtraBackup itself]
+
