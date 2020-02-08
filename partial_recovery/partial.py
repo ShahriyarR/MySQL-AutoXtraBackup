@@ -2,6 +2,7 @@ import os
 import shutil
 import subprocess
 from general_conf.generalops import GeneralClass
+import master_backup_script
 import re
 from general_conf import check_env
 from general_conf import path_config
@@ -15,37 +16,10 @@ class PartialRecovery(GeneralClass):
     def __init__(self, config=path_config.config_path_file):
         self.conf = config
         GeneralClass.__init__(self, self.conf)
+        self.sql_obj = master_backup_script.Backup(config=self.conf)
         if shutil.which('mysqlfrm') is None:
             logger.critical("Could not find mysqlfrm! Please install it or check if it is in PATH")
             raise RuntimeError("Could not find mysqlfrm! Please install it or check if it is in PATH")
-
-    def create_mysql_client_command(self, statement):
-        command_connection = '{} --defaults-file={} -u{} --password={}'
-        command_execute = ' -e "{}"'
-
-        if hasattr(self, 'mysql_socket'):
-            command_connection += ' --socket={}'
-            command_connection += command_execute
-            new_command = command_connection.format(
-                self.mysql,
-                self.mycnf,
-                self.mysql_user,
-                self.mysql_password,
-                self.mysql_socket,
-                statement)
-            return new_command
-        else:
-            command_connection += ' --port={}'
-            command_connection += command_execute
-            new_command = command_connection.format(
-                self.mysql,
-                self.mycnf,
-                self.mysql_user,
-                self.mysql_password,
-                self.mysql_host,
-                self.mysql_port,
-                statement)
-            return new_command
 
     def check_innodb_file_per_table(self):
         """
@@ -54,7 +28,7 @@ class PartialRecovery(GeneralClass):
         :return: True/False
         """
         statement = "select @@global.innodb_file_per_table"
-        run_command = self.create_mysql_client_command(statement=statement)
+        run_command = self.sql_obj.create_mysql_client_command(statement=statement)
 
         logger.info("Checking if innodb_file_per_table is enabled")
         status, output = subprocess.getstatusoutput(run_command)
@@ -77,18 +51,15 @@ class PartialRecovery(GeneralClass):
         :return: True/False
         """
         statement = "select @@version"
-        run_command = self.create_mysql_client_command(statement=statement)
+        run_command = self.sql_obj.create_mysql_client_command(statement=statement)
 
         logger.info("Checking MySQL version")
         status, output = subprocess.getstatusoutput(run_command)
 
-        if status == 0 and ('5.6' in output):
+        if status == 0 and '5.6' in output or status == 0 and '5.7' in output:
             logger.info("You have correct version of MySQL")
             return True
-        elif status == 0 and ('5.7' in output):
-            logger.info("You have correct version of MySQL")
-            return True
-        elif status == 0 and ('5.7' not in output) and ('5.6' not in output):
+        elif status == 0:
             logger.error("Your MySQL server is not supported. MySQL version must be >= 5.6")
             raise RuntimeError("Your MySQL server is not supported. MySQL version must be >= 5.6")
         else:
@@ -104,7 +75,7 @@ class PartialRecovery(GeneralClass):
         :return: True/False
         """
         statement = "SELECT count(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '%s'" % database_name
-        run_command = self.create_mysql_client_command(statement=statement)
+        run_command = self.sql_obj.create_mysql_client_command(statement=statement)
 
         logger.info("Checking if database exists in MySQL")
         status, output = subprocess.getstatusoutput(run_command)
@@ -117,7 +88,7 @@ class PartialRecovery(GeneralClass):
             answer = input("We can create it for you do you want? (yes/no): ")
             if answer == 'yes':
                 create_db = "create database %s" % database_name
-                run_command = self.create_mysql_client_command(statement=create_db)
+                run_command = self.sql_obj.create_mysql_client_command(statement=create_db)
                 logger.info("Creating specified database")
                 status, output = subprocess.getstatusoutput(run_command)
                 if status == 0:
@@ -154,7 +125,7 @@ class PartialRecovery(GeneralClass):
                 "where table_schema = '%s'" \
                 "and table_name =  '%s'" % (database_name, table_name)
 
-        run_command = self.create_mysql_client_command(statement=statement)
+        run_command = self.sql_obj.create_mysql_client_command(statement=statement)
         logger.info("Checking if table exists in MySQL Server")
         status, output = subprocess.getstatusoutput(run_command)
         if status == 0 and int(output[-1]) == 1:
@@ -170,7 +141,7 @@ class PartialRecovery(GeneralClass):
             for m in matches:
                 create_table = m[0]
                 new_create_table = create_table.replace("`", "")
-                run_command = self.create_mysql_client_command(statement=new_create_table)
+                run_command = self.sql_obj.create_mysql_client_command(statement=new_create_table)
                 status, output = subprocess.getstatusoutput(run_command)
                 if status == 0:
                     logger.info("Table Created from .frm file!")
@@ -209,7 +180,6 @@ class PartialRecovery(GeneralClass):
 
         database_dir_list = []
         database_objects_full_path = []
-        find_objects_full_path = []
         table_dir_list = []
 
         # Look for all files in database directory
@@ -226,9 +196,7 @@ class PartialRecovery(GeneralClass):
                         database_objects_full_path.append(
                             self.full_dir + "/" + i + "/" + x + "/" + z)
 
-        # If database directory exists find already provided table in database
-        # directory
-        if len(database_dir_list) > 0:
+        if database_dir_list:
             for i in database_dir_list:
                 base_file = os.path.splitext(i)[0]
                 ext = os.path.splitext(i)[1]
@@ -236,10 +204,9 @@ class PartialRecovery(GeneralClass):
                 if table_name == base_file:
                     table_dir_list.append(i)
 
-        # If table name from input is valid and it is located in database
-        # directory return .ibd file name
-        if len(database_dir_list) > 0 and len(
-                table_dir_list) == 2:  # Why 2? because every InnoDB table must have .frm and .ibd file
+        if database_dir_list and len(
+                    table_dir_list) == 2:  # Why 2? because every InnoDB table must have .frm and .ibd file
+            find_objects_full_path = []
             for i in table_dir_list:
                 ext = os.path.splitext(i)[1]
                 if ext == '.ibd':
@@ -247,7 +214,7 @@ class PartialRecovery(GeneralClass):
                         if i in a:
                             find_objects_full_path.append(a)
 
-            if len(find_objects_full_path) > 0:
+            if find_objects_full_path:
                 for x in find_objects_full_path:
                     return x
         else:
@@ -259,7 +226,7 @@ class PartialRecovery(GeneralClass):
     def lock_table(self, database_name, table_name):
         # Executing lock tables write on specified table
         statement = "LOCK TABLES %s.%s WRITE" % (database_name, table_name)
-        run_command = self.create_mysql_client_command(statement=statement)
+        run_command = self.sql_obj.create_mysql_client_command(statement=statement)
         status, output = subprocess.getstatusoutput(run_command)
         logger.info("Applying write lock!")
         if status == 0:
@@ -274,7 +241,7 @@ class PartialRecovery(GeneralClass):
         # Running alter table discard tablespace here
         statement = "ALTER TABLE %s.%s DISCARD TABLESPACE" % (
             database_name, table_name)
-        run_command = self.create_mysql_client_command(statement=statement)
+        run_command = self.sql_obj.create_mysql_client_command(statement=statement)
         status, output = subprocess.getstatusoutput(run_command)
         logger.info("Discarding tablespace")
         if status == 0:
@@ -313,7 +280,7 @@ class PartialRecovery(GeneralClass):
         # Running alter table import tablespace
         statement = "ALTER TABLE %s.%s IMPORT TABLESPACE" % (
             database_name, table_name)
-        run_command = self.create_mysql_client_command(statement=statement)
+        run_command = self.sql_obj.create_mysql_client_command(statement=statement)
         status, output = subprocess.getstatusoutput(run_command)
         logger.info("Importing Tablespace!")
         if status == 0:
@@ -327,7 +294,7 @@ class PartialRecovery(GeneralClass):
     def unlock_tables(self):
         # Run unlock tables command
         statement = "unlock tables"
-        run_command = self.create_mysql_client_command(statement=statement)
+        run_command = self.sql_obj.create_mysql_client_command(statement=statement)
         status, output = subprocess.getstatusoutput(run_command)
         logger.info("Unlocking tables!")
         if status == 0:

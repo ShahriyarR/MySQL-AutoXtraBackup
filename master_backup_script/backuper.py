@@ -33,6 +33,33 @@ class Backup(GeneralClass):
         # Call GeneralClass for storing configuration options
         super().__init__(self.conf)
 
+    def create_mysql_client_command(self, statement):
+        command_connection = '{} --defaults-file={} -u{} --password={}'
+        command_execute = ' -e "{}"'
+
+        if hasattr(self, 'mysql_socket'):
+            command_connection += ' --socket={}'
+            command_connection += command_execute
+            new_command = command_connection.format(
+                self.mysql,
+                self.mycnf,
+                self.mysql_user,
+                self.mysql_password,
+                self.mysql_socket,
+                statement)
+        else:
+            command_connection += ' --host={} --port={}'
+            command_connection += command_execute
+            new_command = command_connection.format(
+                self.mysql,
+                self.mycnf,
+                self.mysql_user,
+                self.mysql_password,
+                self.mysql_host,
+                self.mysql_port,
+                statement)
+        return new_command
+
     def add_tag(self, backup_type: str, backup_size: str, backup_status: str):
         """
         Method for adding backup tags
@@ -169,30 +196,10 @@ class Backup(GeneralClass):
         :return: True on success.
         :raise: RuntimeError on error.
         """
-        command_connection = "{} --defaults-file={} -u{} --password='{}' "
-        command_execute = ' -e "flush logs"'
-
-        if hasattr(self, 'mysql_socket'):
-            command_connection += ' --socket={}'
-            new_command = command_connection.format(
-                self.mysql,
-                self.mycnf,
-                self.mysql_user,
-                self.mysql_password,
-                self.mysql_socket)
-        else:
-            command_connection += ' --host={} --port={} '
-            new_command = command_connection.format(
-                self.mysql,
-                self.mycnf,
-                self.mysql_user,
-                self.mysql_password,
-                self.mysql_host,
-                self.mysql_port)
-
+        statement = "flush logs"
+        command = self.create_mysql_client_command(statement=statement)
         logger.info("Trying to flush logs")
-        new_command += command_execute
-        status, output = subprocess.getstatusoutput(new_command)
+        status, output = subprocess.getstatusoutput(command)
 
         if status == 0:
             logger.info("OK: Log flushing completed")
