@@ -73,14 +73,13 @@ class Prepare(GeneralClass):
         :param dir_name: the exact name backup folder(likely timestamped folder name).
         :return: None or RuntimeError
         """
-        # The base decompression command
-        decmp = "{} --decompress={} --target-dir={}/{}".format(
-            self.backup_tool,
-            self.decompress,
-            path,
-            dir_name)
-
         if hasattr(self, 'decompress'):
+            # The base decompression command
+            decmp = "{} --decompress={} --target-dir={}/{}".format(
+                self.backup_tool,
+                self.decompress,
+                path,
+                dir_name)
             if hasattr(self, 'remove_original_comp') and self.remove_original_comp:
                 decmp += " --remove-original"
 
@@ -103,17 +102,16 @@ class Prepare(GeneralClass):
         :param dir_name: the exact name backup folder(likely timestamped folder name).
         :return: None or RuntimeError
         """
-        # The base decryption command
-        decr = "{} --decrypt={} --encrypt-key={} --target-dir={}/{}".format(
-            self.backup_tool,
-            self.decrypt,
-            self.encrypt_key,
-            path,
-            dir_name)
         if hasattr(self, 'decrypt'):
+            # The base decryption command
+            decr = "{} --decrypt={} --encrypt-key={} --target-dir={}/{}".format(
+                self.backup_tool,
+                self.decrypt,
+                self.encrypt_key,
+                path,
+                dir_name)
             if hasattr(self, 'remove_original_enc') and self.remove_original_enc:
                 decr += " --remove-original"
-
             logger.info("Trying to decrypt backup")
             logger.info("Running decrypt command -> {}".format(decr))
             if self.dry == 0:
