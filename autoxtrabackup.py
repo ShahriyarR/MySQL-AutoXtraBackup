@@ -20,7 +20,6 @@ from partial_recovery.partial import PartialRecovery
 from prepare_env_test_mode.runner_test_mode import RunnerTestMode
 from process_runner.process_runner import ProcessRunner
 
-
 logger = logging.getLogger('')
 destinations_hash = {'linux': '/dev/log', 'linux2': '/dev/log', 'darwin': '/var/run/syslog'}
 
@@ -59,7 +58,7 @@ def check_file_content(file):
     """Check if all mandatory headers and keys exist in file"""
     with open(file, 'r') as config_file:
         file_content = config_file.read()
- 
+
     config_headers = ["MySQL", "Backup", "Encrypt", "Compress", "Commands"]
     config_keys = [
         "mysql",
@@ -165,30 +164,17 @@ def validate_file(file):
               nargs=1,
               type=int,
               help="Set log file backup count")
-@click.option('--keyring-vault',
-              default=0,
-              show_default=True,
-              nargs=1,
-              type=int,
-              help="Enable this when you pass keyring_vault options in default mysqld options in config"
-                   "[Only for using with --test-mode]")
-@click.option('--test-mode',
-              is_flag=True,
-              help="Enable test mode. Must be used with --defaults-file and only for TESTs for XtraBackup")
 @click.option('--help',
               is_flag=True,
               callback=print_help,
               expose_value=False,
               is_eager=False,
               help="Print help message and exit.")
-
-
 @click.pass_context
 def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
                   verbose, log_file, log, defaults_file,
-                  dry_run, test_mode, log_file_max_bytes,
-                  log_file_backup_count, keyring_vault):
-
+                  dry_run, log_file_max_bytes,
+                  log_file_backup_count):
     config = GeneralClass(defaults_file)
 
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)s [%(module)s:%(lineno)d] %(message)s',
@@ -234,99 +220,66 @@ def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
                     partial is False and
                     verbose is False and
                     dry_run is False and
-                    test_mode is False and
+                    # test_mode is False and
                     show_tags is False):
                 print_help(ctx, None, value=True)
-            
+
             elif show_tags and defaults_file:
                 b = Backup(config=defaults_file)
                 b.show_tags(backup_dir=b.backupdir)
-            
-            elif test_mode and defaults_file:
-                logger.warning("Enabled Test Mode!!!")
-                logger.info("Starting Test Mode")
-                test_obj = RunnerTestMode(config=defaults_file)
-                for basedir in test_obj.basedirs:
-                    if ('5.7' in basedir) and ('2_4_ps_5_7' in defaults_file):
-                        if keyring_vault == 1:
-                            test_obj.wipe_backup_prepare_copyback(basedir=basedir, keyring_vault=1)
-                        else:
-                            test_obj.wipe_backup_prepare_copyback(basedir=basedir)
-                    elif ('8.0' in basedir) and ('8_0_ps_8_0' in defaults_file):
-                        if keyring_vault == 1:
-                            test_obj.wipe_backup_prepare_copyback(basedir=basedir, keyring_vault=1)
-                        else:
-                            test_obj.wipe_backup_prepare_copyback(basedir=basedir)
-                    elif ('5.6' in basedir) and ('2_4_ps_5_6' in defaults_file):
-                        test_obj.wipe_backup_prepare_copyback(basedir=basedir)
-                    elif ('5.6' in basedir) and ('2_3_ps_5_6' in defaults_file):
-                        test_obj.wipe_backup_prepare_copyback(basedir=basedir)
-                    elif ('5.5' in basedir) and ('2_3_ps_5_5' in defaults_file):
-                        test_obj.wipe_backup_prepare_copyback(basedir=basedir)
-                    elif ('5.5' in basedir) and ('2_4_ps_5_5' in defaults_file):
-                        test_obj.wipe_backup_prepare_copyback(basedir=basedir)
-                    else:
-                        logger.error("Please pass proper already generated config file!")
-                        logger.error("Please check also if you have run prepare_env.bats file")
-            elif prepare and not test_mode:
-                if not dry_run:
-                    if tag:
-                        a = Prepare(config=defaults_file, tag=tag)
-                        a.prepare_backup_and_copy_back()
-                    else:
-                        a = Prepare(config=defaults_file)
-                        a.prepare_backup_and_copy_back()
-                else:
+            elif prepare:
+                if dry_run:
                     logger.warning("Dry run enabled!")
                     logger.warning("Do not recover/copy-back in this mode!")
                     if tag:
                         a = Prepare(config=defaults_file, dry_run=1, tag=tag)
-                        a.prepare_backup_and_copy_back()
                     else:
                         a = Prepare(config=defaults_file, dry_run=1)
-                        a.prepare_backup_and_copy_back()
-            elif backup and not test_mode:
-                if not dry_run:
-                    if tag:
-                        b = Backup(config=defaults_file, tag=tag)
-                        b.all_backup()
-                    else:
-                        b = Backup(config=defaults_file)
-                        b.all_backup()
                 else:
+                    if tag:
+                        a = Prepare(config=defaults_file, tag=tag)
+                    else:
+                        a = Prepare(config=defaults_file)
+                a.prepare_backup_and_copy_back()
+            elif backup:
+                if dry_run:
                     logger.warning("Dry run enabled!")
                     if tag:
                         b = Backup(config=defaults_file, dry_run=1, tag=tag)
-                        b.all_backup()
                     else:
                         b = Backup(config=defaults_file, dry_run=1)
-                        b.all_backup()
+                else:
+                    if tag:
+                        b = Backup(config=defaults_file, tag=tag)
+                    else:
+                        b = Backup(config=defaults_file)
+                b.all_backup()
             elif partial:
-                if not dry_run:
+                if dry_run:
+                    logger.critical("Dry run is not implemented for partial recovery!")
+                else:
                     c = PartialRecovery(config=defaults_file)
                     c.final_actions()
-                else:
-                    logger.critical("Dry run is not implemented for partial recovery!")
     except pid.PidFileAlreadyLockedError as error:
-        if hasattr(config, 'pid_runtime_warning'):
-            if time.time() - os.stat(pid_file.filename).st_ctime > config.pid_runtime_warning:
-                pid.fh.seek(0)
-                pid_str = pid.fh.read(16).split("\n", 1)[0].strip()
-                logger.critical(
-                    "Backup (pid: " + pid_str + ") has been running for logger than: " + str(
-                        humanfriendly.format_timespan(
-                            config.pid_runtime_warning)))
-        # logger.warn("Pid file already exists: " + str(error))
+        if hasattr(config, 'pid_runtime_warning') and time.time() - os.stat(
+                pid_file.filename).st_ctime > config.pid_runtime_warning:
+            pid.fh.seek(0)
+            pid_str = pid.fh.read(16).split("\n", 1)[0].strip()
+            logger.critical(
+                "Backup (pid: " + pid_str + ") has been running for logger than: " + str(
+                    humanfriendly.format_timespan(
+                        config.pid_runtime_warning)))
+            # logger.warn("Pid file already exists: " + str(error))
     except pid.PidFileAlreadyRunningError as error:
-        if hasattr(config, 'pid_runtime_warning'):
-            if time.time() - os.stat(pid_file.filename).st_ctime > config.pid_runtime_warning:
-                pid.fh.seek(0)
-                pid_str = pid.fh.read(16).split("\n", 1)[0].strip()
-                logger.critical(
-                    "Backup (pid: " + pid_str + ") has been running for logger than: " + str(
-                        humanfriendly.format_timespan(
-                            config.pid_runtime_warning)))
-        # logger.warn("Pid already running: " + str(error))
+        if hasattr(config, 'pid_runtime_warning') and time.time() - os.stat(
+                pid_file.filename).st_ctime > config.pid_runtime_warning:
+            pid.fh.seek(0)
+            pid_str = pid.fh.read(16).split("\n", 1)[0].strip()
+            logger.critical(
+                "Backup (pid: " + pid_str + ") has been running for logger than: " + str(
+                    humanfriendly.format_timespan(
+                        config.pid_runtime_warning)))
+            # logger.warn("Pid already running: " + str(error))
     except pid.PidFileUnreadableError as error:
         logger.warning("Pid file can not be read: " + str(error))
     except pid.PidFileError as error:
@@ -337,6 +290,7 @@ def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
         logger.info(str(i))
     logger.info("Autoxtrabackup completed successfully!")
     return True
+
 
 if __name__ == "__main__":
     all_procedure()

@@ -52,13 +52,7 @@ class ProcessHandler(GeneralClass):
         logger.info("SUBPROCESS {} COMPLETED with exit code: {}".format(subprocess_args[0], process.returncode))
         cmd_end = datetime.datetime.now()
         self.summarize_process(subprocess_args, cmd_start, cmd_end, process.returncode)
-        # return True or False.
-        if process.returncode == 0:
-            return True
-        else:
-            # todo: optionally raise error instead of return false
-            # todo: cnt'd or, if any subprocess fails, can we stop in a recoverable state?
-            return False
+        return process.returncode == 0
 
     @staticmethod
     def command_to_args(command_str):
@@ -111,7 +105,7 @@ class ProcessHandler(GeneralClass):
                 xtrabackup_function = "backup"
             elif "--prepare" in args and "--apply-log-only" not in args:
                 xtrabackup_function = "prepare"
-            elif "--prepare" in args and "--apply-log-only" in args:
+            elif "--prepare" in args:
                 xtrabackup_function = "prepare/apply-log-only"
         if not xtrabackup_function:
             for arg in args:
