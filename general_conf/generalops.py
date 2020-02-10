@@ -48,7 +48,6 @@ class GeneralClass:
             self.backup_tool = BCK['backup_tool']
             if 'prepare_tool' in BCK:
                 self.prepare_tool = BCK['prepare_tool']
-            self.xtrabck_prepare = BCK['xtra_prepare']
             if 'xtra_backup' in BCK:
                 self.xtra_backup = BCK['xtra_backup']
             if 'xtra_prepare_options' in BCK:

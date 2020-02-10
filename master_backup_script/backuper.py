@@ -119,7 +119,7 @@ class Backup(GeneralClass):
                 "Status".ljust(2),
                 "Completion_time".ljust(19),
                 "Size")
-            extra_str = "{}\n".format("-"*(len(column_names)+21))
+            extra_str = "{}\n".format("-" * (len(column_names) + 21))
             print(column_names + extra_str + from_file)
             logger.info(column_names + extra_str + from_file)
         else:
@@ -251,7 +251,7 @@ class Backup(GeneralClass):
                     else:
                         # handle file not found error.
                         logger.warning("pigz executeable not available. Defaulting to singlecore tar")
-                        run_tar = "tar -zcf {} {} {}"\
+                        run_tar = "tar -zcf {} {} {}" \
                             .format(archive_file, self.full_dir, self.inc_dir)
                     status = ProcessRunner.run_command(run_tar)
                     if status:
@@ -276,13 +276,15 @@ class Backup(GeneralClass):
             # Finding if last full backup older than the interval or more from
             # now!
             cleanup_msg = "Removing archive {}/{} due to {}"
-            if hasattr(self, 'archive_max_duration') and (now - archive_date).total_seconds() >= self.archive_max_duration:
+            if hasattr(self, 'archive_max_duration') and (
+                    now - archive_date).total_seconds() >= self.archive_max_duration:
                 logger.info(cleanup_msg.format(self.archive_dir, archive, 'archive_max_duration exceeded.'))
                 if os.path.isdir(self.archive_dir + "/" + archive):
                     shutil.rmtree(self.archive_dir + "/" + archive)
                 else:
                     os.remove(self.archive_dir + "/" + archive)
-            elif hasattr(self, 'archive_max_size') and self.get_directory_size(self.archive_dir) > self.archive_max_size:
+            elif hasattr(self, 'archive_max_size') and self.get_directory_size(
+                    self.archive_dir) > self.archive_max_size:
                 logger.info(cleanup_msg.format(self.archive_dir, archive, 'archive_max_size exceeded.'))
                 if os.path.isdir(self.archive_dir + "/" + archive):
                     shutil.rmtree(self.archive_dir + "/" + archive)
@@ -342,18 +344,30 @@ class Backup(GeneralClass):
             pass
 
         # Adding encryption support for full backup
-        try:
-            args += " --encrypt={}" \
-                    " --encrypt-key={}" \
-                    " --encrypt-key-file={}" \
-                    " --encrypt-threads={}" \
-                    " --encrypt-chunk-size={}".format(self.encrypt,
-                                                      self.encrypt_key,
-                                                      self.encrypt_key_file,
-                                                      self.encrypt_threads,
-                                                      self.encrypt_chunk_size)
-        except AttributeError:
-            pass
+        if hasattr(self, 'encrypt_key'):
+            if hasattr(self, 'encrypt_key_file'):
+                raise AttributeError("--encrypt-key and --encrypt-key-file are mutually exclusive")
+            try:
+                args += " --encrypt={}" \
+                        " --encrypt-key={}" \
+                        " --encrypt-threads={}" \
+                        " --encrypt-chunk-size={}".format(self.encrypt,
+                                                          self.encrypt_key,
+                                                          self.encrypt_threads,
+                                                          self.encrypt_chunk_size)
+            except AttributeError:
+                pass
+        else:
+            try:
+                args += " --encrypt={}" \
+                        " --encrypt-key-file={}" \
+                        " --encrypt-threads={}" \
+                        " --encrypt-chunk-size={}".format(self.encrypt,
+                                                          self.encrypt_key_file,
+                                                          self.encrypt_threads,
+                                                          self.encrypt_chunk_size)
+            except AttributeError:
+                pass
 
         # Checking if extra options were passed:
         try:
@@ -376,6 +390,43 @@ class Backup(GeneralClass):
 
         return args
 
+    def decrypter(self, recent_bck, xtrabackup_inc_cmd, recent_inc=None):
+        logger.info("Applying workaround for LP #1444255")
+        logger.info("See more -> https://jira.percona.com/browse/PXB-934")
+        # With recent PXB 8 it seems to be there is no need for this workaround.
+        # Due to this moving this feature to this method and keeping just in case.
+        # Deprecated as hell.
+        if 'encrypt' not in xtrabackup_inc_cmd:
+            return
+        xbcrypt_command = "{} -d -k {} -a {} -i {}/{}/xtrabackup_checkpoints.xbcrypt " \
+                          "-o {}/{}/xtrabackup_checkpoints".format(
+            self.xbcrypt,
+            self.encrypt_key,
+            self.encrypt,
+            self.full_dir,
+            recent_bck,
+            self.full_dir,
+            recent_bck)
+        if recent_inc:
+            xbcrypt_command = "{} -d -k {} -a {} -i {}/{}/xtrabackup_checkpoints.xbcrypt " \
+                              "-o {}/{}/xtrabackup_checkpoints".format(
+                self.xbcrypt,
+                self.encrypt_key,
+                self.encrypt,
+                self.inc_dir,
+                recent_inc,
+                self.inc_dir,
+                recent_inc)
+        logger.info("The following xbcrypt command will be executed {}".format(xbcrypt_command))
+        if self.dry == 0:
+            status, output = subprocess.getstatusoutput(xbcrypt_command)
+            if status == 0:
+                logger.info(output[-27:])
+            else:
+                logger.error("FAILED: XBCRYPT command")
+                logger.error(output)
+                raise RuntimeError("FAILED: XBCRYPT command")
+
     def full_backup(self):
         """
         Method for taking full backups. It will construct the backup command based on config file.
@@ -387,12 +438,12 @@ class Backup(GeneralClass):
 
         # Taking Full backup
         xtrabackup_cmd = "{} --defaults-file={} --user={} --password={} " \
-               " --target-dir={} --backup".format(
-                self.backup_tool,
-                self.mycnf,
-                self.mysql_user,
-                self.mysql_password,
-                full_backup_dir)
+                         " --target-dir={} --backup".format(
+            self.backup_tool,
+            self.mycnf,
+            self.mysql_user,
+            self.mysql_password,
+            full_backup_dir)
 
         # Calling general options/command builder to add extra options
         xtrabackup_cmd += self.general_command_builder()
@@ -447,14 +498,14 @@ class Backup(GeneralClass):
 
             # Taking incremental backup.
             xtrabackup_inc_cmd = "{} --defaults-file={} --user={} --password={} " \
-                   "--target-dir={} --incremental-basedir={}/{} --backup".format(
-                    self.backup_tool,
-                    self.mycnf,
-                    self.mysql_user,
-                    self.mysql_password,
-                    inc_backup_dir,
-                    self.full_dir,
-                    recent_bck)
+                                 "--target-dir={} --incremental-basedir={}/{} --backup".format(
+                self.backup_tool,
+                self.mycnf,
+                self.mysql_user,
+                self.mysql_password,
+                inc_backup_dir,
+                self.full_dir,
+                recent_bck)
 
             # Calling general options/command builder to add extra options
             xtrabackup_inc_cmd += self.general_command_builder()
@@ -474,15 +525,15 @@ class Backup(GeneralClass):
                 logger.info("Using xbstream to extract and decrypt from full_backup.stream!")
                 xbstream_command = "{} {} --decrypt={} --encrypt-key={} --encrypt-threads={} " \
                                    "< {}/{}/full_backup.stream -C {}/{}".format(
-                                    self.xbstream,
-                                    self.xbstream_options,
-                                    self.decrypt,
-                                    self.encrypt_key,
-                                    self.encrypt_threads,
-                                    self.full_dir,
-                                    recent_bck,
-                                    self.full_dir,
-                                    recent_bck)
+                    self.xbstream,
+                    self.xbstream_options,
+                    self.decrypt,
+                    self.encrypt_key,
+                    self.encrypt_threads,
+                    self.full_dir,
+                    recent_bck,
+                    self.full_dir,
+                    recent_bck)
 
                 logger.info("The following xbstream command will be executed {}".format(xbstream_command))
                 if self.dry == 0 and isfile("{}/{}/full_backup.stream".format(self.full_dir, recent_bck)):
@@ -516,27 +567,9 @@ class Backup(GeneralClass):
                         logger.error(output)
                         raise RuntimeError("FAILED: XBSTREAM command")
 
-            elif 'encrypt' in xtrabackup_inc_cmd:
-                logger.info("Applying workaround for LP #1444255")
-                xbcrypt_command = "{} -d -k {} -a {} -i {}/{}/xtrabackup_checkpoints.xbcrypt " \
-                                  "-o {}/{}/xtrabackup_checkpoints".format(
-                                   self.xbcrypt,
-                                   self.encrypt_key,
-                                   self.encrypt,
-                                   self.full_dir,
-                                   recent_bck,
-                                   self.full_dir,
-                                   recent_bck)
-                logger.info("The following xbcrypt command will be executed {}".format(xbcrypt_command))
-
-                if self.dry == 0:
-                    status, output = subprocess.getstatusoutput(xbcrypt_command)
-                    if status == 0:
-                        logger.info(output[-27:])
-                    else:
-                        logger.error("FAILED: XBCRYPT command")
-                        logger.error(output)
-                        raise RuntimeError("FAILED: XBCRYPT command")
+            # Deprecated workaround for LP #1444255
+            # Disabled the call here but will keep in any case
+            # self.decrypter(recent_bck=recent_bck, xtrabackup_inc_cmd=xtrabackup_inc_cmd)
 
             # Checking if streaming enabled for backups
             if hasattr(self, 'stream') and self.stream == 'xbstream':
@@ -562,14 +595,14 @@ class Backup(GeneralClass):
         else:  # If there is already existing incremental backup
 
             xtrabackup_inc_cmd = "{} --defaults-file={} --user={} --password={}  " \
-                   "--target-dir={} --incremental-basedir={}/{} --backup".format(
-                    self.backup_tool,
-                    self.mycnf,
-                    self.mysql_user,
-                    self.mysql_password,
-                    inc_backup_dir,
-                    self.inc_dir,
-                    recent_inc)
+                                 "--target-dir={} --incremental-basedir={}/{} --backup".format(
+                self.backup_tool,
+                self.mycnf,
+                self.mysql_user,
+                self.mysql_password,
+                inc_backup_dir,
+                self.inc_dir,
+                recent_inc)
 
             # Calling general options/command builder to add extra options
             xtrabackup_inc_cmd += self.general_command_builder()
@@ -590,15 +623,15 @@ class Backup(GeneralClass):
                 logger.info("Using xbstream to extract and decrypt from inc_backup.stream!")
                 xbstream_command = "{} {} --decrypt={} --encrypt-key={} --encrypt-threads={} " \
                                    "< {}/{}/inc_backup.stream -C {}/{}".format(
-                                       self.xbstream,
-                                       self.xbstream_options,
-                                       self.decrypt,
-                                       self.encrypt_key,
-                                       self.encrypt_threads,
-                                       self.inc_dir,
-                                       recent_inc,
-                                       self.inc_dir,
-                                       recent_inc)
+                    self.xbstream,
+                    self.xbstream_options,
+                    self.decrypt,
+                    self.encrypt_key,
+                    self.encrypt_threads,
+                    self.inc_dir,
+                    recent_inc,
+                    self.inc_dir,
+                    recent_inc)
 
                 logger.info("The following xbstream command will be executed {}".format(xbstream_command))
                 if self.dry == 0 and isfile("{}/{}/inc_backup.stream".format(self.inc_dir, recent_inc)):
@@ -633,26 +666,9 @@ class Backup(GeneralClass):
                         logger.error(output)
                         raise RuntimeError("FAILED: XBSTREAM command.")
 
-            elif 'encrypt' in xtrabackup_inc_cmd:
-                logger.info("Applying workaround for LP #1444255")
-                xbcrypt_command = "{} -d -k {} -a {} -i {}/{}/xtrabackup_checkpoints.xbcrypt " \
-                                  "-o {}/{}/xtrabackup_checkpoints".format(
-                                   self.xbcrypt,
-                                   self.encrypt_key,
-                                   self.encrypt,
-                                   self.inc_dir,
-                                   recent_inc,
-                                   self.inc_dir,
-                                   recent_inc)
-                logger.info("The following xbcrypt command will be executed {}".format(xbcrypt_command))
-                if self.dry == 0:
-                    status, output = subprocess.getstatusoutput(xbcrypt_command)
-                    if status == 0:
-                        logger.info(output[-27:])
-                    else:
-                        logger.error("FAILED: XBCRYPT command")
-                        logger.error(output)
-                        raise RuntimeError("FAILED: XBCRYPT command")
+            # Deprecated workaround for LP #1444255
+            # Disabled the call here but will keep in any case
+            # self.decrypter(recent_bck=recent_bck, xtrabackup_inc_cmd=xtrabackup_inc_cmd, recent_inc=recent_inc)
 
             # Checking if streaming enabled for backups
             if hasattr(self, 'stream'):
