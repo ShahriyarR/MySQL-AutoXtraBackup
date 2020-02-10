@@ -11,8 +11,9 @@ import time
 from general_conf.generalops import GeneralClass
 from os.path import isfile
 from general_conf import path_config
-from process_runner.process_runner import  ProcessRunner
+from process_runner.process_runner import ProcessRunner
 import logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -38,7 +39,7 @@ class Prepare(GeneralClass):
         if len(os.listdir(self.full_dir)) > 0:
             return max(os.listdir(self.full_dir))
         else:
-            raise RuntimeError("The full backup directory is empty, it seems you have not backups")
+            raise RuntimeError("The full backup directory is empty, it seems you have no backups")
 
     def check_inc_backups(self):
         # Check for Incremental backups
@@ -122,13 +123,44 @@ class Prepare(GeneralClass):
                     logger.error("FAILED: FULL BACKUP decrypt")
                     raise RuntimeError("FAILED: FULL BACKUP decrypt")
 
+    def prepare_command_builder(self, full_backup, incremental=None, apply_log_only=None):
+        """
+        Method for building prepare command as it is repeated several times.
+        :param full_backup: The full backup directory name
+        :param incremental: The incremental backup directory name
+        :param apply_log_only: The flag to add --apply-log-only
+        :return: The prepare command string
+        """
+        # Base prepare command
+        xtrabackup_prepare_cmd = "{} --prepare --target-dir={}/{}".format(
+            self.backup_tool,
+            self.full_dir,
+            full_backup)
+
+        if incremental:
+            xtrabackup_prepare_cmd += " --incremental-dir={}/{}".format(self.inc_dir, incremental)
+        if apply_log_only:
+            xtrabackup_prepare_cmd += " --apply-log-only"
+
+        # Checking if extra options were passed:
+        if hasattr(self, 'xtra_options'):
+            xtrabackup_prepare_cmd += " "
+            xtrabackup_prepare_cmd += self.xtra_options
+
+        # Checking of extra prepare options were passed:
+        if hasattr(self, 'xtra_prepare_options'):
+            xtrabackup_prepare_cmd += " "
+            xtrabackup_prepare_cmd += self.xtra_prepare_options
+
+        return xtrabackup_prepare_cmd
+
     def prepare_with_tags(self):
         # Method for preparing backups based on passed backup tags
         found_backups = Prepare.parse_backup_tags(backup_dir=self.backupdir, tag_name=self.tag)
+        recent_bck = self.recent_full_backup_file()
         if found_backups[1] == 'Full':
-            if self.recent_full_backup_file():
+            if recent_bck:
                 logger.info("- - - - Preparing Full Backup - - - -")
-
                 if hasattr(self, 'stream'):
                     if hasattr(self, 'encrypt') and hasattr(self, 'xbs_decrypt'):
                         logger.info("Using xbstream to extract and decrypt from full_backup.stream!")
@@ -140,9 +172,9 @@ class Prepare(GeneralClass):
                             self.encrypt_key,
                             self.encrypt_threads,
                             self.full_dir,
-                            self.recent_full_backup_file(),
+                            recent_bck,
                             self.full_dir,
-                            self.recent_full_backup_file())
+                            recent_bck)
 
                     else:
                         logger.info("Using xbstream to extract from full_backup.stream!")
@@ -150,9 +182,9 @@ class Prepare(GeneralClass):
                             self.xbstream,
                             self.xbstream_options,
                             self.full_dir,
-                            self.recent_full_backup_file(),
+                            recent_bck,
                             self.full_dir,
-                            self.recent_full_backup_file())
+                            recent_bck)
 
                     logger.info("The following xbstream command will be executed {}".format(xbstream_command))
                     if self.dry == 0 and isfile("{}/{}/full_backup.stream".format(
@@ -165,63 +197,14 @@ class Prepare(GeneralClass):
                             logger.error(output)
                             raise RuntimeError("FAILED: XBSTREAM command.")
 
-                # Check if decryption enabled
-                if hasattr(self, 'decrypt'):
-                    if hasattr(self, 'remove_original_enc') and self.remove_original_enc:
-                        decr = "{} --decrypt={} --encrypt-key={} --target-dir={}/{} --remove-original".format(
-                            self.backup_tool,
-                            self.decrypt,
-                            self.encrypt_key,
-                            self.full_dir,
-                            self.recent_full_backup_file())
-                    else:
-                        decr = "{} --decrypt={} --encrypt-key={} --target-dir={}/{}".format(
-                            self.backup_tool,
-                            self.decrypt,
-                            self.encrypt_key,
-                            self.full_dir,
-                            self.recent_full_backup_file())
-                    logger.info("Trying to decrypt backup")
-                    logger.info("Running decrypt command -> {}".format(decr))
-                    if self.dry == 0:
-                        status = ProcessRunner.run_command(decr)
-                        if status:
-                            logger.info("OK: Decrypted!")
-                        else:
-                            logger.error("FAILED: FULL BACKUP decrypt")
-                            raise RuntimeError("FAILED: FULL BACKUP decrypt")
+                # Decrypt backup
+                self.decrypt_backup(self.full_dir, recent_bck)
 
-                if hasattr(self, 'decompress'):
-                    decmp = "{} --decompress={} --target-dir={}/{} --remove-original".format(
-                        self.backup_tool,
-                        self.decompress,
-                        self.full_dir,
-                        self.recent_full_backup_file())
-                    logger.info("Trying to decompress backup")
-                    logger.info("Running decompress command -> {}".format(decmp))
-                    if self.dry == 0:
-                        status = ProcessRunner.run_command(decmp)
-                        if status:
-                            logger.info("OK: Decompressed")
-                        else:
-                            logger.error("FAILED: FULL BACKUP decompression")
-                            raise RuntimeError("FAILED: FULL BACKUP decompression")
+                # Decompress backup
+                self.decompress_backup(self.full_dir, recent_bck)
 
-                # Actual prepare command goes here
-                xtrabackup_prepare_cmd = "{} --prepare --target-dir={}/{}".format(
-                    self.backup_tool,
-                    self.full_dir,
-                    self.recent_full_backup_file())
-
-                # Checking if extra options were passed:
-                if hasattr(self, 'xtra_options'):
-                    xtrabackup_prepare_cmd += " "
-                    xtrabackup_prepare_cmd += self.xtra_options
-
-                # Checking of extra prepare options were passed:
-                if hasattr(self, 'xtra_prepare_options'):
-                    xtrabackup_prepare_cmd += " "
-                    xtrabackup_prepare_cmd += self.xtra_prepare_options
+                # Prepare command
+                xtrabackup_prepare_cmd = self.prepare_command_builder(full_backup=recent_bck)
 
                 if self.dry == 0:
                     status = ProcessRunner.run_command(xtrabackup_prepare_cmd)
@@ -241,80 +224,20 @@ class Prepare(GeneralClass):
                     # Find the index number inside all list for backup(which was found via tag)
                     index_num = list_of_dir.index(found_backups[0])
                     # Limit the iteration until this found backup
-                    for i in list_of_dir[:index_num+1]:
+                    for i in list_of_dir[:index_num + 1]:
                         if i != found_backups[0]:
                             logger.info("Preparing inc backups in sequence. inc backup dir/name is {}".format(i))
-                            # Check if decryption enabled
-                            if hasattr(self, 'decrypt'):
-                                if hasattr(self, 'remove_original_enc') and self.remove_original_enc:
-                                    decr = "{} --decrypt={} --encrypt-key={} --target-dir={}/{} --remove-original".format(
-                                        self.backup_tool,
-                                        self.decrypt,
-                                        self.encrypt_key,
-                                        self.inc_dir,
-                                        i)
-                                else:
-                                    decr = "{} --decrypt={} --encrypt-key={} --target-dir={}/{}".format(
-                                        self.backup_tool,
-                                        self.decrypt,
-                                        self.encrypt_key,
-                                        self.inc_dir,
-                                        i)
-                                logger.info("Trying to decrypt backup")
-                                logger.info("Running decrypt command -> {}".format(decr))
-                                if self.dry == 0:
-                                    status = ProcessRunner.run_command(decr)
-                                    if status:
-                                        logger.info("OK: Decrypted!")
-                                    else:
-                                        logger.error("FAILED: FULL BACKUP decrypt.")
-                                        raise RuntimeError("FAILED: FULL BACKUP decrypt.")
 
-                            # Check if decompression enabled, if it is, decompress
-                            # backup prior prepare
-                            if hasattr(self, 'decompress'):
-                                #TODO: this if decompress statement is a repeating pattern; functionalize it
-                                if hasattr(self, 'remove_original_comp') and self.remove_original_comp:
-                                    decmp = "{} --decompress={} --target-dir={}/{} --remove-original".format(
-                                        self.backup_tool,
-                                        self.decompress,
-                                        self.inc_dir,
-                                        i)
-                                else:
-                                    decmp = "{} --decompress={} --target-dir={}/{}".format(
-                                        self.backup_tool,
-                                        self.decompress,
-                                        self.inc_dir,
-                                        i)
-                                logger.info("Trying to decompress backup")
-                                logger.info(
-                                    "Running decompress command -> {}".format(decmp))
-                                if self.dry == 0:
-                                    status = ProcessRunner.run_command(decmp)
-                                    if status:
-                                        logger.info("OK: Decompressed")
-                                    else:
-                                        logger.error("FAILED: INCREMENTAL BACKUP decompression.")
-                                        raise RuntimeError("FAILED: INCREMENTAL BACKUP decompression.")
+                            # Decrypt backup
+                            self.decrypt_backup(self.inc_dir, i)
 
-                            # Actual prepare command goes here
-                            xtrabackup_prepare_cmd = '{} --prepare {} --target-dir={}/{} --incremental-dir={}/{}'\
-                                .format(self.backup_tool,
-                                        self.xtrabck_prepare,
-                                        self.full_dir,
-                                        self.recent_full_backup_file(),
-                                        self.inc_dir,
-                                        i)
+                            # Decompress backup
+                            self.decompress_backup(self.inc_dir, i)
 
-                            # Checking if extra options were passed:
-                            if hasattr(self, 'xtra_options'):
-                                xtrabackup_prepare_cmd += " "
-                                xtrabackup_prepare_cmd += self.xtra_options
-
-                            # Checking of extra prepare options were passed:
-                            if hasattr(self, 'xtra_prepare_options'):
-                                xtrabackup_prepare_cmd += " "
-                                xtrabackup_prepare_cmd += self.xtra_prepare_options
+                            # Prepare command
+                            xtrabackup_prepare_cmd = self.prepare_command_builder(full_backup=recent_bck,
+                                                                                  incremental=i,
+                                                                                  apply_log_only=True)
 
                             logger.info("Running prepare command -> {}".format(xtrabackup_prepare_cmd))
                             if self.dry == 0:
@@ -347,96 +270,31 @@ class Prepare(GeneralClass):
                                         logger.error("FAILED: XBSTREAM command.")
                                         logger.error(output)
                                         raise RuntimeError("FAILED: XBSTREAM command.")
+                            # Decrypt backup
+                            self.decrypt_backup(self.inc_dir, i)
 
-                            # Check if decryption enabled
-                            if hasattr(self, 'decrypt'):
-                                if hasattr(self, 'remove_original_enc') and self.remove_original_enc:
-                                    decr = "{} --decrypt={} --encrypt-key={} --target-dir={}/{} --remove-original".format(
-                                        self.backup_tool,
-                                        self.decrypt,
-                                        self.encrypt_key,
-                                        self.inc_dir,
-                                        i)
-                                else:
-                                    decr = "{} --decrypt={} --encrypt-key={} --target-dir={}/{}".format(
-                                        self.backup_tool,
-                                        self.decrypt,
-                                        self.encrypt_key,
-                                        self.inc_dir,
-                                        i)
+                            # Decompress backup
+                            self.decompress_backup(self.inc_dir, i)
 
-                                logger.info("Trying to decrypt backup")
-                                logger.info("Running decrypt command -> {}".format(decr))
-                                if self.dry == 0:
-                                    status = ProcessRunner.run_command(decr)
-                                    if status:
-                                        logger.info("OK: Decrypted!")
-                                    else:
-                                        logger.error("FAILED: FULL BACKUP decrypt.")
-                                        raise RuntimeError
+                            # Prepare command
+                            xtrabackup_prepare_cmd = self.prepare_command_builder(full_backup=recent_bck,
+                                                                                  incremental=i)
 
-                            # Check if decompression enabled, if it is, decompress
-                            # backup prior prepare
-                            if hasattr(self, 'decompress'):
-                                if hasattr(self, 'remove_original_comp') and self.remove_original_comp:
-                                    decmp = "{} --decompress={} --target-dir={}/{} --remove-original".format(
-                                        self.backup_tool,
-                                        self.decompress,
-                                        self.inc_dir,
-                                        i)
-                                else:
-                                    decmp = "{} --decompress={} --target-dir={}/{}".format(
-                                        self.backup_tool,
-                                        self.decompress,
-                                        self.inc_dir,
-                                        i)
-                                logger.info("Trying to decompress backup")
-                                logger.info("Running decompress command -> {}".format(decmp))
-
-                                if self.dry == 0:
-                                    status = ProcessRunner.run_command(decmp)
-                                    if status:
-                                        logger.info("OK: Decompressed")
-                                    else:
-                                        logger.error("FAILED: INCREMENTAL BACKUP decompression")
-                                        raise RuntimeError("FAILED: INCREMENTAL BACKUP decompression")
-
-                            xtrabackup_prepare_inc_cmd = '{} --prepare --target-dir={}/{} --incremental-dir={}/{}'.format(
-                                self.backup_tool,
-                                self.full_dir,
-                                self.recent_full_backup_file(),
-                                self.inc_dir,
-                                i)
-
-                            # Checking if extra options were passed:
-                            if hasattr(self, 'xtra_options'):
-                                xtrabackup_prepare_inc_cmd += " "
-                                xtrabackup_prepare_inc_cmd += self.xtra_options
-
-                            # Checking of extra prepare options were passed:
-                            if hasattr(self, 'xtra_prepare_options'):
-                                xtrabackup_prepare_inc_cmd += " "
-                                xtrabackup_prepare_inc_cmd += self.xtra_prepare_options
-
-                            logger.info("Running prepare command -> {}".format(xtrabackup_prepare_inc_cmd))
+                            logger.info("Running prepare command -> {}".format(xtrabackup_prepare_cmd))
                             if self.dry == 0:
-                                status2 = ProcessRunner.run_command(xtrabackup_prepare_inc_cmd)
+                                status2 = ProcessRunner.run_command(xtrabackup_prepare_cmd)
                                 if not status2:
                                     logger.error("FAILED: Incremental BACKUP prepare")
                                     raise RuntimeError("FAILED: Incremental BACKUP prepare")
 
         logger.info("- - - - The end of the Prepare Stage. - - - -")
+
     ##########################################################################
     # PREPARE ONLY FULL BACKUP
     ##########################################################################
 
     def prepare_only_full_backup(self):
         recent_bck = self.recent_full_backup_file()
-        # Base prepare command
-        xtrabackup_prepare_cmd = "{} --prepare --target-dir={}/{}".format(
-            self.backup_tool,
-            self.full_dir,
-            recent_bck)
         if recent_bck:
             if not self.check_inc_backups():
                 logger.info("- - - - Preparing Full Backup - - - -")
@@ -460,29 +318,29 @@ class Prepare(GeneralClass):
                         logger.info("Using xbstream to extract and decrypt from full_backup.stream!")
                         xbstream_command = "{} {} --decrypt={} --encrypt-key={} --encrypt-threads={} " \
                                            "< {}/{}/full_backup.stream -C {}/{}".format(
-                                               self.xbstream,
-                                               self.xbstream_options,
-                                               self.decrypt,
-                                               self.encrypt_key,
-                                               self.encrypt_threads,
-                                               self.full_dir,
-                                               recent_bck,
-                                               self.full_dir,
-                                               recent_bck)
+                            self.xbstream,
+                            self.xbstream_options,
+                            self.decrypt,
+                            self.encrypt_key,
+                            self.encrypt_threads,
+                            self.full_dir,
+                            recent_bck,
+                            self.full_dir,
+                            recent_bck)
 
                     else:
                         logger.info("Using xbstream to extract from full_backup.stream!")
                         xbstream_command = "{} {} < {}/{}/full_backup.stream -C {}/{}".format(
-                                            self.xbstream,
-                                            self.xbstream_options,
-                                            self.full_dir,
-                                            recent_bck,
-                                            self.full_dir,
-                                            recent_bck)
+                            self.xbstream,
+                            self.xbstream_options,
+                            self.full_dir,
+                            recent_bck,
+                            self.full_dir,
+                            recent_bck)
 
                     logger.info("The following xbstream command will be executed {}".format(xbstream_command))
                     if self.dry == 0 and isfile("{}/{}/full_backup.stream".format(
-                                                self.full_dir, recent_bck)):
+                            self.full_dir, recent_bck)):
                         status, output = subprocess.getstatusoutput(xbstream_command)
                         if status == 0:
                             logger.info("OK: XBSTREAM command succeeded.")
@@ -497,18 +355,10 @@ class Prepare(GeneralClass):
                 # Decompress backup
                 self.decompress_backup(self.full_dir, recent_bck)
 
-                # Checking if extra options were passed:
-                if hasattr(self, 'xtra_options'):
-                    xtrabackup_prepare_cmd += " "
-                    xtrabackup_prepare_cmd += self.xtra_options
-
-                # Checking if extra prepare options were passed:
-                if hasattr(self, 'xtra_prepare_options'):
-                    xtrabackup_prepare_cmd += " "
-                    xtrabackup_prepare_cmd += self.xtra_prepare_options
+                # Prepare command
+                xtrabackup_prepare_cmd = self.prepare_command_builder(full_backup=recent_bck)
 
                 logger.debug("Running prepare command -> {}".format(xtrabackup_prepare_cmd))
-
                 if self.dry == 0:
                     status = ProcessRunner.run_command(xtrabackup_prepare_cmd)
                     if status:
@@ -528,18 +378,8 @@ class Prepare(GeneralClass):
                 # Decompress backup
                 self.decompress_backup(self.full_dir, recent_bck)
 
-                # Actual prepare command goes here
-                xtrabackup_prepare_cmd += " --apply-log-only"
-
-                # Checking if extra options were passed:
-                if hasattr(self, 'xtra_options'):
-                    xtrabackup_prepare_cmd += " "
-                    xtrabackup_prepare_cmd += self.xtra_options
-
-                # Checking of extra prepare options were passed:
-                if hasattr(self, 'xtra_prepare_options'):
-                    xtrabackup_prepare_cmd += " "
-                    xtrabackup_prepare_cmd += self.xtra_prepare_options
+                # Prepare command
+                xtrabackup_prepare_cmd = self.prepare_command_builder(full_backup=recent_bck, apply_log_only=True)
 
                 logger.info("Running prepare command -> {}".format(xtrabackup_prepare_cmd))
                 if self.dry == 0:
@@ -568,15 +408,10 @@ class Prepare(GeneralClass):
                 logger.info("Preparing Incs: ")
                 list_of_dir = sorted(os.listdir(self.inc_dir))
                 for inc_backup_dir in list_of_dir:
-                    # Base prepare command
-                    xtrabackup_prepare_inc_cmd = '{} --prepare --target-dir={}/{} --incremental-dir={}/{}'.format(
-                        self.backup_tool,
-                        self.full_dir,
-                        recent_bck,
-                        self.inc_dir,
-                        inc_backup_dir)
                     if inc_backup_dir != max(os.listdir(self.inc_dir)):
-                        logger.info("Preparing Incremental backups in sequence. Incremental backup dir/name is {}".format(inc_backup_dir))
+                        logger.info(
+                            "Preparing Incremental backups in sequence. Incremental backup dir/name is {}".format(
+                                inc_backup_dir))
 
                         # Decrypt backup
                         self.decrypt_backup(self.inc_dir, inc_backup_dir)
@@ -584,19 +419,22 @@ class Prepare(GeneralClass):
                         # Decompress backup
                         self.decompress_backup(self.inc_dir, inc_backup_dir)
 
-                        # Adding extra option
-                        xtrabackup_prepare_inc_cmd += " --apply-log-only"
+                        # Prepare command
+                        xtrabackup_prepare_cmd = self.prepare_command_builder(full_backup=recent_bck,
+                                                                              incremental=inc_backup_dir,
+                                                                              apply_log_only=True)
                     else:
-                        logger.info("Preparing last Incremental backup, inc backup dir/name is {}".format(inc_backup_dir))
+                        logger.info(
+                            "Preparing last Incremental backup, inc backup dir/name is {}".format(inc_backup_dir))
                         if hasattr(self, 'stream'):
                             logger.info("Using xbstream to extract from inc_backup.stream!")
                             xbstream_command = "{} {} < {}/{}/inc_backup.stream -C {}/{}".format(
-                                                self.xbstream,
-                                                self.xbstream_options,
-                                                self.inc_dir,
-                                                inc_backup_dir,
-                                                self.inc_dir,
-                                                inc_backup_dir)
+                                self.xbstream,
+                                self.xbstream_options,
+                                self.inc_dir,
+                                inc_backup_dir,
+                                self.inc_dir,
+                                inc_backup_dir)
 
                             logger.info("The following xbstream command will be executed {}".format(xbstream_command))
                             if self.dry == 0 and isfile("{}/{}/inc_backup.stream".format(self.inc_dir, inc_backup_dir)):
@@ -614,19 +452,13 @@ class Prepare(GeneralClass):
                         # Decompress backup
                         self.decompress_backup(self.inc_dir, inc_backup_dir)
 
-                    # Checking if extra options were passed:
-                    if hasattr(self, 'xtra_options'):
-                        xtrabackup_prepare_inc_cmd += " "
-                        xtrabackup_prepare_inc_cmd += self.xtra_options
+                        # Prepare command
+                        xtrabackup_prepare_cmd = self.prepare_command_builder(full_backup=recent_bck,
+                                                                              incremental=inc_backup_dir)
 
-                    # Checking of extra prepare options were passed:
-                    if hasattr(self, 'xtra_prepare_options'):
-                        xtrabackup_prepare_inc_cmd += " "
-                        xtrabackup_prepare_inc_cmd += self.xtra_prepare_options
-
-                    logger.info("Running prepare command -> {}".format(xtrabackup_prepare_inc_cmd))
+                    logger.info("Running prepare command -> {}".format(xtrabackup_prepare_cmd))
                     if self.dry == 0:
-                        status = ProcessRunner.run_command(xtrabackup_prepare_inc_cmd)
+                        status = ProcessRunner.run_command(xtrabackup_prepare_cmd)
                         if not status:
                             logger.error("FAILED: Incremental BACKUP prepare")
                             raise RuntimeError("FAILED: Incremental BACKUP prepare")
@@ -707,11 +539,11 @@ class Prepare(GeneralClass):
     def run_xtra_copyback(self, datadir=None):
         # Running Xtrabackup with --copy-back option
         copy_back = '{} --copy-back {} --target-dir={}/{} --datadir={}'.format(
-                    self.backup_tool,
-                    self.xtra_options,
-                    self.full_dir,
-                    self.recent_full_backup_file(),
-                    self.datadir if datadir is None else datadir)
+            self.backup_tool,
+            self.xtra_options,
+            self.full_dir,
+            self.recent_full_backup_file(),
+            self.datadir if datadir is None else datadir)
         status = ProcessRunner.run_command(copy_back)
         if status:
             logger.info("Data copied back successfully!")
