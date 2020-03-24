@@ -17,6 +17,22 @@ Welcome to MySQL-AutoXtrabackup's documentation!
    backup_tags
    advance_features
    option_reference
+
+.. automodule:: master_backup_script
+   :members:
+
+.. automodule:: backup_prepare
+   :members:
+
+.. automodule:: general_conf
+   :members:
+
+.. automodule:: partial_recovery
+   :members:
+
+.. automodule:: process_runner
+   :members:
+
    
 Indices and tables
 ==================
