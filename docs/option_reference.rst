@@ -23,18 +23,11 @@ The command line options to use:
       -lf, --log-file TEXT            Set log file  [default: /home/shako/.autoxtr
                                       abackup/autoxtrabackup.log]
       -l, --log, --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
-                                      Set log level  [default: DEBUG]
+                                      Set log level  [default: INFO]
       --log-file-max-bytes INTEGER    Set log file max size in bytes  [default:
                                       1073741824]
       --log-file-backup-count INTEGER
                                       Set log file backup count  [default: 7]
-      --keyring-vault INTEGER         Enable this when you pass keyring_vault
-                                      options in default mysqld options in
-                                      config[Only for using with --test-mode]
-                                      [default: 0]
-      --test-mode                     Enable test mode. Must be used with
-                                      --defaults-file and only for TESTs for
-                                      XtraBackup
       --help                          Print help message and exit.
 
 
@@ -120,21 +113,6 @@ log, log-level
 
 Set the log level for tool. Can be DEBUG, INFO, WARNING, ERROR or CRITICAL. Default is DEBUG.
 
-test-mode
----------
-
---test-mode
-This option enables Test Mode and must be used with --defaults-file option.
-Will not be available in default configuration file.
-WARNING: It is not for daily usage. It is only and only for testing XtraBackup.
-
-keyring-vault
--------------
-
---keyring_vault
-Enable this when you pass keyring_vault options in default mysqld options in
-config[Only for using with --test_mode] [default: 0]
-This is for keyring_vault plugin testing.
 
 help
 ----
