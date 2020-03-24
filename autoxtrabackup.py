@@ -1,23 +1,21 @@
-import click
-import humanfriendly
 import logging
 import logging.handlers
 import os
-import pid
 import re
 import time
-import sys
-
 from logging.handlers import RotatingFileHandler
-from sys import platform as _platform
 from sys import exit
+from sys import platform as _platform
+
+import click
+import humanfriendly
+import pid
 
 from backup_prepare.prepare import Prepare
-from general_conf.generalops import GeneralClass
 from general_conf import path_config
+from general_conf.generalops import GeneralClass
 from master_backup_script.backuper import Backup
 from partial_recovery.partial import PartialRecovery
-from prepare_env_test_mode.runner_test_mode import RunnerTestMode
 from process_runner.process_runner import ProcessRunner
 
 logger = logging.getLogger('')

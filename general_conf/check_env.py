@@ -133,21 +133,22 @@ class CheckEnv(GeneralClass):
         Check for archive directory.
         If archive_dir is given in config file and if it does not exist, try to create.
         :return: True on success. RuntimeError on failure.
-        """
-        if hasattr(self, 'archive_dir'):
-            if os.path.exists(self.archive_dir):
-                logger.info('OK: Archive folder directory exists')
+    """
+        if not hasattr(self, 'archive_dir'):
+            return
+        if os.path.exists(self.archive_dir):
+            logger.info('OK: Archive folder directory exists')
+            return True
+        else:
+            logger.info('Archive backup directory does not exist')
+            logger.info('Creating archive folder...')
+            try:
+                os.makedirs(self.archive_dir)
+                logger.info('OK: Created')
                 return True
-            else:
-                logger.info('Archive backup directory does not exist')
-                logger.info('Creating archive folder...')
-                try:
-                    os.makedirs(self.archive_dir)
-                    logger.info('OK: Created')
-                    return True
-                except Exception as err:
-                    logger.error("FAILED: Could not create directory, ", err)
-                    raise RuntimeError("FAILED: Could not create directory")
+            except Exception as err:
+                logger.error("FAILED: Could not create directory, ", err)
+                raise RuntimeError("FAILED: Could not create directory")
 
     def check_mysql_fullbackupdir(self):
         """
