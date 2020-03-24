@@ -10,7 +10,7 @@ if not isfile(path_config.config_path_file):
 
 setup(
     name='mysql-autoxtrabackup',
-    version='1.5.5',
+    version='2.0',
     packages=['general_conf', 'backup_prepare', 'partial_recovery', 'master_backup_script',
               'prepare_env_test_mode', 'process_runner'],
     package_data={
@@ -18,7 +18,7 @@ setup(
     },
     py_modules=['autoxtrabackup'],
     url='https://github.com/ShahriyarR/MySQL-AutoXtraBackup',
-    download_url='https://github.com/ShahriyarR/MySQL-AutoXtraBackup/archive/v1.5.5.zip',
+    download_url='https://github.com/ShahriyarR/MySQL-AutoXtraBackup/archive/v2.0.zip',
     license='MIT',
     author='Shahriyar Rzayev',
     author_email='rzayev.shahriyar@yandex.com',
@@ -29,7 +29,6 @@ setup(
         'humanfriendly>=2.0',
         'pytest'
     ],
-    dependency_links=['https://dev.mysql.com/get/Downloads/Connector-Python/mysql-connector-python-2.1.4.tar.gz'],
     entry_points='''
         [console_scripts]
         autoxtrabackup=autoxtrabackup:all_procedure
