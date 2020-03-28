@@ -49,14 +49,14 @@ def run_container(name, tag, cnt=None):
     return True
 
 
-def run_commands(cnt, cmd):
+def run_commands(cnt, cmd, work_dir=None):
     """
     Function for running given commands against running docker container
     :param cnt: The instance object of docker container
     :param cmd: The string or list of string commands passed to docker exec_run
     :return exit_code, output: tuple of the result of running command
     """
-    exit_code, output = cnt.exec_run(cmd)
+    exit_code, output = cnt.exec_run(cmd, workdir=work_dir)
     return exit_code, output
 
 
