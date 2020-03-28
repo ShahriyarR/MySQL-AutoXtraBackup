@@ -12,7 +12,7 @@ CMD = [
     ("yum install -y git",),
     ("yum install -y python3",),
     ("yum install -y vim",),
-    ("yum install -y perl libev",),
+    ("yum install -y perl",),
     ("yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",),
     ("yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm",),
     ("percona-release enable-only tools",),
