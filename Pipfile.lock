@@ -54,13 +54,6 @@
             ],
             "version": "==5.0.0"
         },
-        "mysql-connector": {
-            "hashes": [
-                "sha256:9cbd452270fd73ebccfd7a5b316bf0514900a57b8cbc48f2081ddf7586f39ef5"
-            ],
-            "index": "pypi",
-            "version": "==2.1.4"
-        },
         "pathlib2": {
             "hashes": [
                 "sha256:25199318e8cc3c25dcb45cbe084cc061051336d5a9ea2a12448d3d8cb748f742",

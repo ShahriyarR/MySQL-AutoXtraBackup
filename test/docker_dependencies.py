@@ -12,8 +12,11 @@ cnt = get_container_instance_object(name)
 CMD = [
     ("yum install git",),
     ("yum install python3",),
+    ("yum install vim",),
     ("git clone -b {} {}".format(name, 'https://github.com/ShahriyarR/MySQL-AutoXtraBackup.git'), '/home'),
     ("python3 setup.py install", '/home/MySQL-AutoXtraBackup'),
+    ("git clone https://github.com/sstephenson/bats.git", '/home'),
+    ("./install.sh /usr/local", '/home/bats')
 ]
 
 

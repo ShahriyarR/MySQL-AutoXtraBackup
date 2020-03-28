@@ -14,7 +14,7 @@ import pid
 from backup_prepare.prepare import Prepare
 from general_conf import path_config
 from general_conf.generalops import GeneralClass
-from master_backup_script.backuper import Backup
+from backup_backup.backuper import Backup
 from partial_recovery.partial import PartialRecovery
 from process_runner.process_runner import ProcessRunner
 

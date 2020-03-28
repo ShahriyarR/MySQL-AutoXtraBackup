@@ -1,4 +1,4 @@
-from master_backup_script.backuper import Backup
+from backup_backup.backuper import Backup
 from prepare_env_test_mode.run_benchmark import RunBenchmark
 from time import sleep
 import os, signal
@@ -162,7 +162,7 @@ class WrapperForBackupTest(Backup):
         #RunBenchmark.run_sql_statement(basedir=basedir, sql_statement=insert_into.format(i))
 
     def run_all_backup(self):
-        # Method for taking backups using master_backup_script.backuper.py::all_backup()
+        # Method for taking backups using backup_backup.backuper.py::all_backup()
         RunBenchmark().run_sysbench_prepare(basedir=self.basedir)
         # Fix for https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/245
         # Disabled for now

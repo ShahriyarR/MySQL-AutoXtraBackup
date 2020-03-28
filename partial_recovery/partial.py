@@ -2,7 +2,7 @@ import os
 import shutil
 import subprocess
 from general_conf.generalops import GeneralClass
-import master_backup_script
+import backup_backup
 import re
 from general_conf import check_env
 from general_conf import path_config
@@ -16,7 +16,7 @@ class PartialRecovery(GeneralClass):
     def __init__(self, config=path_config.config_path_file):
         self.conf = config
         GeneralClass.__init__(self, self.conf)
-        self.sql_obj = master_backup_script.Backup(config=self.conf)
+        self.sql_obj = backup_backup.Backup(config=self.conf)
         if shutil.which('mysqlfrm') is None:
             logger.critical("Could not find mysqlfrm! Please install it or check if it is in PATH")
             raise RuntimeError("Could not find mysqlfrm! Please install it or check if it is in PATH")

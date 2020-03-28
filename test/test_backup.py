@@ -1,9 +1,16 @@
 # PyTest file for testing Backup class
-from master_backup_script.backuper import Backup
+from backup_backup.backuper import Backup
 from general_conf.generalops import GeneralClass
+import pytest
 
 
+@pytest.mark.usefixtures('return_bck_obj')
 class TestBackup:
+
+    def test_create_mysql_client_command(self, return_bck_obj):
+        result = '/usr/bin/mysql --defaults-file= -uroot --password=12345 --socket=/var/run/mysqld/mysqld.sock -e "select 1"'
+        sql = "select 1"
+        assert return_bck_obj.create_mysql_client_command(sql) == result
 
     def test_add_tag(self):
         # Method for checking the add_tag() static method. All parameters are hard coded.

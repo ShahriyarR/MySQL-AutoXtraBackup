@@ -27,7 +27,7 @@ class GenerateDefaultConfig:
             config.set(section1, "mycnf", "")
             config.set(section1, "mysqladmin", "/usr/bin/mysqladmin")
             config.set(section1, "mysql_user", "root")
-            config.set(section1, "mysql_password", "")
+            config.set(section1, "mysql_password", "12345")
             config.set(section1, "## Set either mysql_socket only, OR host + port. If both are set mysql_socket is used")
             config.set(section1, "mysql_socket", "/var/run/mysqld/mysqld.sock")
             config.set(section1, "#mysql_host", "127.0.0.1")
