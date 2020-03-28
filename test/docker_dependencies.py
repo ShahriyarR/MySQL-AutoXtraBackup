@@ -10,9 +10,9 @@ name = get_current_git_branch()
 cnt = get_container_instance_object(name)
 
 CMD = [
-    ("yum install git",),
-    ("yum install python3",),
-    ("yum install vim",),
+    ("yum install -y git",),
+    ("yum install -y python3",),
+    ("yum install -y vim",),
     ("git clone -b {} {}".format(name, 'https://github.com/ShahriyarR/MySQL-AutoXtraBackup.git'), '/home'),
     ("python3 setup.py install", '/home/MySQL-AutoXtraBackup'),
     ("git clone https://github.com/sstephenson/bats.git", '/home'),
