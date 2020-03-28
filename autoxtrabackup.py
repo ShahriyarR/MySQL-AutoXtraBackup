@@ -197,7 +197,7 @@ def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
     if verbose:
         ch = logging.StreamHandler()
         # control console output log level
-        ch.setLevel(logging.INFO)
+        ch.setLevel(logging.DEBUG)
         ch.setFormatter(formatter)
         logger.addHandler(ch)
 
