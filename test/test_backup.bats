@@ -15,3 +15,9 @@ run python3 -m pytest -vv ${DIRNAME}/test_backup.py::TestBackup::test_full_backu
   echo $output
   [ $status -eq 0 ]
 }
+
+@test "Running test_full_backup_with_tag" {
+run python3 -m pytest -vv ${DIRNAME}/test_backup.py::TestBackup::test_full_backup_with_tag
+  echo $output
+  [ $status -eq 0 ]
+}

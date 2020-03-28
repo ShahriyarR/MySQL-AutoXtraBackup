@@ -17,7 +17,11 @@ class TestBackup:
         return_bck_obj.full_backup()
 
     def test_full_backup_with_tag(self, return_bck_obj):
-        pass
+        return_bck_obj.clean_full_backup_dir()
+        return_bck_obj.tag = "My first full backup"
+        return_bck_obj.full_backup()
+        return_bck_obj.tag = None
+
 
 
     def test_add_tag(self):
