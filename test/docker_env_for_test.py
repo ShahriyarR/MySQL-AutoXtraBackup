@@ -120,13 +120,11 @@ def get_container_instance_object(name):
     Return the container object of given named container.
     Search for container inside the list of up and running containers.
     :param name: The name of docker container
-    :return: Container object if found the running container
+    :return: Container object, if found the running container
     """
-    list_of_running_containers = client.containers.list()
-    if list_of_running_containers:
-        for container in list_of_running_containers:
-            if container.name == name:
-                return container
+    container = client.containers.list(filters={'name': name, 'status': 'running'})
+    if container:
+        return container[0]
 
 
 def get_current_git_branch():
@@ -139,7 +137,7 @@ def get_current_git_branch():
     return repo.head.shorthand
 
 
-if __name__ == "__main__":
+def env_main():
     # Sequential function calls in order to prepare
     # Base test environment
     repo_name = get_current_git_branch()
@@ -150,7 +148,12 @@ if __name__ == "__main__":
     sleep(20)
     container_obj = get_container_instance_object(name=repo_name)
     update_default_mysql_password(cnt=container_obj)
+    return container_obj
 
     # Stopping docker container maybe we can use it at the very end of test cycle
     # stop_container(repo_name)
     # remove_container(repo_name)
+
+
+if __name__ == "__main__":
+    env_main()

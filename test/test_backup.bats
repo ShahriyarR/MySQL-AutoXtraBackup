@@ -10,3 +10,8 @@ run python3 -m pytest -vv ${DIRNAME}/test_backup.py::TestBackup::test_create_mys
   [ $status -eq 0 ]
 }
 
+@test "Running test_full_backup_without_tag" {
+run python3 -m pytest -vv ${DIRNAME}/test_backup.py::TestBackup::test_full_backup_without_tag
+  echo $output
+  [ $status -eq 0 ]
+}

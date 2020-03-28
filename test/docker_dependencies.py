@@ -7,7 +7,6 @@ So the commands are for RHEL or yum
 from docker_env_for_test import run_commands, get_current_git_branch, get_container_instance_object
 
 name = get_current_git_branch()
-cnt = get_container_instance_object(name)
 
 CMD = [
     ("yum install -y git",),
@@ -20,7 +19,7 @@ CMD = [
 ]
 
 
-def install_packages():
+def install_packages(cnt):
     for cmd in CMD:
         if len(cmd) == 1:
             print(run_commands(cnt, cmd[0]))
@@ -29,5 +28,6 @@ def install_packages():
 
 
 if __name__ == "__main__":
-    install_packages()
+    cnt = get_container_instance_object(name)
+    install_packages(cnt=cnt)
 

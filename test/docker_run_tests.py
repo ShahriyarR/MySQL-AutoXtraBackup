@@ -8,7 +8,7 @@ CMD = [
 ]
 
 
-def run_tests():
+def run_tests(cnt):
     for cmd in CMD:
         if len(cmd) == 1:
             print(run_commands(cnt, cmd[0]))
@@ -17,4 +17,5 @@ def run_tests():
 
 
 if __name__ == "__main__":
-    run_tests()
+    cnt = get_container_instance_object(name)
+    run_tests(cnt=cnt)

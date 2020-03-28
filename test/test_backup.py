@@ -12,6 +12,10 @@ class TestBackup:
         sql = "select 1"
         assert return_bck_obj.create_mysql_client_command(sql) == result
 
+    def test_full_backup_without_tag(self, return_bck_obj):
+        return_bck_obj.all_backup()
+
+
     def test_add_tag(self):
         # Method for checking the add_tag() static method. All parameters are hard coded.
         gen_obj = GeneralClass()
