@@ -29,7 +29,7 @@ class GenerateDefaultConfig:
             config.set(section1, "mysql_user", "root")
             config.set(section1, "mysql_password", "12345")
             config.set(section1, "## Set either mysql_socket only, OR host + port. If both are set mysql_socket is used")
-            config.set(section1, "mysql_socket", "/var/run/mysqld/mysqld.sock")
+            config.set(section1, "mysql_socket", "/var/lib/mysql/mysql.sock")
             config.set(section1, "#mysql_host", "127.0.0.1")
             config.set(section1, "#mysql_port", "3306")
             config.set(section1, "datadir", "/var/lib/mysql")

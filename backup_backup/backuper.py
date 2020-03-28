@@ -294,6 +294,8 @@ class Backup(GeneralClass):
     def clean_full_backup_dir(self):
         # Deleting old full backup after taking new full backup.
         logger.info("starting clean_full_backup_dir")
+        if not os.path.isdir(self.full_dir):
+            return
         for i in os.listdir(self.full_dir):
             rm_dir = self.full_dir + '/' + i
             if i != max(os.listdir(self.full_dir)):

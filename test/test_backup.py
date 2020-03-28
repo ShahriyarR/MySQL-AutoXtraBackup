@@ -8,12 +8,16 @@ import pytest
 class TestBackup:
 
     def test_create_mysql_client_command(self, return_bck_obj):
-        result = '/usr/bin/mysql --defaults-file= -uroot --password=12345 --socket=/var/run/mysqld/mysqld.sock -e "select 1"'
+        result = '/usr/bin/mysql --defaults-file= -uroot --password=12345 --socket=/var/lib/mysql/mysql.sock -e "select 1"'
         sql = "select 1"
         assert return_bck_obj.create_mysql_client_command(sql) == result
 
     def test_full_backup_without_tag(self, return_bck_obj):
-        return_bck_obj.all_backup()
+        return_bck_obj.clean_full_backup_dir()
+        return_bck_obj.full_backup()
+
+    def test_full_backup_with_tag(self, return_bck_obj):
+        pass
 
 
     def test_add_tag(self):
