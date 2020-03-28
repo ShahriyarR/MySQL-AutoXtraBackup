@@ -58,6 +58,7 @@ class ProcessHandler(GeneralClass):
         else:
             # todo: optionally raise error instead of return false
             # todo: cnt'd or, if any subprocess fails, can we stop in a recoverable state?
+            raise ChildProcessError("SUBPROCESS FAILED! >> {}".format(filtered_command))
             return False
 
     @staticmethod
