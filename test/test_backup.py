@@ -2,6 +2,7 @@
 from backup_backup.backuper import Backup
 from general_conf.generalops import GeneralClass
 import pytest
+import os
 
 
 @pytest.mark.usefixtures('return_bck_obj')
@@ -18,9 +19,15 @@ class TestBackup:
 
     def test_full_backup_with_tag(self, return_bck_obj):
         return_bck_obj.clean_full_backup_dir()
+        # Giving some tag information
         return_bck_obj.tag = "My first full backup"
         return_bck_obj.full_backup()
+        # Making it None back for global object
         return_bck_obj.tag = None
+        # Check if the backup tag file is created and contains given string
+        assert os.path.isfile("{}/backup_tags.txt".format(return_bck_obj.backupdir))
+        with open("{}/backup_tags.txt".format(return_bck_obj.backupdir), 'r') as file:
+            assert "My first full backup" in file.read()
 
 
 

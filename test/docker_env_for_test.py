@@ -13,7 +13,6 @@ import re
 
 client = docker.from_env()
 
-
 def pull_image(tag):
     """
     Function for pulling official MySQL docker image
@@ -44,6 +43,8 @@ def run_container(name, tag, cnt=None):
     if cnt:
         stop_container(cnt=cnt)
         remove_container(cnt=cnt)
+    else:
+        client.containers.prune()
 
     client.containers.run(image='mysql/mysql-server:{}'.format(tag), name=name, detach=True)
     return True
