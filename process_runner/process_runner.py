@@ -52,7 +52,14 @@ class ProcessHandler(GeneralClass):
         logger.info("SUBPROCESS {} COMPLETED with exit code: {}".format(subprocess_args[0], process.returncode))
         cmd_end = datetime.datetime.now()
         self.summarize_process(subprocess_args, cmd_start, cmd_end, process.returncode)
-        return process.returncode == 0
+        # return True or False.
+        if process.returncode == 0:
+            return True
+        else:
+            # todo: optionally raise error instead of return false
+            # todo: cnt'd or, if any subprocess fails, can we stop in a recoverable state?
+            raise ChildProcessError("SUBPROCESS FAILED! >> {}".format(filtered_command))
+            return False
 
     @staticmethod
     def command_to_args(command_str):
