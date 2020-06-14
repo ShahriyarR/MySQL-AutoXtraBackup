@@ -8,22 +8,24 @@ import os
 import subprocess
 import shutil
 import time
-from general_conf.generalops import GeneralClass
+import logging
+
 from os.path import isfile
 from general_conf import path_config
 from process_runner.process_runner import ProcessRunner
-import logging
+from utils import helpers
+from backup_backup.backuper import Backup
 
 logger = logging.getLogger(__name__)
 
 
-class Prepare(GeneralClass):
+class Prepare(Backup):
 
     def __init__(self, config=path_config.config_path_file, dry_run=0, tag=None):
         self.conf = config
         self.dry = dry_run
         self.tag = tag
-        GeneralClass.__init__(self, self.conf)
+        Backup.__init__(self, self.conf)
         # If prepare_tool option enabled in config, make backup_tool to use this.
         try:
             self.backup_tool = self.prepare_tool
@@ -34,17 +36,9 @@ class Prepare(GeneralClass):
             raise RuntimeError("Could not find backup_tags.txt inside backup directory. "
                                "Please run without --tag option")
 
-    def recent_full_backup_file(self):
-        # Return last full backup dir name
-        if len(os.listdir(self.full_dir)) > 0:
-            return max(os.listdir(self.full_dir))
-        else:
-            raise RuntimeError("The full backup directory is empty, it seems you have no backups")
-
     def check_inc_backups(self):
         # Check for Incremental backups
-        if len(os.listdir(self.inc_dir)) > 0:
-            return True
+        return os.listdir(self.inc_dir)
 
     @staticmethod
     def parse_backup_tags(backup_dir, tag_name):
@@ -85,8 +79,7 @@ class Prepare(GeneralClass):
                 decmp += " --remove-original"
 
             logger.info("Trying to decompress backup")
-            logger.info(
-                "Running decompress command -> {}".format(decmp))
+            logger.info("Running decompress command -> {}".format(decmp))
             if self.dry == 0:
                 status = ProcessRunner.run_command(decmp)
                 if status:
@@ -144,58 +137,25 @@ class Prepare(GeneralClass):
 
         # Checking if extra options were passed:
         if hasattr(self, 'xtra_options'):
-            xtrabackup_prepare_cmd += " "
-            xtrabackup_prepare_cmd += self.xtra_options
+            xtrabackup_prepare_cmd += "  {}".format(self.xtra_options)
 
         # Checking of extra prepare options were passed:
         if hasattr(self, 'xtra_prepare_options'):
-            xtrabackup_prepare_cmd += " "
-            xtrabackup_prepare_cmd += self.xtra_prepare_options
+            xtrabackup_prepare_cmd += "  {}".format(self.xtra_prepare_options)
 
         return xtrabackup_prepare_cmd
 
     def prepare_with_tags(self):
         # Method for preparing backups based on passed backup tags
         found_backups = Prepare.parse_backup_tags(backup_dir=self.backupdir, tag_name=self.tag)
-        recent_bck = self.recent_full_backup_file()
+        recent_bck = helpers.get_latest_dir_name(self.full_dir)
+
         if found_backups[1] == 'Full':
             if recent_bck:
                 logger.info("- - - - Preparing Full Backup - - - -")
-                if hasattr(self, 'stream'):
-                    if hasattr(self, 'encrypt') and hasattr(self, 'xbs_decrypt'):
-                        logger.info("Using xbstream to extract and decrypt from full_backup.stream!")
-                        xbstream_command = "{} {} --decrypt={} --encrypt-key={} --encrypt-threads={} " \
-                                           "< {}/{}/full_backup.stream -C {}/{}".format(
-                            self.xbstream,
-                            self.xbstream_options,
-                            self.decrypt,
-                            self.encrypt_key,
-                            self.encrypt_threads,
-                            self.full_dir,
-                            recent_bck,
-                            self.full_dir,
-                            recent_bck)
 
-                    else:
-                        logger.info("Using xbstream to extract from full_backup.stream!")
-                        xbstream_command = "{} {} < {}/{}/full_backup.stream -C {}/{}".format(
-                            self.xbstream,
-                            self.xbstream_options,
-                            self.full_dir,
-                            recent_bck,
-                            self.full_dir,
-                            recent_bck)
-
-                    logger.info("The following xbstream command will be executed {}".format(xbstream_command))
-                    if self.dry == 0 and isfile("{}/{}/full_backup.stream".format(
-                            self.full_dir, self.recent_full_backup_file())):
-                        status, output = subprocess.getstatusoutput(xbstream_command)
-                        if status == 0:
-                            logger.info("OK: XBSTREAM command succeeded.")
-                        else:
-                            logger.error("FAILED: XBSTREAM command.")
-                            logger.error(output)
-                            raise RuntimeError("FAILED: XBSTREAM command.")
+                # Extracting/decrypting from streamed backup and extra checks goes here
+                self.extract_decrypt_from_stream_backup(recent_full_bck=recent_bck)
 
                 # Decrypt backup
                 self.decrypt_backup(self.full_dir, recent_bck)
@@ -220,7 +180,7 @@ class Prepare(GeneralClass):
                 logger.info("- - - - You have Incremental backups. - - - -")
                 if self.prepare_only_full_backup():
                     logger.info("Preparing Incs: ")
-                    list_of_dir = sorted(os.listdir(self.inc_dir))
+                    list_of_dir = helpers.sorted_ls(self.inc_dir)
                     # Find the index number inside all list for backup(which was found via tag)
                     index_num = list_of_dir.index(found_backups[0])
                     # Limit the iteration until this found backup
@@ -294,7 +254,7 @@ class Prepare(GeneralClass):
     ##########################################################################
 
     def prepare_only_full_backup(self):
-        recent_bck = self.recent_full_backup_file()
+        recent_bck = helpers.get_latest_dir_name(self.full_dir)
         if recent_bck:
             if not self.check_inc_backups():
                 logger.info("- - - - Preparing Full Backup - - - -")
@@ -313,41 +273,8 @@ class Prepare(GeneralClass):
                             logger.error(output)
                             raise RuntimeError("FAILED: extracting full backup from tar")
 
-                if hasattr(self, 'stream') and self.stream == 'xbstream':
-                    if hasattr(self, 'encrypt') and hasattr(self, 'xbs_decrypt'):
-                        logger.info("Using xbstream to extract and decrypt from full_backup.stream!")
-                        xbstream_command = "{} {} --decrypt={} --encrypt-key={} --encrypt-threads={} " \
-                                           "< {}/{}/full_backup.stream -C {}/{}".format(
-                            self.xbstream,
-                            self.xbstream_options,
-                            self.decrypt,
-                            self.encrypt_key,
-                            self.encrypt_threads,
-                            self.full_dir,
-                            recent_bck,
-                            self.full_dir,
-                            recent_bck)
-
-                    else:
-                        logger.info("Using xbstream to extract from full_backup.stream!")
-                        xbstream_command = "{} {} < {}/{}/full_backup.stream -C {}/{}".format(
-                            self.xbstream,
-                            self.xbstream_options,
-                            self.full_dir,
-                            recent_bck,
-                            self.full_dir,
-                            recent_bck)
-
-                    logger.info("The following xbstream command will be executed {}".format(xbstream_command))
-                    if self.dry == 0 and isfile("{}/{}/full_backup.stream".format(
-                            self.full_dir, recent_bck)):
-                        status, output = subprocess.getstatusoutput(xbstream_command)
-                        if status == 0:
-                            logger.info("OK: XBSTREAM command succeeded.")
-                        else:
-                            logger.error("FAILED: XBSTREAM command.")
-                            logger.error(output)
-                            raise RuntimeError("FAILED: XBSTREAM command.")
+                # Extracting/decrypting from streamed backup and extra checks goes here
+                self.extract_decrypt_from_stream_backup(recent_full_bck=recent_bck)
 
                 # Decrypt backup
                 self.decrypt_backup(self.full_dir, recent_bck)
@@ -403,7 +330,8 @@ class Prepare(GeneralClass):
             return self.prepare_only_full_backup()
         else:
             logger.info("- - - - You have Incremental backups. - - - -")
-            recent_bck = self.recent_full_backup_file()
+            recent_bck = helpers.get_latest_dir_name(self.full_dir)
+
             if self.prepare_only_full_backup():
                 logger.info("Preparing Incs: ")
                 list_of_dir = sorted(os.listdir(self.inc_dir))
@@ -426,6 +354,7 @@ class Prepare(GeneralClass):
                     else:
                         logger.info(
                             "Preparing last Incremental backup, inc backup dir/name is {}".format(inc_backup_dir))
+                        # TODO: figure out the way of calling only this
                         if hasattr(self, 'stream'):
                             logger.info("Using xbstream to extract from inc_backup.stream!")
                             xbstream_command = "{} {} < {}/{}/inc_backup.stream -C {}/{}".format(
@@ -542,7 +471,8 @@ class Prepare(GeneralClass):
             self.backup_tool,
             self.xtra_options,
             self.full_dir,
-            self.recent_full_backup_file(),
+            helpers.get_latest_dir_name(self.full_dir)
+,
             self.datadir if datadir is None else datadir)
         status = ProcessRunner.run_command(copy_back)
         if status:
@@ -619,7 +549,7 @@ class Prepare(GeneralClass):
         :return: True if succeeded. Error if failed.
         """
         try:
-            self.check_if_backup_prepared(self.full_dir, self.recent_full_backup_file())
+            self.check_if_backup_prepared(self.full_dir, helpers.get_latest_dir_name(self.full_dir))
             self.shutdown_mysql()
             if self.move_datadir() and self.copy(options=options):
                 logger.info("All data copied back successfully. ")
