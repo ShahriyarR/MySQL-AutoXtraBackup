@@ -109,12 +109,6 @@ class GenerateDefaultConfig:
             config.set(section6, "# WARN, enable this, if you want to stream your backups to remote host")
             config.set(section6, "#remote_stream", "ssh xxx.xxx.xxx.xxx")
 
-            section7 = "Remote"
-            config.add_section(section7)
-            config.set(section7, "#Optional remote syncing")
-            config.set(section7, "#remote_conn", "root@xxx.xxx.xxx.xxx")
-            config.set(section7, "#remote_dir", "{}".format(join(self.home, 'Documents')))
-
             section8 = "Commands"
             config.add_section(section8)
             config.set(section8, "start_mysql_command", "service mysql start")
