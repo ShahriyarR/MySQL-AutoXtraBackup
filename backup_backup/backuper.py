@@ -7,7 +7,6 @@
 import logging
 import os
 import subprocess
-import shlex
 import shutil
 import time
 
@@ -152,6 +151,8 @@ class Backup(GeneralClass):
 
     def clean_old_archives(self):
         logger.info("Starting cleaning of old archives")
+        # Finding if last full backup older than the interval or more from now!
+        cleanup_msg = "Removing archive {}/{} due to {}"
         for archive in helpers.sorted_ls(self.archive_dir):
             if '_archive' in archive:
                 archive_date = datetime.strptime(
@@ -162,8 +163,6 @@ class Backup(GeneralClass):
 
             now = datetime.now()
 
-            # Finding if last full backup older than the interval or more from now!
-            cleanup_msg = "Removing archive {}/{} due to {}"
             if hasattr(self, 'archive_max_duration') and (
                     now - archive_date).total_seconds() >= self.archive_max_duration:
                 logger.info(cleanup_msg.format(self.archive_dir, archive, 'archive_max_duration exceeded.'))
@@ -181,7 +180,7 @@ class Backup(GeneralClass):
 
     def clean_full_backup_dir(self):
         # Deleting old full backup after taking new full backup.
-        # Keeping the latest in order not to loose everything.
+        # Keeping the latest in order not to lose everything.
         logger.info("starting clean_full_backup_dir")
         if not os.path.isdir(self.full_dir):
             return
@@ -198,15 +197,6 @@ class Backup(GeneralClass):
         for i in os.listdir(self.inc_dir):
             rm_dir = self.inc_dir + '/' + i
             shutil.rmtree(rm_dir)
-
-    def copy_backup_to_remote_host(self):
-        # Copying backup directory to remote server
-        logger.info("- - - - Copying backups to remote server - - - -")
-
-        copy_it = 'scp -r {} {}:{}'.format(self.backupdir, self.remote_conn, self.remote_dir)
-        copy_it = shlex.split(copy_it)
-        cp = subprocess.Popen(copy_it, stdout=subprocess.PIPE)
-        logger.info(str(cp.stdout.read()))
 
     def general_command_builder(self):
         """
