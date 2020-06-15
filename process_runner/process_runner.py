@@ -56,10 +56,7 @@ class ProcessHandler(GeneralClass):
         if process.returncode == 0:
             return True
         else:
-            # todo: optionally raise error instead of return false
-            # todo: cnt'd or, if any subprocess fails, can we stop in a recoverable state?
             raise ChildProcessError("SUBPROCESS FAILED! >> {}".format(filtered_command))
-            return False
 
     @staticmethod
     def command_to_args(command_str):

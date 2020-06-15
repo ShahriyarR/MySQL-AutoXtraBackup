@@ -26,7 +26,7 @@ class GeneralClass:
                 self.mysql_host = DB['mysql_host']
             if 'mysql_port' in DB:
                 self.mysql_port = DB['mysql_port']
-            self.datadir = DB['datadir']
+            self.data_dir = DB['datadir']
 
             LOG = con['Logging']
             if 'log' in LOG:
@@ -78,12 +78,6 @@ class GeneralClass:
             if 'partial_list' in BCK:
                 self.partial_list = BCK['partial_list']
 
-            if 'Remote' in con:
-                RM = con['Remote']
-                if 'remote_conn' in RM:
-                    self.remote_conn = RM['remote_conn']
-                if 'remote_dir' in RM:
-                    self.remote_dir = RM['remote_dir']
 
             COM = con['Compress']
             if 'compress' in COM:
@@ -129,31 +123,6 @@ class GeneralClass:
             self.start_mysql = CM['start_mysql_command']
             self.stop_mysql = CM['stop_mysql_command']
             self.chown_command = CM['chown_command']
-
-            # Will be generated only for test environment.
-            # Not generated for production things.
-            if 'TestConf' in con:
-                TEST = con['TestConf']
-                if 'ps_branches' in TEST:
-                    self.ps_branches = TEST['ps_branches']
-                if 'pxb_branches' in TEST:
-                    self.pxb_branches = TEST['pxb_branches']
-                if 'gitcmd' in TEST:
-                    self.gitcmd = TEST['gitcmd']
-                if 'pxb_gitcmd' in TEST:
-                    self.pxb_gitcmd = TEST['pxb_gitcmd']
-                if 'testpath' in TEST:
-                    self.testpath = TEST['testpath']
-                if 'incremental_count' in TEST:
-                    self.incremental_count = TEST['incremental_count']
-                if 'xb_configs' in TEST:
-                    self.xb_configs = TEST['xb_configs']
-                if 'default_mysql_options' in TEST:
-                    self.default_mysql_options = TEST['default_mysql_options']
-                if 'mysql_options' in TEST:
-                    self.mysql_options = TEST['mysql_options']
-                if 'make_slaves' in TEST:
-                    self.make_slaves = TEST['make_slaves']
 
         else:
             logger.critical("Missing config file : {}".format(path_config.config_path_file))
