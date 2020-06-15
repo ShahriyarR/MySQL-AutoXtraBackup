@@ -318,7 +318,10 @@ class Backup(GeneralClass):
             raise RuntimeError("xtrabackup: error: streaming incremental backups are incompatible with the "
                                "'tar' streaming format. Use --stream=xbstream instead.")
 
-    def extract_decrypt_from_stream_backup(self, recent_full_bck=None, recent_inc_bck=None):
+    def extract_decrypt_from_stream_backup(self,
+                                           recent_full_bck=None,
+                                           recent_inc_bck=None,
+                                           flag=None):
         """
         Method for extracting and if necessary decrypting from streamed backup.
         If the recent_full_bck passed then it means you want to extract the full backup.
@@ -339,7 +342,9 @@ class Backup(GeneralClass):
         xbstream_command = None
 
         if hasattr(self, 'stream') and self.stream == 'xbstream' \
-                and hasattr(self, 'encrypt') and hasattr(self, 'xbs_decrypt'):
+                and hasattr(self, 'encrypt') \
+                and hasattr(self, 'xbs_decrypt') \
+                and not flag:
             logger.info("Using xbstream to extract and decrypt from {}".format(file_name))
             xbstream_command = "{} {} --decrypt={} --encrypt-key={} --encrypt-threads={} ".format(
                                 self.xbstream,
@@ -348,7 +353,7 @@ class Backup(GeneralClass):
                                 self.encrypt_key,
                                 self.encrypt_threads)
 
-        # Extract streamed full backup prior to executing incremental backup
+        # Extract streamed backup prior to executing incremental backup
         # If it is only streamed and not encrypted etc.
         elif hasattr(self, 'stream') and self.stream == 'xbstream':
             logger.info("Using xbstream to extract from {}".format(file_name))
