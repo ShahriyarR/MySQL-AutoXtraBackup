@@ -29,10 +29,11 @@ class Prepare(GeneralClass):
         except AttributeError:
             pass
 
-        if self.tag:
-            if not os.path.isfile("{}/backup_tags.txt".format(self.backupdir)):
-                raise RuntimeError("Could not find backup_tags.txt inside backup directory. "
-                                   "Please run without --tag option")
+        if self.tag and not os.path.isfile(
+            "{}/backup_tags.txt".format(self.backupdir)
+        ):
+            raise RuntimeError("Could not find backup_tags.txt inside backup directory. "
+                               "Please run without --tag option")
 
     def recent_full_backup_file(self):
         # Return last full backup dir name
@@ -929,15 +930,8 @@ class Prepare(GeneralClass):
     def start_mysql_func(self, start_tool=None, options=None):
         # Starting MySQL
         logger.info("Starting MySQL server: ")
-        if start_tool is None:
-            args = self.start_mysql
-        else:
-            args = start_tool
-
-        if options is not None:
-            start_command = "{} {}".format(args, options)
-        else:
-            start_command = args
+        args = self.start_mysql if start_tool is None else start_tool
+        start_command = "{} {}".format(args, options) if options is not None else args
         status, output = subprocess.getstatusoutput(start_command)
         if status == 0:
             logger.info("Starting MySQL ...")
@@ -990,10 +984,9 @@ class Prepare(GeneralClass):
         try:
             self.check_if_backup_prepared(self.full_dir, self.recent_full_backup_file())
             self.shutdown_mysql()
-            if self.move_datadir():
-                if self.copy(options=options):
-                    logger.info("All data copied back successfully. ")
-                    logger.info("Your MySQL server is UP again")
+            if self.move_datadir() and self.copy(options=options):
+                logger.info("All data copied back successfully. ")
+                logger.info("Your MySQL server is UP again")
         except Exception as err:
             logger.error("{}: {}".format(type(err).__name__, err))
 
@@ -1025,16 +1018,12 @@ class Prepare(GeneralClass):
         elif prepare == 2:
             if self.tag is None:
                 self.prepare_inc_full_backups()
-                if self.dry == 0:
-                    self.copy_back_action()
-                else:
-                    logger.critical("Dry run is not implemented for copy-back/recovery actions!")
             else:
                 self.prepare_with_tags()
-                if self.dry == 0:
-                    self.copy_back_action()
-                else:
-                    logger.critical("Dry run is not implemented for copy-back/recovery actions!")
+            if self.dry == 0:
+                self.copy_back_action()
+            else:
+                logger.critical("Dry run is not implemented for copy-back/recovery actions!")
         elif prepare == 3:
             if self.dry == 0:
                 self.copy_back_action()

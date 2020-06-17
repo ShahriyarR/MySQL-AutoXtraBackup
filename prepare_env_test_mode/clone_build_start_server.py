@@ -25,20 +25,19 @@ class CloneBuildStartServer(TestModeConfCheck):
             self.testpath = t_obj.testpath
 
     def clone_percona_qa(self):
+        if os.path.exists("{}/percona-qa".format(self.testpath)):
+            return True
+        logger.debug("Started to clone percona-qa...")
         # Clone percona-qa repo for using existing bash scripts
         clone_cmd = "git clone https://github.com/Percona-QA/percona-qa.git {}/percona-qa"
-        if not os.path.exists("{}/percona-qa".format(self.testpath)):
-            logger.debug("Started to clone percona-qa...")
-            status, output = subprocess.getstatusoutput(clone_cmd.format(self.testpath))
-            if status == 0:
-                logger.debug("percona-qa ready to use")
-                return True
-            else:
-                logger.error("Cloning percona-qa repo failed")
-                logger.error(output)
-                return False
-        else:
+        status, output = subprocess.getstatusoutput(clone_cmd.format(self.testpath))
+        if status == 0:
+            logger.debug("percona-qa ready to use")
             return True
+        else:
+            logger.error("Cloning percona-qa repo failed")
+            logger.error(output)
+            return False
 
     def clone_ps_server_from_conf(self):
         # Clone PS server[the value coming from config file]
@@ -63,8 +62,8 @@ class CloneBuildStartServer(TestModeConfCheck):
     def clone_pxb(self):
         # Clone PXB from github based on branch values from config file.
         pxb_branches = self.pxb_branches.split()
+        clone_cmd = "git clone {} -b {} {}/PXB-{}"
         for branch in pxb_branches:
-            clone_cmd = "git clone {} -b {} {}/PXB-{}"
             if not os.path.exists("{}/PXB-{}".format(self.testpath, branch)):
                 logger.debug("Started to clone PXB...")
                 status, output = subprocess.getstatusoutput(
@@ -105,8 +104,8 @@ class CloneBuildStartServer(TestModeConfCheck):
         saved_path = os.getcwd()
         # Specify here the cloned PS path; for me it is PS-5.7-trunk(which I have hard coded in method above)
         ps_branches = self.ps_branches.split()
+        new_path = "{}/PS-{}-trunk"
         for branch in ps_branches:
-            new_path = "{}/PS-{}-trunk"
             os.chdir(new_path.format(self.testpath, branch))
             if '5.5' in branch:
                 # Use same script with 5.5 and 5.6 versions
@@ -137,7 +136,7 @@ class CloneBuildStartServer(TestModeConfCheck):
                 if obj:
                     basedir_path = "{}/{}"
                     basedirs.append(basedir_path.format(self.testpath, dir_name))
-        if len(basedirs) > 0:
+        if basedirs:
             for i in basedirs:
                 os.rename(i, i.replace('-percona-server', ''))
             return True
@@ -157,7 +156,7 @@ class CloneBuildStartServer(TestModeConfCheck):
                     basedir_path = "{}/{}"
                     basedirs.append(basedir_path.format(self.testpath, dir_name))
                     # return basedir_path.format(self.testpath, dir_name)
-        if len(basedirs) > 0:
+        if basedirs:
             logger.debug("Could get PS basedir path...")
             return basedirs
         else:

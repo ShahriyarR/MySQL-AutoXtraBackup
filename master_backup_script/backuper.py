@@ -272,6 +272,9 @@ class Backup(GeneralClass):
 
     def clean_old_archives(self):
         logger.info("Starting cleaning of old archives")
+        # Finding if last full backup older than the interval or more from
+        # now!
+        cleanup_msg = "Removing archive {}/{} due to {}"
         for archive in self.sorted_ls(self.archive_dir):
             if '_archive' in archive:
                 archive_date = datetime.strptime(
@@ -282,9 +285,6 @@ class Backup(GeneralClass):
 
             now = datetime.now()
 
-            # Finding if last full backup older than the interval or more from
-            # now!
-            cleanup_msg = "Removing archive {}/{} due to {}"
             if hasattr(self, 'archive_max_duration') and (now - archive_date).total_seconds() >= self.archive_max_duration:
                 logger.info(cleanup_msg.format(self.archive_dir, archive, 'archive_max_duration exceeded.'))
                 if os.path.isdir(self.archive_dir + "/" + archive):
@@ -407,22 +407,24 @@ class Backup(GeneralClass):
         xtrabackup_cmd += self.general_command_builder()
 
         # Checking if streaming enabled for backups
-        if hasattr(self, 'stream') and self.stream == 'xbstream':
-            xtrabackup_cmd += " "
-            xtrabackup_cmd += '--stream="{}"'.format(self.stream)
-            xtrabackup_cmd += " > {}/full_backup.stream".format(full_backup_dir)
-            logger.warning("Streaming xbstream is enabled!")
-        elif hasattr(self, 'stream') and self.stream == 'tar' and \
-                (hasattr(self, 'encrypt') or hasattr(self, 'compress')):
-            logger.error("xtrabackup: error: compressed and encrypted backups are "
-                         "incompatible with the 'tar' streaming format. Use --stream=xbstream instead.")
-            raise RuntimeError("xtrabackup: error: compressed and encrypted backups are "
-                               "incompatible with the 'tar' streaming format. Use --stream=xbstream instead.")
-        elif hasattr(self, 'stream') and self.stream == 'tar':
-            xtrabackup_cmd += " "
-            xtrabackup_cmd += '--stream="{}"'.format(self.stream)
-            xtrabackup_cmd += " > {}/full_backup.tar".format(full_backup_dir)
-            logger.warning("Streaming tar is enabled!")
+        if hasattr(self, 'stream'):
+            if self.stream == 'xbstream':
+                xtrabackup_cmd += " "
+                xtrabackup_cmd += '--stream="{}"'.format(self.stream)
+                xtrabackup_cmd += " > {}/full_backup.stream".format(full_backup_dir)
+                logger.warning("Streaming xbstream is enabled!")
+            elif self.stream == 'tar' and (
+                hasattr(self, 'encrypt') or hasattr(self, 'compress')
+            ):
+                logger.error("xtrabackup: error: compressed and encrypted backups are "
+                             "incompatible with the 'tar' streaming format. Use --stream=xbstream instead.")
+                raise RuntimeError("xtrabackup: error: compressed and encrypted backups are "
+                                   "incompatible with the 'tar' streaming format. Use --stream=xbstream instead.")
+            elif self.stream == 'tar':
+                xtrabackup_cmd += " "
+                xtrabackup_cmd += '--stream="{}"'.format(self.stream)
+                xtrabackup_cmd += " > {}/full_backup.tar".format(full_backup_dir)
+                logger.warning("Streaming tar is enabled!")
 
         if self.dry == 1:
             # If it's a dry run, skip running & tagging

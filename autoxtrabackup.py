@@ -181,8 +181,6 @@ def validate_file(file):
               expose_value=False,
               is_eager=False,
               help="Print help message and exit.")
-
-
 @click.pass_context
 def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
                   verbose, log_file, log, defaults_file,
@@ -237,11 +235,11 @@ def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
                     test_mode is False and
                     show_tags is False):
                 print_help(ctx, None, value=True)
-            
+
             elif show_tags and defaults_file:
                 b = Backup(config=defaults_file)
                 b.show_tags(backup_dir=b.backupdir)
-            
+
             elif test_mode and defaults_file:
                 logger.warning("Enabled Test Mode!!!")
                 logger.info("Starting Test Mode")
@@ -269,64 +267,64 @@ def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
                         logger.error("Please pass proper already generated config file!")
                         logger.error("Please check also if you have run prepare_env.bats file")
             elif prepare and not test_mode:
-                if not dry_run:
-                    if tag:
-                        a = Prepare(config=defaults_file, tag=tag)
-                        a.prepare_backup_and_copy_back()
-                    else:
-                        a = Prepare(config=defaults_file)
-                        a.prepare_backup_and_copy_back()
-                else:
+                if dry_run:
                     logger.warning("Dry run enabled!")
                     logger.warning("Do not recover/copy-back in this mode!")
                     if tag:
                         a = Prepare(config=defaults_file, dry_run=1, tag=tag)
-                        a.prepare_backup_and_copy_back()
                     else:
                         a = Prepare(config=defaults_file, dry_run=1)
-                        a.prepare_backup_and_copy_back()
-            elif backup and not test_mode:
-                if not dry_run:
-                    if tag:
-                        b = Backup(config=defaults_file, tag=tag)
-                        b.all_backup()
-                    else:
-                        b = Backup(config=defaults_file)
-                        b.all_backup()
                 else:
+                    if tag:
+                        a = Prepare(config=defaults_file, tag=tag)
+                    else:
+                        a = Prepare(config=defaults_file)
+                a.prepare_backup_and_copy_back()
+            elif backup and not test_mode:
+                if dry_run:
                     logger.warning("Dry run enabled!")
                     if tag:
                         b = Backup(config=defaults_file, dry_run=1, tag=tag)
-                        b.all_backup()
                     else:
                         b = Backup(config=defaults_file, dry_run=1)
-                        b.all_backup()
+                else:
+                    if tag:
+                        b = Backup(config=defaults_file, tag=tag)
+                    else:
+                        b = Backup(config=defaults_file)
+                b.all_backup()
             elif partial:
-                if not dry_run:
+                if dry_run:
+                    logger.critical("Dry run is not implemented for partial recovery!")
+                else:
                     c = PartialRecovery(config=defaults_file)
                     c.final_actions()
-                else:
-                    logger.critical("Dry run is not implemented for partial recovery!")
     except pid.PidFileAlreadyLockedError as error:
-        if hasattr(config, 'pid_runtime_warning'):
-            if time.time() - os.stat(pid_file.filename).st_ctime > config.pid_runtime_warning:
-                pid.fh.seek(0)
-                pid_str = pid.fh.read(16).split("\n", 1)[0].strip()
-                logger.critical(
-                    "Backup (pid: " + pid_str + ") has been running for logger than: " + str(
-                        humanfriendly.format_timespan(
-                            config.pid_runtime_warning)))
-        # logger.warn("Pid file already exists: " + str(error))
+        if (
+            hasattr(config, 'pid_runtime_warning')
+            and time.time() - os.stat(pid_file.filename).st_ctime
+            > config.pid_runtime_warning
+        ):
+            pid.fh.seek(0)
+            pid_str = pid.fh.read(16).split("\n", 1)[0].strip()
+            logger.critical(
+                "Backup (pid: " + pid_str + ") has been running for logger than: " + str(
+                    humanfriendly.format_timespan(
+                        config.pid_runtime_warning)))
+            # logger.warn("Pid file already exists: " + str(error))
     except pid.PidFileAlreadyRunningError as error:
-        if hasattr(config, 'pid_runtime_warning'):
-            if time.time() - os.stat(pid_file.filename).st_ctime > config.pid_runtime_warning:
-                pid.fh.seek(0)
-                pid_str = pid.fh.read(16).split("\n", 1)[0].strip()
-                logger.critical(
-                    "Backup (pid: " + pid_str + ") has been running for logger than: " + str(
-                        humanfriendly.format_timespan(
-                            config.pid_runtime_warning)))
-        # logger.warn("Pid already running: " + str(error))
+        if (
+            hasattr(config, 'pid_runtime_warning')
+            and time.time() - os.stat(pid_file.filename).st_ctime
+            > config.pid_runtime_warning
+        ):
+            pid.fh.seek(0)
+            pid_str = pid.fh.read(16).split("\n", 1)[0].strip()
+            logger.critical(
+                "Backup (pid: " + pid_str + ") has been running for logger than: " + str(
+                    humanfriendly.format_timespan(
+                        config.pid_runtime_warning)))
+            # logger.warn("Pid already running: " + str(error))
     except pid.PidFileUnreadableError as error:
         logger.warning("Pid file can not be read: " + str(error))
     except pid.PidFileError as error:

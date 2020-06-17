@@ -111,7 +111,7 @@ class ProcessHandler(GeneralClass):
                 xtrabackup_function = "backup"
             elif "--prepare" in args and "--apply-log-only" not in args:
                 xtrabackup_function = "prepare"
-            elif "--prepare" in args and "--apply-log-only" in args:
+            elif "--prepare" in args:
                 xtrabackup_function = "prepare/apply-log-only"
         if not xtrabackup_function:
             for arg in args:

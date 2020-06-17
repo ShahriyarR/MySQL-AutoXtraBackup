@@ -146,8 +146,8 @@ class WrapperForBackupTest(Backup):
 
     @staticmethod
     def create_million_tables(basedir):
+        sql_create = "create table sysbench_test_db.ddl_table{}(id int not null)"
         for i in range(1000000):
-            sql_create = "create table sysbench_test_db.ddl_table{}(id int not null)"
             RunBenchmark.run_sql_statement(basedir=basedir, sql_statement=sql_create.format(i))
         #sql_create_run = '{} -e \"{}\"'.format(RunBenchmark.get_mysql_conn(basedir), sql_create.format(i))
         # try:

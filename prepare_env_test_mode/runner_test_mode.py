@@ -148,21 +148,29 @@ class RunnerTestMode(GeneralClass):
         for i, j in enumerate(list_output[2:], start=1):
             splitted = j.split(":")
 
-            if 'Slave_IO_Running' == splitted[0].lstrip():
-                if splitted[1].lstrip() != 'Yes':
-                    raise RuntimeError("Slave_IO_Running is not Yes")
+            if (
+                'Slave_IO_Running' == splitted[0].lstrip()
+                and splitted[1].lstrip() != 'Yes'
+            ):
+                raise RuntimeError("Slave_IO_Running is not Yes")
 
-            if 'Slave_SQL_Running' == splitted[0].lstrip():
-                if splitted[1].lstrip() != 'Yes':
-                    raise RuntimeError("Slave_SQL_Running is not Yes")
+            if (
+                'Slave_SQL_Running' == splitted[0].lstrip()
+                and splitted[1].lstrip() != 'Yes'
+            ):
+                raise RuntimeError("Slave_SQL_Running is not Yes")
 
-            if 'Last_IO_Error' == splitted[0].lstrip():
-                if splitted[1].lstrip() != '':
-                    raise RuntimeError("It seems to be IO Error: {}".format(splitted[1]))
+            if (
+                'Last_IO_Error' == splitted[0].lstrip()
+                and splitted[1].lstrip() != ''
+            ):
+                raise RuntimeError("It seems to be IO Error: {}".format(splitted[1]))
 
-            if 'Last_SQL_Error' == splitted[0].lstrip():
-                if splitted[1].lstrip() != '':
-                    raise RuntimeError("It seems to be SQL Error: {}".format(splitted[1]))
+            if (
+                'Last_SQL_Error' == splitted[0].lstrip()
+                and splitted[1].lstrip() != ''
+            ):
+                raise RuntimeError("It seems to be SQL Error: {}".format(splitted[1]))
 
     @staticmethod
     def drop_blank_mysql_users(sql_conn):
@@ -174,9 +182,9 @@ class RunnerTestMode(GeneralClass):
         select_blank_users = '{} -e \"select user, host from mysql.user where user like \'\'\"'
         logger.debug("Running -> {}".format(select_blank_users.format(sql_conn)))
         users = RunnerTestMode.run_sql_command(sql_command=select_blank_users.format(sql_conn))
+        drop_user = '{} -e "drop user \'\'@\'{}\'"'
         # Getting host names for blank users:
         for i in users.splitlines()[1:]:
-            drop_user = '{} -e "drop user \'\'@\'{}\'"'
             logger.debug("Running -> {}".format(drop_user.format(sql_conn, i.lstrip())))
             RunnerTestMode.run_sql_command(drop_user.format(sql_conn, i.lstrip()))
 
@@ -366,13 +374,11 @@ class RunnerTestMode(GeneralClass):
                 gtid_pos = self.get_gtid_address(full_backup_dir=full_backup_dir)
                 gtid_purged = '{} -e \'set global gtid_purged=\"{}\"\''.format(
                               mysql_slave_client_cmd, gtid_pos)
-                self.run_sql_command(gtid_purged)
             else:
                 # Run SET GLOBAL gtid_purged, get from slave's xtrabackup_slave_info
                 sql_cmd = self.get_gtid_xtrabackup_slave_info(full_backup_dir=full_backup_dir)
                 gtid_purged = '{} -e \"{}\"'.format(mysql_slave_client_cmd, sql_cmd)
-                self.run_sql_command(gtid_purged)
-
+            self.run_sql_command(gtid_purged)
         # Change master
         if '5.5' in basedir:
             if is_slave is None:
@@ -411,7 +417,7 @@ class RunnerTestMode(GeneralClass):
         """
         c_count = 0
         for options in ConfigGenerator(config=self.conf).options_combination_generator(self.mysql_options):
-            c_count = c_count + 1
+            c_count += 1
             options = " ".join(options)
             if '5.7' in basedir or '8.0' in basedir:
                 if keyring_vault == 0:
