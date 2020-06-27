@@ -8,11 +8,10 @@ services:
       args:
         GIT_BRANCH_NAME: ${GIT_BRANCH_NAME}
     container_name: autoxtrabackup_test
-    volumes:
-    - ./*:/opt/main
     networks:
       - wide_network
       - internal_network
+    command: bash -c ""
 
 networks:
   internal_network:

@@ -11,10 +11,10 @@ if not isfile(path_config.config_path_file):
 setup(
     name='mysql-autoxtrabackup',
     version='2.0',
-    packages=['general_conf', 'backup_prepare', 'partial_recovery', 'backup_backup',
-              'prepare_env_test_mode', 'process_runner'],
+    packages=['general_conf', 'backup_prepare', 'backup_backup',
+              'test', 'process_runner'],
     package_data={
-        'prepare_env_test_mode': ['*.sh', '*.sql']
+        'test': ['*.sh', '*.py', '*.bats']
     },
     py_modules=['autoxtrabackup'],
     url='https://github.com/ShahriyarR/MySQL-AutoXtraBackup',
