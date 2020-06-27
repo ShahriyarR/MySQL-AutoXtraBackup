@@ -1,10 +1,14 @@
 import docker
 import re
+import sys
+from typing import Tuple
 
 client = docker.from_env()
 
+# TODO: learn how to indicate objects as return type using type hints
 
-def get_container_instance_object(name):
+
+def get_container_instance_object(name: str):
     """
     Return the container object of given named container.
     Search for container inside the list of up and running containers.
@@ -16,7 +20,7 @@ def get_container_instance_object(name):
         return container[0]
 
 
-def get_default_mysql_password(cnt=None):
+def get_default_mysql_password(cnt=None) -> str:
     """
     As per doc https://dev.mysql.com/doc/mysql-installation-excerpt/8.0/en/docker-mysql-getting-started.html#docker-starting-mysql-server
     It states that the default generated MySQL root password can be obtained using:
@@ -33,7 +37,7 @@ def get_default_mysql_password(cnt=None):
     return match.groups()[-1]
 
 
-def update_default_mysql_password(cnt):
+def update_default_mysql_password(cnt) -> None:
     """
     Function for updating default generated MySQL docker password to 12345
     As we will use it only for testing there is no problem with such pretty password.
@@ -46,7 +50,7 @@ def update_default_mysql_password(cnt):
     run_commands(cnt, update_cmd)
 
 
-def run_commands(cnt, cmd, work_dir=None):
+def run_commands(cnt, cmd, work_dir=None) -> Tuple[int, str]:
     """
     Function for running given commands against running docker container
     :param cnt: The instance object of docker container
@@ -56,5 +60,11 @@ def run_commands(cnt, cmd, work_dir=None):
     exit_code, output = cnt.exec_run(cmd, workdir=work_dir)
     return exit_code, output
 
-def env_main():
-    pass
+
+def env_main(container_name: str) -> None:
+    container_obj = get_container_instance_object(name=container_name)
+    update_default_mysql_password(cnt=container_obj)
+
+
+if __name__ == "__main__":
+    env_main(sys.argv[1])
