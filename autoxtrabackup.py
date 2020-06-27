@@ -15,7 +15,6 @@ from backup_prepare.prepare import Prepare
 from general_conf import path_config
 from general_conf.generalops import GeneralClass
 from backup_backup.backuper import Backup
-from partial_recovery.partial import PartialRecovery
 from process_runner.process_runner import ProcessRunner
 
 logger = logging.getLogger('')
