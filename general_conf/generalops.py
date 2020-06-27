@@ -2,7 +2,7 @@ import configparser
 from os.path import isfile
 import humanfriendly  # type: ignore
 import logging
-from general_conf import path_config
+from general_conf import path_config # type: ignore
 from typing import Dict
 logger = logging.getLogger(__name__)
 
@@ -85,15 +85,15 @@ class GeneralClass:
         return {'archive_dir': self.con.get(section, 'archive_dir'),
                 'prepare_archive': self.con.get(section, 'prepare_archive'),
                 'move_archive': self.con.get(section, 'move_archive'),
-                'archive_max_size': archive_max_size,  # type: ignore
-                'archive_max_duration': archive_max_duration  # type: ignore
+                'archive_max_size': archive_max_size,
+                'archive_max_duration': archive_max_duration
                 }
 
     def backup_options(self) -> Dict[str, str]:
         section = 'Backup'
         return {'pid_dir': self.con.get(section, 'pid_dir', fallback='/tmp/'),
                 'tmp_dir': self.con.get(section, 'tmp_dir'),
-                'pid_runtime_warning': humanfriendly.parse_timespan(self.con.get(section, 'pid_runtime_warning')),  # type: ignore
+                'pid_runtime_warning': humanfriendly.parse_timespan(self.con.get(section, 'pid_runtime_warning')),
                 'backup_dir': self.con.get(section, 'backup_dir'),
                 'full_dir': self.con.get(section, 'backup_dir') + '/full',
                 'inc_dir': self.con.get(section, 'backup_dir') + '/inc',
@@ -103,5 +103,5 @@ class GeneralClass:
                 'xtra_prepare_options': self.con.get(section, 'xtra_prepare_options'),
                 'xtra_options': self.con.get(section, 'xtra_options'),
                 'full_backup_interval': humanfriendly.parse_timespan(self.con.get(section, 'full_backup_interval',
-                                                                                  fallback=86400)),  # type: ignore
+                                                                                  fallback=86400)),
                 'partial_list': self.con.get(section, 'partial_list')}
