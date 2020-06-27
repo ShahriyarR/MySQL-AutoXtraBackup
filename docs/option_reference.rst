@@ -12,7 +12,6 @@ The command line options to use:
       --dry-run                       Enable the dry run.
       --prepare                       Prepare/recover backups.
       --backup                        Take full and incremental backups.
-      --partial                       Recover specified table (partial recovery).
       --version                       Version information.
       --defaults-file TEXT            Read options from the given file  [default: /
                                       home/shako/.autoxtrabackup/autoxtrabackup.cn
@@ -52,12 +51,6 @@ backup
 --backup
 This option for taking backups. If it is first run, it will take full backup.
 If you want incremental backups, just run same command as much as you want take incremental backups.
-
-partial
--------
-
-This option will let you recover only desired tables. The version of MySQL must be > 5.6.
-It is using transportable tablespace concept.
 
 version
 -------

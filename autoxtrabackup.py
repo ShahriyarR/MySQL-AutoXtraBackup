@@ -114,9 +114,6 @@ def validate_file(file):
 @click.option('--backup',
               is_flag=True,
               help="Take full and incremental backups.")
-@click.option('--partial',
-              is_flag=True,
-              help="Recover specified table (partial recovery).")
 @click.option('--version',
               is_flag=True,
               callback=print_version,
@@ -169,7 +166,7 @@ def validate_file(file):
               is_eager=False,
               help="Print help message and exit.")
 @click.pass_context
-def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
+def all_procedure(ctx, prepare, backup, tag, show_tags,
                   verbose, log_file, log, defaults_file,
                   dry_run, log_file_max_bytes,
                   log_file_backup_count):
@@ -215,10 +212,8 @@ def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
         with pid_file:  # User PidFile for locking to single instance
             if (prepare is False and
                     backup is False and
-                    partial is False and
                     verbose is False and
                     dry_run is False and
-                    # test_mode is False and
                     show_tags is False):
                 print_help(ctx, None, value=True)
 
@@ -252,12 +247,6 @@ def all_procedure(ctx, prepare, backup, partial, tag, show_tags,
                     else:
                         b = Backup(config=defaults_file)
                 b.all_backup()
-            elif partial:
-                if dry_run:
-                    logger.critical("Dry run is not implemented for partial recovery!")
-                else:
-                    c = PartialRecovery(config=defaults_file)
-                    c.final_actions()
     except pid.PidFileAlreadyLockedError as error:
         if hasattr(config, 'pid_runtime_warning') and time.time() - os.stat(
                 pid_file.filename).st_ctime > config.pid_runtime_warning:

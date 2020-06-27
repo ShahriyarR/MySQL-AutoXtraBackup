@@ -8,7 +8,6 @@ Following packages should be already there:
 
 -  Percona Xtrabackup (>= 2.3.5)
 -  Python 3 (>= 3.5)
--  mysql-utilities (>=1.5.4) [this is for partial recovery - transportable tablespace concepts]
 
 Installing MySQL-AutoXtraBackup
 -------------------------------
@@ -36,8 +35,3 @@ Installing from source with python (not recommended because uninstalling is hard
 
 As Percona XtraBackup requires root privileges in order to backup the MySQL server, it is convenient to install,
 autoxtrabackup globally. But, if you think no, then install it to virtualenv and then call as root :)
-
-
-
-
-

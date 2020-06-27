@@ -10,11 +10,9 @@ backups, also for preparing backups, as well as to restore. Here is project path
 
 ::
 
-    * master_backup_script  -- Full and Incremental backup taker script.
+    * backup_backup  -- Full and Incremental backup taker script.
     * backup_prepare        -- Backup prepare and restore script.
-    * partial_recovery      -- Partial table recovery script.
     * general_conf          -- All-in-one config file's and config reader class folder.
-    * prepare_env_test_mode -- The directory for --test_mode actions.[Deprecated and will be removed]
     * process_runner        -- The directory for process runner script.
     * test                  -- The directory for test things.
     * setup.py              -- Setuptools Setup file.
@@ -35,7 +33,6 @@ Available Options
       --dry-run                       Enable the dry run.
       --prepare                       Prepare/recover backups.
       --backup                        Take full and incremental backups.
-      --partial                       Recover specified table (partial recovery).
       --version                       Version information.
       --defaults-file TEXT            Read options from the given file  [default: /
                                       home/shako/.autoxtrabackup/autoxtrabackup.cn

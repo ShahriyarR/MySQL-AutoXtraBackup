@@ -38,7 +38,6 @@ Is it production ready?
 
 Well, we have famous answer for this - "It depends!".
 Basically this tool is based on Percona XtraBackup and it is using XtraBackup's
-functionality, there is also a 'mysqlfrm' (from mysql-utilities) tool
-usage which is quite safe, happy tool.
+functionality.
 For me, I have used it in production environment after testing for a while in test servers.
 But to be clear, just test it enough to be confident.
