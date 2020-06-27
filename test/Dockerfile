@@ -23,5 +23,7 @@ RUN cd /opt && \
 RUN cd /opt/MySQL-AutoXtraBackup/test && \
     pip3 install -r requirements.txt
 
+# TODO: figure out the way to fix this issue
+# TODO: Unable to update the root password
 RUN echo 'echo "${MYSQL_ROOT_PASSWORD}"' >> /entrypoint.sh
 RUN echo 'python3 /opt/MySQL-AutoXtraBackup/test/docker_reset_mysql_password.py "${MYSQL_ROOT_PASSWORD}"' >> /entrypoint.sh
