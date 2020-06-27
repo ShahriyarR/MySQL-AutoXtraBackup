@@ -2,6 +2,7 @@ import docker
 import re
 import sys
 from typing import Tuple
+from subprocess import getstatusoutput
 
 client = docker.from_env()
 
@@ -50,6 +51,15 @@ def update_default_mysql_password(cnt) -> None:
     run_commands(cnt, update_cmd)
 
 
+def reset_mysql_password(password):
+    base_cmd = "mysql -uroot -p'{}' --connect-expired-password".format(password)
+    update_cmd = base_cmd + " -e " + "\"ALTER USER 'root'@'localhost' IDENTIFIED BY '12345'\""
+    try:
+        getstatusoutput(update_cmd)
+    except:
+        print("something went wrong")
+
+
 def run_commands(cnt, cmd, work_dir=None) -> Tuple[int, str]:
     """
     Function for running given commands against running docker container
@@ -67,4 +77,6 @@ def env_main(container_name: str) -> None:
 
 
 if __name__ == "__main__":
-    env_main(sys.argv[1])
+    # env_main(sys.argv[1])
+    print(sys.argv[1])
+    reset_mysql_password(sys.argv[1])

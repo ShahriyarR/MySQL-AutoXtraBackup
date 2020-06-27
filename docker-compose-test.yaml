@@ -11,8 +11,6 @@ services:
     networks:
       - wide_network
       - internal_network
-    command:
-      - bash -c "cd /opt/MySQL-AutoXtraBackup/test && python3 docker_reset_mysql_password.py autoxtrabackup_test"
 
 networks:
   internal_network:
