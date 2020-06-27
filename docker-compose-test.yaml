@@ -1,0 +1,25 @@
+version: "3.7"
+
+services:
+  autoxtrabackup:
+    build:
+      context: ./test
+      dockerfile: Dockerfile
+      args:
+        GIT_BRANCH_NAME: ${GIT_BRANCH_NAME}
+    container_name: autoxtrabackup_test
+    volumes:
+    - ./*:/opt/main
+    networks:
+      - wide_network
+      - internal_network
+
+networks:
+  internal_network:
+    name: fd_internal_net
+    internal: true
+  wide_network:
+    name: fd_wide_net
+    driver: bridge
+
+
