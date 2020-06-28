@@ -9,7 +9,7 @@ from process_runner.process_runner import ProcessRunner
 logger = logging.getLogger(__name__)
 
 
-class BackupCommandBuilderChecker:
+class BackupBuilderChecker:
     # General pre-backup checking/extracting/untar/streaming etc. should happen here
 
     def __init__(self, config: str = path_config.config_path_file, dry_run: int = 0) -> None:
@@ -130,6 +130,20 @@ class BackupCommandBuilderChecker:
                          "'tar' streaming format. Use --stream=xbstream instead.")
             raise RuntimeError("xtrabackup: error: streaming incremental backups are incompatible with the "
                                "'tar' streaming format. Use --stream=xbstream instead.")
+
+    def backup_command_builder(self, full_backup_dir: str) -> str:
+        """
+        Method for creating Full Backup command.
+        :param full_backup_dir the path of backup directory
+        """
+        xtrabackup_cmd = "{} --defaults-file={} --user={} --password={} " \
+                         " --target-dir={} --backup".format(self.backup_options.get('backup_tool'),
+                                                            self.mysql_options.get('mycnf'),
+                                                            self.mysql_options.get('mysql_user'),
+                                                            self.mysql_options.get('mysql_password'),
+                                                            full_backup_dir)
+        xtrabackup_cmd += self.general_command_builder()
+        return xtrabackup_cmd
 
     def decrypter(self, recent_full_bck: str, xtrabackup_inc_cmd: str, recent_inc_bck: str = None) -> None:
         logger.info("Applying workaround for LP #1444255")
