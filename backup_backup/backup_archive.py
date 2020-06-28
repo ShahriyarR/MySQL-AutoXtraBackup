@@ -5,6 +5,7 @@ from datetime import datetime
 
 from general_conf.generalops import GeneralClass
 from general_conf import path_config
+from backup_backup.backup_builder import BackupBuilderChecker
 from backup_prepare.prepare import Prepare
 from process_runner.process_runner import ProcessRunner
 from utils import helpers
@@ -18,7 +19,7 @@ class BackupArchive:
         self.dry = dry_run
         self.tag = tag
         options_obj = GeneralClass(config=self.conf)
-        self.backup_options = options_obj.backup_options
+        self.backup_options = BackupBuilderChecker(config=self.conf, dry_run=self.dry).backup_options
         self.backup_archive_options = options_obj.backup_archive_options
 
     def create_backup_archives(self):

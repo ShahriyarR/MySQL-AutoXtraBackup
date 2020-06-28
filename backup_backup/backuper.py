@@ -11,9 +11,9 @@ import time
 from datetime import datetime
 
 from general_conf import path_config
-from general_conf.generalops import GeneralClass
 from general_conf.check_env import CheckEnv
 from backup_backup.backup_builder import BackupBuilderChecker
+from backup_backup.backup_archive import BackupArchive
 from process_runner.process_runner import ProcessRunner
 from utils import helpers, mysql_cli
 
@@ -28,6 +28,7 @@ class Backup:
         self.tag = tag
         self.mysql_cli = mysql_cli.MySQLClientHelper(config=self.conf)
         self.builder_obj = BackupBuilderChecker(config=self.conf, dry_run=self.dry)
+        self.archive_obj = BackupArchive(config=self.conf, dry_run=self.dry, tag=self.tag)
 
     def add_tag(self, backup_type: str, backup_size: str, backup_status: str) -> bool:
         """
@@ -114,7 +115,7 @@ class Backup:
             rm_dir = inc_dir + '/' + i
             shutil.rmtree(rm_dir)
 
-    def full_backup(self):
+    def full_backup(self) -> bool:
         """
         Method for taking full backups. It will construct the backup command based on config file.
         :return: True on success.
@@ -124,21 +125,12 @@ class Backup:
         full_backup_dir = helpers.create_backup_directory(self.builder_obj.backup_options.get('full_dir'))
 
         # Creating Full Backup command.
-        xtrabackup_cmd = self.builder_obj.backup_command_builder(full_backup_dir=full_backup_dir)
+        xtrabackup_cmd = self.builder_obj.full_backup_command_builder(full_backup_dir=full_backup_dir)
 
         # Extra checks.
         self.builder_obj.stream_encrypt_compress_tar_checker()
 
-        stream = self.builder_obj.backup_options.get('stream')
-        if stream:
-            logger.warning("Streaming is enabled!")
-            xtrabackup_cmd += ' --stream="{}"'.format(stream)
-            if stream == 'xbstream':
-                xtrabackup_cmd += " > {}/full_backup.stream".format(full_backup_dir)
-            elif stream == 'tar':
-                xtrabackup_cmd += " > {}/full_backup.tar".format(full_backup_dir)
-
-        if self.dry == 1:
+        if self.dry:
             # If it's a dry run, skip running & tagging
             return True
 
@@ -150,82 +142,42 @@ class Backup:
                      backup_status=status_str)
         return status
 
-    def inc_backup(self):
+    def inc_backup(self) -> bool:
         """
         Method for taking incremental backups.
         :return: True on success.
         :raise: RuntimeError on error.
         """
         # Get the recent full backup path
-        recent_full_bck = helpers.get_latest_dir_name(self.full_dir)
+        recent_full_bck = helpers.get_latest_dir_name(self.builder_obj.backup_options.get('full_dir'))
         # Get the recent incremental backup path
-        recent_inc_bck = helpers.get_latest_dir_name(self.inc_dir)
+        recent_inc_bck = helpers.get_latest_dir_name(self.builder_obj.backup_options.get('inc_dir'))
 
         # Creating time-stamped incremental backup directory
-        inc_backup_dir = helpers.create_backup_directory(self.inc_dir)
+        inc_backup_dir = helpers.create_backup_directory(self.builder_obj.backup_options.get('inc_dir'))
 
         # Check here if stream=tar enabled.
         # Because it is impossible to take incremental backup with streaming tar.
         # raise RuntimeError.
-        self.stream_tar_incremental_checker()
+        self.builder_obj.stream_tar_incremental_checker()
 
-        # Checking if there is any incremental backup
+        xtrabackup_inc_cmd = self.builder_obj.inc_backup_command_builder(recent_full_bck=recent_full_bck,
+                                                                         inc_backup_dir=inc_backup_dir,
+                                                                         recent_inc_bck=recent_inc_bck)
 
-        if not recent_inc_bck:  # If there is no incremental backup
+        self.builder_obj.extract_decrypt_from_stream_backup(recent_full_bck=recent_full_bck,
+                                                            recent_inc_bck=recent_inc_bck)
 
-            # Taking incremental backup.
-            xtrabackup_inc_cmd = "{} --defaults-file={} --user={} --password={} " \
-                                 "--target-dir={} --incremental-basedir={}/{} --backup".format(
-                                    self.backup_tool,
-                                    self.mycnf,
-                                    self.mysql_user,
-                                    self.mysql_password,
-                                    inc_backup_dir,
-                                    self.full_dir,
-                                    recent_full_bck)
+        # Deprecated workaround for LP #1444255
+        self.builder_obj.decrypter(recent_full_bck=recent_full_bck,
+                                   xtrabackup_inc_cmd=xtrabackup_inc_cmd,
+                                   recent_inc_bck=recent_inc_bck)
 
-            # Calling general options/command builder to add extra options
-            xtrabackup_inc_cmd += self.general_command_builder()
-
-            self.extract_decrypt_from_stream_backup(recent_full_bck=recent_full_bck)
-
-            # Deprecated workaround for LP #1444255
-            # Disabled the call here but will keep in any case
-            self.decrypter(recent_full_bck=recent_full_bck, xtrabackup_inc_cmd=xtrabackup_inc_cmd)
-
-        else:  # If there is already existing incremental backup
-            xtrabackup_inc_cmd = "{} --defaults-file={} --user={} --password={}  " \
-                                 "--target-dir={} --incremental-basedir={}/{} --backup".format(
-                                  self.backup_tool,
-                                  self.mycnf,
-                                  self.mysql_user,
-                                  self.mysql_password,
-                                  inc_backup_dir,
-                                  self.inc_dir,
-                                  recent_inc_bck)
-
-            # Calling general options/command builder to add extra options
-            xtrabackup_inc_cmd += self.general_command_builder()
-
-            self.extract_decrypt_from_stream_backup(recent_inc_bck=recent_inc_bck)
-
-            # Deprecated workaround for LP #1444255
-            # Disabled the call here but will keep in any case
-            self.decrypter(recent_full_bck=recent_full_bck, xtrabackup_inc_cmd=xtrabackup_inc_cmd,
-                           recent_inc_bck=recent_inc_bck)
-
-        # Checking if streaming enabled for backups
-        # There is no need to check for 'tar' streaming type -> see the method: stream_tar_incremental_checker()
-        if hasattr(self, 'stream') and self.stream == 'xbstream':
-            xtrabackup_inc_cmd += '  --stream="{}"'.format(self.stream)
-            xtrabackup_inc_cmd += " > {}/inc_backup.stream".format(inc_backup_dir)
-            logger.warning("Streaming xbstream is enabled!")
-
-        if self.dry == 1:
+        if self.dry:
             # If it's a dry run, skip running & tagging
             return True
 
-        logger.debug("Starting {}".format(self.backup_tool))
+        logger.debug("Starting {}".format(self.builder_obj.backup_options.get('backup_tool')))
         status = ProcessRunner.run_command(xtrabackup_inc_cmd)
         status_str = 'OK' if status is True else 'FAILED'
         self.add_tag(backup_type='Inc',
@@ -233,7 +185,7 @@ class Backup:
                      backup_status=status_str)
         return status
 
-    def all_backup(self):
+    def all_backup(self) -> bool:
         """
          This method at first checks full backup directory, if it is empty takes full backup.
          If it is not empty then checks for full backup time.
@@ -243,10 +195,12 @@ class Backup:
         # Workaround for circular import dependency error in Python
 
         # Creating object from CheckEnv class
-        check_env_obj = CheckEnv(self.conf, full_dir=self.full_dir, inc_dir=self.inc_dir)
+        check_env_obj = CheckEnv(self.conf,
+                                 full_dir=self.builder_obj.backup_options.get('full_dir'),
+                                 inc_dir=self.builder_obj.backup_options.get('inc_dir'))
 
         assert check_env_obj.check_all_env() is True, "environment checks failed!"
-        if not helpers.get_latest_dir_name(self.full_dir):
+        if not helpers.get_latest_dir_name(self.builder_obj.backup_options.get('full_dir')):
             logger.info("- - - - You have no backups : Taking very first Full Backup! - - - -")
 
             if self.mysql_cli.mysql_run_command("flush logs") and self.full_backup():
@@ -257,12 +211,12 @@ class Backup:
             logger.info("- - - - Your full backup is timeout : Taking new Full Backup! - - - -")
 
             # Archiving backups
-            if hasattr(self, 'archive_dir'):
+            if self.archive_obj.backup_archive_options.get('archive_dir'):
                 logger.info("Archiving enabled; cleaning archive_dir & archiving previous Full Backup")
-                if (hasattr(self, 'archive_max_duration') and self.archive_max_duration) \
-                        or (hasattr(self, 'archive_max_size') and self.archive_max_size):
-                    self.clean_old_archives()
-                self.create_backup_archives()
+                if self.archive_obj.backup_archive_options.get('archive_max_duration') or \
+                        self.archive_obj.backup_archive_options.get('archive_max_size'):
+                    self.archive_obj.clean_old_archives()
+                self.archive_obj.create_backup_archives()
             else:
                 logger.info("Archiving disabled. Skipping!")
 
@@ -276,7 +230,7 @@ class Backup:
         else:
 
             logger.info("- - - - You have a full backup that is less than {} seconds old. - - - -".format(
-                self.full_backup_interval))
+                self.builder_obj.backup_options.get('full_backup_interval')))
             logger.info("- - - - We will take an incremental one based on recent Full Backup - - - -")
 
             time.sleep(3)

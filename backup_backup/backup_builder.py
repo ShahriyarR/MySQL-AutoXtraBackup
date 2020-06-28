@@ -86,7 +86,7 @@ class BackupBuilderChecker:
                                                    self.backup_options.get('inc_dir'),
                                                    recent_inc_bck)
 
-        if recent_full_bck:
+        if not recent_inc_bck:
             file_name = "{}/{}/full_backup.stream".format(self.backup_options.get('full_dir'), recent_full_bck)
             file_place_holder = "< {} -C {}/{}".format(file_name,
                                                        self.backup_options.get('full_dir'),
@@ -131,7 +131,7 @@ class BackupBuilderChecker:
             raise RuntimeError("xtrabackup: error: streaming incremental backups are incompatible with the "
                                "'tar' streaming format. Use --stream=xbstream instead.")
 
-    def backup_command_builder(self, full_backup_dir: str) -> str:
+    def full_backup_command_builder(self, full_backup_dir: str) -> str:
         """
         Method for creating Full Backup command.
         :param full_backup_dir the path of backup directory
@@ -142,10 +142,53 @@ class BackupBuilderChecker:
                                                             self.mysql_options.get('mysql_user'),
                                                             self.mysql_options.get('mysql_password'),
                                                             full_backup_dir)
+        # Calling general options/command builder to add extra options
         xtrabackup_cmd += self.general_command_builder()
+
+        stream = self.backup_options.get('stream')
+        if stream:
+            logger.warning("Streaming is enabled!")
+            xtrabackup_cmd += ' --stream="{}"'.format(stream)
+            if stream == 'xbstream':
+                xtrabackup_cmd += " > {}/full_backup.stream".format(full_backup_dir)
+            elif stream == 'tar':
+                xtrabackup_cmd += " > {}/full_backup.tar".format(full_backup_dir)
+
         return xtrabackup_cmd
 
-    def decrypter(self, recent_full_bck: str, xtrabackup_inc_cmd: str, recent_inc_bck: str = None) -> None:
+    def inc_backup_command_builder(self, recent_full_bck: str, inc_backup_dir: str, recent_inc_bck: str = None) -> str:
+        xtrabackup_inc_cmd_base = "{} --defaults-file={} --user={} --password={}".format(
+            self.backup_options.get('backup_tool'),
+            self.mysql_options.get('mycnf'),
+            self.mysql_options.get('mysql_user'),
+            self.mysql_options.get('mysql_password'),
+        )
+        if not recent_inc_bck:
+            xtrabackup_inc_cmd_base += " --target-dir={} --incremental-basedir={}/{} --backup".format(
+                                inc_backup_dir,
+                                self.backup_options.get('full_dir'),
+                                recent_full_bck)
+        else:
+            xtrabackup_inc_cmd_base += " --target-dir={} --incremental-basedir={}/{} --backup".format(
+                                inc_backup_dir,
+                                self.backup_options.get('inc_dir'),
+                                recent_inc_bck)
+
+        # Calling general options/command builder to add extra options
+        xtrabackup_inc_cmd_base += self.general_command_builder()
+
+        # Checking if streaming enabled for backups
+        # There is no need to check for 'tar' streaming type -> see the method: stream_tar_incremental_checker()
+        if hasattr(self, 'stream') and self.stream == 'xbstream':
+            xtrabackup_inc_cmd_base += '  --stream="{}"'.format(self.stream)
+            xtrabackup_inc_cmd_base += " > {}/inc_backup.stream".format(inc_backup_dir)
+            logger.warning("Streaming xbstream is enabled!")
+
+        return xtrabackup_inc_cmd_base
+
+    def decrypter(self, recent_full_bck: str = None,
+                  xtrabackup_inc_cmd: str = None,
+                  recent_inc_bck: str = None) -> None:
         logger.info("Applying workaround for LP #1444255")
         logger.info("See more -> https://jira.percona.com/browse/PXB-934")
         # With recent PXB 8 it seems to be there is no need for this workaround.
