@@ -15,22 +15,21 @@ from os.path import isfile
 from general_conf import path_config
 from general_conf.generalops import GeneralClass
 from general_conf.check_env import CheckEnv
-from backup_prepare.prepare import Prepare
 from process_runner.process_runner import ProcessRunner
 from utils import helpers, mysql_cli
 
 logger = logging.getLogger(__name__)
 
 
-class Backup(GeneralClass):
+class Backup:
 
-    def __init__(self, config=path_config.config_path_file, dry_run=0, tag=None):
+    def __init__(self, config: str = path_config.config_path_file, dry_run: int = 0, tag: str = None) -> None:
         self.conf = config
         self.dry = dry_run
         self.tag = tag
         self.mysql_cli = mysql_cli.MySQLClientHelper(config=self.conf)
-        # Call GeneralClass for storing configuration options
-        super().__init__(self.conf)
+        options_obj = GeneralClass(config=self.conf)
+        self.backup_options = options_obj.backup_options
 
     def add_tag(self, backup_type: str, backup_size: str, backup_status: str) -> bool:
         """
@@ -47,15 +46,15 @@ class Backup(GeneralClass):
 
         # Currently only support Inc and Full types, calculate name based on this
         assert backup_type in ('Full', 'Inc'), "add_tag(): backup_type {}: must be 'Full' or 'Inc'".format(backup_type)
-        backup_name = helpers.get_latest_dir_name(self.full_dir) if backup_type == 'Full' else \
-            helpers.get_latest_dir_name(self.inc_dir)
+        backup_name = helpers.get_latest_dir_name(self.backup_options.get('full_dir')) if backup_type == 'Full' else \
+            helpers.get_latest_dir_name(self.backup_options.get('inc_dir'))
 
         # Calculate more tag fields, create string
         backup_timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         backup_tag_str = "{bk_name}\t{bk_type}\t{bk_status}\t{bk_timestamp}\t{bk_size}\t'{bk_tag}'\n"
 
         # Apply tag
-        with open('{}/backup_tags.txt'.format(self.backupdir), 'a') as backup_tags_file:
+        with open('{}/backup_tags.txt'.format(self.backup_options.get('backup_dir')), 'a') as backup_tags_file:
             backup_tag_final = backup_tag_str.format(bk_name=backup_name,
                                                      bk_type=backup_type,
                                                      bk_status=backup_status,
@@ -67,7 +66,7 @@ class Backup(GeneralClass):
         return True
 
     @staticmethod
-    def show_tags(backup_dir: str):
+    def show_tags(backup_dir: str) -> None:
         if os.path.isfile("{}/backup_tags.txt".format(backup_dir)):
             with open('{}/backup_tags.txt'.format(backup_dir), 'r') as backup_tags:
                 from_file = backup_tags.read()
@@ -90,101 +89,21 @@ class Backup(GeneralClass):
         :return: 1 if last full backup date older than given interval, 0 if it is newer.
         """
         # Finding last full backup date from dir/folder name
-        max_dir = helpers.get_latest_dir_name(self.full_dir)
+        max_dir = helpers.get_latest_dir_name(self.backup_options.get('full_dir'))
         dir_date = datetime.strptime(max_dir, "%Y-%m-%d_%H-%M-%S")
         now = datetime.now()
-        return (now - dir_date).total_seconds() >= self.full_backup_interval
-
-    def create_backup_archives(self):
-        # Creating .tar.gz archive files of taken backups
-        for i in os.listdir(self.full_dir):
-            if len(os.listdir(self.full_dir)) == 1 or i != max(os.listdir(self.full_dir)):
-                logger.info("Preparing backups prior archiving them...")
-
-                if hasattr(self, 'prepare_archive'):
-                    logger.info("Started to prepare backups, prior archiving!")
-                    prepare_obj = Prepare(config=self.conf, dry_run=self.dry, tag=self.tag)
-                    status = prepare_obj.prepare_inc_full_backups()
-                    if status:
-                        logger.info("Backups Prepared successfully...".format(status))
-
-                if hasattr(self, 'move_archive') and (int(self.move_archive) == 1):
-                    dir_name = self.archive_dir + '/' + i + '_archive'
-                    logger.info("move_archive enabled. Moving {} to {}".format(self.backupdir, dir_name))
-                    try:
-                        shutil.copytree(self.backupdir, dir_name)
-                    except Exception as err:
-                        logger.error("FAILED: Move Archive")
-                        logger.error(err)
-                        raise
-                    else:
-                        return True
-                else:
-                    logger.info("move_archive is disabled. archiving / compressing current_backup.")
-                    # Multi-core tar utilizing pigz.
-
-                    # Pigz default to number of cores available, or 8 if cannot be read.
-
-                    # Test if pigz is available.
-                    logger.info("testing for pigz...")
-                    status = ProcessRunner.run_command("pigz --version")
-                    archive_file = self.archive_dir + '/' + i + '.tar.gz'
-                    if status:
-                        logger.info("Found pigz...")
-                        # run_tar = "tar cvvf - {} {} | pigz -v > {}" \
-                        run_tar = "tar --use-compress-program=pigz -cvf {} {} {}" \
-                            .format(archive_file, self.full_dir, self.inc_dir)
-                    else:
-                        # handle file not found error.
-                        logger.warning("pigz executeable not available. Defaulting to singlecore tar")
-                        run_tar = "tar -zcf {} {} {}" \
-                            .format(archive_file, self.full_dir, self.inc_dir)
-                    status = ProcessRunner.run_command(run_tar)
-                    if status:
-                        logger.info("OK: Old full backup and incremental backups archived!")
-                        return True
-                    else:
-                        logger.error("FAILED: Archiving ")
-                        raise RuntimeError("FAILED: Archiving -> {}".format(run_tar))
-
-    def clean_old_archives(self):
-        logger.info("Starting cleaning of old archives")
-        # Finding if last full backup older than the interval or more from now!
-        cleanup_msg = "Removing archive {}/{} due to {}"
-        for archive in helpers.sorted_ls(self.archive_dir):
-            if '_archive' in archive:
-                archive_date = datetime.strptime(
-                    archive, "%Y-%m-%d_%H-%M-%S_archive")
-            else:
-                archive_date = datetime.strptime(
-                    archive, "%Y-%m-%d_%H-%M-%S.tar.gz")
-
-            now = datetime.now()
-
-            if hasattr(self, 'archive_max_duration') and (
-                    now - archive_date).total_seconds() >= self.archive_max_duration:
-                logger.info(cleanup_msg.format(self.archive_dir, archive, 'archive_max_duration exceeded.'))
-                if os.path.isdir(self.archive_dir + "/" + archive):
-                    shutil.rmtree(self.archive_dir + "/" + archive)
-                else:
-                    os.remove(self.archive_dir + "/" + archive)
-            elif hasattr(self, 'archive_max_size') and helpers.get_directory_size(self.archive_dir) > \
-                    self.archive_max_size:
-                logger.info(cleanup_msg.format(self.archive_dir, archive, 'archive_max_size exceeded.'))
-                if os.path.isdir(self.archive_dir + "/" + archive):
-                    shutil.rmtree(self.archive_dir + "/" + archive)
-                else:
-                    os.remove(self.archive_dir + "/" + archive)
+        return (now - dir_date).total_seconds() >= self.backup_options.get('full_backup_interval')
 
     def clean_full_backup_dir(self):
         # Deleting old full backup after taking new full backup.
         # Keeping the latest in order not to lose everything.
         logger.info("starting clean_full_backup_dir")
-        if not os.path.isdir(self.full_dir):
+        full_dir = self.backup_options.get('full_dir')
+        if not os.path.isdir(full_dir):
             return
-        for i in os.listdir(self.full_dir):
-            rm_dir = self.full_dir + '/' + i
-            if i != max(os.listdir(self.full_dir)):
+        for i in os.listdir(full_dir):
+            rm_dir = full_dir + '/' + i
+            if i != max(os.listdir(full_dir)):
                 shutil.rmtree(rm_dir)
                 logger.info("DELETING {}".format(rm_dir))
             else:
@@ -192,11 +111,12 @@ class Backup(GeneralClass):
 
     def clean_inc_backup_dir(self):
         # Deleting incremental backups after taking new fresh full backup.
-        for i in os.listdir(self.inc_dir):
-            rm_dir = self.inc_dir + '/' + i
+        inc_dir = self.backup_options.get('inc_dir')
+        for i in os.listdir(inc_dir):
+            rm_dir = inc_dir + '/' + i
             shutil.rmtree(rm_dir)
 
-    def general_command_builder(self):
+    def general_command_builder(self) -> str:
         """
         Method for building general options for backup command.
         :return: String of constructed options.
@@ -341,25 +261,25 @@ class Backup(GeneralClass):
 
         xbstream_command = None
 
-        if hasattr(self, 'stream') and self.stream == 'xbstream' \
-                and hasattr(self, 'encrypt') \
-                and hasattr(self, 'xbs_decrypt') \
-                and not flag:
-            logger.info("Using xbstream to extract and decrypt from {}".format(file_name))
-            xbstream_command = "{} {} --decrypt={} --encrypt-key={} --encrypt-threads={} ".format(
-                                self.xbstream,
-                                self.xbstream_options,
-                                self.decrypt,
-                                self.encrypt_key,
-                                self.encrypt_threads)
+        if hasattr(self, 'stream') and self.stream == 'xbstream':
+            if (
+                hasattr(self, 'encrypt')
+                and hasattr(self, 'xbs_decrypt')
+                and not flag
+            ):
+                logger.info("Using xbstream to extract and decrypt from {}".format(file_name))
+                xbstream_command = "{} {} --decrypt={} --encrypt-key={} --encrypt-threads={} ".format(
+                                    self.xbstream,
+                                    self.xbstream_options,
+                                    self.decrypt,
+                                    self.encrypt_key,
+                                    self.encrypt_threads)
 
-        # Extract streamed backup prior to executing incremental backup
-        # If it is only streamed and not encrypted etc.
-        elif hasattr(self, 'stream') and self.stream == 'xbstream':
-            logger.info("Using xbstream to extract from {}".format(file_name))
-            xbstream_command = "{} {} ".format(
-                                self.xbstream,
-                                self.xbstream_options)
+            else:
+                logger.info("Using xbstream to extract from {}".format(file_name))
+                xbstream_command = "{} {} ".format(
+                                    self.xbstream,
+                                    self.xbstream_options)
 
         if xbstream_command:
             xbstream_command += file_place_holder

@@ -2,8 +2,8 @@ import configparser
 from os.path import isfile
 import humanfriendly  # type: ignore
 import logging
-from general_conf import path_config # type: ignore
-from typing import Dict
+from general_conf import path_config  # type: ignore
+from typing import Dict, Union
 logger = logging.getLogger(__name__)
 
 
@@ -16,6 +16,7 @@ class GeneralClass:
         else:
             logger.critical("Missing config file : {}".format(path_config.config_path_file))
 
+    @property
     def mysql_options(self) -> Dict[str, str]:
         section = 'MySQL'
         return {'mysql': self.con.get(section, 'mysql'),
@@ -66,7 +67,8 @@ class GeneralClass:
                 'decrypt': self.con.get(section, 'decrypt'),
                 'remove_original': self.con.get(section, 'remove_original')}
 
-    def backup_archive_options(self) -> Dict[str, str]:
+    @property
+    def backup_archive_options(self) -> Dict[str, Union[str, float]]:
         section = 'Backup'
         # backward compatible with old config 'max_archive_size' and newer 'archive_max_size'
         archive_max_size = self.con.get(section, 'max_archive_size')
@@ -89,7 +91,8 @@ class GeneralClass:
                 'archive_max_duration': archive_max_duration
                 }
 
-    def backup_options(self) -> Dict[str, str]:
+    @property
+    def backup_options(self) -> Dict[str, Union[str, float]]:
         section = 'Backup'
         return {'pid_dir': self.con.get(section, 'pid_dir', fallback='/tmp/'),
                 'tmp_dir': self.con.get(section, 'tmp_dir'),
