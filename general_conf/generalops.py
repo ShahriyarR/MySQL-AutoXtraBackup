@@ -35,6 +35,7 @@ class GeneralClass:
                 'log_file_max_bytes': self.con.get(section, 'log_file_max_bytes'),
                 'log_file_backup_count': self.con.get(section, 'log_file_backup_count')}
 
+    @property
     def compression_options(self) -> Dict[str, str]:
         section = 'Compress'
         return {'compress': self.con.get(section, 'compress'),
@@ -43,6 +44,7 @@ class GeneralClass:
                 'decompress': self.con.get(section, 'decompress'),
                 'remove_original': self.con.get(section, 'remove_original')}
 
+    @property
     def xbstream_options(self) -> Dict[str, str]:
         section = 'Xbstream'
         return {'xbstream': self.con.get(section, 'xbstream'),
@@ -56,6 +58,7 @@ class GeneralClass:
                 'stop_mysql_command': self.con.get(section, 'stop_mysql_command'),
                 'chown_command': self.con.get(section, 'chown_command')}
 
+    @property
     def encryption_options(self) -> Dict[str, str]:
         section = 'Encrypt'
         return {'xbcrypt': self.con.get(section, 'xbcrypt'),

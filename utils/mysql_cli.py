@@ -20,7 +20,7 @@ class MySQLClientHelper:
                                                                                self.mysql_options.get('mysql_user'),
                                                                                self.mysql_options.get('mysql_password'))
         command_execute = ' -e "{}"'
-        if hasattr(self, 'mysql_socket'):
+        if self.mysql_options.get('mysql_socket'):
             command_connection += ' --socket={}'
             new_command = command_connection.format(self.mysql_options.get('mysql_socket'))
         else:
