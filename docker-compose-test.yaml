@@ -8,6 +8,8 @@ services:
       args:
         GIT_BRANCH_NAME: ${GIT_BRANCH_NAME}
     container_name: autoxtrabackup_test
+    volumes:
+    - ./test/entrypoint.sh:/entrypoint.sh
     networks:
       - wide_network
       - internal_network
