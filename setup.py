@@ -12,7 +12,7 @@ setup(
     name='mysql-autoxtrabackup',
     version='2.0',
     packages=['general_conf', 'backup_prepare', 'backup_backup',
-              'test', 'process_runner'],
+              'test', 'process_runner', 'utils'],
     package_data={
         'test': ['*.sh', '*.py', '*.bats']
     },
