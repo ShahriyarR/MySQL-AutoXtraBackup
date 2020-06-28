@@ -74,9 +74,9 @@ class BackupArchive:
                     if status:
                         logger.info("OK: Old full backup and incremental backups archived!")
                         return True
-                    else:
-                        logger.error("FAILED: Archiving ")
-                        raise RuntimeError("FAILED: Archiving -> {}".format(run_tar))
+
+                    logger.error("FAILED: Archiving ")
+                    raise RuntimeError("FAILED: Archiving -> {}".format(run_tar))
 
     def clean_old_archives(self):
         logger.info("Starting cleaning of old archives")

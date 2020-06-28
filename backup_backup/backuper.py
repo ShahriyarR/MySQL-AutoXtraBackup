@@ -114,6 +114,7 @@ class Backup:
             rm_dir = inc_dir + '/' + i
             shutil.rmtree(rm_dir)
 
+    # TODO: Latest checkpoint
     def full_backup(self):
         """
         Method for taking full backups. It will construct the backup command based on config file.
