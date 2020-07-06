@@ -36,7 +36,7 @@ class Prepare:
         found_backups = BackupPrepareBuilderChecker.\
                         parse_backup_tags(backup_dir=self.prepare_options.backup_options.get('backup_dir'),
                                           tag_name=self.tag)
-        recent_bck = helpers.get_latest_dir_name(self.prepare_options.backup_options('full_dir'))
+        recent_bck = helpers.get_latest_dir_name(self.prepare_options.backup_options.get('full_dir'))
         # I am not going to initialize this object in Prepare class constructor as I thin there is no need.
         backup_builder = BackupBuilderChecker(self.conf, dry_run=self.dry)
 
@@ -48,10 +48,10 @@ class Prepare:
                 backup_builder.extract_decrypt_from_stream_backup(recent_full_bck=recent_bck)
 
                 # Decrypt backup
-                self.prepare_options.decrypt_backup(self.prepare_options.backup_options('full_dir'), recent_bck)
+                self.prepare_options.decrypt_backup(self.prepare_options.backup_options.get('full_dir'), recent_bck)
 
                 # Decompress backup
-                self.prepare_options.decompress_backup(self.prepare_options.backup_options('full_dir'), recent_bck)
+                self.prepare_options.decompress_backup(self.prepare_options.backup_options.get('full_dir'), recent_bck)
 
                 # Prepare command
                 backup_prepare_cmd = self.prepare_options.prepare_command_builder(full_backup=recent_bck)
@@ -101,7 +101,7 @@ class Prepare:
         logger.info("- - - - The end of the Prepare Stage. - - - -")
 
     def prepare_only_full_backup(self) -> Union[None, bool, Exception]:
-        recent_bck = helpers.get_latest_dir_name(self.prepare_options.backup_options('full_dir'))
+        recent_bck = helpers.get_latest_dir_name(self.prepare_options.backup_options.get('full_dir'))
         backup_builder = BackupBuilderChecker(self.conf, dry_run=self.dry)
         if recent_bck:
             apply_log_only = None
@@ -123,10 +123,10 @@ class Prepare:
                                                                               apply_log_only=apply_log_only)
 
             # Decrypt backup
-            self.prepare_options.decrypt_backup(self.prepare_options.backup_options('full_dir'), recent_bck)
+            self.prepare_options.decrypt_backup(self.prepare_options.backup_options.get('full_dir'), recent_bck)
 
             # Decompress backup
-            self.prepare_options.decompress_backup(self.prepare_options.backup_options('full_dir'), recent_bck)
+            self.prepare_options.decompress_backup(self.prepare_options.backup_options.get('full_dir'), recent_bck)
 
             logger.info("Running prepare command -> {}".format(backup_prepare_cmd))
             if self.dry:
@@ -141,14 +141,14 @@ class Prepare:
             return self.prepare_only_full_backup()
         else:
             logger.info("- - - - You have Incremental backups. - - - -")
-            recent_bck = helpers.get_latest_dir_name(self.prepare_options.backup_options('full_dir'))
+            recent_bck = helpers.get_latest_dir_name(self.prepare_options.backup_options.get('full_dir'))
 
             if self.prepare_only_full_backup():
                 logger.info("Preparing Incs: ")
-                list_of_dir = sorted(os.listdir(self.prepare_options.backup_options('inc_dir')))
+                list_of_dir = sorted(os.listdir(self.prepare_options.backup_options.get('inc_dir')))
                 for inc_backup_dir in list_of_dir:
                     apply_log_only = None
-                    if inc_backup_dir != max(os.listdir(self.prepare_options.backup_options('inc_dir'))):
+                    if inc_backup_dir != max(os.listdir(self.prepare_options.backup_options.get('inc_dir'))):
                         logger.info(
                             "Preparing Incremental backups in sequence. Incremental backup dir/name is {}".format(
                                 inc_backup_dir))
@@ -165,11 +165,11 @@ class Prepare:
                                                                                       incremental=inc_backup_dir,
                                                                                       apply_log_only=apply_log_only)
                     # Decrypt backup
-                    self.prepare_options.decrypt_backup(self.prepare_options.backup_options('inc_dir'),
+                    self.prepare_options.decrypt_backup(self.prepare_options.backup_options.get('inc_dir'),
                                                         inc_backup_dir)
 
                     # Decompress backup
-                    self.prepare_options.decompress_backup(self.prepare_options.backup_options('inc_dir'),
+                    self.prepare_options.decompress_backup(self.prepare_options.backup_options.get('inc_dir'),
                                                            inc_backup_dir)
 
                     logger.info("Running prepare command -> {}".format(backup_prepare_cmd))
