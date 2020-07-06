@@ -2,6 +2,7 @@
 # Originally Developed by
 # Shahriyar Rzayev (Shako)-> https://mysql.az/ https://azepug.az/
 # / rzayev.sehriyar@gmail.com / rzayev.shahriyar@yandex.com
+# This comment is from 2014 - keeping it here
 
 
 import logging

@@ -52,6 +52,7 @@ class GeneralClass:
                 'xbstream_options': self.con.get(section, 'xbstream_options'),
                 'xbs_decrypt': self.con.get(section, 'xbs_decrypt')}
 
+    @property
     def command_options(self) -> Dict[str, str]:
         section = 'Commands'
         return {'start_mysql_command': self.con.get(section, 'start_mysql_command'),
