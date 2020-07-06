@@ -34,7 +34,6 @@ class CopyBack:
             logger.error("Error occurred while moving data_dir")
             logger.error(err)
             raise RuntimeError(err)
-        return
 
     def create_empty_data_dir(self) -> Union[None, bool, Exception]:
         logger.info("Creating an empty data directory ...")
