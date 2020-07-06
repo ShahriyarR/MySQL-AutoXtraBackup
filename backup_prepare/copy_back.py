@@ -87,8 +87,7 @@ class CopyBack:
             # Trying to get 'full-prepared' from ['backup_type ', ' full-prepared\n']
             if xchk_file.readline().split("=")[1].strip("\n").lstrip() == 'full-prepared':
                 return True
-            else:
-                raise RuntimeError("This full backup is not fully prepared, not doing copy-back!")
+            raise RuntimeError("This full backup is not fully prepared, not doing copy-back!")
 
     def copy(self, options: str = None, data_dir: str = None) -> bool:
         """
