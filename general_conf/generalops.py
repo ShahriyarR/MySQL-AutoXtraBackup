@@ -24,9 +24,9 @@ class GeneralClass:
                 'mysqladmin': self.con.get(section, 'mysqladmin'),
                 'mysql_user': self.con.get(section, 'mysql_user'),
                 'mysql_password': self.con.get(section, 'mysql_password'),
-                'mysql_socket': self.con.get(section, 'mysql_socket'),
-                'mysql_host': self.con.get(section, 'mysql_host'),
-                'mysql_port': self.con.get(section, 'mysql_port'),
+                'mysql_socket': self.con.get(section, 'mysql_socket', fallback=None),
+                'mysql_host': self.con.get(section, 'mysql_host', fallback=None),
+                'mysql_port': self.con.get(section, 'mysql_port', fallback=None),
                 'data_dir': self.con.get(section, 'data_dir')}
 
     @property
