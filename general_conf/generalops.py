@@ -76,14 +76,14 @@ class GeneralClass:
     def backup_archive_options(self) -> Dict[str, Union[str, float]]:
         section = 'Backup'
         # backward compatible with old config 'max_archive_size' and newer 'archive_max_size'
-        archive_max_size = self.con.get(section, 'max_archive_size')
+        archive_max_size = self.con.get(section, 'max_archive_size', fallback=None)
         if archive_max_size:
             archive_max_size = humanfriendly.parse_size(archive_max_size)
         else:
             archive_max_size = humanfriendly.parse_size(self.con.get(section, 'archive_max_size', fallback=None))
 
         # backward compatible with old config 'max_archive_duration' and newer 'archive_max_duration'
-        archive_max_duration = self.con.get(section, 'max_archive_duration')
+        archive_max_duration = self.con.get(section, 'max_archive_duration', fallback=None)
         if archive_max_duration:
             archive_max_duration = humanfriendly.parse_timespan(archive_max_duration)
         else:
