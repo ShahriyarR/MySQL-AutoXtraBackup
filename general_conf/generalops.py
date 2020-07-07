@@ -27,7 +27,7 @@ class GeneralClass:
                 'mysql_socket': self.con.get(section, 'mysql_socket', fallback=None),
                 'mysql_host': self.con.get(section, 'mysql_host', fallback=None),
                 'mysql_port': self.con.get(section, 'mysql_port', fallback=None),
-                'data_dir': self.con.get(section, 'data_dir')}
+                'data_dir': self.con.get(section, 'datadir')}
 
     @property
     def logging_options(self) -> Dict[str, str]:
