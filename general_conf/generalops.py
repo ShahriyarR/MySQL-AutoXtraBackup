@@ -99,6 +99,8 @@ class GeneralClass:
     @property
     def backup_options(self) -> Dict[str, Union[str, float]]:
         section = 'Backup'
+        import pdb
+        pdb.set_trace()
         return {'pid_dir': self.con.get(section, 'pid_dir', fallback='/tmp/'),
                 'tmp_dir': self.con.get(section, 'tmp_dir'),
                 'pid_runtime_warning': humanfriendly.parse_timespan(self.con.get(section, 'pid_runtime_warning')),
