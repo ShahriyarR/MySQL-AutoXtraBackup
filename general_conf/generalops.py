@@ -32,7 +32,7 @@ class GeneralClass:
     @property
     def logging_options(self) -> Dict[str, str]:
         section = 'Logging'
-        return {'log_level': self.con.get(section, 'log_level'),
+        return {'log_level': self.con.get(section, 'log'),
                 'log_file_max_bytes': self.con.get(section, 'log_file_max_bytes'),
                 'log_file_backup_count': self.con.get(section, 'log_file_backup_count')}
 
