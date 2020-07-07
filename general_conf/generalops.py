@@ -108,10 +108,10 @@ class GeneralClass:
                 'full_dir': self.con.get(section, 'backup_dir') + '/full',
                 'inc_dir': self.con.get(section, 'backup_dir') + '/inc',
                 'backup_tool': self.con.get(section, 'backup_tool'),
-                'prepare_tool': self.con.get(section, 'prepare_tool'),
-                'xtra_backup': self.con.get(section, 'xtra_backup'),
-                'xtra_prepare_options': self.con.get(section, 'xtra_prepare_options'),
-                'xtra_options': self.con.get(section, 'xtra_options'),
+                'prepare_tool': self.con.get(section, 'prepare_tool', fallback=None),
+                'xtra_backup': self.con.get(section, 'xtra_backup', fallback=None),
+                'xtra_prepare_options': self.con.get(section, 'xtra_prepare_options', fallback=None),
+                'xtra_options': self.con.get(section, 'xtra_options', fallback=None),
                 'full_backup_interval': humanfriendly.parse_timespan(self.con.get(section, 'full_backup_interval',
                                                                                   fallback=86400)),
-                'partial_list': self.con.get(section, 'partial_list')}
+                'partial_list': self.con.get(section, 'partial_list', fallback=None)}
