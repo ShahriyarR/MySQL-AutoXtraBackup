@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 class Backup:
 
-    def __init__(self, config: str = path_config.config_path_file, dry_run: int = 0, tag: str = None) -> None:
+    def __init__(self, config: str = path_config.config_path_file, dry_run: bool = None, tag: str = None) -> None:
         self.conf = config
         self.dry = dry_run
         self.tag = tag

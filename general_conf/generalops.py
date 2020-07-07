@@ -29,6 +29,7 @@ class GeneralClass:
                 'mysql_port': self.con.get(section, 'mysql_port'),
                 'data_dir': self.con.get(section, 'data_dir')}
 
+    @property
     def logging_options(self) -> Dict[str, str]:
         section = 'Logging'
         return {'log_level': self.con.get(section, 'log_level'),

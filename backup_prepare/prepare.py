@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class Prepare:
 
-    def __init__(self, config=path_config.config_path_file, dry_run=0, tag=None):
+    def __init__(self, config: str = path_config.config_path_file, dry_run: bool = None, tag: str = None) -> None:
         self.conf = config
         self.dry = dry_run
         self.tag = tag
@@ -31,7 +31,7 @@ class Prepare:
             raise RuntimeError("Could not find backup_tags.txt inside backup directory. "
                                "Please run without --tag option")
 
-    def prepare_with_tags(self) -> Union[None, Exception]:
+    def prepare_with_tags(self) -> Union[None, bool, Exception]:
         # Method for preparing backups based on passed backup tags
         found_backups = BackupPrepareBuilderChecker.\
                         parse_backup_tags(backup_dir=self.prepare_options.backup_options.get('backup_dir'),
@@ -95,7 +95,7 @@ class Prepare:
 
                         logger.info("Running prepare command -> {}".format(backup_prepare_cmd))
                         if self.dry:
-                            return
+                            return True
                         ProcessRunner.run_command(backup_prepare_cmd)
 
         logger.info("- - - - The end of the Prepare Stage. - - - -")
@@ -130,7 +130,7 @@ class Prepare:
 
             logger.info("Running prepare command -> {}".format(backup_prepare_cmd))
             if self.dry:
-                return
+                return True
             ProcessRunner.run_command(backup_prepare_cmd)
         return True
 
@@ -200,22 +200,22 @@ class Prepare:
         time.sleep(3)
 
         if prepare == 1:
-            if self.tag is None:
+            if not self.tag:
                 self.prepare_inc_full_backups()
             else:
                 logger.info("Backup tag will be used to prepare backups")
                 self.prepare_with_tags()
         elif prepare == 2:
-            if self.tag is None:
+            if not self.tag:
                 self.prepare_inc_full_backups()
             else:
                 self.prepare_with_tags()
-            if self.dry == 0:
+            if not self.dry:
                 copy_back_obj.copy_back_action()
             else:
                 logger.critical("Dry run is not implemented for copy-back/recovery actions!")
         elif prepare == 3:
-            if self.dry == 0:
+            if not self.dry:
                 copy_back_obj.copy_back_action()
             else:
                 logger.critical("Dry run is not implemented for copy-back/recovery actions!")
