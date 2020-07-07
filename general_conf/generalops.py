@@ -113,5 +113,5 @@ class GeneralClass:
                 'xtra_prepare_options': self.con.get(section, 'xtra_prepare_options', fallback=None),
                 'xtra_options': self.con.get(section, 'xtra_options', fallback=None),
                 'full_backup_interval': humanfriendly.parse_timespan(self.con.get(section, 'full_backup_interval',
-                                                                                  fallback=86400)),
+                                                                                  fallback='86400')),
                 'partial_list': self.con.get(section, 'partial_list', fallback=None)}
