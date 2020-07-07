@@ -8,8 +8,10 @@ RUN yum install -y vim
 RUN yum install -y perl
 RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 RUN yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+RUN yum install -y libev
 RUN percona-release enable-only tools
-RUN yum install -y percona-xtrabackup-80
+RUN yum install -y --exclude=Percona-Server\* percona-xtrabackup-80
+RUN yum install -y qpress
 RUN yum install -y python3-pip
 RUN cd /opt && \
     git clone https://github.com/sstephenson/bats.git && \
