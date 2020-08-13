@@ -65,7 +65,7 @@ class GeneralClass:
         section = 'Encrypt'
         return {'xbcrypt': self.con.get(section, 'xbcrypt', fallback=None),
                 'encrypt': self.con.get(section, 'encrypt', fallback=None),
-                'encrypt_key': self.con.get(section, 'enrypt_key', fallback=None),
+                'encrypt_key': self.con.get(section, 'encrypt_key', fallback=None),
                 'encrypt_key_file': self.con.get(section, 'encrypt_key_file', fallback=None),
                 'encrypt_threads': self.con.get(section, 'encrypt_threads', fallback=None),
                 'encrypt_chunk_size': self.con.get(section, 'encrypt_chunk_size', fallback=None),
