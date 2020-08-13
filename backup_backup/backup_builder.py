@@ -60,9 +60,11 @@ class BackupBuilderChecker:
             args += " --encrypt-key-file={}".format(self.encryption_options.get('encrypt_key_file'))
 
         # Checking if extra options were passed:
-        args += " {}".format(self.backup_options.get('xtra_options'))
+        if self.backup_options.get('xtra_options'):
+            args += " {}".format(self.backup_options.get('xtra_options'))
         # Checking if extra backup options were passed:
-        args += " {}".format(self.backup_options.get('xtra_backup'))
+        if self.backup_options.get('xtra_backup'):
+            args += " {}".format(self.backup_options.get('xtra_backup'))
 
         # Checking if partial recovery list is available
         if self.backup_options.get('partial_list'):
