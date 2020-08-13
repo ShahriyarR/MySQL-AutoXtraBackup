@@ -56,7 +56,7 @@ class BackupBuilderChecker:
             if self.encryption_options.get('encrypt_key_file'):
                 raise AttributeError("--encrypt-key and --encrypt-key-file are mutually exclusive")
             args += " --encrypt-key={}".format(self.encryption_options.get('encrypt_key'))
-        else:
+        elif self.encryption_options.get('encrypt_key_file'):
             args += " --encrypt-key-file={}".format(self.encryption_options.get('encrypt_key_file'))
 
         # Checking if extra options were passed:
