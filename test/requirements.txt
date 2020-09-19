@@ -1,3 +1,4 @@
 docker
 pygit2==0.28.2
 pytest
+pipenv
