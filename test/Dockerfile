@@ -27,7 +27,7 @@ RUN cd /opt/MySQL-AutoXtraBackup/test && \
     pip3 install -r requirements.txt
 
 RUN cd /opt/MySQL-AutoXtraBackup && \
-    pipenv install
+    pipenv --python `which python3` install
 
 RUN cd /opt/MySQL-AutoXtraBackup/api
 CMD ["uvicorn", "main:app", "--reload"]
