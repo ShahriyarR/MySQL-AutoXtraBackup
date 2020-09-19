@@ -32,9 +32,10 @@ RUN cd /opt/MySQL-AutoXtraBackup && \
     git pull && \
     pipenv --python `which python3` install
 
-RUN cd /opt/MySQL-AutoXtraBackup/api
+WORKDIR /opt/MySQL-AutoXtraBackup
+RUN cd /opt/MySQL-AutoXtraBackup && git pull
 RUN pip3 install uvicorn
 RUN pip3 install fastapi
 #    pipenv run uvicorn  main:app --host='127.0.0.1' --port=8080
-CMD ["uvicorn", "api.main:app", "--host", "127.0.0.1", "--port", "8080"]
-
+#CMD ["uvicorn", "api.main:app", "--host", "127.0.0.1", "--port", "8080"]
+CMD ["uvicorn", "api.main:app", "--port", "8080"]

@@ -12,17 +12,7 @@ services:
     - ./test/entrypoint.sh:/entrypoint.sh
     - /dev/log:/dev/log
     ports:
-    - 8080:8080
-    networks:
-      - wide_network
-      - internal_network
-
-networks:
-  internal_network:
-    name: fd_internal_net
-    internal: true
-  wide_network:
-    name: fd_wide_net
-    driver: bridge
+    - "8080:8080"
+    network_mode: host
 
 
