@@ -56,13 +56,15 @@ class BackupBuilderChecker:
             if self.encryption_options.get('encrypt_key_file'):
                 raise AttributeError("--encrypt-key and --encrypt-key-file are mutually exclusive")
             args += " --encrypt-key={}".format(self.encryption_options.get('encrypt_key'))
-        else:
+        elif self.encryption_options.get('encrypt_key_file'):
             args += " --encrypt-key-file={}".format(self.encryption_options.get('encrypt_key_file'))
 
         # Checking if extra options were passed:
-        args += " {}".format(self.backup_options.get('xtra_options', default=''))
+        if self.backup_options.get('xtra_options'):
+            args += " {}".format(self.backup_options.get('xtra_options'))
         # Checking if extra backup options were passed:
-        args += " {}".format(self.backup_options.get('xtra_backup', default=''))
+        if self.backup_options.get('xtra_backup'):
+            args += " {}".format(self.backup_options.get('xtra_backup'))
 
         # Checking if partial recovery list is available
         if self.backup_options.get('partial_list'):
@@ -196,6 +198,11 @@ class BackupBuilderChecker:
         # Deprecated as hell.
         if 'encrypt' not in xtrabackup_inc_cmd:
             return
+        if not isfile('{}/{}/xtrabackup_checkpoints.xbcrypt'.format(self.backup_options.get('full_dir'),
+                                                                    recent_full_bck)):
+            logger.info("Skipping...")
+            return
+
         xbcrypt_command = "{} -d -k {} -a {}".format(self.encryption_options.get('xbcrypt'),
                                                      self.encryption_options.get('encrypt_key'),
                                                      self.encryption_options.get('encrypt'))
@@ -206,6 +213,10 @@ class BackupBuilderChecker:
                                                         recent_full_bck)
 
         if recent_inc_bck:
+            if not isfile('{}/{}/xtrabackup_checkpoints.xbcrypt'.format(self.backup_options.get('inc_dir'),
+                                                                        recent_inc_bck)):
+                logger.info("Skipping...")
+                return
             xbcrypt_command += xbcrypt_command_extra.format(self.backup_options.get('inc_dir'),
                                                             recent_inc_bck,
                                                             self.backup_options.get('inc_dir'),

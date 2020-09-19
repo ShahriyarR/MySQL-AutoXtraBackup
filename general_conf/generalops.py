@@ -24,33 +24,34 @@ class GeneralClass:
                 'mysqladmin': self.con.get(section, 'mysqladmin'),
                 'mysql_user': self.con.get(section, 'mysql_user'),
                 'mysql_password': self.con.get(section, 'mysql_password'),
-                'mysql_socket': self.con.get(section, 'mysql_socket'),
-                'mysql_host': self.con.get(section, 'mysql_host'),
-                'mysql_port': self.con.get(section, 'mysql_port'),
-                'data_dir': self.con.get(section, 'data_dir')}
+                'mysql_socket': self.con.get(section, 'mysql_socket', fallback=None),
+                'mysql_host': self.con.get(section, 'mysql_host', fallback=None),
+                'mysql_port': self.con.get(section, 'mysql_port', fallback=None),
+                'data_dir': self.con.get(section, 'datadir')}
 
+    @property
     def logging_options(self) -> Dict[str, str]:
         section = 'Logging'
-        return {'log_level': self.con.get(section, 'log_level'),
+        return {'log_level': self.con.get(section, 'log'),
                 'log_file_max_bytes': self.con.get(section, 'log_file_max_bytes'),
                 'log_file_backup_count': self.con.get(section, 'log_file_backup_count')}
 
     @property
     def compression_options(self) -> Dict[str, str]:
         section = 'Compress'
-        return {'compress': self.con.get(section, 'compress'),
-                'compress_chunk_size': self.con.get(section, 'compress_chunk_size'),
-                'compress_threads': self.con.get(section, 'compress_threads'),
-                'decompress': self.con.get(section, 'decompress'),
-                'remove_original': self.con.get(section, 'remove_original')}
+        return {'compress': self.con.get(section, 'compress', fallback=None),
+                'compress_chunk_size': self.con.get(section, 'compress_chunk_size', fallback=None),
+                'compress_threads': self.con.get(section, 'compress_threads', fallback=None),
+                'decompress': self.con.get(section, 'decompress', fallback=None),
+                'remove_original': self.con.get(section, 'remove_original', fallback=None)}
 
     @property
     def xbstream_options(self) -> Dict[str, str]:
         section = 'Xbstream'
-        return {'xbstream': self.con.get(section, 'xbstream'),
-                'stream': self.con.get(section, 'stream'),
-                'xbstream_options': self.con.get(section, 'xbstream_options'),
-                'xbs_decrypt': self.con.get(section, 'xbs_decrypt')}
+        return {'xbstream': self.con.get(section, 'xbstream', fallback=None),
+                'stream': self.con.get(section, 'stream', fallback=None),
+                'xbstream_options': self.con.get(section, 'xbstream_options', fallback=None),
+                'xbs_decrypt': self.con.get(section, 'xbs_decrypt', fallback=None)}
 
     @property
     def command_options(self) -> Dict[str, str]:
@@ -62,35 +63,37 @@ class GeneralClass:
     @property
     def encryption_options(self) -> Dict[str, str]:
         section = 'Encrypt'
-        return {'xbcrypt': self.con.get(section, 'xbcrypt'),
-                'encrypt': self.con.get(section, 'encrypt'),
-                'encrypt_key': self.con.get(section, 'enrypt_key'),
-                'encrypt_key_file': self.con.get(section, 'encrypt_key_file'),
-                'encrypt_threads': self.con.get(section, 'encrypt_threads'),
-                'encrypt_chunk_size': self.con.get(section, 'encrypt_chunk_size'),
-                'decrypt': self.con.get(section, 'decrypt'),
-                'remove_original': self.con.get(section, 'remove_original')}
+        return {'xbcrypt': self.con.get(section, 'xbcrypt', fallback=None),
+                'encrypt': self.con.get(section, 'encrypt', fallback=None),
+                'encrypt_key': self.con.get(section, 'encrypt_key', fallback=None),
+                'encrypt_key_file': self.con.get(section, 'encrypt_key_file', fallback=None),
+                'encrypt_threads': self.con.get(section, 'encrypt_threads', fallback=None),
+                'encrypt_chunk_size': self.con.get(section, 'encrypt_chunk_size', fallback=None),
+                'decrypt': self.con.get(section, 'decrypt', fallback=None),
+                'remove_original': self.con.get(section, 'remove_original', fallback=None)}
 
     @property
     def backup_archive_options(self) -> Dict[str, Union[str, float]]:
         section = 'Backup'
         # backward compatible with old config 'max_archive_size' and newer 'archive_max_size'
-        archive_max_size = self.con.get(section, 'max_archive_size')
+        archive_max_size = self.con.get(section, 'max_archive_size', fallback=None)
         if archive_max_size:
             archive_max_size = humanfriendly.parse_size(archive_max_size)
         else:
-            archive_max_size = humanfriendly.parse_size(self.con.get(section, 'archive_max_size'))
+            if self.con.get(section, 'archive_max_size', fallback=None):
+                archive_max_size = humanfriendly.parse_size(self.con.get(section, 'archive_max_size', fallback=None))
 
         # backward compatible with old config 'max_archive_duration' and newer 'archive_max_duration'
-        archive_max_duration = self.con.get(section, 'max_archive_duration')
+        archive_max_duration = self.con.get(section, 'max_archive_duration', fallback=None)
         if archive_max_duration:
             archive_max_duration = humanfriendly.parse_timespan(archive_max_duration)
         else:
-            archive_max_duration = humanfriendly.parse_timespan(self.con.get(section, 'archive_max_size'))
+            if self.con.get(section, 'archive_max_size', fallback=None):
+                archive_max_duration = humanfriendly.parse_timespan(self.con.get(section, 'archive_max_size', fallback=None))
 
-        return {'archive_dir': self.con.get(section, 'archive_dir'),
-                'prepare_archive': self.con.get(section, 'prepare_archive'),
-                'move_archive': self.con.get(section, 'move_archive'),
+        return {'archive_dir': self.con.get(section, 'archive_dir', fallback=None),
+                'prepare_archive': self.con.get(section, 'prepare_archive', fallback=None),
+                'move_archive': self.con.get(section, 'move_archive', fallback=None),
                 'archive_max_size': archive_max_size,
                 'archive_max_duration': archive_max_duration
                 }
@@ -105,10 +108,10 @@ class GeneralClass:
                 'full_dir': self.con.get(section, 'backup_dir') + '/full',
                 'inc_dir': self.con.get(section, 'backup_dir') + '/inc',
                 'backup_tool': self.con.get(section, 'backup_tool'),
-                'prepare_tool': self.con.get(section, 'prepare_tool'),
-                'xtra_backup': self.con.get(section, 'xtra_backup'),
-                'xtra_prepare_options': self.con.get(section, 'xtra_prepare_options'),
-                'xtra_options': self.con.get(section, 'xtra_options'),
+                'prepare_tool': self.con.get(section, 'prepare_tool', fallback=None),
+                'xtra_backup': self.con.get(section, 'xtra_backup', fallback=None),
+                'xtra_prepare_options': self.con.get(section, 'xtra_prepare_options', fallback=None),
+                'xtra_options': self.con.get(section, 'xtra_options', fallback=None),
                 'full_backup_interval': humanfriendly.parse_timespan(self.con.get(section, 'full_backup_interval',
-                                                                                  fallback=86400)),
-                'partial_list': self.con.get(section, 'partial_list')}
+                                                                                  fallback='86400')),
+                'partial_list': self.con.get(section, 'partial_list', fallback=None)}

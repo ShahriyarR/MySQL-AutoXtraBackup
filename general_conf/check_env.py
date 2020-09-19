@@ -1,196 +1,167 @@
 import re
-import subprocess
 import os
 from general_conf.generalops import GeneralClass
 from general_conf import path_config
+from process_runner.process_runner import ProcessRunner
+from typing import Union
+from utils.helpers import create_directory
 
 import logging
 logger = logging.getLogger(__name__)
 
 
-class CheckEnv(GeneralClass):
+class CheckEnv:
 
-    def __init__(self, config=path_config.config_path_file, full_dir=None, inc_dir=None):
+    def __init__(self, config: str = path_config.config_path_file, full_dir: str = None, inc_dir: str = None) -> None:
         self.conf = config
-        GeneralClass.__init__(self, self.conf)
+        options = GeneralClass(config=self.conf)
+        self.backup_options = options.backup_options
+        self.mysql_options = options.mysql_options
+        self.archive_options = options.backup_archive_options
         if full_dir:
-            self.full_dir = full_dir
+            self.backup_options['full_dir'] = full_dir
         if inc_dir:
-            self.inc_dir = inc_dir
+            self.backup_options['ind_dir'] = inc_dir
 
-    def check_mysql_uptime(self, options=None):
+    def check_mysql_uptime(self, options: str = None) -> Union[None, bool, Exception]:
         """
         Method for checking if MySQL server is up or not.
         :param options: Passed options to connect to MySQL server if None, then going to get it from conf file
         :return: True on success, raise RuntimeError on error.
         """
-        if options is None:
+        if not options:
 
-            statusargs = "{} --defaults-file={} --user={} --password='{}' status".format(self.mysqladmin,
-                                                                                   self.mycnf,
-                                                                                   self.mysql_user,
-                                                                                   self.mysql_password)
+            status_args = "{} --defaults-file={} " \
+                          "--user={} --password='{}' status".format(self.mysql_options.get('mysqladmin'),
+                                                                    self.mysql_options.get('mycnf'),
+                                                                    self.mysql_options.get('mysql_user'),
+                                                                    self.mysql_options.get('mysql_password'))
 
-            if hasattr(self, 'mysql_socket'):
-                statusargs += " --socket={}".format(self.mysql_socket)
-            elif hasattr(self, 'mysql_host') and hasattr(self, 'mysql_port'):
-                statusargs += " --host={}".format(self.mysql_host)
-                statusargs += " --port={}".format(self.mysql_port)
+            if self.mysql_options.get('mysql_socket'):
+                status_args += " --socket={}".format(self.mysql_options.get('mysql_socket'))
+            elif self.mysql_options.get('mysql_host') and self.mysql_options.get('mysql_port'):
+                status_args += " --host={}".format(self.mysql_options.get('mysql_host'))
+                status_args += " --port={}".format(self.mysql_options.get('mysql_port'))
             else:
                 logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
                 raise RuntimeError("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
         else:
-            statusargs = "{} {} status".format(self.mysqladmin, options)
+            status_args = "{} {} status".format(self.mysql_options.get('mysqladmin'), options)
 
         # filter out password from argument list
-        filteredargs = re.sub("--password='?\w+'?", "--password='*'", statusargs)
+        filtered_args = re.sub("--password='?\w+'?", "--password='*'", status_args)
 
-        logger.info("Running mysqladmin command -> {}".format(filteredargs))
+        logger.info("Running mysqladmin command -> {}".format(filtered_args))
 
-        status, output = subprocess.getstatusoutput(statusargs)
+        return ProcessRunner.run_command(status_args)
 
-        if status == 0:
-            logger.info('OK: Server is Up and running')
-            return True
-        else:
-            logger.error('FAILED: Server is NOT Up')
-            raise RuntimeError('FAILED: Server is NOT Up')
-
-    def check_mysql_conf(self):
+    def check_mysql_conf(self) -> Union[bool, Exception]:
         """
         Method for checking passed MySQL my.cnf defaults file. If it is not passed then skip this check
         :return: True on success, raise RuntimeError on error.
         """
-        if self.mycnf is None or self.mycnf == '':
+        my_cnf = self.mysql_options.get('mycnf')
+        if not my_cnf or my_cnf == '':
             logger.info("Skipping my.cnf check, because it is not specified")
             return True
-        elif not os.path.exists(self.mycnf) and self.mycnf:
+        elif not os.path.exists(my_cnf):
             logger.error('FAILED: MySQL configuration file path does NOT exist')
             raise RuntimeError('FAILED: MySQL configuration file path does NOT exist')
-        else:
-            logger.info('OK: MySQL configuration file exists')
-            return True
 
-    def check_mysql_mysql(self):
+        logger.info('OK: MySQL configuration file exists')
+        return True
+
+    def check_mysql_mysql(self) -> Union[bool, Exception]:
         """
         Method for checking mysql client path
         :return: True on success, raise RuntimeError on error.
         """
-        if os.path.exists(self.mysql):
-            logger.info('OK: {} exists'.format(self.mysql))
+        mysql = self.mysql_options.get('mysql')
+        if os.path.exists(mysql):
+            logger.info('OK: {} exists'.format(mysql))
             return True
-        else:
-            logger.error('FAILED: {} doest NOT exist'.format(self.mysql))
-            raise RuntimeError('FAILED: {} doest NOT exist'.format(self.mysql))
 
-    def check_mysql_mysqladmin(self):
+        logger.error('FAILED: {} doest NOT exist'.format(mysql))
+        raise RuntimeError('FAILED: {} doest NOT exist'.format(mysql))
+
+    def check_mysql_mysqladmin(self) -> Union[bool, Exception]:
         """
         Method for checking mysqladmin path
         :return: True on success, raise RuntimeError on error.
         """
-        if os.path.exists(self.mysqladmin):
-            logger.info('OK: {} exists'.format(self.mysqladmin))
+        mysqladmin = self.mysql_options.get('mysqladmin')
+        if os.path.exists(mysqladmin):
+            logger.info('OK: {} exists'.format(mysqladmin))
             return True
-        else:
-            logger.error('FAILED: {} does NOT exist'.format(self.mysqladmin))
-            raise RuntimeError('FAILED: {} does NOT exist'.format(self.mysqladmin))
 
-    def check_mysql_backuptool(self):
+        logger.error('FAILED: {} does NOT exist'.format(mysqladmin))
+        raise RuntimeError('FAILED: {} does NOT exist'.format(mysqladmin))
+
+    def check_mysql_backuptool(self) -> Union[bool, Exception]:
         """
         Method for checking if given backup tool path is there or not.
         :return: RuntimeError on failure, True on success
         """
-        if os.path.exists(self.backup_tool):
+        if os.path.exists(self.backup_options.get('backup_tool')):
             logger.info('OK: XtraBackup exists')
             return True
-        else:
-            logger.error('FAILED: XtraBackup does NOT exist')
-            raise RuntimeError('FAILED: XtraBackup does NOT exist')
 
-    def check_mysql_backupdir(self):
+        logger.error('FAILED: XtraBackup does NOT exist')
+        raise RuntimeError('FAILED: XtraBackup does NOT exist')
+
+    def check_mysql_backup_dir(self) -> Union[bool, Exception]:
         """
         Check for MySQL backup directory.
         If directory exists already then, return True. If not, try to create it.
         :return: True on success. RuntimeError on failure.
         """
-        if os.path.exists(self.backupdir):
+        if os.path.exists(self.backup_options.get('backup_dir')):
             logger.info('OK: Main backup directory exists')
             return True
-        else:
-            logger.info('Main backup directory does not exist')
-            logger.info('Creating Main Backup folder...')
-            try:
-                os.makedirs(self.backupdir)
-                logger.info('OK: Created')
-                return True
-            except Exception as err:
-                logger.error("FAILED: Could not create directory, ", err)
-                raise RuntimeError("FAILED: Could not create directory")
 
+        return create_directory(self.backup_options.get('backup_dir'))
 
-    def check_mysql_archive_dir(self):
+    def check_mysql_archive_dir(self) -> Union[bool, Exception]:
         """
         Check for archive directory.
         If archive_dir is given in config file and if it does not exist, try to create.
         :return: True on success. RuntimeError on failure.
-    """
-        if not hasattr(self, 'archive_dir'):
-            return
-        if os.path.exists(self.archive_dir):
+        """
+        if not self.archive_options.get('archive_dir'):
+            logger.info("Skipping check as this option not specified in config file...")
+            return True
+
+        if os.path.exists(self.archive_options.get('archive_dir')):
             logger.info('OK: Archive folder directory exists')
             return True
-        else:
-            logger.info('Archive backup directory does not exist')
-            logger.info('Creating archive folder...')
-            try:
-                os.makedirs(self.archive_dir)
-                logger.info('OK: Created')
-                return True
-            except Exception as err:
-                logger.error("FAILED: Could not create directory, ", err)
-                raise RuntimeError("FAILED: Could not create directory")
 
-    def check_mysql_fullbackupdir(self):
+        return create_directory(self.archive_options.get('archive_dir'))
+
+    def check_mysql_full_backup_dir(self) -> Union[bool, Exception]:
         """
         Check full backup directory path.
         If this path exists return True if not try to create.
         :return: True on success.
         """
-        if os.path.exists(self.full_dir):
+        if os.path.exists(self.backup_options.get('full_dir')):
             logger.info("OK: Full Backup directory exists")
             return True
-        else:
-            logger.info('Full Backup directory does not exist')
-            logger.info('Creating full backup directory...')
-            try:
-                os.makedirs(self.full_dir)
-                logger.info('OK: Created')
-                return True
-            except Exception as err:
-                logger.error("FAILED: Could not create directory, ", err)
-                raise RuntimeError("FAILED: Could not create directory")
 
-    def check_mysql_incbackupdir(self):
+        return create_directory(self.backup_options.get('full_dir'))
+
+    def check_mysql_inc_backup_dir(self) -> Union[bool, Exception]:
         """
         Check incremental backup directory path.
         If this path exists return True if not try to create.
         :return: True on success.
         """
-        if os.path.exists(self.inc_dir):
+        if os.path.exists(self.backup_options.get('inc_dir')):
             logger.info('OK: Increment directory exists')
             return True
-        else:
-            logger.info('Increment directory does not exist')
-            logger.info('Creating increment backup directory...')
-            try:
-                os.makedirs(self.inc_dir)
-                logger.info('OK: Created')
-                return True
-            except Exception as err:
-                logger.error("FAILED: Could not create directory, ", err)
-                raise RuntimeError("FAILED: Could not create directory")
 
-    def check_all_env(self):
+        return create_directory(self.backup_options.get('inc_dir'))
+
+    def check_all_env(self) -> Union[bool, Exception]:
         """
         Method for running all checks
         :return: True on success, raise RuntimeError on error.
@@ -201,9 +172,9 @@ class CheckEnv(GeneralClass):
             self.check_mysql_mysqladmin()
             self.check_mysql_conf()
             self.check_mysql_backuptool()
-            self.check_mysql_backupdir()
-            self.check_mysql_fullbackupdir()
-            self.check_mysql_incbackupdir()
+            self.check_mysql_backup_dir()
+            self.check_mysql_full_backup_dir()
+            self.check_mysql_inc_backup_dir()
             self.check_mysql_archive_dir()
         except Exception as err:
             logger.critical("FAILED: Check status")

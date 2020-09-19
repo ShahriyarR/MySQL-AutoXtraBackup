@@ -5,6 +5,7 @@ import subprocess
 import logging
 import os
 from datetime import datetime
+from typing import Union
 
 logger = logging.getLogger(__name__)
 
@@ -70,4 +71,14 @@ def get_latest_dir_name(path: str) -> str:
     if len(os.listdir(path)) > 0:
         return max(os.listdir(path))
 
+
+def create_directory(path: str) -> Union[bool, Exception]:
+    logger.info('Creating given directory...')
+    try:
+        os.makedirs(path)
+        logger.info('OK: Created')
+        return True
+    except Exception as err:
+        logger.error("FAILED: Could not create directory, ", err)
+        raise RuntimeError("FAILED: Could not create directory")
 

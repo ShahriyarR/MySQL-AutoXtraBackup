@@ -169,7 +169,9 @@ def all_procedure(ctx, prepare, backup, tag, show_tags,
                   verbose, log_file, log, defaults_file,
                   dry_run, log_file_max_bytes,
                   log_file_backup_count):
-    config = GeneralClass(defaults_file)
+    options = GeneralClass(defaults_file)
+    logging_options = options.logging_options
+    backup_options = options.backup_options
 
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)s [%(module)s:%(lineno)d] %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
@@ -183,10 +185,10 @@ def all_procedure(ctx, prepare, backup, tag, show_tags,
 
     if log_file:
         try:
-            if config.log_file_max_bytes and config.log_file_backup_count:
+            if logging_options.get('log_file_max_bytes') and logging_options.get('log_file_backup_count'):
                 file_handler = RotatingFileHandler(log_file, mode='a',
-                                                   maxBytes=int(config.log_file_max_bytes),
-                                                   backupCount=int(config.log_file_backup_count))
+                                                   maxBytes=int(logging_options.get('log_file_max_bytes')),
+                                                   backupCount=int(logging_options.get('log_file_backup_count')))
             else:
                 file_handler = RotatingFileHandler(log_file, mode='a',
                                                    maxBytes=log_file_max_bytes, backupCount=log_file_backup_count)
@@ -198,17 +200,21 @@ def all_procedure(ctx, prepare, backup, tag, show_tags,
     # set log level in order: 1. user argument 2. config file 3. @click default
     if log is not None:
         logger.setLevel(log)
-    elif 'log_level' in config.__dict__:
-        logger.setLevel(config.log_level)
+    elif logging_options.get('log_level'):
+        logger.setLevel(logging_options.get('log_level'))
     else:
         # this is the fallback default log-level.
         logger.setLevel('INFO')
 
     validate_file(defaults_file)
-    pid_file = pid.PidFile(piddir=config.pid_dir)
+    pid_file = pid.PidFile(piddir=backup_options.get('pid_dir'))
 
     try:
         with pid_file:  # User PidFile for locking to single instance
+            dry_run_ = dry_run
+            if dry_run_:
+                dry_run_ = 1
+                logger.warning("Dry run enabled!")
             if (prepare is False and
                     backup is False and
                     verbose is False and
@@ -217,55 +223,26 @@ def all_procedure(ctx, prepare, backup, tag, show_tags,
                 print_help(ctx, None, value=True)
 
             elif show_tags and defaults_file:
-                b = Backup(config=defaults_file)
-                b.show_tags(backup_dir=b.backupdir)
+                backup_ = Backup(config=defaults_file)
+                backup_.show_tags(backup_dir=backup_options.get('backup_dir'))
             elif prepare:
-                if dry_run:
-                    logger.warning("Dry run enabled!")
-                    logger.warning("Do not recover/copy-back in this mode!")
-                    if tag:
-                        a = Prepare(config=defaults_file, dry_run=1, tag=tag)
-                    else:
-                        a = Prepare(config=defaults_file, dry_run=1)
-                else:
-                    if tag:
-                        a = Prepare(config=defaults_file, tag=tag)
-                    else:
-                        a = Prepare(config=defaults_file)
-                a.prepare_backup_and_copy_back()
+                prepare_ = Prepare(config=defaults_file, dry_run=dry_run_, tag=tag)
+                prepare_.prepare_backup_and_copy_back()
             elif backup:
-                if dry_run:
-                    logger.warning("Dry run enabled!")
-                    if tag:
-                        b = Backup(config=defaults_file, dry_run=1, tag=tag)
-                    else:
-                        b = Backup(config=defaults_file, dry_run=1)
-                else:
-                    if tag:
-                        b = Backup(config=defaults_file, tag=tag)
-                    else:
-                        b = Backup(config=defaults_file)
-                b.all_backup()
-    except pid.PidFileAlreadyLockedError as error:
-        if hasattr(config, 'pid_runtime_warning') and time.time() - os.stat(
-                pid_file.filename).st_ctime > config.pid_runtime_warning:
+                backup_ = Backup(config=defaults_file, dry_run=dry_run_, tag=tag)
+                backup_.all_backup()
+
+    except (pid.PidFileAlreadyLockedError, pid.PidFileAlreadyRunningError) as error:
+        if backup_options.get('pid_runtime_warning') and time.time() - os.stat(
+                pid_file.filename).st_ctime > backup_options.get('pid_runtime_warning'):
             pid.fh.seek(0)
             pid_str = pid.fh.read(16).split("\n", 1)[0].strip()
+            logger.warning("Pid file already exists or Pid already running! : ", str(error))
             logger.critical(
                 "Backup (pid: " + pid_str + ") has been running for logger than: " + str(
                     humanfriendly.format_timespan(
-                        config.pid_runtime_warning)))
-            # logger.warn("Pid file already exists: " + str(error))
-    except pid.PidFileAlreadyRunningError as error:
-        if hasattr(config, 'pid_runtime_warning') and time.time() - os.stat(
-                pid_file.filename).st_ctime > config.pid_runtime_warning:
-            pid.fh.seek(0)
-            pid_str = pid.fh.read(16).split("\n", 1)[0].strip()
-            logger.critical(
-                "Backup (pid: " + pid_str + ") has been running for logger than: " + str(
-                    humanfriendly.format_timespan(
-                        config.pid_runtime_warning)))
-            # logger.warn("Pid already running: " + str(error))
+                        backup_options.get('pid_runtime_warning'))))
+
     except pid.PidFileUnreadableError as error:
         logger.warning("Pid file can not be read: " + str(error))
     except pid.PidFileError as error:

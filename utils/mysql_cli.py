@@ -33,5 +33,4 @@ class MySQLClientHelper:
 
     def mysql_run_command(self, statement: str) -> None:
         command = self.create_mysql_client_command(statement=statement)
-        logger.info("Running command -> {}".format(command))
-        ProcessRunner.run_command(command)
+        return ProcessRunner.run_command(command)

@@ -10,6 +10,7 @@ services:
     container_name: autoxtrabackup_test
     volumes:
     - ./test/entrypoint.sh:/entrypoint.sh
+    - /dev/log:/dev/log
     networks:
       - wide_network
       - internal_network
