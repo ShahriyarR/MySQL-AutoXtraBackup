@@ -1,5 +1,4 @@
 FROM mysql/mysql-server:8.0
-COPY entrypoint.sh /entrypoint.sh
 USER root
 WORKDIR /opt
 RUN yum install -y git
@@ -23,6 +22,8 @@ RUN cd /opt && \
     cd /opt/MySQL-AutoXtraBackup && \
     python3 setup.py install
 
+RUN yum groupinstall -y "Development Tools"
+RUN yum -y install python3-devel.x86_64 --enablerepo=rhel-7-server-optional-rpms
 RUN cd /opt/MySQL-AutoXtraBackup/test && \
     pip3 install -r requirements.txt
 
@@ -36,6 +37,8 @@ WORKDIR /opt/MySQL-AutoXtraBackup
 RUN cd /opt/MySQL-AutoXtraBackup && git pull
 RUN pip3 install uvicorn
 RUN pip3 install fastapi
-#    pipenv run uvicorn  main:app --host='127.0.0.1' --port=8080
-#CMD ["uvicorn", "api.main:app", "--host", "127.0.0.1", "--port", "8080"]
-CMD ["uvicorn", "api.main:app", "--port", "8080"]
+
+COPY entrypoint.sh /
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["./entrypoint.sh"]
+#CMD ["uvicorn", "api.main:app", "--port", "8080"]
