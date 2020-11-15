@@ -3,10 +3,6 @@ import logging.handlers
 import os
 import re
 import time
-from logging.handlers import RotatingFileHandler
-from sys import exit
-from sys import platform as _platform
-
 import click
 import humanfriendly
 import pid
@@ -16,6 +12,9 @@ from general_conf import path_config
 from general_conf.generalops import GeneralClass
 from backup_backup.backuper import Backup
 from process_runner.process_runner import ProcessRunner
+from logging.handlers import RotatingFileHandler
+from sys import exit
+from sys import platform as _platform
 
 logger = logging.getLogger('')
 destinations_hash = {'linux': '/dev/log', 'linux2': '/dev/log', 'darwin': '/var/run/syslog'}
