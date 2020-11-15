@@ -10,6 +10,8 @@ click = ">=3.3"
 pid = ">=2.0"
 humanfriendly = ">=2.0"
 pytest = "*"
+fastapi = "*"
+uvicorn = "*"
 
 [requires]
-python_version = "3.5"
+python_version = ">=3.5"

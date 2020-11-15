@@ -3,10 +3,6 @@ import logging.handlers
 import os
 import re
 import time
-from logging.handlers import RotatingFileHandler
-from sys import exit
-from sys import platform as _platform
-
 import click
 import humanfriendly
 import pid
@@ -16,6 +12,9 @@ from general_conf import path_config
 from general_conf.generalops import GeneralClass
 from backup_backup.backuper import Backup
 from process_runner.process_runner import ProcessRunner
+from logging.handlers import RotatingFileHandler
+from sys import exit
+from sys import platform as _platform
 
 logger = logging.getLogger('')
 destinations_hash = {'linux': '/dev/log', 'linux2': '/dev/log', 'darwin': '/var/run/syslog'}
@@ -93,18 +92,18 @@ def validate_file(file):
     Check for validity of the file given in file path. If file doesn't exist or invalid
     configuration file, throw error.
     """
-    if os.path.isfile(file):
-        # filename extension should be .cnf
-        pattern = re.compile(r'.*\.cnf')
-
-        if pattern.match(file):
-            # Lastly the file should have all 5 required headers
-            if check_file_content(file):
-                return
-        else:
-            raise ValueError("Invalid file extension. Expecting .cnf")
-    else:
+    if not os.path.isfile(file):
         raise FileNotFoundError("Specified file does not exist.")
+
+    # filename extension should be .cnf
+    pattern = re.compile(r'.*\.cnf')
+
+    if pattern.match(file):
+        # Lastly the file should have all 5 required headers
+        if check_file_content(file):
+            return
+    else:
+        raise ValueError("Invalid file extension. Expecting .cnf")
 
 
 @click.command()
