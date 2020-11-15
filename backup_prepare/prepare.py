@@ -174,7 +174,7 @@ class Prepare:
 
                     logger.info("Running prepare command -> {}".format(backup_prepare_cmd))
                     if self.dry:
-                        return
+                        return True
                     ProcessRunner.run_command(backup_prepare_cmd)
 
             logger.info("- - - - The end of the Prepare Stage. - - - -")
