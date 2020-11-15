@@ -7,6 +7,9 @@ app = FastAPI()
 
 @app.post("/backup")
 async def backup():
-    print("Ready to take backup")
-    return JSONResponse({"result": "Successfully finished the backup process"})
+    backup_ = Backup()
+    result = backup_.all_backup()
+    if result:
+        return JSONResponse({"result": "Successfully finished the backup process"})
+    return JSONResponse({"result": "[FAILED] to take backup"})
 

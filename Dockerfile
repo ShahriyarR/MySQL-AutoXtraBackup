@@ -7,6 +7,7 @@ RUN git clone https://github.com/sstephenson/bats.git && \
 ARG GIT_BRANCH_NAME
 RUN git clone -b $GIT_BRANCH_NAME https://github.com/ShahriyarR/MySQL-AutoXtraBackup.git && \
     cd MySQL-AutoXtraBackup && \
+    git pull && \
     python3 setup.py install
 
 EXPOSE 80
