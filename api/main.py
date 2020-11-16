@@ -1,29 +1,38 @@
-from fastapi import FastAPI, status
-from fastapi.responses import JSONResponse
-from backup_backup.backuper import Backup
-from backup_prepare.prepare import Prepare
+from fastapi import FastAPI
+from fastapi.openapi.utils import get_openapi
+from api.controller.controller import router
 
 
 app = FastAPI()
 
 
-@app.post("/backup")
-async def backup() -> JSONResponse:
-    backup_ = Backup()
-    result = backup_.all_backup()
-    if result:
-        return JSONResponse(content={"result": "Successfully finished the backup process"},
-                            status_code=status.HTTP_201_CREATED)
-    return JSONResponse(content={"result": "[FAILED] to take backup"},
-                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+@app.on_event("startup")
+async def startup():
+    """startup."""
+    print("app started")
 
 
-@app.post("/prepare")
-async def prepare() -> JSONResponse:
-    prepare_ = Prepare()
-    result = prepare_.prepare_inc_full_backups()
-    if result:
-        return JSONResponse(content={"result": "Successfully prepared all the backups"},
-                            status_code=status.HTTP_200_OK)
-    return JSONResponse(content={"result": "[FAILED] to prepare backup"},
-                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+@app.on_event("shutdown")
+async def shutdown():
+    """shutdown."""
+    print("SHUTDOWN")
+
+
+def modify_openapi():
+    """modify_openapi."""
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="MySQL-AutoXtrabackup",
+        version="2.0",
+        description="Rest API doc for MySQL-AutoXtrabackup",
+        routes=app.routes,
+    )
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+app.openapi = modify_openapi
+
+app.include_router(router)
+

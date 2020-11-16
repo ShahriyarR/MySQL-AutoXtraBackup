@@ -106,7 +106,8 @@ class BackupArchive:
                 logger.info(cleanup_msg.format(archive_dir, archive, 'archive_max_duration exceeded.'))
                 logger.info("OR")
                 logger.info(cleanup_msg.format(archive_dir, archive, 'archive_max_size exceeded.'))
-                if os.path.isdir(archive_dir + "/" + archive):
-                    shutil.rmtree(archive_dir + "/" + archive)
+                full_archive_path = os.path.join(archive_dir,archive)
+                if os.path.isdir(full_archive_path):
+                    shutil.rmtree(full_archive_path)
                 else:
-                    os.remove(archive_dir + "/" + archive)
+                    os.remove(full_archive_path)
