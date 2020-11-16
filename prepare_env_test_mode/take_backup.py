@@ -145,8 +145,8 @@ class WrapperForBackupTest(Backup):
 
     @staticmethod
     def create_million_tables(basedir):
+        sql_create = "create table sysbench_test_db.ddl_table{}(id int not null)"
         for i in range(1000000):
-            sql_create = "create table sysbench_test_db.ddl_table{}(id int not null)"
             RunBenchmark.run_sql_statement(basedir=basedir,
                                            sql_statement=sql_create.format(i))
         #sql_create_run = '{} -e \"{}\"'.format(RunBenchmark.get_mysql_conn(basedir), sql_create.format(i))
@@ -198,13 +198,13 @@ class WrapperForBackupTest(Backup):
             sql_create_table = "CREATE TABLE sysbench_test_db.t10 (a INT AUTO_INCREMENT PRIMARY KEY, b INT)"
             RunBenchmark.run_sql_statement(basedir=self.basedir,
                                            sql_statement=sql_create_table)
+            insert_rand = "INSERT INTO sysbench_test_db.t10 (b) VALUES (FLOOR(RAND() * 10000)), (FLOOR(RAND() * 10000)), (FLOOR(RAND() * 10000))"
             for _ in range(10):
-                insert_rand = "INSERT INTO sysbench_test_db.t10 (b) VALUES (FLOOR(RAND() * 10000)), (FLOOR(RAND() * 10000)), (FLOOR(RAND() * 10000))"
                 RunBenchmark.run_sql_statement(basedir=self.basedir,
                                                sql_statement=insert_rand)
 
+            insert_select = "INSERT INTO sysbench_test_db.t10 (b) SELECT b FROM sysbench_test_db.t10"
             for _ in range(5):
-                insert_select = "INSERT INTO sysbench_test_db.t10 (b) SELECT b FROM sysbench_test_db.t10"
                 RunBenchmark.run_sql_statement(basedir=self.basedir,
                                                sql_statement=insert_select)
 
@@ -370,26 +370,26 @@ class WrapperForBackupTest(Backup):
                 RunBenchmark.run_sql_statement(
                     basedir=self.basedir, sql_statement=sql_alter_tablespace)
 
-            # TODO: enable this after fix for https://bugs.launchpad.net/percona-xtrabackup/+bug/1736380
-            # for i in range(20, 25):
-            #     sql_virtual_column = "alter table sysbench_test_db.sbtest{} add column json_test_v json generated always as (json_array(k,c,pad)) virtual".format(
-            #         i)
-            #     RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_virtual_column)
-            #     sql_stored_column = "alter table sysbench_test_db.sbtest{} add column json_test_s json generated always as (json_array(k,c,pad)) stored".format(
-            #         i)
-            #     RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_stored_column)
-            #     sql_create_json_column = "alter table sysbench_test_db.sbtest{} add column json_test_index varchar(255) generated always as (json_array(k,c,pad)) stored".format(
-            #         i)
-            #     RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_json_column)
-            #     sql_alter_add_index = "alter table sysbench_test_db.sbtest{} add index(json_test_index)".format(i)
-            #     RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_add_index)
-            #     sql_alter_tablespace = "alter table sysbench_test_db.sbtest{} tablespace=out_rel_ts1".format(i)
-            #     RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_tablespace)
+                # TODO: enable this after fix for https://bugs.launchpad.net/percona-xtrabackup/+bug/1736380
+                # for i in range(20, 25):
+                #     sql_virtual_column = "alter table sysbench_test_db.sbtest{} add column json_test_v json generated always as (json_array(k,c,pad)) virtual".format(
+                #         i)
+                #     RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_virtual_column)
+                #     sql_stored_column = "alter table sysbench_test_db.sbtest{} add column json_test_s json generated always as (json_array(k,c,pad)) stored".format(
+                #         i)
+                #     RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_stored_column)
+                #     sql_create_json_column = "alter table sysbench_test_db.sbtest{} add column json_test_index varchar(255) generated always as (json_array(k,c,pad)) stored".format(
+                #         i)
+                #     RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_create_json_column)
+                #     sql_alter_add_index = "alter table sysbench_test_db.sbtest{} add index(json_test_index)".format(i)
+                #     RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_add_index)
+                #     sql_alter_tablespace = "alter table sysbench_test_db.sbtest{} tablespace=out_rel_ts1".format(i)
+                #     RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter_tablespace)
 
-            # NOTE: PXB will ignore rocksdb tables, which is going to break pt-table-checksum
-            # for i in range(10, 15):
-            #     sql_alter = "alter table sysbench_test_db.sbtest{} engine=rocksdb".format(i)
-            #     RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter)
+                # NOTE: PXB will ignore rocksdb tables, which is going to break pt-table-checksum
+                # for i in range(10, 15):
+                #     sql_alter = "alter table sysbench_test_db.sbtest{} engine=rocksdb".format(i)
+                #     RunBenchmark.run_sql_statement(basedir=self.basedir, sql_statement=sql_alter)
         # NOTE: PXB will ignore tokudb tables, which is going to break pt-table-checksum
         # for i in range(15, 20):
         #     sql_alter = "alter table sysbench_test_db.sbtest{} engine=tokudb".format(i)
@@ -467,6 +467,4 @@ class WrapperForBackupTest(Backup):
             self.check_kill_process('call_create_index_temp')
             self.check_kill_process('call_innodb_alter_encryption_alters')
             self.check_kill_process('call_innodb_alter_encryption_sql')
-            pass
-
         return True

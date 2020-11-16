@@ -14,9 +14,7 @@ class TestModeConfCheck(GeneralClass):
     def __init__(self, config=path_config.config_path_file):
         self.conf = config
         super().__init__(config=self.conf)
-        if hasattr(self, 'gitcmd') and hasattr(self, 'testpath'):
-            pass
-        else:
+        if not hasattr(self, 'gitcmd') or not hasattr(self, 'testpath'):
             logger.critical("Missing needed variables from config file")
             sys.exit(-1)
 

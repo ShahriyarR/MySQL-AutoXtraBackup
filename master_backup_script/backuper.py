@@ -84,9 +84,8 @@ class Backup(GeneralClass):
         status, output = subprocess.getstatusoutput(du_cmd)
         if status == 0:
             return output.split()[0]
-        else:
-            logger.error("Failed to get the folder size")
-            return False
+        logger.error("Failed to get the folder size")
+        return False
 
     @staticmethod
     def show_tags(backup_dir):
@@ -193,11 +192,9 @@ class Backup(GeneralClass):
         """
         if hasattr(self, 'mysql_socket'):
             command_connection = "{} --defaults-file={} -u{} --password='{}' "
-            command_execute = ' -e "flush logs"'
         else:
             command_connection = "{} --defaults-file={} -u{} --password='{}' --host={}"
-            command_execute = ' -e "flush logs"'
-
+        command_execute = ' -e "flush logs"'
         # Open connection
 
         if hasattr(self, 'mysql_socket'):
@@ -439,27 +436,29 @@ class Backup(GeneralClass):
         xtrabackup_cmd += self.general_command_builder()
 
         # Checking if streaming enabled for backups
-        if hasattr(self, 'stream') and self.stream == 'xbstream':
-            xtrabackup_cmd += " "
-            xtrabackup_cmd += '--stream="{}"'.format(self.stream)
-            xtrabackup_cmd += " > {}/full_backup.stream".format(
-                full_backup_dir)
-            logger.warning("Streaming xbstream is enabled!")
-        elif hasattr(self, 'stream') and self.stream == 'tar' and \
-                (hasattr(self, 'encrypt') or hasattr(self, 'compress')):
-            logger.error(
-                "xtrabackup: error: compressed and encrypted backups are "
-                "incompatible with the 'tar' streaming format. Use --stream=xbstream instead."
-            )
-            raise RuntimeError(
-                "xtrabackup: error: compressed and encrypted backups are "
-                "incompatible with the 'tar' streaming format. Use --stream=xbstream instead."
-            )
-        elif hasattr(self, 'stream') and self.stream == 'tar':
-            xtrabackup_cmd += " "
-            xtrabackup_cmd += '--stream="{}"'.format(self.stream)
-            xtrabackup_cmd += " > {}/full_backup.tar".format(full_backup_dir)
-            logger.warning("Streaming tar is enabled!")
+        if hasattr(self, 'stream'):
+            if self.stream == 'xbstream':
+                xtrabackup_cmd += " "
+                xtrabackup_cmd += '--stream="{}"'.format(self.stream)
+                xtrabackup_cmd += " > {}/full_backup.stream".format(
+                    full_backup_dir)
+                logger.warning("Streaming xbstream is enabled!")
+            elif self.stream == 'tar' and (
+                hasattr(self, 'encrypt') or hasattr(self, 'compress')
+            ):
+                logger.error(
+                    "xtrabackup: error: compressed and encrypted backups are "
+                    "incompatible with the 'tar' streaming format. Use --stream=xbstream instead."
+                )
+                raise RuntimeError(
+                    "xtrabackup: error: compressed and encrypted backups are "
+                    "incompatible with the 'tar' streaming format. Use --stream=xbstream instead."
+                )
+            elif self.stream == 'tar':
+                xtrabackup_cmd += " "
+                xtrabackup_cmd += '--stream="{}"'.format(self.stream)
+                xtrabackup_cmd += " > {}/full_backup.tar".format(full_backup_dir)
+                logger.warning("Streaming tar is enabled!")
 
         if self.dry == 1:
             # If it's a dry run, skip running & tagging

@@ -29,21 +29,19 @@ class PartialRecovery(GeneralClass):
         if hasattr(self, 'mysql_socket'):
             command_connection += ' --socket={}'
             command_connection += command_execute
-            new_command = command_connection.format(self.mysql, self.mycnf,
+            return command_connection.format(self.mysql, self.mycnf,
                                                     self.mysql_user,
                                                     self.mysql_password,
                                                     self.mysql_socket,
                                                     statement)
-            return new_command
         else:
             command_connection += ' --port={}'
             command_connection += command_execute
-            new_command = command_connection.format(self.mysql, self.mycnf,
+            return command_connection.format(self.mysql, self.mycnf,
                                                     self.mysql_user,
                                                     self.mysql_password,
                                                     self.mysql_host,
                                                     self.mysql_port, statement)
-            return new_command
 
     def check_innodb_file_per_table(self):
         """
@@ -80,13 +78,10 @@ class PartialRecovery(GeneralClass):
         logger.info("Checking MySQL version")
         status, output = subprocess.getstatusoutput(run_command)
 
-        if status == 0 and ('5.6' in output):
+        if status == 0 and '5.6' in output or status == 0 and '5.7' in output:
             logger.info("You have correct version of MySQL")
             return True
-        elif status == 0 and ('5.7' in output):
-            logger.info("You have correct version of MySQL")
-            return True
-        elif status == 0 and ('5.7' not in output) and ('5.6' not in output):
+        elif status == 0:
             logger.error(
                 "Your MySQL server is not supported. MySQL version must be >= 5.6"
             )
@@ -219,7 +214,6 @@ class PartialRecovery(GeneralClass):
 
         database_dir_list = []
         database_objects_full_path = []
-        find_objects_full_path = []
         table_dir_list = []
 
         # Look for all files in database directory
@@ -235,7 +229,7 @@ class PartialRecovery(GeneralClass):
 
         # If database directory exists find already provided table in database
         # directory
-        if len(database_dir_list) > 0:
+        if database_dir_list:
             for i in database_dir_list:
                 base_file = os.path.splitext(i)[0]
                 ext = os.path.splitext(i)[1]
@@ -245,9 +239,8 @@ class PartialRecovery(GeneralClass):
 
         # If table name from input is valid and it is located in database
         # directory return .ibd file name
-        if len(database_dir_list) > 0 and len(
-                table_dir_list
-        ) == 2:  # Why 2? because every InnoDB table must have .frm and .ibd file
+        if database_dir_list and len(table_dir_list) == 2:  # Why 2? because every InnoDB table must have .frm and .ibd file
+            find_objects_full_path = []
             for i in table_dir_list:
                 ext = os.path.splitext(i)[1]
                 if ext == '.ibd':
@@ -255,7 +248,7 @@ class PartialRecovery(GeneralClass):
                         if i in a:
                             find_objects_full_path.append(a)
 
-            if len(find_objects_full_path) > 0:
+            if find_objects_full_path:
                 for x in find_objects_full_path:
                     return x
         else:

@@ -737,27 +737,6 @@ class Prepare(GeneralClass):
                                     self.inc_dir,
                                     inc_backup_dir)
 
-                        # Checking if extra options were passed:
-                        if hasattr(self, 'xtra_options'):
-                            xtrabackup_prepare_inc_cmd += " "
-                            xtrabackup_prepare_inc_cmd += self.xtra_options
-
-                        # Checking of extra prepare options were passed:
-                        if hasattr(self, 'xtra_prepare_options'):
-                            xtrabackup_prepare_inc_cmd += " "
-                            xtrabackup_prepare_inc_cmd += self.xtra_prepare_options
-
-                        logger.info("Running prepare command -> {}".format(
-                            xtrabackup_prepare_inc_cmd))
-                        if self.dry == 0:
-                            status = ProcessRunner.run_command(
-                                xtrabackup_prepare_inc_cmd)
-                            if not status:
-                                logger.error(
-                                    "FAILED: Incremental BACKUP prepare")
-                                raise RuntimeError(
-                                    "FAILED: Incremental BACKUP prepare")
-
                     else:
                         logger.info(
                             "Preparing last incremental backup, inc backup dir/name is {}"
@@ -850,26 +829,26 @@ class Prepare(GeneralClass):
                             self.recent_full_backup_file(), self.inc_dir,
                             inc_backup_dir)
 
-                        # Checking if extra options were passed:
-                        if hasattr(self, 'xtra_options'):
-                            xtrabackup_prepare_inc_cmd += " "
-                            xtrabackup_prepare_inc_cmd += self.xtra_options
+                    # Checking if extra options were passed:
+                    if hasattr(self, 'xtra_options'):
+                        xtrabackup_prepare_inc_cmd += " "
+                        xtrabackup_prepare_inc_cmd += self.xtra_options
 
-                        # Checking of extra prepare options were passed:
-                        if hasattr(self, 'xtra_prepare_options'):
-                            xtrabackup_prepare_inc_cmd += " "
-                            xtrabackup_prepare_inc_cmd += self.xtra_prepare_options
+                    # Checking of extra prepare options were passed:
+                    if hasattr(self, 'xtra_prepare_options'):
+                        xtrabackup_prepare_inc_cmd += " "
+                        xtrabackup_prepare_inc_cmd += self.xtra_prepare_options
 
-                        logger.info("Running prepare command -> {}".format(
-                            xtrabackup_prepare_inc_cmd))
-                        if self.dry == 0:
-                            status = ProcessRunner.run_command(
-                                xtrabackup_prepare_inc_cmd)
-                            if not status:
-                                logger.error(
-                                    "FAILED: Incremental BACKUP prepare")
-                                raise RuntimeError(
-                                    "FAILED: Incremental BACKUP prepare")
+                    logger.info("Running prepare command -> {}".format(
+                        xtrabackup_prepare_inc_cmd))
+                    if self.dry == 0:
+                        status = ProcessRunner.run_command(
+                            xtrabackup_prepare_inc_cmd)
+                        if not status:
+                            logger.error(
+                                "FAILED: Incremental BACKUP prepare")
+                            raise RuntimeError(
+                                "FAILED: Incremental BACKUP prepare")
 
             logger.info("- - - - The end of the Prepare Stage. - - - -")
             return True
@@ -975,15 +954,8 @@ class Prepare(GeneralClass):
     def start_mysql_func(self, start_tool=None, options=None):
         # Starting MySQL
         logger.info("Starting MySQL server: ")
-        if start_tool is None:
-            args = self.start_mysql
-        else:
-            args = start_tool
-
-        if options is not None:
-            start_command = "{} {}".format(args, options)
-        else:
-            start_command = args
+        args = self.start_mysql if start_tool is None else start_tool
+        start_command = "{} {}".format(args, options) if options is not None else args
         status, output = subprocess.getstatusoutput(start_command)
         if status == 0:
             logger.info("Starting MySQL ...")
@@ -1043,10 +1015,9 @@ class Prepare(GeneralClass):
             self.check_if_backup_prepared(self.full_dir,
                                           self.recent_full_backup_file())
             self.shutdown_mysql()
-            if self.move_datadir():
-                if self.copy(options=options):
-                    logger.info("All data copied back successfully. ")
-                    logger.info("Your MySQL server is UP again")
+            if self.move_datadir() and self.copy(options=options):
+                logger.info("All data copied back successfully. ")
+                logger.info("Your MySQL server is UP again")
         except Exception as err:
             logger.error("{}: {}".format(type(err).__name__, err))
 
@@ -1085,20 +1056,14 @@ class Prepare(GeneralClass):
         elif prepare == 2:
             if self.tag is None:
                 self.prepare_inc_full_backups()
-                if self.dry == 0:
-                    self.copy_back_action()
-                else:
-                    logger.critical(
-                        "Dry run is not implemented for copy-back/recovery actions!"
-                    )
             else:
                 self.prepare_with_tags()
-                if self.dry == 0:
-                    self.copy_back_action()
-                else:
-                    logger.critical(
-                        "Dry run is not implemented for copy-back/recovery actions!"
-                    )
+            if self.dry == 0:
+                self.copy_back_action()
+            else:
+                logger.critical(
+                    "Dry run is not implemented for copy-back/recovery actions!"
+                )
         elif prepare == 3:
             if self.dry == 0:
                 self.copy_back_action()
