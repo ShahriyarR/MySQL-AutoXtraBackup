@@ -1,7 +1,7 @@
-from general_conf.generalops import GeneralClass
 import os
 import sys
 import logging
+from general_conf.generalops import GeneralClass
 from general_conf import path_config
 
 logger = logging.getLogger(__name__)

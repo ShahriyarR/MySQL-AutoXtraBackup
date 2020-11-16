@@ -2,16 +2,18 @@
 import re
 import subprocess
 import os
+import logging
 from general_conf.generalops import GeneralClass
 from general_conf import path_config
 
-import logging
 logger = logging.getLogger(__name__)
 
 
 class CheckEnv(GeneralClass):
-
-    def __init__(self, config=path_config.config_path_file, full_dir=None, inc_dir=None):
+    def __init__(self,
+                 config=path_config.config_path_file,
+                 full_dir=None,
+                 inc_dir=None):
         self.conf = config
         GeneralClass.__init__(self, self.conf)
         if full_dir:
@@ -27,10 +29,9 @@ class CheckEnv(GeneralClass):
         '''
         if options is None:
 
-            statusargs = "{} --defaults-file={} --user={} --password='{}' status".format(self.mysqladmin,
-                                                                                   self.mycnf,
-                                                                                   self.mysql_user,
-                                                                                   self.mysql_password)
+            statusargs = "{} --defaults-file={} --user={} --password='{}' status".format(
+                self.mysqladmin, self.mycnf, self.mysql_user,
+                self.mysql_password)
 
             if hasattr(self, 'mysql_socket'):
                 statusargs += " --socket={}".format(self.mysql_socket)
@@ -38,17 +39,22 @@ class CheckEnv(GeneralClass):
                 statusargs += " --host={}".format(self.mysql_host)
                 statusargs += " --port={}".format(self.mysql_port)
             else:
-                logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
-                raise RuntimeError("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
+                logger.critical(
+                    "Neither mysql_socket nor mysql_host and mysql_port are defined in config!"
+                )
+                raise RuntimeError(
+                    "Neither mysql_socket nor mysql_host and mysql_port are defined in config!"
+                )
         else:
             statusargs = "{} {} status".format(self.mysqladmin, options)
 
         # filter out password from argument list
-        filteredargs = re.sub("--password='?\w+'?", "--password='*'", statusargs)
+        filteredargs = re.sub("--password='?\w+'?", "--password='*'",
+                              statusargs)
 
         logger.info("Running mysqladmin command -> {}".format(filteredargs))
 
-        status, output = subprocess.getstatusoutput(statusargs)
+        status, _ = subprocess.getstatusoutput(statusargs)
 
         if status == 0:
             logger.info('OK: Server is Up and running')
@@ -62,12 +68,14 @@ class CheckEnv(GeneralClass):
         Method for checking passed MySQL my.cnf defaults file. If it is not passed then skip this check
         :return: True on success, raise RuntimeError on error.
         '''
-        if self.mycnf is None or self.mycnf == '':
+        if self.mycnf is None or self.mycnf == '':  # noqa R1705
             logger.info("Skipping my.cnf check, because it is not specified")
             return True
-        elif not os.path.exists(self.mycnf) and self.mycnf:
-            logger.error('FAILED: MySQL configuration file path does NOT exist')
-            raise RuntimeError('FAILED: MySQL configuration file path does NOT exist')
+        elif not os.path.exists(self.mycnf) and self.mycnf:  # noqa R1705
+            logger.error(
+                'FAILED: MySQL configuration file path does NOT exist')
+            raise RuntimeError(
+                'FAILED: MySQL configuration file path does NOT exist')
         else:
             logger.info('OK: MySQL configuration file exists')
             return True
@@ -77,7 +85,7 @@ class CheckEnv(GeneralClass):
         Method for checking mysql client path
         :return: True on success, raise RuntimeError on error.
         '''
-        if os.path.exists(self.mysql):
+        if os.path.exists(self.mysql):  # noqa R1705
             logger.info('OK: {} exists'.format(self.mysql))
             return True
         else:
@@ -94,7 +102,8 @@ class CheckEnv(GeneralClass):
             return True
         else:
             logger.error('FAILED: {} does NOT exist'.format(self.mysqladmin))
-            raise RuntimeError('FAILED: {} does NOT exist'.format(self.mysqladmin))
+            raise RuntimeError('FAILED: {} does NOT exist'.format(
+                self.mysqladmin))
 
     def check_mysql_backuptool(self):
         """
@@ -125,9 +134,9 @@ class CheckEnv(GeneralClass):
                 logger.info('OK: Created')
                 return True
             except Exception as err:
-                logger.error("FAILED: Could not create directory, ", err)
+                logger.error(
+                    "FAILED: Could not create directory,{}".format(err))
                 raise RuntimeError("FAILED: Could not create directory")
-
 
     def check_mysql_archive_dir(self):
         '''
@@ -147,7 +156,8 @@ class CheckEnv(GeneralClass):
                     logger.info('OK: Created')
                     return True
                 except Exception as err:
-                    logger.error("FAILED: Could not create directory, ", err)
+                    logger.error(
+                        "FAILED: Could not create directory, {}".format(err))
                     raise RuntimeError("FAILED: Could not create directory")
         else:
             return True
@@ -169,7 +179,8 @@ class CheckEnv(GeneralClass):
                 logger.info('OK: Created')
                 return True
             except Exception as err:
-                logger.error("FAILED: Could not create directory, ", err)
+                logger.error(
+                    "FAILED: Could not create directory, {}".format(err))
                 raise RuntimeError("FAILED: Could not create directory")
 
     def check_mysql_incbackupdir(self):
@@ -189,7 +200,8 @@ class CheckEnv(GeneralClass):
                 logger.info('OK: Created')
                 return True
             except Exception as err:
-                logger.error("FAILED: Could not create directory, ", err)
+                logger.error(
+                    "FAILED: Could not create directory,{}".format(err))
                 raise RuntimeError("FAILED: Could not create directory")
 
     def check_all_env(self):

@@ -3,7 +3,6 @@
 # Shahriyar Rzayev -> http://www.mysql.az
 # / rzayev.sehriyar@gmail.com / rzayev.shahriyar@yandex.com
 
-
 import logging
 import os
 import subprocess
@@ -25,8 +24,10 @@ logger = logging.getLogger(__name__)
 
 
 class Backup(GeneralClass):
-
-    def __init__(self, config=path_config.config_path_file, dry_run=0, tag=None):
+    def __init__(self,
+                 config=path_config.config_path_file,
+                 dry_run=0,
+                 tag=None):
         self.conf = config
         self.dry = dry_run
         self.tag = tag
@@ -48,15 +49,20 @@ class Backup(GeneralClass):
             return True
 
         # Currently only support Inc and Full types, calculate name based on this
-        assert backup_type in ('Full', 'Inc'), "add_tag(): backup_type {}: must be 'Full' or 'Inc'".format(backup_type)
-        backup_name = self.recent_full_backup_file() if backup_type == 'Full' else self.recent_inc_backup_file()
+        assert backup_type in (
+            'Full', 'Inc'
+        ), "add_tag(): backup_type {}: must be 'Full' or 'Inc'".format(
+            backup_type)
+        backup_name = self.recent_full_backup_file(
+        ) if backup_type == 'Full' else self.recent_inc_backup_file()
 
         # Calculate more tag fields, create string
         backup_timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         backtag_str = "{bk_name}\t{bk_type}\t{bk_status}\t{bk_timestamp}\t{bk_size}\t'{bk_tag}'\n"
 
         # Apply tag
-        with open('{}/backup_tags.txt'.format(self.backupdir), 'a') as backtags_file:
+        with open('{}/backup_tags.txt'.format(self.backupdir),
+                  'a') as backtags_file:
             backtag_final = backtag_str.format(bk_name=backup_name,
                                                bk_type=backup_type,
                                                bk_status=backup_status,
@@ -88,17 +94,18 @@ class Backup(GeneralClass):
             with open('{}/backup_tags.txt'.format(backup_dir), 'r') as bcktags:
                 from_file = bcktags.read()
             column_names = "{0}\t{1}\t{2}\t{3}\t{4}\tTAG\n".format(
-                "Backup".ljust(19),
-                "Type".ljust(4),
-                "Status".ljust(2),
-                "Completion_time".ljust(19),
-                "Size")
-            extra_str = "{}\n".format("-"*(len(column_names)+21))
+                "Backup".ljust(19), "Type".ljust(4), "Status".ljust(2),
+                "Completion_time".ljust(19), "Size")
+            extra_str = "{}\n".format("-" * (len(column_names) + 21))
             print(column_names + extra_str + from_file)
             logger.info(column_names + extra_str + from_file)
         else:
-            logger.warning("Could not find backup_tags.txt inside given backup directory. Can't print tags.")
-            print("WARNING: Could not find backup_tags.txt inside given backup directory. Can't print tags.")
+            logger.warning(
+                "Could not find backup_tags.txt inside given backup directory. Can't print tags."
+            )
+            print(
+                "WARNING: Could not find backup_tags.txt inside given backup directory. Can't print tags."
+            )
 
     @staticmethod
     def sorted_ls(path):
@@ -107,7 +114,7 @@ class Backup(GeneralClass):
         :param path: Directory path
         :return: The list of sorted directories
         """
-        mtime = lambda f: os.stat(os.path.join(path, f)).st_mtime
+        mtime = lambda f: os.stat(os.path.join(path, f)).st_mtime  # noqa E731
         return list(sorted(os.listdir(path), key=mtime))
 
     @staticmethod
@@ -118,7 +125,7 @@ class Backup(GeneralClass):
         :return: Total size of directory
         """
         total_size = 0
-        for dirpath, dirnames, filenames in os.walk(path):
+        for dirpath, _, filenames in os.walk(path):
             for f in filenames:
                 fp = os.path.join(dirpath, f)
                 total_size += os.path.getsize(fp)
@@ -149,14 +156,19 @@ class Backup(GeneralClass):
         :param directory: Directory path
         :return: Created new directory path
         """
-        new_backup_dir = join(directory, datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
+        new_backup_dir = join(directory,
+                              datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
         try:
             # Creating backup directory
             makedirs(new_backup_dir)
             return new_backup_dir
         except Exception as err:
-            logger.error("Something went wrong in create_backup_directory(): {}".format(err))
-            raise RuntimeError("Something went wrong in create_backup_directory(): {}".format(err))
+            logger.error(
+                "Something went wrong in create_backup_directory(): {}".format(
+                    err))
+            raise RuntimeError(
+                "Something went wrong in create_backup_directory(): {}".format(
+                    err))
 
     def recent_full_backup_file(self):
         # Return last full backup dir name
@@ -191,22 +203,18 @@ class Backup(GeneralClass):
         if hasattr(self, 'mysql_socket'):
             command_connection += ' --socket={}'
             command_connection += command_execute
-            new_command = command_connection.format(
-                self.mysql,
-                self.mycnf,
-                self.mysql_user,
-                self.mysql_password,
-                self.mysql_socket)
+            new_command = command_connection.format(self.mysql, self.mycnf,
+                                                    self.mysql_user,
+                                                    self.mysql_password,
+                                                    self.mysql_socket)
         else:
             command_connection += ' --port={}'
             command_connection += command_execute
-            new_command = command_connection.format(
-                self.mysql,
-                self.mycnf,
-                self.mysql_user,
-                self.mysql_password,
-                self.mysql_host,
-                self.mysql_port)
+            new_command = command_connection.format(self.mysql, self.mycnf,
+                                                    self.mysql_user,
+                                                    self.mysql_password,
+                                                    self.mysql_host,
+                                                    self.mysql_port)
         logger.info("Trying to flush logs")
         status, output = subprocess.getstatusoutput(new_command)
 
@@ -221,19 +229,24 @@ class Backup(GeneralClass):
     def create_backup_archives(self):
         # Creating .tar.gz archive files of taken backups
         for i in os.listdir(self.full_dir):
-            if len(os.listdir(self.full_dir)) == 1 or i != max(os.listdir(self.full_dir)):
+            if len(os.listdir(self.full_dir)) == 1 or i != max(
+                    os.listdir(self.full_dir)):
                 logger.info("Preparing backups prior archiving them...")
 
                 if hasattr(self, 'prepare_archive'):
                     logger.info("Started to prepare backups, prior archiving!")
-                    prepare_obj = Prepare(config=self.conf, dry_run=self.dry, tag=self.tag)
+                    prepare_obj = Prepare(config=self.conf,
+                                          dry_run=self.dry,
+                                          tag=self.tag)
                     status = prepare_obj.prepare_inc_full_backups()
                     if status:
-                        logger.info("Backups Prepared successfully...".format(status))
+                        logger.info("Backups Prepared successfully...")
 
-                if hasattr(self, 'move_archive') and (int(self.move_archive) == 1):
+                if hasattr(self, 'move_archive') and (int(self.move_archive)
+                                                      == 1):
                     dir_name = self.archive_dir + '/' + i + '_archive'
-                    logger.info("move_archive enabled. Moving {} to {}".format(self.backupdir, dir_name))
+                    logger.info("move_archive enabled. Moving {} to {}".format(
+                        self.backupdir, dir_name))
                     try:
                         shutil.copytree(self.backupdir, dir_name)
                     except Exception as err:
@@ -243,7 +256,9 @@ class Backup(GeneralClass):
                     else:
                         return True
                 else:
-                    logger.info("move_archive is disabled. archiving / compressing current_backup.")
+                    logger.info(
+                        "move_archive is disabled. archiving / compressing current_backup."
+                    )
                     # Multi-core tar utilizing pigz.
 
                     # Pigz default to number of cores available, or 8 if cannot be read.
@@ -259,40 +274,52 @@ class Backup(GeneralClass):
                             .format(archive_file, self.full_dir, self.inc_dir)
                     else:
                         # handle file not found error.
-                        logger.warning("pigz executeable not available. Defaulting to singlecore tar")
+                        logger.warning(
+                            "pigz executeable not available. Defaulting to singlecore tar"
+                        )
                         run_tar = "tar -zcf {} {} {}"\
                             .format(archive_file, self.full_dir, self.inc_dir)
                     status = ProcessRunner.run_command(run_tar)
                     if status:
-                        logger.info("OK: Old full backup and incremental backups archived!")
+                        logger.info(
+                            "OK: Old full backup and incremental backups archived!"
+                        )
                         return True
                     else:
                         logger.error("FAILED: Archiving ")
-                        raise RuntimeError("FAILED: Archiving -> {}".format(run_tar))
+                        raise RuntimeError(
+                            "FAILED: Archiving -> {}".format(run_tar))
 
     def clean_old_archives(self):
         logger.info("Starting cleaning of old archives")
         for archive in self.sorted_ls(self.archive_dir):
             if '_archive' in archive:
-                archive_date = datetime.strptime(
-                    archive, "%Y-%m-%d_%H-%M-%S_archive")
+                archive_date = datetime.strptime(archive,
+                                                 "%Y-%m-%d_%H-%M-%S_archive")
             else:
-                archive_date = datetime.strptime(
-                    archive, "%Y-%m-%d_%H-%M-%S.tar.gz")
+                archive_date = datetime.strptime(archive,
+                                                 "%Y-%m-%d_%H-%M-%S.tar.gz")
 
             now = datetime.now()
 
             # Finding if last full backup older than the interval or more from
             # now!
             cleanup_msg = "Removing archive {}/{} due to {}"
-            if hasattr(self, 'archive_max_duration') and (now - archive_date).total_seconds() >= self.archive_max_duration:
-                logger.info(cleanup_msg.format(self.archive_dir, archive, 'archive_max_duration exceeded.'))
+            if hasattr(self, 'archive_max_duration') and (
+                    now -
+                    archive_date).total_seconds() >= self.archive_max_duration:
+                logger.info(
+                    cleanup_msg.format(self.archive_dir, archive,
+                                       'archive_max_duration exceeded.'))
                 if os.path.isdir(self.archive_dir + "/" + archive):
                     shutil.rmtree(self.archive_dir + "/" + archive)
                 else:
                     os.remove(self.archive_dir + "/" + archive)
-            elif hasattr(self, 'archive_max_size') and self.get_directory_size(self.archive_dir) > self.archive_max_size:
-                logger.info(cleanup_msg.format(self.archive_dir, archive, 'archive_max_size exceeded.'))
+            elif hasattr(self, 'archive_max_size') and self.get_directory_size(
+                    self.archive_dir) > self.archive_max_size:
+                logger.info(
+                    cleanup_msg.format(self.archive_dir, archive,
+                                       'archive_max_size exceeded.'))
                 if os.path.isdir(self.archive_dir + "/" + archive):
                     shutil.rmtree(self.archive_dir + "/" + archive)
                 else:
@@ -319,7 +346,8 @@ class Backup(GeneralClass):
         # Copying backup directory to remote server
         logger.info("- - - - Copying backups to remote server - - - -")
 
-        copy_it = 'scp -r {} {}:{}'.format(self.backupdir, self.remote_conn, self.remote_dir)
+        copy_it = 'scp -r {} {}:{}'.format(self.backupdir, self.remote_conn,
+                                           self.remote_dir)
         copy_it = shlex.split(copy_it)
         cp = subprocess.Popen(copy_it, stdout=subprocess.PIPE)
         logger.info(str(cp.stdout.read()))
@@ -337,8 +365,12 @@ class Backup(GeneralClass):
             args += " --host={}".format(self.mysql_host)
             args += " --port={}".format(self.mysql_port)
         else:
-            logger.critical("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
-            raise RuntimeError("Neither mysql_socket nor mysql_host and mysql_port are defined in config!")
+            logger.critical(
+                "Neither mysql_socket nor mysql_host and mysql_port are defined in config!"
+            )
+            raise RuntimeError(
+                "Neither mysql_socket nor mysql_host and mysql_port are defined in config!"
+            )
 
         # Adding compression support for backup
         try:
@@ -396,7 +428,7 @@ class Backup(GeneralClass):
 
         # Taking Full backup
         xtrabackup_cmd = "{} --defaults-file={} --user={} --password={} " \
-               " --target-dir={} --backup".format(
+               " --target-dir={} --backup".format(    # noqa E127
                 self.backup_tool,
                 self.mycnf,
                 self.mysql_user,
@@ -410,14 +442,19 @@ class Backup(GeneralClass):
         if hasattr(self, 'stream') and self.stream == 'xbstream':
             xtrabackup_cmd += " "
             xtrabackup_cmd += '--stream="{}"'.format(self.stream)
-            xtrabackup_cmd += " > {}/full_backup.stream".format(full_backup_dir)
+            xtrabackup_cmd += " > {}/full_backup.stream".format(
+                full_backup_dir)
             logger.warning("Streaming xbstream is enabled!")
         elif hasattr(self, 'stream') and self.stream == 'tar' and \
                 (hasattr(self, 'encrypt') or hasattr(self, 'compress')):
-            logger.error("xtrabackup: error: compressed and encrypted backups are "
-                         "incompatible with the 'tar' streaming format. Use --stream=xbstream instead.")
-            raise RuntimeError("xtrabackup: error: compressed and encrypted backups are "
-                               "incompatible with the 'tar' streaming format. Use --stream=xbstream instead.")
+            logger.error(
+                "xtrabackup: error: compressed and encrypted backups are "
+                "incompatible with the 'tar' streaming format. Use --stream=xbstream instead."
+            )
+            raise RuntimeError(
+                "xtrabackup: error: compressed and encrypted backups are "
+                "incompatible with the 'tar' streaming format. Use --stream=xbstream instead."
+            )
         elif hasattr(self, 'stream') and self.stream == 'tar':
             xtrabackup_cmd += " "
             xtrabackup_cmd += '--stream="{}"'.format(self.stream)
@@ -473,15 +510,19 @@ class Backup(GeneralClass):
             # Because it is impossible to take incremental backup with streaming tar.
             # raise RuntimeError.
             if hasattr(self, 'stream') and self.stream == 'tar':
-                logger.error("xtrabackup: error: streaming incremental backups are incompatible with the "
-                             "'tar' streaming format. Use --stream=xbstream instead.")
-                raise RuntimeError("xtrabackup: error: streaming incremental backups are incompatible with the "
-                                   "'tar' streaming format. Use --stream=xbstream instead.")
+                logger.error(
+                    "xtrabackup: error: streaming incremental backups are incompatible with the "
+                    "'tar' streaming format. Use --stream=xbstream instead.")
+                raise RuntimeError(
+                    "xtrabackup: error: streaming incremental backups are incompatible with the "
+                    "'tar' streaming format. Use --stream=xbstream instead.")
 
             # Extract and decrypt streamed full backup prior to executing incremental backup
             if hasattr(self, 'stream') and self.stream == 'xbstream' \
                     and hasattr(self, 'encrypt') and hasattr(self, 'xbs_decrypt'):
-                logger.info("Using xbstream to extract and decrypt from full_backup.stream!")
+                logger.info(
+                    "Using xbstream to extract and decrypt from full_backup.stream!"
+                )
                 xbstream_command = "{} {} --decrypt={} --encrypt-key={} --encrypt-threads={} " \
                                    "< {}/{}/full_backup.stream -C {}/{}".format(
                                     self.xbstream,
@@ -494,9 +535,13 @@ class Backup(GeneralClass):
                                     self.full_dir,
                                     recent_bck)
 
-                logger.info("The following xbstream command will be executed {}".format(xbstream_command))
-                if self.dry == 0 and isfile("{}/{}/full_backup.stream".format(self.full_dir, recent_bck)):
-                    status, output = subprocess.getstatusoutput(xbstream_command)
+                logger.info(
+                    "The following xbstream command will be executed {}".
+                    format(xbstream_command))
+                if self.dry == 0 and isfile("{}/{}/full_backup.stream".format(
+                        self.full_dir, recent_bck)):
+                    status, output = subprocess.getstatusoutput(
+                        xbstream_command)
                     if status == 0:
                         logger.info("OK: XBSTREAM command succeeded.")
                     else:
@@ -506,19 +551,20 @@ class Backup(GeneralClass):
 
             # Extract streamed full backup prior to executing incremental backup
             elif hasattr(self, 'stream') and self.stream == 'xbstream':
-                logger.info("Using xbstream to extract from full_backup.stream!")
+                logger.info(
+                    "Using xbstream to extract from full_backup.stream!")
                 xbstream_command = "{} {} < {}/{}/full_backup.stream -C {}/{}".format(
-                    self.xbstream,
-                    self.xbstream_options,
-                    self.full_dir,
-                    recent_bck,
-                    self.full_dir,
-                    recent_bck)
+                    self.xbstream, self.xbstream_options, self.full_dir,
+                    recent_bck, self.full_dir, recent_bck)
 
-                logger.info("The following xbstream command will be executed {}".format(xbstream_command))
+                logger.info(
+                    "The following xbstream command will be executed {}".
+                    format(xbstream_command))
 
-                if self.dry == 0 and isfile("{}/{}/full_backup.stream".format(self.full_dir, recent_bck)):
-                    status, output = subprocess.getstatusoutput(xbstream_command)
+                if self.dry == 0 and isfile("{}/{}/full_backup.stream".format(
+                        self.full_dir, recent_bck)):
+                    status, output = subprocess.getstatusoutput(
+                        xbstream_command)
                     if status == 0:
                         logger.info("OK: XBSTREAM command succeeded.")
                     else:
@@ -537,10 +583,13 @@ class Backup(GeneralClass):
                                    recent_bck,
                                    self.full_dir,
                                    recent_bck)
-                logger.info("The following xbcrypt command will be executed {}".format(xbcrypt_command))
+                logger.info(
+                    "The following xbcrypt command will be executed {}".format(
+                        xbcrypt_command))
 
                 if self.dry == 0:
-                    status, output = subprocess.getstatusoutput(xbcrypt_command)
+                    status, output = subprocess.getstatusoutput(
+                        xbcrypt_command)
                     if status == 0:
                         logger.info(output[-27:])
                     else:
@@ -552,13 +601,16 @@ class Backup(GeneralClass):
             if hasattr(self, 'stream') and self.stream == 'xbstream':
                 xtrabackup_inc_cmd += " "
                 xtrabackup_inc_cmd += '--stream="{}"'.format(self.stream)
-                xtrabackup_inc_cmd += " > {}/inc_backup.stream".format(inc_backup_dir)
+                xtrabackup_inc_cmd += " > {}/inc_backup.stream".format(
+                    inc_backup_dir)
                 logger.warning("Streaming xbstream is enabled!")
             elif hasattr(self, 'stream') and self.stream == 'tar':
-                logger.error("xtrabackup: error: streaming incremental backups are incompatible with the "
-                             "'tar' streaming format. Use --stream=xbstream instead.")
-                raise RuntimeError("xtrabackup: error: streaming incremental backups are incompatible with the "
-                                   "'tar' streaming format. Use --stream=xbstream instead.")
+                logger.error(
+                    "xtrabackup: error: streaming incremental backups are incompatible with the "
+                    "'tar' streaming format. Use --stream=xbstream instead.")
+                raise RuntimeError(
+                    "xtrabackup: error: streaming incremental backups are incompatible with the "
+                    "'tar' streaming format. Use --stream=xbstream instead.")
 
             if self.dry == 0:
                 logger.info("Starting {}".format(self.backup_tool))
@@ -588,16 +640,20 @@ class Backup(GeneralClass):
             # Because it is impossible to take incremental backup with streaming tar.
             # raise RuntimeError.
             if hasattr(self, 'stream') and self.stream == 'tar':
-                logger.error("xtrabackup: error: streaming incremental backups are incompatible with the "
-                             "'tar' streaming format. Use --stream=xbstream instead.")
-                raise RuntimeError("xtrabackup: error: streaming incremental backups are incompatible with the "
-                                   "'tar' streaming format. Use --stream=xbstream instead.")
+                logger.error(
+                    "xtrabackup: error: streaming incremental backups are incompatible with the "
+                    "'tar' streaming format. Use --stream=xbstream instead.")
+                raise RuntimeError(
+                    "xtrabackup: error: streaming incremental backups are incompatible with the "
+                    "'tar' streaming format. Use --stream=xbstream instead.")
 
             # Extract and decrypt streamed full backup prior to executing incremental backup
             if hasattr(self, 'stream') \
                     and hasattr(self, 'encrypt') \
                     and hasattr(self, 'xbs_decrypt'):
-                logger.info("Using xbstream to extract and decrypt from inc_backup.stream!")
+                logger.info(
+                    "Using xbstream to extract and decrypt from inc_backup.stream!"
+                )
                 xbstream_command = "{} {} --decrypt={} --encrypt-key={} --encrypt-threads={} " \
                                    "< {}/{}/inc_backup.stream -C {}/{}".format(
                                        self.xbstream,
@@ -610,9 +666,13 @@ class Backup(GeneralClass):
                                        self.inc_dir,
                                        recent_inc)
 
-                logger.info("The following xbstream command will be executed {}".format(xbstream_command))
-                if self.dry == 0 and isfile("{}/{}/inc_backup.stream".format(self.inc_dir, recent_inc)):
-                    status, output = subprocess.getstatusoutput(xbstream_command)
+                logger.info(
+                    "The following xbstream command will be executed {}".
+                    format(xbstream_command))
+                if self.dry == 0 and isfile("{}/{}/inc_backup.stream".format(
+                        self.inc_dir, recent_inc)):
+                    status, output = subprocess.getstatusoutput(
+                        xbstream_command)
                     if status == 0:
                         logger.info("OK: XBSTREAM command succeeded.")
                     else:
@@ -623,19 +683,20 @@ class Backup(GeneralClass):
             # Extracting streamed incremental backup prior to executing new incremental backup
 
             elif hasattr(self, 'stream'):
-                logger.info("Using xbstream to extract from inc_backup.stream!")
+                logger.info(
+                    "Using xbstream to extract from inc_backup.stream!")
                 xbstream_command = "{} {} < {}/{}/inc_backup.stream -C {}/{}".format(
-                    self.xbstream,
-                    self.xbstream_options,
-                    self.inc_dir,
-                    recent_inc,
-                    self.inc_dir,
-                    recent_inc)
+                    self.xbstream, self.xbstream_options, self.inc_dir,
+                    recent_inc, self.inc_dir, recent_inc)
 
-                logger.info("The following xbstream command will be executed {}".format(xbstream_command))
+                logger.info(
+                    "The following xbstream command will be executed {}".
+                    format(xbstream_command))
 
-                if self.dry == 0 and isfile("{}/{}/inc_backup.stream".format(self.full_dir, recent_bck)):
-                    status, output = subprocess.getstatusoutput(xbstream_command)
+                if self.dry == 0 and isfile("{}/{}/inc_backup.stream".format(
+                        self.full_dir, recent_bck)):
+                    status, output = subprocess.getstatusoutput(
+                        xbstream_command)
                     if status == 0:
                         logger.info("OK: XBSTREAM command succeeded.")
                     else:
@@ -654,9 +715,12 @@ class Backup(GeneralClass):
                                    recent_inc,
                                    self.inc_dir,
                                    recent_inc)
-                logger.info("The following xbcrypt command will be executed {}".format(xbcrypt_command))
+                logger.info(
+                    "The following xbcrypt command will be executed {}".format(
+                        xbcrypt_command))
                 if self.dry == 0:
-                    status, output = subprocess.getstatusoutput(xbcrypt_command)
+                    status, output = subprocess.getstatusoutput(
+                        xbcrypt_command)
                     if status == 0:
                         logger.info(output[-27:])
                     else:
@@ -668,7 +732,8 @@ class Backup(GeneralClass):
             if hasattr(self, 'stream'):
                 xtrabackup_inc_cmd += " "
                 xtrabackup_inc_cmd += '--stream="{}"'.format(self.stream)
-                xtrabackup_inc_cmd += " > {}/inc_backup.stream".format(inc_backup_dir)
+                xtrabackup_inc_cmd += " > {}/inc_backup.stream".format(
+                    inc_backup_dir)
                 logger.warning("Streaming is enabled!")
 
             if self.dry == 0:
@@ -690,11 +755,16 @@ class Backup(GeneralClass):
         # Workaround for circular import dependency error in Python
 
         # Creating object from CheckEnv class
-        check_env_obj = CheckEnv(self.conf, full_dir=self.full_dir, inc_dir=self.inc_dir)
+        check_env_obj = CheckEnv(self.conf,
+                                 full_dir=self.full_dir,
+                                 inc_dir=self.inc_dir)
 
-        assert check_env_obj.check_all_env() is True, "environment checks failed!"
+        assert check_env_obj.check_all_env(
+        ) is True, "environment checks failed!"
         if self.recent_full_backup_file() == 0:
-            logger.info("- - - - You have no backups : Taking very first Full Backup! - - - -")
+            logger.info(
+                "- - - - You have no backups : Taking very first Full Backup! - - - -"
+            )
 
             # Flushing Logs
             if self.mysql_connection_flush_logs():
@@ -712,11 +782,15 @@ class Backup(GeneralClass):
             return True
 
         elif self.last_full_backup_date() == 1:
-            logger.info("- - - - Your full backup is timeout : Taking new Full Backup! - - - -")
+            logger.info(
+                "- - - - Your full backup is timeout : Taking new Full Backup! - - - -"
+            )
 
             # Archiving backups
             if hasattr(self, 'archive_dir'):
-                logger.info("Archiving enabled; cleaning archive_dir & archiving previous Full Backup")
+                logger.info(
+                    "Archiving enabled; cleaning archive_dir & archiving previous Full Backup"
+                )
                 if (hasattr(self, 'archive_max_duration') and self.archive_max_duration) \
                         or (hasattr(self, 'archive_max_size') and self.archive_max_size):
                     self.clean_old_archives()
@@ -743,9 +817,12 @@ class Backup(GeneralClass):
             return True
         else:
 
-            logger.info("- - - - You have a full backup that is less than {} seconds old. - - - -".format(
-                self.full_backup_interval))
-            logger.info("- - - - We will take an incremental one based on recent Full Backup - - - -")
+            logger.info(
+                "- - - - You have a full backup that is less than {} seconds old. - - - -"
+                .format(self.full_backup_interval))
+            logger.info(
+                "- - - - We will take an incremental one based on recent Full Backup - - - -"
+            )
 
             time.sleep(3)
 

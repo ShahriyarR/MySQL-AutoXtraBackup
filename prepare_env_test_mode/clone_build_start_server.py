@@ -1,9 +1,9 @@
-from prepare_env_test_mode.test_check_env import TestModeConfCheck
-from shutil import rmtree
 import subprocess
 import os
 import re
 import logging
+from prepare_env_test_mode.test_check_env import TestModeConfCheck
+from shutil import rmtree
 from general_conf import path_config
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,8 @@ class CloneBuildStartServer(TestModeConfCheck):
         clone_cmd = "git clone https://github.com/Percona-QA/percona-qa.git {}/percona-qa"
         if not os.path.exists("{}/percona-qa".format(self.testpath)):
             logger.debug("Started to clone percona-qa...")
-            status, output = subprocess.getstatusoutput(clone_cmd.format(self.testpath))
+            status, output = subprocess.getstatusoutput(
+                clone_cmd.format(self.testpath))
             if status == 0:
                 logger.debug("percona-qa ready to use")
                 return True
@@ -45,10 +46,13 @@ class CloneBuildStartServer(TestModeConfCheck):
         ps_branches = self.ps_branches.split()
         for branch in ps_branches:
             if branch != '5.5':
-                clone_cmd = "git clone {} -b {} {}/PS-{}-trunk".format(self.gitcmd, branch, self.testpath, branch)
+                clone_cmd = "git clone {} -b {} {}/PS-{}-trunk".format(
+                    self.gitcmd, branch, self.testpath, branch)
             else:
-                clone_cmd = "git clone {} -b {} {}/PS-{}-trunk".format(self.gitcmd.split()[-1], branch, self.testpath, branch)
-            if not os.path.exists("{}/PS-{}-trunk".format(self.testpath, branch)):
+                clone_cmd = "git clone {} -b {} {}/PS-{}-trunk".format(
+                    self.gitcmd.split()[-1], branch, self.testpath, branch)
+            if not os.path.exists("{}/PS-{}-trunk".format(
+                    self.testpath, branch)):
                 logger.debug("Started to clone Percona Server...")
                 status, output = subprocess.getstatusoutput(clone_cmd)
                 if status == 0:
@@ -68,7 +72,8 @@ class CloneBuildStartServer(TestModeConfCheck):
             if not os.path.exists("{}/PXB-{}".format(self.testpath, branch)):
                 logger.debug("Started to clone PXB...")
                 status, output = subprocess.getstatusoutput(
-                    clone_cmd.format(self.pxb_gitcmd, branch, self.testpath, branch))
+                    clone_cmd.format(self.pxb_gitcmd, branch, self.testpath,
+                                     branch))
                 if status == 0:
                     logger.debug("PXB-{} cloned ready to build".format(branch))
                 else:
@@ -86,7 +91,8 @@ class CloneBuildStartServer(TestModeConfCheck):
         for branch in pxb_branches:
             pxb_path = "{}/PXB-{}".format(self.testpath, branch)
             os.chdir(pxb_path)
-            build_cmd = "{}/build_pxb.sh {} {}".format(dir_path, self.testpath, branch)
+            build_cmd = "{}/build_pxb.sh {} {}".format(dir_path, self.testpath,
+                                                       branch)
             status, output = subprocess.getstatusoutput(build_cmd)
             if status == 0:
                 logger.debug("PXB build succeeded")
@@ -116,7 +122,8 @@ class CloneBuildStartServer(TestModeConfCheck):
             else:
                 build_cmd = "{}/percona-qa/build_5.x_debug_{}_for_pxb_tests.sh"
             logger.debug("Started to build Percona Server from source...")
-            status, output = subprocess.getstatusoutput(build_cmd.format(self.testpath, branch))
+            status, output = subprocess.getstatusoutput(
+                build_cmd.format(self.testpath, branch))
             if status == 0:
                 logger.debug("PS build succeeded")
                 os.chdir(saved_path)
@@ -136,7 +143,8 @@ class CloneBuildStartServer(TestModeConfCheck):
                 obj = re.search('PS[0-9]', dir_name)
                 if obj:
                     basedir_path = "{}/{}"
-                    basedirs.append(basedir_path.format(self.testpath, dir_name))
+                    basedirs.append(
+                        basedir_path.format(self.testpath, dir_name))
         if len(basedirs) > 0:
             for i in basedirs:
                 os.rename(i, i.replace('-percona-server', ''))
@@ -155,7 +163,8 @@ class CloneBuildStartServer(TestModeConfCheck):
                 obj = re.search('PS[0-9]', dir_name)
                 if obj:
                     basedir_path = "{}/{}"
-                    basedirs.append(basedir_path.format(self.testpath, dir_name))
+                    basedirs.append(
+                        basedir_path.format(self.testpath, dir_name))
                     # return basedir_path.format(self.testpath, dir_name)
         if len(basedirs) > 0:
             logger.debug("Could get PS basedir path...")
@@ -172,7 +181,8 @@ class CloneBuildStartServer(TestModeConfCheck):
 
         startup_cmd = "{}/percona-qa/startup.sh"
         logger.debug("Started to run startup.sh file...")
-        status, output = subprocess.getstatusoutput(startup_cmd.format(self.testpath))
+        status, output = subprocess.getstatusoutput(
+            startup_cmd.format(self.testpath))
         if status == 0:
             logger.debug("Running startup.sh succeeded")
             os.chdir(saved_path)
@@ -209,10 +219,12 @@ class CloneBuildStartServer(TestModeConfCheck):
         logger.debug("Using start script here...")
         if options is not None:
             start_cmd = "{}/start {}"
-            status, output = subprocess.getstatusoutput(start_cmd.format(basedir_path, options))
+            status, output = subprocess.getstatusoutput(
+                start_cmd.format(basedir_path, options))
         else:
             start_cmd = "{}/start"
-            status, output = subprocess.getstatusoutput(start_cmd.format(basedir_path))
+            status, output = subprocess.getstatusoutput(
+                start_cmd.format(basedir_path))
         if status == 0:
             logger.debug("Server started!")
             return True
@@ -229,7 +241,8 @@ class CloneBuildStartServer(TestModeConfCheck):
         logger.debug("Using all_no_cl script here...")
         if options is not None:
             all_cmd = "./all_no_cl {}"
-            status, output = subprocess.getstatusoutput(all_cmd.format(options))
+            status, output = subprocess.getstatusoutput(
+                all_cmd.format(options))
         else:
             all_cmd = "./all_no_cl"
             status, output = subprocess.getstatusoutput(all_cmd)
@@ -248,8 +261,11 @@ class CloneBuildStartServer(TestModeConfCheck):
         # It will create target folder inside test path
         extract_cmd = "tar -xf {}/{} -C {}"
         if os.path.isfile("{}/{}".format(self.testpath, file_name)):
-            if not os.path.isdir("{}/target/{}".format(self.testpath, file_name[:-7])):
-                status, output = subprocess.getstatusoutput(extract_cmd.format(self.testpath, file_name, self.testpath))
+            if not os.path.isdir("{}/target/{}".format(self.testpath,
+                                                       file_name[:-7])):
+                status, output = subprocess.getstatusoutput(
+                    extract_cmd.format(self.testpath, file_name,
+                                       self.testpath))
                 if status == 0:
                     logger.debug("Extracted from {}".format(file_name))
                     return True
@@ -263,5 +279,3 @@ class CloneBuildStartServer(TestModeConfCheck):
         else:
             logger.debug("Could not find {}".format(file_name))
             return False
-
-
