@@ -10,6 +10,8 @@ RUN git clone https://github.com/sstephenson/bats.git && \
 RUN pip install --upgrade pip &&  \
     pip install -r requirements.txt 
 
+RUN python3 setup.py install
+
 RUN apt-get update && apt-get install -y lsb-release
 RUN apt install -y libncurses5
 RUN apt-get install -y vim

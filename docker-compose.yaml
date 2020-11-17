@@ -5,8 +5,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        GIT_BRANCH_NAME: ${GIT_BRANCH_NAME}
     container_name: autoxtrabackup_apiv1
     volumes:
     - /dev/log:/dev/log
