@@ -91,11 +91,9 @@ def list_available_backups(path: str) -> dict:
     :param path: General backup directory path
     :return: dictionary of backups full and incremental
     """
-    backups = {}
     full_backup_dir = path + '/full'
     inc_backup_dir = path + '/inc'
-    for dir_ in os.listdir(full_backup_dir):
-        backups['full'] = [dir_]
+    backups = {'full': [dir_] for dir_ in os.listdir(full_backup_dir)}
     backups['inc'] = sorted_ls(inc_backup_dir)
     logger.info('Listing all available backups from full and incremental backup directories...')
     return backups
