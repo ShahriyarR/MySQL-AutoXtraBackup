@@ -46,11 +46,11 @@ async def prepare() -> JSONResponse:
     response_description="Json response",
     description="List all available backups"
 )
-async def list_all_backups() -> JSONResponse:
+async def backups() -> JSONResponse:
     backup_ = Backup()
     result = list_available_backups(backup_.builder_obj.backup_options.get('backup_dir'))
     if result:
         return JSONResponse(content={"backups": result},
                             status_code=status.HTTP_200_OK)
-    return JSONResponse(content={"result": "[FAILED] to get available backups"},
-                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return JSONResponse(content={"backups": {}},
+                        status_code=status.HTTP_200_OK)

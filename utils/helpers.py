@@ -94,8 +94,10 @@ def list_available_backups(path: str) -> dict:
     backups = {}
     full_backup_dir = path + '/full'
     inc_backup_dir = path + '/inc'
-    for dir_ in os.listdir(full_backup_dir):
-        backups['full'] = [dir_]
-    backups['inc'] = sorted_ls(inc_backup_dir)
+    if os.path.isdir(full_backup_dir):
+        for dir_ in os.listdir(full_backup_dir):
+            backups['full'] = [dir_]
+    if os.path.isdir(inc_backup_dir):
+        backups['inc'] = sorted_ls(inc_backup_dir)
     logger.info('Listing all available backups from full and incremental backup directories...')
     return backups
