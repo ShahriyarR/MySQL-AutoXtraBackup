@@ -2,6 +2,7 @@ from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
 from backup_backup.backuper import Backup
 from backup_prepare.prepare import Prepare
+from utils.helpers import list_available_backups
 
 
 router = APIRouter()
@@ -36,4 +37,20 @@ async def prepare() -> JSONResponse:
         return JSONResponse(content={"result": "Successfully prepared all the backups"},
                             status_code=status.HTTP_200_OK)
     return JSONResponse(content={"result": "[FAILED] to prepare backup"},
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@router.get(
+    '/backups',
+    tags=["MySQL-AutoXtrabackup"],
+    response_description="Json response",
+    description="List all available backups"
+)
+async def list_all_backups() -> JSONResponse:
+    backup_ = Backup()
+    result = list_available_backups(backup_.builder_obj.backup_options.get('backup_dir'))
+    if result:
+        return JSONResponse(content={"backups": result},
+                            status_code=status.HTTP_200_OK)
+    return JSONResponse(content={"result": "[FAILED] to get available backups"},
                         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
