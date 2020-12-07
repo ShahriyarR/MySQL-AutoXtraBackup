@@ -83,6 +83,21 @@ def create_directory(path: str) -> Union[bool, Exception]:
         raise RuntimeError("FAILED: Could not create directory")
 
 
+def check_if_backup_prepared(type_: str, path: str) -> str:
+    """
+    Helper function for checking if given backup already prepared or not.
+    :param type_: Type of backup full or inc
+    :param path: path string of the backup folder
+    :return: True if given backup is prepared, False otherwise
+    """
+    if type_ == 'full' and os.path.isfile(path + '/xtrabackup_checkpoints'):
+        with open(path + '/xtrabackup_checkpoints', 'r') as f:
+            if f.readline().split()[-1] == 'full-prepared':
+                return 'Full-Prepared'
+    # TODO: add the possible way of checking for incremental backups as well.
+    return 'Not-Prepared'
+
+
 def list_available_backups(path: str) -> dict:
     """
     Helper function for returning
@@ -95,7 +110,7 @@ def list_available_backups(path: str) -> dict:
     full_backup_dir = path + '/full'
     inc_backup_dir = path + '/inc'
     if os.path.isdir(full_backup_dir):
-        backups = {'full': [dir_] for dir_ in os.listdir(full_backup_dir)}
+        backups = {'full': [{dir_: check_if_backup_prepared('full', full_backup_dir + f'/{dir_}')}] for dir_ in os.listdir(full_backup_dir)}
     if os.path.isdir(inc_backup_dir):
         backups['inc'] = sorted_ls(inc_backup_dir)
     logger.info('Listing all available backups from full and incremental backup directories...')

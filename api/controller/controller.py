@@ -54,3 +54,20 @@ async def backups() -> JSONResponse:
                             status_code=status.HTTP_200_OK)
     return JSONResponse(content={"backups": {}},
                         status_code=status.HTTP_200_OK)
+
+
+@router.delete(
+    '/delete',
+    tags=["MySQL-AutoXtrabackup"],
+    response_description="Json response",
+    description="Remove all available backups"
+)
+async def delete() -> JSONResponse:
+    backup_ = Backup()
+    delete_full = backup_.clean_full_backup_dir()
+    delete_inc = backup_.clean_inc_backup_dir()
+    if delete_full and delete_inc:
+        return JSONResponse(content={"result": "There is no backups or backups removed successfully"},
+                            status_code=status.HTTP_200_OK)
+    return JSONResponse(content={"result": "[FAILED] to remove/delete available backups"},
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -17,6 +17,7 @@ from backup_backup.backup_builder import BackupBuilderChecker
 from backup_backup.backup_archive import BackupArchive
 from process_runner.process_runner import ProcessRunner
 from utils import helpers, mysql_cli
+from typing import Union
 
 logger = logging.getLogger(__name__)
 
@@ -94,13 +95,13 @@ class Backup:
         now = datetime.now()
         return (now - dir_date).total_seconds() >= self.builder_obj.backup_options.get('full_backup_interval')
 
-    def clean_full_backup_dir(self) -> None:
+    def clean_full_backup_dir(self) -> Union[None, bool]:
         # Deleting old full backup after taking new full backup.
         # Keeping the latest in order not to lose everything.
         logger.info("starting clean_full_backup_dir")
         full_dir = self.builder_obj.backup_options.get('full_dir')
         if not os.path.isdir(full_dir):
-            return
+            return True
         for i in os.listdir(full_dir):
             rm_dir = full_dir + '/' + i
             if i != max(os.listdir(full_dir)):
@@ -108,13 +109,17 @@ class Backup:
                 logger.info("DELETING {}".format(rm_dir))
             else:
                 logger.info("KEEPING {}".format(rm_dir))
+        return True
 
-    def clean_inc_backup_dir(self) -> None:
+    def clean_inc_backup_dir(self) -> Union[None, bool]:
         # Deleting incremental backups after taking new fresh full backup.
         inc_dir = self.builder_obj.backup_options.get('inc_dir')
+        if not os.path.isdir(inc_dir):
+            return True
         for i in os.listdir(inc_dir):
             rm_dir = inc_dir + '/' + i
             shutil.rmtree(rm_dir)
+        return True
 
     def full_backup(self) -> bool:
         """
