@@ -95,13 +95,19 @@ class Backup:
         now = datetime.now()
         return (now - dir_date).total_seconds() >= self.builder_obj.backup_options.get('full_backup_interval')
 
-    def clean_full_backup_dir(self) -> Union[None, bool]:
+    def clean_full_backup_dir(self, remove_all=None) -> Union[None, bool]:
         # Deleting old full backup after taking new full backup.
         # Keeping the latest in order not to lose everything.
         logger.info("starting clean_full_backup_dir")
         full_dir = self.builder_obj.backup_options.get('full_dir')
         if not os.path.isdir(full_dir):
             return True
+        if remove_all:
+            for i in os.listdir(full_dir):
+                rm_dir = full_dir + '/' + i
+                shutil.rmtree(rm_dir)
+            return True
+
         for i in os.listdir(full_dir):
             rm_dir = full_dir + '/' + i
             if i != max(os.listdir(full_dir)):

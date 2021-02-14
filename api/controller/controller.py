@@ -64,7 +64,7 @@ async def backups() -> JSONResponse:
 )
 async def delete() -> JSONResponse:
     backup_ = Backup()
-    delete_full = backup_.clean_full_backup_dir()
+    delete_full = backup_.clean_full_backup_dir(remove_all=True)
     delete_inc = backup_.clean_inc_backup_dir()
     if delete_full and delete_inc:
         return JSONResponse(content={"result": "There is no backups or backups removed successfully"},
