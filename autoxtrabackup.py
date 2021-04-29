@@ -7,11 +7,11 @@ import click
 import humanfriendly
 import pid
 
-from backup_prepare.prepare import Prepare
-from general_conf import path_config
-from general_conf.generalops import GeneralClass
-from backup_backup.backuper import Backup
-from process_runner.process_runner import ProcessRunner
+from mysql_autoxtrabackup.backup_prepare.prepare import Prepare
+from mysql_autoxtrabackup.general_conf import path_config
+from mysql_autoxtrabackup.general_conf.generalops import GeneralClass
+from mysql_autoxtrabackup.backup_backup.backuper import Backup
+from mysql_autoxtrabackup.process_runner.process_runner import ProcessRunner
 from logging.handlers import RotatingFileHandler
 from sys import exit
 from sys import platform as _platform

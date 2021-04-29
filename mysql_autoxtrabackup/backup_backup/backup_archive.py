@@ -22,7 +22,7 @@ class BackupArchive:
         self.backup_options = BackupBuilderChecker(config=self.conf, dry_run=self.dry).backup_options
         self.backup_archive_options = options_obj.backup_archive_options
 
-    def create_backup_archives(self):
+    def create_backup_archives(self) -> bool:
         # Creating .tar.gz archive files of taken backups
         file_list = os.listdir(self.backup_options.get('full_dir'))
         for i in file_list:
@@ -34,7 +34,7 @@ class BackupArchive:
                     prepare_obj = Prepare(config=self.conf, dry_run=self.dry, tag=self.tag)
                     status = prepare_obj.prepare_inc_full_backups()
                     if status:
-                        logger.info("Backups Prepared successfully...".format(status))
+                        logger.info("Backups Prepared successfully... {}".format(status))
 
                 if self.backup_archive_options.get('move_archive') and \
                         (int(self.backup_archive_options.get('move_archive')) == 1):
@@ -78,8 +78,9 @@ class BackupArchive:
 
                     logger.error("FAILED: Archiving ")
                     raise RuntimeError("FAILED: Archiving -> {}".format(run_tar))
+        return True
 
-    def clean_old_archives(self):
+    def clean_old_archives(self) -> None:
         logger.info("Starting cleaning of old archives")
         archive_dir = self.backup_archive_options.get('archive_dir')
         # Finding if last full backup older than the interval or more from now!

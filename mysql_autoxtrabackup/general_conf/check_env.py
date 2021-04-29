@@ -1,10 +1,10 @@
 import re
 import os
-from general_conf.generalops import GeneralClass
-from general_conf import path_config
-from process_runner.process_runner import ProcessRunner
+from .generalops import GeneralClass
+from . import path_config
+from mysql_autoxtrabackup.process_runner.process_runner import ProcessRunner
 from typing import Union
-from utils.helpers import create_directory
+from mysql_autoxtrabackup.utils.helpers import create_directory
 
 import logging
 logger = logging.getLogger(__name__)
@@ -77,7 +77,7 @@ class CheckEnv:
         :return: True on success, raise RuntimeError on error.
         """
         mysql = self.mysql_options.get('mysql')
-        if os.path.exists(mysql):
+        if os.path.exists(str(mysql)):
             logger.info('OK: {} exists'.format(mysql))
             return True
 
@@ -90,7 +90,7 @@ class CheckEnv:
         :return: True on success, raise RuntimeError on error.
         """
         mysqladmin = self.mysql_options.get('mysqladmin')
-        if os.path.exists(mysqladmin):
+        if os.path.exists(str(mysqladmin)):
             logger.info('OK: {} exists'.format(mysqladmin))
             return True
 
@@ -102,7 +102,7 @@ class CheckEnv:
         Method for checking if given backup tool path is there or not.
         :return: RuntimeError on failure, True on success
         """
-        if os.path.exists(self.backup_options.get('backup_tool')):
+        if os.path.exists(str(self.backup_options.get('backup_tool'))):
             logger.info('OK: XtraBackup exists')
             return True
 
@@ -115,11 +115,11 @@ class CheckEnv:
         If directory exists already then, return True. If not, try to create it.
         :return: True on success. RuntimeError on failure.
         """
-        if os.path.exists(self.backup_options.get('backup_dir')):
+        if os.path.exists(str(self.backup_options.get('backup_dir'))):
             logger.info('OK: Main backup directory exists')
             return True
 
-        return create_directory(self.backup_options.get('backup_dir'))
+        return create_directory(str(self.backup_options.get('backup_dir')))
 
     def check_mysql_archive_dir(self) -> Union[bool, Exception]:
         """
@@ -131,11 +131,11 @@ class CheckEnv:
             logger.info("Skipping check as this option not specified in config file...")
             return True
 
-        if os.path.exists(self.archive_options.get('archive_dir')):
+        if os.path.exists(str(self.archive_options.get('archive_dir'))):
             logger.info('OK: Archive folder directory exists')
             return True
 
-        return create_directory(self.archive_options.get('archive_dir'))
+        return create_directory(str(self.archive_options.get('archive_dir')))
 
     def check_mysql_full_backup_dir(self) -> Union[bool, Exception]:
         """
@@ -143,11 +143,11 @@ class CheckEnv:
         If this path exists return True if not try to create.
         :return: True on success.
         """
-        if os.path.exists(self.backup_options.get('full_dir')):
+        if os.path.exists(str(self.backup_options.get('full_dir'))):
             logger.info("OK: Full Backup directory exists")
             return True
 
-        return create_directory(self.backup_options.get('full_dir'))
+        return create_directory(str(self.backup_options.get('full_dir')))
 
     def check_mysql_inc_backup_dir(self) -> Union[bool, Exception]:
         """
@@ -155,11 +155,11 @@ class CheckEnv:
         If this path exists return True if not try to create.
         :return: True on success.
         """
-        if os.path.exists(self.backup_options.get('inc_dir')):
+        if os.path.exists(str(self.backup_options.get('inc_dir'))):
             logger.info('OK: Increment directory exists')
             return True
 
-        return create_directory(self.backup_options.get('inc_dir'))
+        return create_directory(str(self.backup_options.get('inc_dir')))
 
     def check_all_env(self) -> Union[bool, Exception]:
         """

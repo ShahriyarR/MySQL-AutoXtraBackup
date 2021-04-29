@@ -1,7 +1,7 @@
 # Generate the default config file dynamically.
 # As part of - https://github.com/ShahriyarR/MySQL-AutoXtraBackup/issues/331
 
-from general_conf import path_config
+from . import path_config
 import configparser
 from os.path import join, exists
 from os import makedirs

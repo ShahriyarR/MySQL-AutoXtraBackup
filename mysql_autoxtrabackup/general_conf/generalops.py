@@ -2,7 +2,7 @@ import configparser
 from os.path import isfile
 import humanfriendly  # type: ignore
 import logging
-from general_conf import path_config  # type: ignore
+from . import path_config  # type: ignore
 from typing import Dict, Union
 logger = logging.getLogger(__name__)
 

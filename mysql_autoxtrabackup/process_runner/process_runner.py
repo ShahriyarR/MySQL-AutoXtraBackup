@@ -6,8 +6,8 @@ import shlex
 
 from subprocess import PIPE, STDOUT
 
-from general_conf.generalops import GeneralClass
-from general_conf import path_config
+from mysql_autoxtrabackup.general_conf.generalops import GeneralClass
+from mysql_autoxtrabackup.general_conf import path_config
 
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ class ProcessHandler(GeneralClass):
 
     centralizes logic for subprocess calls, and is available to all other classes (Prepare, Backup, etc)
     """
-    def __init__(self, config=path_config.config_path_file):
+    def __init__(self, config: str = path_config.config_path_file) -> None:
         self.conf = config
         GeneralClass.__init__(self, self.conf)
         self._xtrabackup_history_log = [['command', 'xtrabackup_function', 'start time', 'end time', 'duration', 'exit code']]
@@ -28,7 +28,7 @@ class ProcessHandler(GeneralClass):
     def xtrabackup_history_log(self):
         return self._xtrabackup_history_log
 
-    def run_command(self, command):
+    def run_command(self, command: str) -> bool:
         """
         executes a prepared command, enables real-time console & log output.
 
@@ -59,7 +59,7 @@ class ProcessHandler(GeneralClass):
             raise ChildProcessError("SUBPROCESS FAILED! >> {}".format(filtered_command))
 
     @staticmethod
-    def command_to_args(command_str):
+    def command_to_args(command_str: str) -> str:
         """
         convert a string bash command to an arguments list, to use with subprocess
 
@@ -85,7 +85,7 @@ class ProcessHandler(GeneralClass):
         return args
 
     @staticmethod
-    def represent_duration(start_time, end_time):
+    def represent_duration(start_time: str, end_time: str):
         # https://gist.github.com/thatalextaylor/7408395
         duration_delta = end_time - start_time
         seconds = int(duration_delta.seconds)

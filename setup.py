@@ -1,6 +1,6 @@
 from setuptools import setup
-from general_conf import path_config
-from general_conf.generate_default_conf import GenerateDefaultConfig
+from mysql_autoxtrabackup.general_conf import path_config
+from mysql_autoxtrabackup.general_conf.generate_default_conf import GenerateDefaultConfig
 from os.path import isfile
 
 datafiles = [(path_config.config_path, [])]
@@ -9,12 +9,12 @@ if not isfile(path_config.config_path_file):
     gen_conf.generate_config_file()
 
 setup(
-    name='mysql-autoxtrabackup',
+    name='mysql_autoxtrabackup',
     version='2.0',
-    packages=['general_conf', 'backup_prepare', 'backup_backup',
-              'test', 'process_runner', 'utils'],
+    packages=['mysql_autoxtrabackup/general_conf', 'mysql_autoxtrabackup/backup_prepare', 'mysql_autoxtrabackup/backup_backup',
+              'tests', 'mysql_autoxtrabackup/process_runner', 'mysql_autoxtrabackup/utils'],
     package_data={
-        'test': ['*.sh', '*.py', '*.bats']
+        'tests': ['*.sh', '*.py', '*.bats']
     },
     py_modules=['autoxtrabackup'],
     url='https://github.com/ShahriyarR/MySQL-AutoXtraBackup',

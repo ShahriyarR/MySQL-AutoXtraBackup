@@ -100,6 +100,7 @@ class CopyBack:
         logger.info("Copying Back Already Prepared Final Backup:")
         if len(os.listdir(self.mysql_options.get('data_dir') if data_dir is None else data_dir)) > 0:
             logger.info("MySQL data_dir is not empty!")
+            return False
         else:
             self.run_xtra_copyback(data_dir=data_dir)
             self.giving_chown(data_dir=data_dir)
