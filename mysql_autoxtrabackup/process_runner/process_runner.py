@@ -3,6 +3,7 @@ import logging
 import re
 import subprocess
 import shlex
+import typing
 
 from subprocess import PIPE, STDOUT
 
@@ -22,13 +23,14 @@ class ProcessHandler(GeneralClass):
     def __init__(self, config: str = path_config.config_path_file) -> None:
         self.conf = config
         GeneralClass.__init__(self, self.conf)
-        self._xtrabackup_history_log = [['command', 'xtrabackup_function', 'start time', 'end time', 'duration', 'exit code']]
+        self._xtrabackup_history_log = [['command', 'xtrabackup_function', 'start time', 'end time',
+                                         'duration', 'exit code']]
 
     @property
-    def xtrabackup_history_log(self):
+    def xtrabackup_history_log(self) -> typing.List[typing.List[str]]:
         return self._xtrabackup_history_log
 
-    def run_command(self, command: str) -> bool:
+    def run_command(self, command: typing.Optional[str]) -> bool:
         """
         executes a prepared command, enables real-time console & log output.
 
@@ -41,13 +43,13 @@ class ProcessHandler(GeneralClass):
         """
         # filter out password from argument list, print command to execute
 
-        filtered_command = re.sub("--password='?\w+'?", "--password='*'", command)
-        logger.info("SUBPROCESS STARTING: {}".format(filtered_command))
+        filtered_command = re.sub("--password='?\w+'?", "--password='*'", command) # type: ignore
+        logger.info("SUBPROCESS STARTING: {}".format(str(filtered_command)))
         subprocess_args = self.command_to_args(command_str=command)
         # start the command subprocess
         cmd_start = datetime.datetime.now()
         with subprocess.Popen(subprocess_args, stdout=PIPE, stderr=STDOUT) as process:
-            for line in process.stdout:
+            for line in process.stdout:  # type: ignore
                 logger.debug("[{}:{}] {}".format(subprocess_args[0], process.pid, line.decode("utf-8").strip("\n")))
         logger.info("SUBPROCESS {} COMPLETED with exit code: {}".format(subprocess_args[0], process.returncode))
         cmd_end = datetime.datetime.now()
@@ -59,7 +61,7 @@ class ProcessHandler(GeneralClass):
             raise ChildProcessError("SUBPROCESS FAILED! >> {}".format(filtered_command))
 
     @staticmethod
-    def command_to_args(command_str: str) -> str:
+    def command_to_args(command_str: typing.Optional[str]) -> typing.List[str]:
         """
         convert a string bash command to an arguments list, to use with subprocess
 
@@ -85,7 +87,7 @@ class ProcessHandler(GeneralClass):
         return args
 
     @staticmethod
-    def represent_duration(start_time: str, end_time: str):
+    def represent_duration(start_time: datetime.datetime, end_time: datetime.datetime) -> str:
         # https://gist.github.com/thatalextaylor/7408395
         duration_delta = end_time - start_time
         seconds = int(duration_delta.seconds)
@@ -101,8 +103,11 @@ class ProcessHandler(GeneralClass):
         else:
             return '%ds' % (seconds,)
 
-    def summarize_process(self, args, cmd_start, cmd_end, return_code):
-        cmd_root = args[0].split("/")[-1:][0]
+    def summarize_process(self, args: typing.List[str],
+                          cmd_start: datetime.datetime,
+                          cmd_end: datetime.datetime, return_code: int) \
+            -> bool:
+        cmd_root: str = args[0].split("/")[-1:][0]
         xtrabackup_function = None
         if cmd_root == "xtrabackup":
             if "--backup" in args:
@@ -121,11 +126,11 @@ class ProcessHandler(GeneralClass):
         if cmd_root != "pigz":
             # this will be just the pigz --version call
             self._xtrabackup_history_log.append([cmd_root,
-                                                 xtrabackup_function,
+                                                 str(xtrabackup_function),
                                                  cmd_start.strftime('%Y-%m-%d %H:%M:%S'),
                                                  cmd_end.strftime('%Y-%m-%d %H:%M:%S'),
                                                  self.represent_duration(cmd_start, cmd_end),
-                                                 return_code])
+                                                 str(return_code)])
         return True
 
 

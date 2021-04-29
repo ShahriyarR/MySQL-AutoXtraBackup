@@ -9,7 +9,7 @@ from os import makedirs
 
 class GenerateDefaultConfig:
 
-    def __init__(self, config=path_config.config_path_file):
+    def __init__(self, config: str = path_config.config_path_file) -> None:
         self.conf = config
         self.home = path_config.home
         try:
@@ -18,7 +18,7 @@ class GenerateDefaultConfig:
         except:
             pass
 
-    def generate_config_file(self):
+    def generate_config_file(self) -> None:
         with open(self.conf, 'w+') as cfgfile:
             config = configparser.ConfigParser(allow_no_value=True)
             section1 = 'MySQL'

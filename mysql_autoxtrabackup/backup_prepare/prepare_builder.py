@@ -1,17 +1,17 @@
 import os
 import logging
 
-from general_conf.generalops import GeneralClass
-from general_conf import path_config
-from process_runner.process_runner import ProcessRunner
-from typing import Tuple, Union
+from mysql_autoxtrabackup.general_conf.generalops import GeneralClass
+from mysql_autoxtrabackup.general_conf import path_config
+from mysql_autoxtrabackup.process_runner.process_runner import ProcessRunner
+from typing import Tuple, Union, Optional
 
 logger = logging.getLogger(__name__)
 
 
 class BackupPrepareBuilderChecker:
 
-    def __init__(self, config: str = path_config.config_path_file, dry_run: int = 0) -> None:
+    def __init__(self, config: str = path_config.config_path_file, dry_run: Optional[bool] = None) -> None:
         self.conf = config
         self.dry = dry_run
 
@@ -22,7 +22,7 @@ class BackupPrepareBuilderChecker:
         self.xbstream_options = options_obj.xbstream_options
 
     @staticmethod
-    def parse_backup_tags(backup_dir: str, tag_name: str) -> Tuple[str, str]:
+    def parse_backup_tags(backup_dir: Optional[str], tag_name: Optional[str]) -> Optional[Tuple[str, str]]:
         """
         Static Method for returning the backup directory name and backup type
         :param backup_dir: The backup directory path
@@ -38,9 +38,11 @@ class BackupPrepareBuilderChecker:
                 split_ = i.split('\t')
                 if tag_name == split_[-1].rstrip("'\n\r").lstrip("'"):
                     return split_[0], split_[1]
-            raise RuntimeError('There is no such tag for backups')
+            else:
+                raise RuntimeError('There is no such tag for backups')
+        return None
 
-    def decompress_backup(self, path: str, dir_name: str) -> Union[None, bool, Exception]:
+    def decompress_backup(self, path: Optional[str], dir_name: Optional[str]) -> Optional[bool]:
         """
         Method for backup decompression.
         Check if decompression enabled, if it is, decompress
@@ -62,10 +64,11 @@ class BackupPrepareBuilderChecker:
             logger.info("Trying to decompress backup")
             logger.info("Running decompress command -> {}".format(dec_cmd))
             if self.dry:
-                return
+                return None
             return ProcessRunner.run_command(dec_cmd)
+        return None
 
-    def decrypt_backup(self, path: str, dir_name: str) -> Union[None, bool, Exception]:
+    def decrypt_backup(self, path: Optional[str], dir_name: Optional[str]) -> Optional[bool]:
         """
         Method for decrypting backups.
         If you use crypted backups it should be decrypted prior preparing.
@@ -86,12 +89,13 @@ class BackupPrepareBuilderChecker:
             logger.info("Trying to decrypt backup")
             logger.info("Running decrypt command -> {}".format(decr_cmd))
             if self.dry:
-                return
+                return None
             return ProcessRunner.run_command(decr_cmd)
+        return None
 
-    def prepare_command_builder(self, full_backup: str,
-                                incremental: str = None,
-                                apply_log_only: bool = None) -> str:
+    def prepare_command_builder(self, full_backup: Optional[str],
+                                incremental: Optional[str] = None,
+                                apply_log_only: Optional[bool] = None) -> str:
         """
         Method for building prepare command as it is repeated several times.
         :param full_backup: The full backup directory name
@@ -121,7 +125,7 @@ class BackupPrepareBuilderChecker:
 
         return xtrabackup_prepare_cmd
 
-    def untar_backup(self, recent_bck: str) -> Union[None, bool, Exception]:
+    def untar_backup(self, recent_bck: str) -> Optional[bool]:
         if self.xbstream_options.get('stream') == 'tar':
             full_dir = self.backup_options.get('full_dir')
             untar_cmd = "tar -xf {}/{}/full_backup.tar -C {}/{}".format(full_dir,
@@ -131,3 +135,4 @@ class BackupPrepareBuilderChecker:
             logger.info("The following tar command will be executed -> {}".format(untar_cmd))
             if self.dry == 0 and os.path.isfile("{}/{}/full_backup.tar".format(full_dir, recent_bck)):
                 return ProcessRunner.run_command(untar_cmd)
+        return None

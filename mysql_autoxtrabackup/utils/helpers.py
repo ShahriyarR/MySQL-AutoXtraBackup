@@ -5,12 +5,12 @@ import subprocess
 import logging
 import os
 from datetime import datetime
-from typing import Union
+from typing import Union, List, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
 
-def get_folder_size(path: str) -> str:
+def get_folder_size(path: str) -> Union[str, None]:
     """
     Function to calculate given folder size. Using 'du' command here.
     :param path: The full path to be calculated
@@ -22,15 +22,16 @@ def get_folder_size(path: str) -> str:
         return output.split()[0]
     else:
         logger.error("Failed to get the folder size")
+    return None
 
 
-def sorted_ls(path: str) -> list:
+def sorted_ls(path: Optional[str]) -> List[str]:
     """
     Function for sorting given path
     :param path: Directory path
     :return: The list of sorted directories
     """
-    mtime = lambda f: os.stat(os.path.join(path, f)).st_mtime
+    mtime = lambda f: os.stat(os.path.join(path, f)).st_mtime  # type: ignore
     return list(sorted(os.listdir(path), key=mtime))
 
 
@@ -66,13 +67,14 @@ def create_backup_directory(directory: str) -> str:
         raise RuntimeError("Something went wrong in create_backup_directory(): {}".format(err))
 
 
-def get_latest_dir_name(path: str) -> str:
+def get_latest_dir_name(path: Optional[str]) -> Optional[str]:
     # Return last backup dir name either incremental or full backup dir
     if len(os.listdir(path)) > 0:
         return max(os.listdir(path))
+    return None
 
 
-def create_directory(path: str) -> Union[bool, Exception]:
+def create_directory(path: str) -> Optional[bool]:
     logger.info('Creating given directory...')
     try:
         os.makedirs(path)
@@ -98,7 +100,7 @@ def check_if_backup_prepared(type_: str, path: str) -> str:
     return 'Not-Prepared'
 
 
-def list_available_backups(path: str) -> dict:
+def list_available_backups(path: str) -> Dict[str, List[Dict[str, str]]]:
     """
     Helper function for returning
     Dict of backups;
@@ -110,8 +112,9 @@ def list_available_backups(path: str) -> dict:
     full_backup_dir = path + '/full'
     inc_backup_dir = path + '/inc'
     if os.path.isdir(full_backup_dir):
-        backups = {'full': [{dir_: check_if_backup_prepared('full', full_backup_dir + f'/{dir_}')}] for dir_ in os.listdir(full_backup_dir)}
+        backups = {'full': [{dir_: check_if_backup_prepared('full', full_backup_dir + f'/{dir_}')}]
+                   for dir_ in os.listdir(full_backup_dir)}
     if os.path.isdir(inc_backup_dir):
-        backups['inc'] = sorted_ls(inc_backup_dir)
+        backups['inc'] = sorted_ls(inc_backup_dir)  # type: ignore
     logger.info('Listing all available backups from full and incremental backup directories...')
     return backups

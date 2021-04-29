@@ -2,9 +2,10 @@
 import logging
 from os.path import isfile
 
-from general_conf.generalops import GeneralClass
-from general_conf import path_config
-from process_runner.process_runner import ProcessRunner
+from mysql_autoxtrabackup.general_conf.generalops import GeneralClass
+from mysql_autoxtrabackup.general_conf import path_config
+from mysql_autoxtrabackup.process_runner.process_runner import ProcessRunner
+from typing import Union, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +13,8 @@ logger = logging.getLogger(__name__)
 class BackupBuilderChecker:
     # General pre-backup checking/extracting/untar/streaming etc. should happen here
 
-    def __init__(self, config: str = path_config.config_path_file, dry_run: int = 0) -> None:
+    def __init__(self, config: str = path_config.config_path_file,
+                 dry_run: Union[bool, None] = None) -> None:
         self.conf = config
         self.dry = dry_run
         options_obj = GeneralClass(config=self.conf)
@@ -74,9 +76,9 @@ class BackupBuilderChecker:
         return args
 
     def extract_decrypt_from_stream_backup(self,
-                                           recent_full_bck: str = None,
-                                           recent_inc_bck: str = None,
-                                           flag: bool = None) -> None:
+                                           recent_full_bck: Optional[str] = None,
+                                           recent_inc_bck: Optional[str] = None,
+                                           flag: Optional[bool] = None) -> None:
         """
         Method for extracting and if necessary decrypting from streamed backup.
         If the recent_full_bck passed then it means you want to extract the full backup.
@@ -158,7 +160,8 @@ class BackupBuilderChecker:
 
         return xtrabackup_cmd
 
-    def inc_backup_command_builder(self, recent_full_bck: str, inc_backup_dir: str, recent_inc_bck: str = None) -> str:
+    def inc_backup_command_builder(self, recent_full_bck: Optional[str], inc_backup_dir: Optional[str],
+                                   recent_inc_bck: Union[str, None] = None) -> str:
         xtrabackup_inc_cmd_base = "{} --defaults-file={} --user={} --password={}".format(
             self.backup_options.get('backup_tool'),
             self.mysql_options.get('mycnf'),
@@ -181,22 +184,22 @@ class BackupBuilderChecker:
 
         # Checking if streaming enabled for backups
         # There is no need to check for 'tar' streaming type -> see the method: stream_tar_incremental_checker()
-        if hasattr(self, 'stream') and self.stream == 'xbstream':
-            xtrabackup_inc_cmd_base += '  --stream="{}"'.format(self.stream)
+        if hasattr(self, 'stream') and self.xbstream_options.get('stream') == 'xbstream':
+            xtrabackup_inc_cmd_base += '  --stream="{}"'.format(self.xbstream_options.get('stream'))
             xtrabackup_inc_cmd_base += " > {}/inc_backup.stream".format(inc_backup_dir)
             logger.warning("Streaming xbstream is enabled!")
 
         return xtrabackup_inc_cmd_base
 
-    def decrypter(self, recent_full_bck: str = None,
-                  xtrabackup_inc_cmd: str = None,
-                  recent_inc_bck: str = None) -> None:
+    def decrypter(self, recent_full_bck: Optional[str] = None,
+                  xtrabackup_inc_cmd: Optional[str] = None,
+                  recent_inc_bck: Optional[str] = None) -> None:
         logger.info("Applying workaround for LP #1444255")
         logger.info("See more -> https://jira.percona.com/browse/PXB-934")
         # With recent PXB 8 it seems to be there is no need for this workaround.
         # Due to this moving this feature to this method and keeping just in case.
         # Deprecated as hell.
-        if 'encrypt' not in xtrabackup_inc_cmd:
+        if "encrypt" not in xtrabackup_inc_cmd: # type: ignore
             return
         if not isfile('{}/{}/xtrabackup_checkpoints.xbcrypt'.format(self.backup_options.get('full_dir'),
                                                                     recent_full_bck)):

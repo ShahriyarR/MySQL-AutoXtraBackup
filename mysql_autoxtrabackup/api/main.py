@@ -1,24 +1,25 @@
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
-from api.controller.controller import router
+from mysql_autoxtrabackup.api.controller.controller import router
+from typing import Optional, Dict, Any
 
 
 app = FastAPI()
 
 
 @app.on_event("startup")
-async def startup():
+async def startup() -> None:
     """startup."""
     print("app started")
 
 
 @app.on_event("shutdown")
-async def shutdown():
+async def shutdown() -> None:
     """shutdown."""
     print("SHUTDOWN")
 
 
-def modify_openapi():
+def modify_openapi() -> Dict[str, Any]:
     """modify_openapi."""
     if app.openapi_schema:
         return app.openapi_schema
@@ -32,7 +33,7 @@ def modify_openapi():
     return app.openapi_schema
 
 
-app.openapi = modify_openapi
+app.openapi = modify_openapi  # type: ignore
 
 app.include_router(router)
 

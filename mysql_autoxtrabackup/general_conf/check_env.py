@@ -3,7 +3,7 @@ import os
 from .generalops import GeneralClass
 from . import path_config
 from mysql_autoxtrabackup.process_runner.process_runner import ProcessRunner
-from typing import Union
+from typing import Union, Optional
 from mysql_autoxtrabackup.utils.helpers import create_directory
 
 import logging
@@ -12,7 +12,8 @@ logger = logging.getLogger(__name__)
 
 class CheckEnv:
 
-    def __init__(self, config: str = path_config.config_path_file, full_dir: str = None, inc_dir: str = None) -> None:
+    def __init__(self, config: str = path_config.config_path_file,
+                 full_dir: Union[str, None] = None, inc_dir: Union[str, None] = None) -> None:
         self.conf = config
         options = GeneralClass(config=self.conf)
         self.backup_options = options.backup_options
@@ -23,7 +24,7 @@ class CheckEnv:
         if inc_dir:
             self.backup_options['ind_dir'] = inc_dir
 
-    def check_mysql_uptime(self, options: str = None) -> Union[None, bool, Exception]:
+    def check_mysql_uptime(self, options: Optional[str] = None) -> Optional[bool]:
         """
         Method for checking if MySQL server is up or not.
         :param options: Passed options to connect to MySQL server if None, then going to get it from conf file
@@ -109,7 +110,7 @@ class CheckEnv:
         logger.error('FAILED: XtraBackup does NOT exist')
         raise RuntimeError('FAILED: XtraBackup does NOT exist')
 
-    def check_mysql_backup_dir(self) -> Union[bool, Exception]:
+    def check_mysql_backup_dir(self) -> Optional[bool]:
         """
         Check for MySQL backup directory.
         If directory exists already then, return True. If not, try to create it.
@@ -121,7 +122,7 @@ class CheckEnv:
 
         return create_directory(str(self.backup_options.get('backup_dir')))
 
-    def check_mysql_archive_dir(self) -> Union[bool, Exception]:
+    def check_mysql_archive_dir(self) -> Optional[bool]:
         """
         Check for archive directory.
         If archive_dir is given in config file and if it does not exist, try to create.
@@ -137,7 +138,7 @@ class CheckEnv:
 
         return create_directory(str(self.archive_options.get('archive_dir')))
 
-    def check_mysql_full_backup_dir(self) -> Union[bool, Exception]:
+    def check_mysql_full_backup_dir(self) -> Optional[bool]:
         """
         Check full backup directory path.
         If this path exists return True if not try to create.
@@ -149,7 +150,7 @@ class CheckEnv:
 
         return create_directory(str(self.backup_options.get('full_dir')))
 
-    def check_mysql_inc_backup_dir(self) -> Union[bool, Exception]:
+    def check_mysql_inc_backup_dir(self) -> Optional[bool]:
         """
         Check incremental backup directory path.
         If this path exists return True if not try to create.

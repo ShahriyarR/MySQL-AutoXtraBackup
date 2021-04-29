@@ -11,20 +11,22 @@ import shutil
 import time
 from datetime import datetime
 
-from general_conf import path_config
-from general_conf.check_env import CheckEnv
-from backup_backup.backup_builder import BackupBuilderChecker
-from backup_backup.backup_archive import BackupArchive
-from process_runner.process_runner import ProcessRunner
-from utils import helpers, mysql_cli
-from typing import Union
+from mysql_autoxtrabackup.general_conf import path_config
+from mysql_autoxtrabackup.general_conf.check_env import CheckEnv
+from mysql_autoxtrabackup.backup_backup.backup_builder import BackupBuilderChecker
+from mysql_autoxtrabackup.backup_backup.backup_archive import BackupArchive
+from mysql_autoxtrabackup.process_runner.process_runner import ProcessRunner
+from mysql_autoxtrabackup.utils import helpers, mysql_cli
+from typing import Union, Optional
 
 logger = logging.getLogger(__name__)
 
 
 class Backup:
 
-    def __init__(self, config: str = path_config.config_path_file, dry_run: bool = None, tag: str = None) -> None:
+    def __init__(self, config: str = path_config.config_path_file, dry_run: Union[bool, None] = None,
+                 tag: Union[str, None] = None) \
+            -> None:
         self.conf = config
         self.dry = dry_run
         self.tag = tag
@@ -32,7 +34,7 @@ class Backup:
         self.builder_obj = BackupBuilderChecker(config=self.conf, dry_run=self.dry)
         self.archive_obj = BackupArchive(config=self.conf, dry_run=self.dry, tag=self.tag)
 
-    def add_tag(self, backup_type: str, backup_size: str, backup_status: str) -> bool:
+    def add_tag(self, backup_type: str, backup_size: Optional[str], backup_status: Optional[str]) -> bool:
         """
         Method for adding backup tags
         :param backup_type: The backup type - Full/Inc
@@ -47,8 +49,8 @@ class Backup:
 
         # Currently only support Inc and Full types, calculate name based on this
         assert backup_type in ('Full', 'Inc'), "add_tag(): backup_type {}: must be 'Full' or 'Inc'".format(backup_type)
-        backup_name = helpers.get_latest_dir_name(self.builder_obj.backup_options.get('full_dir')) if backup_type == 'Full' else \
-            helpers.get_latest_dir_name(self.builder_obj.backup_options.get('inc_dir'))
+        backup_name = helpers.get_latest_dir_name(str(self.builder_obj.backup_options.get('full_dir'))) if backup_type == 'Full' else \
+            helpers.get_latest_dir_name(str(self.builder_obj.backup_options.get('inc_dir')))
 
         # Calculate more tag fields, create string
         backup_timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
@@ -87,19 +89,20 @@ class Backup:
     def last_full_backup_date(self) -> bool:
         """
         Check if last full backup date retired or not.
-        :return: 1 if last full backup date older than given interval, 0 if it is newer.
+        :return: True if last full backup date older than given interval, False if it is newer.
         """
         # Finding last full backup date from dir/folder name
-        max_dir = helpers.get_latest_dir_name(self.builder_obj.backup_options.get('full_dir'))
-        dir_date = datetime.strptime(max_dir, "%Y-%m-%d_%H-%M-%S")
+        max_dir = helpers.get_latest_dir_name(str(self.builder_obj.backup_options.get('full_dir')))
+        dir_date = datetime.strptime(str(max_dir), "%Y-%m-%d_%H-%M-%S")
         now = datetime.now()
-        return (now - dir_date).total_seconds() >= self.builder_obj.backup_options.get('full_backup_interval')
+        return float((now - dir_date).total_seconds()) >= \
+               float(str(self.builder_obj.backup_options.get('full_backup_interval')))
 
-    def clean_full_backup_dir(self, remove_all=None) -> Union[None, bool]:
+    def clean_full_backup_dir(self, remove_all: Union[bool, None] = None) -> Union[None, bool]:
         # Deleting old full backup after taking new full backup.
         # Keeping the latest in order not to lose everything.
         logger.info("starting clean_full_backup_dir")
-        full_dir = self.builder_obj.backup_options.get('full_dir')
+        full_dir = str(self.builder_obj.backup_options.get('full_dir'))
         if not os.path.isdir(full_dir):
             return True
         if remove_all:
@@ -119,12 +122,12 @@ class Backup:
 
     def clean_inc_backup_dir(self) -> Union[None, bool]:
         # Deleting incremental backups after taking new fresh full backup.
-        inc_dir = self.builder_obj.backup_options.get('inc_dir')
+        inc_dir = str(self.builder_obj.backup_options.get('inc_dir'))
         if not os.path.isdir(inc_dir):
             return True
         for i in os.listdir(inc_dir):
             rm_dir = inc_dir + '/' + i
-            shutil.rmtree(rm_dir)
+            shutil.rmtree(str(rm_dir))
         return True
 
     def full_backup(self) -> bool:
@@ -134,7 +137,7 @@ class Backup:
         :raise:  RuntimeError on error.
         """
         logger.info("starting full backup to {}".format(self.builder_obj.backup_options.get('full_dir')))
-        full_backup_dir = helpers.create_backup_directory(self.builder_obj.backup_options.get('full_dir'))
+        full_backup_dir = helpers.create_backup_directory(str(self.builder_obj.backup_options.get('full_dir')))
 
         # Creating Full Backup command.
         xtrabackup_cmd = self.builder_obj.full_backup_command_builder(full_backup_dir=full_backup_dir)
@@ -161,12 +164,12 @@ class Backup:
         :raise: RuntimeError on error.
         """
         # Get the recent full backup path
-        recent_full_bck = helpers.get_latest_dir_name(self.builder_obj.backup_options.get('full_dir'))
+        recent_full_bck = helpers.get_latest_dir_name(str(self.builder_obj.backup_options.get('full_dir')))
         # Get the recent incremental backup path
-        recent_inc_bck = helpers.get_latest_dir_name(self.builder_obj.backup_options.get('inc_dir'))
+        recent_inc_bck = helpers.get_latest_dir_name(str(self.builder_obj.backup_options.get('inc_dir')))
 
         # Creating time-stamped incremental backup directory
-        inc_backup_dir = helpers.create_backup_directory(self.builder_obj.backup_options.get('inc_dir'))
+        inc_backup_dir = helpers.create_backup_directory(str(self.builder_obj.backup_options.get('inc_dir')))
 
         # Check here if stream=tar enabled.
         # Because it is impossible to take incremental backup with streaming tar.
@@ -208,11 +211,11 @@ class Backup:
 
         # Creating object from CheckEnv class
         check_env_obj = CheckEnv(self.conf,
-                                 full_dir=self.builder_obj.backup_options.get('full_dir'),
-                                 inc_dir=self.builder_obj.backup_options.get('inc_dir'))
+                                 full_dir=str(self.builder_obj.backup_options.get('full_dir')),
+                                 inc_dir=str(self.builder_obj.backup_options.get('inc_dir')))
 
         assert check_env_obj.check_all_env() is True, "environment checks failed!"
-        if not helpers.get_latest_dir_name(self.builder_obj.backup_options.get('full_dir')):
+        if not helpers.get_latest_dir_name(str(self.builder_obj.backup_options.get('full_dir'))):
             logger.info("- - - - You have no backups : Taking very first Full Backup! - - - -")
 
             if self.mysql_cli.mysql_run_command("flush logs") and self.full_backup():

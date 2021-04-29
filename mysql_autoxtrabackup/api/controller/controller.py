@@ -1,8 +1,8 @@
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
-from backup_backup.backuper import Backup
-from backup_prepare.prepare import Prepare
-from utils.helpers import list_available_backups
+from mysql_autoxtrabackup.backup_backup.backuper import Backup
+from mysql_autoxtrabackup.backup_prepare.prepare import Prepare
+from mysql_autoxtrabackup.utils.helpers import list_available_backups
 
 
 router = APIRouter()
@@ -48,7 +48,7 @@ async def prepare() -> JSONResponse:
 )
 async def backups() -> JSONResponse:
     backup_ = Backup()
-    result = list_available_backups(backup_.builder_obj.backup_options.get('backup_dir'))
+    result = list_available_backups(str(backup_.builder_obj.backup_options.get('backup_dir')))
     if result:
         return JSONResponse(content={"backups": result},
                             status_code=status.HTTP_200_OK)

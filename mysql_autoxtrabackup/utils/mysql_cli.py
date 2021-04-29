@@ -1,8 +1,8 @@
 # This file will consist of some wrapper for using MySQL
 # It is mainly used for preparing and calling mysql cli
-from general_conf import path_config
-from general_conf.generalops import GeneralClass
-from process_runner.process_runner import ProcessRunner
+from mysql_autoxtrabackup.general_conf import path_config
+from mysql_autoxtrabackup.general_conf.generalops import GeneralClass
+from mysql_autoxtrabackup.process_runner.process_runner import ProcessRunner
 import logging
 logger = logging.getLogger(__name__)
 
@@ -31,6 +31,6 @@ class MySQLClientHelper:
         new_command += command_execute
         return new_command.format(statement)
 
-    def mysql_run_command(self, statement: str) -> None:
+    def mysql_run_command(self, statement: str) -> bool:
         command = self.create_mysql_client_command(statement=statement)
         return ProcessRunner.run_command(command)

@@ -2,18 +2,18 @@ import logging
 import shutil
 import os
 
-from process_runner.process_runner import ProcessRunner
-from general_conf import path_config
-from general_conf.generalops import GeneralClass
-from utils import helpers
-from typing import Union
+from mysql_autoxtrabackup.process_runner.process_runner import ProcessRunner
+from mysql_autoxtrabackup.general_conf import path_config
+from mysql_autoxtrabackup.general_conf.generalops import GeneralClass
+from mysql_autoxtrabackup.utils import helpers
+from typing import Union, Optional
 
 logger = logging.getLogger(__name__)
 
 
 class CopyBack:
 
-    def __init__(self, config=path_config.config_path_file):
+    def __init__(self, config: str = path_config.config_path_file) -> None:
         self.conf = config
         options_obj = GeneralClass(config=self.conf)
         self.command_options = options_obj.command_options
@@ -26,9 +26,9 @@ class CopyBack:
         args = self.command_options.get('stop_mysql_command')
         return ProcessRunner.run_command(args)
 
-    def move_to_tmp_dir(self) -> Union[None, Exception]:
+    def move_to_tmp_dir(self) -> None:
         try:
-            shutil.move(self.mysql_options.get('data_dir'), self.backup_options.get('tmp_dir'))
+            shutil.move(str(self.mysql_options.get('data_dir')), str(self.backup_options.get('tmp_dir')))
             logger.info("Moved data_dir to {} ...".format(self.backup_options.get('tmp_dir')))
         except shutil.Error as err:
             logger.error("Error occurred while moving data_dir")
@@ -44,30 +44,30 @@ class CopyBack:
         # Move data_dir to new directory
         tmp_dir = self.backup_options.get('tmp_dir')
         logger.info("Moving MySQL data_dir to {}".format(tmp_dir))
-        if os.path.isdir(self.backup_options.get('tmp_dir')):
+        if os.path.isdir(str(self.backup_options.get('tmp_dir'))):
             rmdir_ = 'rm -rf {}'.format(tmp_dir)
             ProcessRunner.run_command(rmdir_)
         self.move_to_tmp_dir()
         self.create_empty_data_dir()
         return True
 
-    def run_xtra_copyback(self, data_dir: str = None) -> Union[None, bool, Exception]:
+    def run_xtra_copyback(self, data_dir: Optional[str] = None) -> Optional[bool]:
         # Running Xtrabackup with --copy-back option
         copy_back = '{} --copy-back {} --target-dir={}/{} --data_dir={}'.format(
             self.backup_options.get('backup_tool'),
             self.backup_options.get('xtra_options'),
             self.backup_options.get('full_dir'),
-            helpers.get_latest_dir_name(self.backup_options.get('full_dir')),
+            helpers.get_latest_dir_name(str(self.backup_options.get('full_dir'))),
             self.mysql_options.get('data_dir') if data_dir is None else data_dir)
         return ProcessRunner.run_command(copy_back)
 
-    def giving_chown(self, data_dir: str = None) -> Union[None, bool, Exception]:
+    def giving_chown(self, data_dir: Optional[str] = None) -> Optional[bool]:
         # Changing owner of data_dir to given user:group
         give_chown = "{} {}".format(self.command_options.get('chown_command'),
                                     self.mysql_options.get('data_dir') if data_dir is None else data_dir)
         return ProcessRunner.run_command(give_chown)
 
-    def start_mysql_func(self, start_tool: str = None, options: str = None) -> Union[None, bool, Exception]:
+    def start_mysql_func(self, start_tool: Optional[str] = None, options: Optional[str] = None) -> Union[None, bool, Exception]:
         # Starting MySQL
         logger.info("Starting MySQL server: ")
         args = self.command_options.get('start_mysql_command') if start_tool is None else start_tool
@@ -75,7 +75,7 @@ class CopyBack:
         return ProcessRunner.run_command(start_command)
 
     @staticmethod
-    def check_if_backup_prepared(full_dir: str, full_backup_file: str) -> Union[bool, Exception]:
+    def check_if_backup_prepared(full_dir: Optional[str], full_backup_file: Optional[str]) -> Optional[bool]:
         """
         This method is for checking if the backup can be copied-back.
         It is going to check xtrabackup_checkpoints file inside backup directory for backup_type column.
@@ -89,7 +89,7 @@ class CopyBack:
                 return True
             raise RuntimeError("This full backup is not fully prepared, not doing copy-back!")
 
-    def copy(self, options: str = None, data_dir: str = None) -> bool:
+    def copy(self, options: Optional[str] = None, data_dir: Optional[str] = None) -> bool:
         """
         Function for running:
           xtrabackup --copy-back
@@ -98,7 +98,7 @@ class CopyBack:
         :return: True if succeeded. Error if failed
         """
         logger.info("Copying Back Already Prepared Final Backup:")
-        if len(os.listdir(self.mysql_options.get('data_dir') if data_dir is None else data_dir)) > 0:
+        if len(os.listdir(str(self.mysql_options.get('data_dir')) if data_dir is None else data_dir)) > 0:
             logger.info("MySQL data_dir is not empty!")
             return False
         else:
@@ -107,14 +107,14 @@ class CopyBack:
             self.start_mysql_func(options=options)
             return True
 
-    def copy_back_action(self, options: str = None) -> Union[bool, Exception]:
+    def copy_back_action(self, options: Optional[str] = None) -> Optional[bool]:
         """
         Function for complete recover/copy-back actions
         :return: True if succeeded. Error if failed.
         """
         try:
-            self.check_if_backup_prepared(self.backup_options.get('full_dir'),
-                                          helpers.get_latest_dir_name(self.backup_options.get('full_dir')))
+            self.check_if_backup_prepared(str(self.backup_options.get('full_dir')),
+                                          helpers.get_latest_dir_name(str(self.backup_options.get('full_dir'))))
             self.shutdown_mysql()
             if self.move_data_dir() and self.copy(options=options):
                 logger.info("All data copied back successfully. ")
@@ -122,3 +122,4 @@ class CopyBack:
                 return True
         except Exception as err:
             logger.error("{}: {}".format(type(err).__name__, err))
+        return None

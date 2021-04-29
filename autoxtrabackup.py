@@ -4,8 +4,8 @@ import os
 import re
 import time
 import click
-import humanfriendly
-import pid
+import humanfriendly  # type: ignore
+import pid  # type: ignore
 
 from mysql_autoxtrabackup.backup_prepare.prepare import Prepare
 from mysql_autoxtrabackup.general_conf import path_config
@@ -15,13 +15,14 @@ from mysql_autoxtrabackup.process_runner.process_runner import ProcessRunner
 from logging.handlers import RotatingFileHandler
 from sys import exit
 from sys import platform as _platform
+from typing import Optional
 
 logger = logging.getLogger('')
 destinations_hash = {'linux': '/dev/log', 'linux2': '/dev/log', 'darwin': '/var/run/syslog'}
 
 
-def address_matcher(plt):
-    return destinations_hash.get(plt, ('localhost', 514))
+def address_matcher(plt: str) -> str:
+    return destinations_hash.get(plt, ('localhost', 514)) # type: ignore
 
 
 handler = logging.handlers.SysLogHandler(address=address_matcher(_platform))
@@ -30,14 +31,14 @@ handler = logging.handlers.SysLogHandler(address=address_matcher(_platform))
 logger.addHandler(handler)
 
 
-def print_help(ctx, param, value):
-    if value is False:
+def print_help(ctx: click.Context, param: None, value: bool) -> None:
+    if not value:
         return
     click.echo(ctx.get_help())
     ctx.exit()
 
 
-def print_version(ctx, param, value):
+def print_version(ctx: click.Context, param: None, value: bool) -> None:
     if not value or ctx.resilient_parsing:
         return
     click.echo(
@@ -50,7 +51,7 @@ def print_version(ctx, param, value):
     ctx.exit()
 
 
-def check_file_content(file):
+def check_file_content(file: str) -> Optional[bool]:
     """Check if all mandatory headers and keys exist in file"""
     with open(file, 'r') as config_file:
         file_content = config_file.read()
@@ -87,7 +88,7 @@ def check_file_content(file):
     return True
 
 
-def validate_file(file):
+def validate_file(file: str) -> Optional[bool]:
     """
     Check for validity of the file given in file path. If file doesn't exist or invalid
     configuration file, throw error.
@@ -101,9 +102,10 @@ def validate_file(file):
     if pattern.match(file):
         # Lastly the file should have all 5 required headers
         if check_file_content(file):
-            return
+            return None
     else:
         raise ValueError("Invalid file extension. Expecting .cnf")
+    return None
 
 
 @click.command()
@@ -114,14 +116,14 @@ def validate_file(file):
               help="Take full and incremental backups.")
 @click.option('--version',
               is_flag=True,
-              callback=print_version,
+              callback=print_version,  # type: ignore
               expose_value=False,
               is_eager=True,
               help="Version information.")
 @click.option('--defaults-file',
               default=path_config.config_path_file,
               show_default=True,
-              help="Read options from the given file")
+              help="Read options from the given file") # type: ignore
 @click.option('--tag',
               help="Pass the tag string for each backup")
 @click.option('--show-tags',
@@ -159,7 +161,7 @@ def validate_file(file):
               help="Set log file backup count")
 @click.option('--help',
               is_flag=True,
-              callback=print_help,
+              callback=print_help,  # type: ignore
               expose_value=False,
               is_eager=False,
               help="Print help message and exit.")
@@ -186,8 +188,8 @@ def all_procedure(ctx, prepare, backup, tag, show_tags,
         try:
             if logging_options.get('log_file_max_bytes') and logging_options.get('log_file_backup_count'):
                 file_handler = RotatingFileHandler(log_file, mode='a',
-                                                   maxBytes=int(logging_options.get('log_file_max_bytes')),
-                                                   backupCount=int(logging_options.get('log_file_backup_count')))
+                                                   maxBytes=int(str(logging_options.get('log_file_max_bytes'))),
+                                                   backupCount=int(str(logging_options.get('log_file_backup_count'))))
             else:
                 file_handler = RotatingFileHandler(log_file, mode='a',
                                                    maxBytes=log_file_max_bytes, backupCount=log_file_backup_count)
@@ -200,7 +202,7 @@ def all_procedure(ctx, prepare, backup, tag, show_tags,
     if log is not None:
         logger.setLevel(log)
     elif logging_options.get('log_level'):
-        logger.setLevel(logging_options.get('log_level'))
+        logger.setLevel(str(logging_options.get('log_level')))
     else:
         # this is the fallback default log-level.
         logger.setLevel('INFO')
@@ -223,7 +225,7 @@ def all_procedure(ctx, prepare, backup, tag, show_tags,
 
             elif show_tags and defaults_file:
                 backup_ = Backup(config=defaults_file)
-                backup_.show_tags(backup_dir=backup_options.get('backup_dir'))
+                backup_.show_tags(backup_dir=str(backup_options.get('backup_dir')))
             elif prepare:
                 prepare_ = Prepare(config=defaults_file, dry_run=dry_run_, tag=tag)
                 prepare_.prepare_backup_and_copy_back()
@@ -232,8 +234,8 @@ def all_procedure(ctx, prepare, backup, tag, show_tags,
                 backup_.all_backup()
 
     except (pid.PidFileAlreadyLockedError, pid.PidFileAlreadyRunningError) as error:
-        if backup_options.get('pid_runtime_warning') and time.time() - os.stat(
-                pid_file.filename).st_ctime > backup_options.get('pid_runtime_warning'):
+        if float(str(backup_options.get('pid_runtime_warning'))) and time.time() - os.stat(
+                pid_file.filename).st_ctime > float(str(backup_options.get('pid_runtime_warning'))):
             pid.fh.seek(0)
             pid_str = pid.fh.read(16).split("\n", 1)[0].strip()
             logger.warning("Pid file already exists or Pid already running! : ", str(error))

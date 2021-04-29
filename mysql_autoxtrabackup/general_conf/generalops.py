@@ -2,7 +2,7 @@ import configparser
 from os.path import isfile
 import humanfriendly  # type: ignore
 import logging
-from . import path_config  # type: ignore
+from . import path_config
 from typing import Dict, Union
 logger = logging.getLogger(__name__)
 
@@ -24,9 +24,9 @@ class GeneralClass:
                 'mysqladmin': self.con.get(section, 'mysqladmin'),
                 'mysql_user': self.con.get(section, 'mysql_user'),
                 'mysql_password': self.con.get(section, 'mysql_password'),
-                'mysql_socket': self.con.get(section, 'mysql_socket', fallback=None),
-                'mysql_host': self.con.get(section, 'mysql_host', fallback=None),
-                'mysql_port': self.con.get(section, 'mysql_port', fallback=None),
+                'mysql_socket': self.con.get(section, 'mysql_socket', fallback=None),  # type: ignore
+                'mysql_host': self.con.get(section, 'mysql_host', fallback=None), # type: ignore
+                'mysql_port': self.con.get(section, 'mysql_port', fallback=None), # type: ignore
                 'data_dir': self.con.get(section, 'datadir')}
 
     @property
@@ -39,19 +39,19 @@ class GeneralClass:
     @property
     def compression_options(self) -> Dict[str, str]:
         section = 'Compress'
-        return {'compress': self.con.get(section, 'compress', fallback=None),
-                'compress_chunk_size': self.con.get(section, 'compress_chunk_size', fallback=None),
-                'compress_threads': self.con.get(section, 'compress_threads', fallback=None),
-                'decompress': self.con.get(section, 'decompress', fallback=None),
-                'remove_original': self.con.get(section, 'remove_original', fallback=None)}
+        return {'compress': self.con.get(section, 'compress', fallback=None),   # type: ignore
+                'compress_chunk_size': self.con.get(section, 'compress_chunk_size', fallback=None),  # type: ignore
+                'compress_threads': self.con.get(section, 'compress_threads', fallback=None),  # type: ignore
+                'decompress': self.con.get(section, 'decompress', fallback=None),  # type: ignore
+                'remove_original': self.con.get(section, 'remove_original', fallback=None)}  # type: ignore
 
     @property
     def xbstream_options(self) -> Dict[str, str]:
         section = 'Xbstream'
-        return {'xbstream': self.con.get(section, 'xbstream', fallback=None),
-                'stream': self.con.get(section, 'stream', fallback=None),
-                'xbstream_options': self.con.get(section, 'xbstream_options', fallback=None),
-                'xbs_decrypt': self.con.get(section, 'xbs_decrypt', fallback=None)}
+        return {'xbstream': self.con.get(section, 'xbstream', fallback=None),  # type: ignore
+                'stream': self.con.get(section, 'stream', fallback=None),  # type: ignore
+                'xbstream_options': self.con.get(section, 'xbstream_options', fallback=None),  # type: ignore
+                'xbs_decrypt': self.con.get(section, 'xbs_decrypt', fallback=None)}  # type: ignore
 
     @property
     def command_options(self) -> Dict[str, str]:
@@ -63,14 +63,14 @@ class GeneralClass:
     @property
     def encryption_options(self) -> Dict[str, str]:
         section = 'Encrypt'
-        return {'xbcrypt': self.con.get(section, 'xbcrypt', fallback=None),
-                'encrypt': self.con.get(section, 'encrypt', fallback=None),
-                'encrypt_key': self.con.get(section, 'encrypt_key', fallback=None),
-                'encrypt_key_file': self.con.get(section, 'encrypt_key_file', fallback=None),
-                'encrypt_threads': self.con.get(section, 'encrypt_threads', fallback=None),
-                'encrypt_chunk_size': self.con.get(section, 'encrypt_chunk_size', fallback=None),
-                'decrypt': self.con.get(section, 'decrypt', fallback=None),
-                'remove_original': self.con.get(section, 'remove_original', fallback=None)}
+        return {'xbcrypt': self.con.get(section, 'xbcrypt', fallback=None),   # type: ignore
+                'encrypt': self.con.get(section, 'encrypt', fallback=None),  # type: ignore
+                'encrypt_key': self.con.get(section, 'encrypt_key', fallback=None),  # type: ignore
+                'encrypt_key_file': self.con.get(section, 'encrypt_key_file', fallback=None),  # type: ignore
+                'encrypt_threads': self.con.get(section, 'encrypt_threads', fallback=None),  # type: ignore
+                'encrypt_chunk_size': self.con.get(section, 'encrypt_chunk_size', fallback=None),  # type: ignore
+                'decrypt': self.con.get(section, 'decrypt', fallback=None),  # type: ignore
+                'remove_original': self.con.get(section, 'remove_original', fallback=None)}  # type: ignore
 
     @property
     def backup_archive_options(self) -> Dict[str, Union[str, float]]:
@@ -89,13 +89,14 @@ class GeneralClass:
             archive_max_duration = humanfriendly.parse_timespan(archive_max_duration)
         else:
             if self.con.get(section, 'archive_max_size', fallback=None):
-                archive_max_duration = humanfriendly.parse_timespan(self.con.get(section, 'archive_max_size', fallback=None))
+                archive_max_duration = humanfriendly.parse_timespan(self.con.get(section, 'archive_max_size',
+                                                                                 fallback=None))
 
-        return {'archive_dir': self.con.get(section, 'archive_dir', fallback=None),
-                'prepare_archive': self.con.get(section, 'prepare_archive', fallback=None),
-                'move_archive': self.con.get(section, 'move_archive', fallback=None),
-                'archive_max_size': archive_max_size,
-                'archive_max_duration': archive_max_duration
+        return {'archive_dir': self.con.get(section, 'archive_dir', fallback=None),  # type: ignore
+                'prepare_archive': self.con.get(section, 'prepare_archive', fallback=None),  # type: ignore
+                'move_archive': self.con.get(section, 'move_archive', fallback=None),  # type: ignore
+                'archive_max_size': str(archive_max_size),
+                'archive_max_duration': str(archive_max_duration)
                 }
 
     @property
@@ -108,10 +109,10 @@ class GeneralClass:
                 'full_dir': self.con.get(section, 'backup_dir') + '/full',
                 'inc_dir': self.con.get(section, 'backup_dir') + '/inc',
                 'backup_tool': self.con.get(section, 'backup_tool'),
-                'prepare_tool': self.con.get(section, 'prepare_tool', fallback=None),
-                'xtra_backup': self.con.get(section, 'xtra_backup', fallback=None),
-                'xtra_prepare_options': self.con.get(section, 'xtra_prepare_options', fallback=None),
-                'xtra_options': self.con.get(section, 'xtra_options', fallback=None),
+                'prepare_tool': self.con.get(section, 'prepare_tool', fallback=None),  # type: ignore
+                'xtra_backup': self.con.get(section, 'xtra_backup', fallback=None),  # type: ignore
+                'xtra_prepare_options': self.con.get(section, 'xtra_prepare_options', fallback=None),  # type: ignore
+                'xtra_options': self.con.get(section, 'xtra_options', fallback=None),  # type: ignore
                 'full_backup_interval': humanfriendly.parse_timespan(self.con.get(section, 'full_backup_interval',
-                                                                                  fallback='86400')),
-                'partial_list': self.con.get(section, 'partial_list', fallback=None)}
+                                                                                  fallback='86400.0')),
+                'partial_list': self.con.get(section, 'partial_list', fallback=None)}  # type: ignore
