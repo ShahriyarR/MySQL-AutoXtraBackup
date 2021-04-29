@@ -68,7 +68,7 @@ class GenerateDefaultConfig:
             config.set(section3, "#archive_max_duration", "4 Days")
             config.set(section3, "#Optional: WARNING(Enable this if you want to take partial backups). "
                                  "Specify database names or table names.")
-            config.set(section3, "#partial_list", "test.t1 test.t2 dbtest")
+            config.set(section3, "#partial_list", "tests.t1 tests.t2 dbtest")
 
             section4 = "Compress"
             config.add_section(section4)

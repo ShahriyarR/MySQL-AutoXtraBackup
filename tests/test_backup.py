@@ -1,6 +1,4 @@
 # PyTest file for testing Backup class
-from backup_backup.backuper import Backup
-from general_conf.generalops import GeneralClass
 import pytest
 import os
 

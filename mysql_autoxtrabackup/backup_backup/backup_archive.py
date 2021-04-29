@@ -98,10 +98,10 @@ class BackupArchive:
                 self.backup_archive_options.get('archive_max_duration')
                 or self.backup_archive_options.get('archive_max_size')
             ) and (
-                (now - archive_date).total_seconds()
-                >= self.backup_archive_options.get('archive_max_duration')
-                or helpers.get_directory_size(archive_dir)
-                > self.backup_archive_options.get('archive_max_size')
+                    (now - archive_date).total_seconds()
+                    >= self.backup_archive_options.get('archive_max_duration')
+                    or helpers.get_directory_size(archive_dir)
+                    > self.backup_archive_options.get('archive_max_size')
             ):
                 logger.info(cleanup_msg.format(archive_dir, archive, 'archive_max_duration exceeded.'))
                 logger.info("OR")
