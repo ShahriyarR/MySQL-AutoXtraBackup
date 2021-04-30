@@ -3,7 +3,7 @@ set -x
 set -e
 # Install pip
 cd /tmp
-curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+curl https://bootstrap.pypa.io/pip/3.5/get-pip.py -o get-pip.py
 python3 get-pip.py --user
 cd -
 # Install Flit to be able to install all
