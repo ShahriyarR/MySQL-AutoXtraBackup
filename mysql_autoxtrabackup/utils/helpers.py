@@ -1,11 +1,11 @@
 # General helpers file for adding all sort of simple helper functions.
 # Trying to use here type hints as well.
 
-import subprocess
 import logging
 import os
+import subprocess
 from datetime import datetime
-from typing import Union, List, Dict, Optional
+from typing import Dict, List, Optional, Union
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ def get_folder_size(path: str) -> Union[str, None]:
     :param path: The full path to be calculated
     :return: String with human readable size info, for eg, 5.3M
     """
-    du_cmd = 'du -hs {}'.format(path)
+    du_cmd = "du -hs {}".format(path)
     status, output = subprocess.getstatusoutput(du_cmd)
     if status == 0:
         return output.split()[0]
@@ -57,14 +57,18 @@ def create_backup_directory(directory: str) -> str:
     :param directory: Directory path
     :return: Created new directory path
     """
-    new_dir = os.path.join(directory, datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
+    new_dir = os.path.join(directory, datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
     try:
         # Creating directory
         os.makedirs(new_dir)
         return new_dir
     except Exception as err:
-        logger.error("Something went wrong in create_backup_directory(): {}".format(err))
-        raise RuntimeError("Something went wrong in create_backup_directory(): {}".format(err))
+        logger.error(
+            "Something went wrong in create_backup_directory(): {}".format(err)
+        )
+        raise RuntimeError(
+            "Something went wrong in create_backup_directory(): {}".format(err)
+        )
 
 
 def get_latest_dir_name(path: Optional[str]) -> Optional[str]:
@@ -75,10 +79,10 @@ def get_latest_dir_name(path: Optional[str]) -> Optional[str]:
 
 
 def create_directory(path: str) -> Optional[bool]:
-    logger.info('Creating given directory...')
+    logger.info("Creating given directory...")
     try:
         os.makedirs(path)
-        logger.info('OK: Created')
+        logger.info("OK: Created")
         return True
     except Exception as err:
         logger.error("FAILED: Could not create directory, ", err)
@@ -92,12 +96,12 @@ def check_if_backup_prepared(type_: str, path: str) -> str:
     :param path: path string of the backup folder
     :return: True if given backup is prepared, False otherwise
     """
-    if type_ == 'full' and os.path.isfile(path + '/xtrabackup_checkpoints'):
-        with open(path + '/xtrabackup_checkpoints', 'r') as f:
-            if f.readline().split()[-1] == 'full-prepared':
-                return 'Full-Prepared'
+    if type_ == "full" and os.path.isfile(path + "/xtrabackup_checkpoints"):
+        with open(path + "/xtrabackup_checkpoints", "r") as f:
+            if f.readline().split()[-1] == "full-prepared":
+                return "Full-Prepared"
     # TODO: add the possible way of checking for incremental backups as well.
-    return 'Not-Prepared'
+    return "Not-Prepared"
 
 
 def list_available_backups(path: str) -> Dict[str, List[Dict[str, str]]]:
@@ -109,12 +113,18 @@ def list_available_backups(path: str) -> Dict[str, List[Dict[str, str]]]:
     :return: dictionary of backups full and incremental
     """
     backups = {}
-    full_backup_dir = path + '/full'
-    inc_backup_dir = path + '/inc'
+    full_backup_dir = path + "/full"
+    inc_backup_dir = path + "/inc"
     if os.path.isdir(full_backup_dir):
-        backups = {'full': [{dir_: check_if_backup_prepared('full', full_backup_dir + f'/{dir_}')}]
-                   for dir_ in os.listdir(full_backup_dir)}
+        backups = {
+            "full": [
+                {dir_: check_if_backup_prepared("full", full_backup_dir + f"/{dir_}")}
+            ]
+            for dir_ in os.listdir(full_backup_dir)
+        }
     if os.path.isdir(inc_backup_dir):
-        backups['inc'] = sorted_ls(inc_backup_dir)  # type: ignore
-    logger.info('Listing all available backups from full and incremental backup directories...')
+        backups["inc"] = sorted_ls(inc_backup_dir)  # type: ignore
+    logger.info(
+        "Listing all available backups from full and incremental backup directories..."
+    )
     return backups

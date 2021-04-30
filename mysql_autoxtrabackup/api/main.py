@@ -1,8 +1,9 @@
+from typing import Any, Dict
+
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
-from mysql_autoxtrabackup.api.controller.controller import router
-from typing import Optional, Dict, Any
 
+from mysql_autoxtrabackup.api.controller.controller import router
 
 app = FastAPI()
 
@@ -36,4 +37,3 @@ def modify_openapi() -> Dict[str, Any]:
 app.openapi = modify_openapi  # type: ignore
 
 app.include_router(router)
-

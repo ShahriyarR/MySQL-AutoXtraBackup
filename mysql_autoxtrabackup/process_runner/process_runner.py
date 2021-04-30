@@ -1,15 +1,13 @@
 import datetime
 import logging
 import re
-import subprocess
 import shlex
+import subprocess
 import typing
-
 from subprocess import PIPE, STDOUT
 
-from mysql_autoxtrabackup.general_conf.generalops import GeneralClass
 from mysql_autoxtrabackup.general_conf import path_config
-
+from mysql_autoxtrabackup.general_conf.generalops import GeneralClass
 
 logger = logging.getLogger(__name__)
 
@@ -20,11 +18,20 @@ class ProcessHandler(GeneralClass):
 
     centralizes logic for subprocess calls, and is available to all other classes (Prepare, Backup, etc)
     """
+
     def __init__(self, config: str = path_config.config_path_file) -> None:
         self.conf = config
         GeneralClass.__init__(self, self.conf)
-        self._xtrabackup_history_log = [['command', 'xtrabackup_function', 'start time', 'end time',
-                                         'duration', 'exit code']]
+        self._xtrabackup_history_log = [
+            [
+                "command",
+                "xtrabackup_function",
+                "start time",
+                "end time",
+                "duration",
+                "exit code",
+            ]
+        ]
 
     @property
     def xtrabackup_history_log(self) -> typing.List[typing.List[str]]:
@@ -43,15 +50,25 @@ class ProcessHandler(GeneralClass):
         """
         # filter out password from argument list, print command to execute
 
-        filtered_command = re.sub("--password='?\w+'?", "--password='*'", command) # type: ignore
+        filtered_command = re.sub("--password='?\w+'?", "--password='*'", command)  # type: ignore
         logger.info("SUBPROCESS STARTING: {}".format(str(filtered_command)))
         subprocess_args = self.command_to_args(command_str=command)
         # start the command subprocess
         cmd_start = datetime.datetime.now()
         with subprocess.Popen(subprocess_args, stdout=PIPE, stderr=STDOUT) as process:
             for line in process.stdout:  # type: ignore
-                logger.debug("[{}:{}] {}".format(subprocess_args[0], process.pid, line.decode("utf-8").strip("\n")))
-        logger.info("SUBPROCESS {} COMPLETED with exit code: {}".format(subprocess_args[0], process.returncode))
+                logger.debug(
+                    "[{}:{}] {}".format(
+                        subprocess_args[0],
+                        process.pid,
+                        line.decode("utf-8").strip("\n"),
+                    )
+                )
+        logger.info(
+            "SUBPROCESS {} COMPLETED with exit code: {}".format(
+                subprocess_args[0], process.returncode
+            )
+        )
         cmd_end = datetime.datetime.now()
         self.summarize_process(subprocess_args, cmd_start, cmd_end, process.returncode)
         # return True or False.
@@ -87,7 +104,9 @@ class ProcessHandler(GeneralClass):
         return args
 
     @staticmethod
-    def represent_duration(start_time: datetime.datetime, end_time: datetime.datetime) -> str:
+    def represent_duration(
+        start_time: datetime.datetime, end_time: datetime.datetime
+    ) -> str:
         # https://gist.github.com/thatalextaylor/7408395
         duration_delta = end_time - start_time
         seconds = int(duration_delta.seconds)
@@ -95,18 +114,21 @@ class ProcessHandler(GeneralClass):
         hours, seconds = divmod(seconds, 3600)
         minutes, seconds = divmod(seconds, 60)
         if days > 0:
-            return '%dd%dh%dm%ds' % (days, hours, minutes, seconds)
+            return "%dd%dh%dm%ds" % (days, hours, minutes, seconds)
         elif hours > 0:
-            return '%dh%dm%ds' % (hours, minutes, seconds)
+            return "%dh%dm%ds" % (hours, minutes, seconds)
         elif minutes > 0:
-            return '%dm%ds' % (minutes, seconds)
+            return "%dm%ds" % (minutes, seconds)
         else:
-            return '%ds' % (seconds,)
+            return "%ds" % (seconds,)
 
-    def summarize_process(self, args: typing.List[str],
-                          cmd_start: datetime.datetime,
-                          cmd_end: datetime.datetime, return_code: int) \
-            -> bool:
+    def summarize_process(
+        self,
+        args: typing.List[str],
+        cmd_start: datetime.datetime,
+        cmd_end: datetime.datetime,
+        return_code: int,
+    ) -> bool:
         cmd_root: str = args[0].split("/")[-1:][0]
         xtrabackup_function = None
         if cmd_root == "xtrabackup":
@@ -118,19 +140,23 @@ class ProcessHandler(GeneralClass):
                 xtrabackup_function = "prepare/apply-log-only"
         if not xtrabackup_function:
             for arg in args:
-                if re.search(r'(--decrypt)=?[\w]*', arg):
+                if re.search(r"(--decrypt)=?[\w]*", arg):
                     xtrabackup_function = "decrypt"
-                elif re.search(r'(--decompress)=?[\w]*', arg):
+                elif re.search(r"(--decompress)=?[\w]*", arg):
                     xtrabackup_function = "decompress"
 
         if cmd_root != "pigz":
             # this will be just the pigz --version call
-            self._xtrabackup_history_log.append([cmd_root,
-                                                 str(xtrabackup_function),
-                                                 cmd_start.strftime('%Y-%m-%d %H:%M:%S'),
-                                                 cmd_end.strftime('%Y-%m-%d %H:%M:%S'),
-                                                 self.represent_duration(cmd_start, cmd_end),
-                                                 str(return_code)])
+            self._xtrabackup_history_log.append(
+                [
+                    cmd_root,
+                    str(xtrabackup_function),
+                    cmd_start.strftime("%Y-%m-%d %H:%M:%S"),
+                    cmd_end.strftime("%Y-%m-%d %H:%M:%S"),
+                    self.represent_duration(cmd_start, cmd_end),
+                    str(return_code),
+                ]
+            )
         return True
 
 

@@ -157,6 +157,3 @@ texinfo_documents = [
      author, 'MySQLAutoXtrabackup', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-
-
