@@ -16,7 +16,3 @@ Read full documentation here(can be outdated):
 ----------------------------------------------
 
 [**MySQL-AutoXtrabackup documentation!**](https://autoxtrabackup.azepug.az/)
-
-
-
-		
