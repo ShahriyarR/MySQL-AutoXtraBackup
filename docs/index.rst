@@ -9,6 +9,7 @@ Welcome to MySQL-AutoXtrabackup's documentation!
 .. toctree::
    :maxdepth: 2
 
+   what_is_new_in_2_0
    intro
    basic_overview
    installation
@@ -16,8 +17,22 @@ Welcome to MySQL-AutoXtrabackup's documentation!
    basic_features
    backup_tags
    advance_features
-   test_mode
    option_reference
+
+.. automodule:: backup_backup
+   :members:
+
+.. automodule:: backup_prepare
+   :members:
+
+.. automodule:: general_conf
+   :members:
+
+.. automodule:: process_runner
+   :members:
+
+.. automodule:: utils
+   :members:
    
 Indices and tables
 ==================

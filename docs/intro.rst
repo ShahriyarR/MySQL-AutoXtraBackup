@@ -28,8 +28,7 @@ I have decided to recover only that table(partial recovery).
 But still did a bunch of manual tasks, which was quite time consuming process. That was the reason for
 implementing partial recovery functionality. So the necessary actions
 for restoring single table was added to automate this process as well.
-
-The recent thing is, --test-mode for testing XtraBackup[So it is for me, or for somebody who wants to find bug in XtraBackup]
+[Although, this concept a bit advance, so you should know what you are doing]
 
 If you think that those reasons are not enough - Then just believe me
 you need this :)
@@ -39,7 +38,6 @@ Is it production ready?
 
 Well, we have famous answer for this - "It depends!".
 Basically this tool is based on Percona XtraBackup and it is using XtraBackup's
-functionalities, there is also a 'mysqlfrm' (from mysql-utilities) tool
-usage which is quite safe, happy tool.
+functionality.
 For me, I have used it in production environment after testing for a while in test servers.
 But to be clear, just test it enough to be confident.

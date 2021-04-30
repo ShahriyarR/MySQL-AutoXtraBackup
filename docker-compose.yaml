@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+  api_v1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: autoxtrabackup_apiv1
+    volumes:
+    - /dev/log:/dev/log
+    - /var/lib/mysql:/var/lib/mysql
+    - /var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock
+    - /usr/bin/mysqladmin:/usr/bin/mysqladmin
+    - /usr/bin/mysql:/usr/bin/mysql
+    ports:
+    - "80:80"
+    network_mode: host
+
+

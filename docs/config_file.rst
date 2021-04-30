@@ -36,7 +36,7 @@ The [MySQL] category is for specifying information about MySQL instance.
 
 
 [Logging]
---------
+---------
 
 Options for logging mechanism of tool.(added in 1.5.4 version)
 
@@ -87,13 +87,13 @@ The [Backup] category is for specifying information about backup/prepare process
 +----------------------+----------+-----------------------------------------------------------------------------+
 | pid_dir              | no       | Directory where the PID file will be created in                             |
 +----------------------+----------+-----------------------------------------------------------------------------+
-| tmp_dir               | yes       | Used for moving current running mysql-datadir to when copying-back          |
+| tmp_dir               | yes     | Used for moving current running mysql-datadir to when copying-back          |
 |                      |          | (restoring) an archive                                                      |
 +----------------------+----------+-----------------------------------------------------------------------------+
-| backup_dir            | yes      | Directory will be used for storing the backups. Subdirs ./full and ./inc    |
+| backup_dir            | yes     | Directory will be used for storing the backups. Subdirs ./full and ./inc    |
 |                      |          | will be created                                                             |
 +----------------------+----------+-----------------------------------------------------------------------------+
-| backup_tool          | yes       | Full path to Percona xtrabackup executable used when making backup          |
+| backup_tool          | yes      | Full path to Percona xtrabackup executable used when making backup          |
 +----------------------+----------+-----------------------------------------------------------------------------+
 | prepare_tool         | no       | Full path to Percona xtrabackup executable used when preparing (restoring)  |
 +----------------------+----------+-----------------------------------------------------------------------------+
@@ -186,7 +186,7 @@ The options will be passed to XtraBackup.
     #remote_stream = ssh xxx.xxx.xxx.xxx
 
 
-Deprecated feature, will be removed in next releases
+Deprecated feature, will be removed in next releases[Do not use]
 
 ::
 
@@ -208,27 +208,6 @@ The [Commands] category is for specifying some options for copy-back/restore act
     #Change user:group respectively
     chown_command=chown -R mysql:mysql
 
-[TestConf]
-----------
-
-The [TestConf] category is part of XtraBackup testing procedures and is not for daily usage.
-Will not be added to default autoxtrabackup.cnf(change in 1.5.4 version).
-So just ignore this, it is actually for myself :)
-
-::
-
-    # Do not touch; this is for --test_mode, which is testing for XtraBackup itself.
-    [TestConf]
-    ps_branches=5.5 5.6 5.7
-    pxb_branches=2.3 2.4
-    gitcmd=--recursive --depth=1 https://github.com/percona/percona-server.git
-    pxb_gitcmd=https://github.com/percona/percona-xtrabackup.git
-    testpath=/home/shahriyar.rzaev/XB_TEST/server_dir
-    incremental_count=3
-    #make_slaves=1
-    xb_configs=xb_2_4_ps_5_6.conf xb_2_4_ps_5_7.conf xb_2_3_ps_5_6.conf xb_2_3_ps_5_5.conf xb_2_4_ps_5_5.conf
-    default_mysql_options=--log-bin=mysql-bin,--log-slave-updates,--server-id={},--gtid-mode=ON,--enforce-gtid-consistency,--binlog-format=row
-    mysql_options=--innodb_buffer_pool_size=1G 2G 3G,--innodb_log_file_size=1G 2G 3G,--innodb_page_size=4K 8K 16K 32K 64K
 
 [1]: https://www.percona.com/doc/percona-xtrabackup/LATEST/xtrabackup_bin/incremental_backups.html#preparing-the-incremental-backups
 

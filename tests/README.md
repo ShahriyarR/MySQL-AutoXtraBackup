@@ -1,0 +1,1 @@
+# The place for testing this project. All you need is to checkout to your test branch and run docker.

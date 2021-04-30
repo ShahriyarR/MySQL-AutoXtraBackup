@@ -1,0 +1,18 @@
+version: "3.7"
+
+services:
+  api_v1:
+    build:
+      context: tests
+      dockerfile: Dockerfile
+      args:
+        GIT_BRANCH_NAME: ${GIT_BRANCH_NAME}
+    container_name: autoxtrabackup_apiv1_test
+    volumes:
+    - ./tests/entrypoint.sh:/entrypoint.sh
+    - /dev/log:/dev/log
+    ports:
+    - "8080:8080"
+    network_mode: host
+
+
