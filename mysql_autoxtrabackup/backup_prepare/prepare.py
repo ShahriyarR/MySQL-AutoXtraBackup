@@ -1,7 +1,8 @@
 import logging
 import os
 import time
-from typing import Optional, Union
+from typing import Optional
+from typing import Union
 
 from mysql_autoxtrabackup.backup_backup.backup_builder import \
     BackupBuilderChecker

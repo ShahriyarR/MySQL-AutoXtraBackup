@@ -1,7 +1,8 @@
 import logging
 import os
 import re
-from typing import Optional, Union
+from typing import Optional
+from typing import Union
 
 from mysql_autoxtrabackup.process_runner.process_runner import ProcessRunner
 from mysql_autoxtrabackup.utils.helpers import create_directory

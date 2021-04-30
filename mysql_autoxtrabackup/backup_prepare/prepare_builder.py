@@ -1,6 +1,7 @@
 import logging
 import os
-from typing import Optional, Tuple
+from typing import Optional
+from typing import Tuple
 
 from mysql_autoxtrabackup.general_conf import path_config
 from mysql_autoxtrabackup.general_conf.generalops import GeneralClass

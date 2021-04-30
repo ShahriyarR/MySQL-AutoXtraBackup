@@ -3,7 +3,8 @@
 
 import configparser
 from os import makedirs
-from os.path import exists, join
+from os.path import exists
+from os.path import join
 
 from . import path_config
 

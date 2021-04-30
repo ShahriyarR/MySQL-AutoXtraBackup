@@ -10,7 +10,8 @@ import os
 import shutil
 import time
 from datetime import datetime
-from typing import Optional, Union
+from typing import Optional
+from typing import Union
 
 from mysql_autoxtrabackup.backup_backup.backup_archive import BackupArchive
 from mysql_autoxtrabackup.backup_backup.backup_builder import \
@@ -18,7 +19,8 @@ from mysql_autoxtrabackup.backup_backup.backup_builder import \
 from mysql_autoxtrabackup.general_conf import path_config
 from mysql_autoxtrabackup.general_conf.check_env import CheckEnv
 from mysql_autoxtrabackup.process_runner.process_runner import ProcessRunner
-from mysql_autoxtrabackup.utils import helpers, mysql_cli
+from mysql_autoxtrabackup.utils import helpers
+from mysql_autoxtrabackup.utils import mysql_cli
 
 logger = logging.getLogger(__name__)
 

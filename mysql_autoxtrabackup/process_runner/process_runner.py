@@ -4,7 +4,8 @@ import re
 import shlex
 import subprocess
 import typing
-from subprocess import PIPE, STDOUT
+from subprocess import PIPE
+from subprocess import STDOUT
 
 from mysql_autoxtrabackup.general_conf import path_config
 from mysql_autoxtrabackup.general_conf.generalops import GeneralClass

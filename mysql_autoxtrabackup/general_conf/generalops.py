@@ -1,7 +1,8 @@
 import configparser
 import logging
 from os.path import isfile
-from typing import Dict, Union
+from typing import Dict
+from typing import Union
 
 import humanfriendly  # type: ignore
 
