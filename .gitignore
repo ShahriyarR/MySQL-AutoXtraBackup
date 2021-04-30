@@ -10,6 +10,7 @@ __pycache__/
 .Python
 env/
 build/
+_build
 develop-eggs/
 dist/
 downloads/
@@ -93,3 +94,6 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# Local Netlify folder
+.netlify
