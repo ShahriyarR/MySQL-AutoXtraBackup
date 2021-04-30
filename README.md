@@ -3,7 +3,9 @@ MySQL-AutoXtrabackup
 
 MySQL AutoXtrabackup commandline tool written in Python 3.
 The source code fully typed with hints - structured the project mostly similar to awesome [FastAPI](https://fastapi.tiangolo.com/) 
+
 For community from Azerbaijan MySQL User Community: [Python Azerbaijan Community](https://www.facebook.com/groups/python.az).
+
 For any question please open an issue here.
 
 Development:
