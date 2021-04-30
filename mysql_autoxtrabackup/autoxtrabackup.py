@@ -42,9 +42,9 @@ def print_version(ctx: click.Context, param: None, value: bool) -> None:
     if not value or ctx.resilient_parsing:
         return
     click.echo(
-        "Developed by Shahriyar Rzayev from Azerbaijan MUG(http://mysql.az)")
+        "Developed by Shahriyar Rzayev from Azerbaijan PUG(http://azepug.az)")
     click.echo("Link : https://github.com/ShahriyarR/MySQL-AutoXtraBackup")
-    click.echo("Email: rzayev.shahriyar@yandex.com")
+    click.echo("Email: rzayev.sehriyar@gmail.com")
     click.echo(
         "Based on Percona XtraBackup: https://github.com/percona/percona-xtrabackup/")
     click.echo('MySQL-AutoXtraBackup Version: 2.0')

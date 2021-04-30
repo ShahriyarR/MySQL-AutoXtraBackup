@@ -6,7 +6,6 @@ from typing import Union
 
 from mysql_autoxtrabackup.backup_backup.backup_builder import \
     BackupBuilderChecker
-from mysql_autoxtrabackup.backup_prepare.prepare import Prepare
 from mysql_autoxtrabackup.general_conf import path_config
 from mysql_autoxtrabackup.general_conf.generalops import GeneralClass
 from mysql_autoxtrabackup.process_runner.process_runner import ProcessRunner
