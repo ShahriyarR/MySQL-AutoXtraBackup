@@ -11,7 +11,7 @@ Read discussions about feature requests below:
 So basically how to take backups and create a tag for it?
 
 Taking full backup:
-------------------
+-------------------
 
 ::
 
@@ -20,7 +20,7 @@ Taking full backup:
     -l DEBUG --defaults-file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --backup
 
 Taking incremental one:
-----------------------
+-----------------------
 
 ::
 
@@ -29,7 +29,7 @@ Taking incremental one:
     -l DEBUG --defaults-file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --backup
 
 Taking second incremental:
--------------------------
+--------------------------
 
 ::
 
@@ -38,7 +38,7 @@ Taking second incremental:
     -l DEBUG --defaults-file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.conf --backup
 
 To list available tags(backups):
--------------------------------
+--------------------------------
 For eg, if full backup failed, the result will be something like this:
 
 ::

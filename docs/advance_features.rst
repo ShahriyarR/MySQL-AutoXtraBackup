@@ -1,13 +1,13 @@
-Advanced features
+Advance features
 =================
 
-Compressed backups:
--------------------
+Compressed backups
+------------------
 
 To enable compression support just uncomment the options under
 [Compress] category inside main configuration file:
 
-.. code-block:: shell
+::
 
     [Compress]
     #Optional
@@ -48,7 +48,7 @@ Partial backups
 
 It is possible to take partial full and incremental backups. The idea is, to take specified table(or database) as full backup,
 then to take incremental backups based on this one table.
-You can achieve this by enabling ``partial_list`` option from cnfig file:
+You can achieve this by enabling ``partial_list`` option from config file:
 
 
 ::
@@ -85,7 +85,7 @@ Run it and notice that backup command has changed (see ``--databases`` option fo
 
 In the same way you can take incremental backup of specified tables.
 
-The prepare process is the same as ordinary prepare, just run autoxtrabackup with ``--prepare`` option, you can even restore this single table using ``--partial`` option.
+The prepare process is the same as ordinary prepare, just run autoxtrabackup with ``--prepare`` option.
 
 Decompressing and Decrypting backups
 ------------------------------------
@@ -98,7 +98,8 @@ All backups first will be decrypted then decompressed and then
 prepared.
 You can also optionally enable ``--remove-original`` option to
 remove ``.xbcrypt`` and ``.qp`` files from backup directory during prepare
-process. Read about this option here -> `--remove-original <https://www.percona.com/doc/percona-xtrabackup/2.4/xtrabackup_bin/xbk_option_reference.html#cmdoption-xtrabackup-remove-original>`_
+process.
+Read about this option here -> `--remove-original <https://www.percona.com/doc/percona-xtrabackup/2.4/xtrabackup_bin/xbk_option_reference.html#cmdoption-xtrabackup-remove-original>`_
 
 autoxtrabackup with --dry_run option
 ------------------------------------

@@ -36,7 +36,7 @@ The [MySQL] category is for specifying information about MySQL instance.
 
 
 [Logging]
---------
+---------
 
 Options for logging mechanism of tool.(added in 1.5.4 version)
 
@@ -87,13 +87,13 @@ The [Backup] category is for specifying information about backup/prepare process
 +----------------------+----------+-----------------------------------------------------------------------------+
 | pid_dir              | no       | Directory where the PID file will be created in                             |
 +----------------------+----------+-----------------------------------------------------------------------------+
-| tmp_dir               | yes       | Used for moving current running mysql-datadir to when copying-back          |
+| tmp_dir               | yes     | Used for moving current running mysql-datadir to when copying-back          |
 |                      |          | (restoring) an archive                                                      |
 +----------------------+----------+-----------------------------------------------------------------------------+
-| backup_dir            | yes      | Directory will be used for storing the backups. Subdirs ./full and ./inc    |
+| backup_dir            | yes     | Directory will be used for storing the backups. Subdirs ./full and ./inc    |
 |                      |          | will be created                                                             |
 +----------------------+----------+-----------------------------------------------------------------------------+
-| backup_tool          | yes       | Full path to Percona xtrabackup executable used when making backup          |
+| backup_tool          | yes      | Full path to Percona xtrabackup executable used when making backup          |
 +----------------------+----------+-----------------------------------------------------------------------------+
 | prepare_tool         | no       | Full path to Percona xtrabackup executable used when preparing (restoring)  |
 +----------------------+----------+-----------------------------------------------------------------------------+

@@ -30,6 +30,8 @@ Welcome to MySQL-AutoXtrabackup's documentation!
 .. automodule:: process_runner
    :members:
 
+.. automodule:: utils
+   :members:
    
 Indices and tables
 ==================

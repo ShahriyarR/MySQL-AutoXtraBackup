@@ -52,7 +52,9 @@ test = [
 ]
 
 doc = [
-    "sphinx"
+    "sphinx",
+    "sphinx_rtd_theme",
+    "sphinx-autobuild",
 ]
 
 dev = [
