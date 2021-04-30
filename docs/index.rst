@@ -9,6 +9,7 @@ Welcome to MySQL-AutoXtrabackup's documentation!
 .. toctree::
    :maxdepth: 2
 
+   what_is_new_in_2_0
    intro
    basic_overview
    installation
