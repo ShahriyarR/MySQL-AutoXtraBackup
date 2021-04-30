@@ -1,8 +1,8 @@
 # example netlify.toml
 [build]
-  command = "make html"
+  command = "bash scripts/netlify-docs.sh"
   functions = "netlify/functions"
-  publish = "_build/html"
+  publish = "docs/_build/html"
 
   ## Uncomment to use this redirect for Single Page Applications like create-react-app.
   ## Not needed for static site generators.
