@@ -1,1 +1,0 @@
-Added change handler for each release(so-called HISTORY.md)

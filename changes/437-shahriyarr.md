@@ -1,1 +1,0 @@
-New option --run-server was added to start API server.
