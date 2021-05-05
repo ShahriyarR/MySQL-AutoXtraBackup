@@ -13,6 +13,7 @@ from mysql_autoxtrabackup.general_conf.generalops import GeneralClass
 from mysql_autoxtrabackup.backup_backup.backuper import Backup
 from mysql_autoxtrabackup.process_runner.process_runner import ProcessRunner
 from mysql_autoxtrabackup.api import main
+from mysql_autoxtrabackup.utils import version
 from logging.handlers import RotatingFileHandler
 from sys import exit
 from sys import platform as _platform
@@ -48,7 +49,7 @@ def print_version(ctx: click.Context, param: None, value: bool) -> None:
     click.echo("Email: rzayev.sehriyar@gmail.com")
     click.echo(
         "Based on Percona XtraBackup: https://github.com/percona/percona-xtrabackup/")
-    click.echo('MySQL-AutoXtraBackup Version: 2.0')
+    click.echo(f'MySQL-AutoXtraBackup Version: {version.VERSION}')
     ctx.exit()
 
 
