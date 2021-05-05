@@ -12,6 +12,7 @@ from mysql_autoxtrabackup.general_conf import path_config
 from mysql_autoxtrabackup.general_conf.generalops import GeneralClass
 from mysql_autoxtrabackup.backup_backup.backuper import Backup
 from mysql_autoxtrabackup.process_runner.process_runner import ProcessRunner
+from mysql_autoxtrabackup.api import main
 from logging.handlers import RotatingFileHandler
 from sys import exit
 from sys import platform as _platform
@@ -22,7 +23,7 @@ destinations_hash = {'linux': '/dev/log', 'linux2': '/dev/log', 'darwin': '/var/
 
 
 def address_matcher(plt: str) -> str:
-    return destinations_hash.get(plt, ('localhost', 514)) # type: ignore
+    return destinations_hash.get(plt, ('localhost', 514))  # type: ignore
 
 
 handler = logging.handlers.SysLogHandler(address=address_matcher(_platform))
@@ -111,6 +112,7 @@ def validate_file(file: str) -> Optional[bool]:
 @click.command()
 @click.option('--dry-run', is_flag=True, help="Enable the dry run.")
 @click.option('--prepare', is_flag=True, help="Prepare/recover backups.")
+@click.option('--run-server', is_flag=True, help="Start the FastAPI app for serving API")
 @click.option('--backup',
               is_flag=True,
               help="Take full and incremental backups.")
@@ -123,7 +125,7 @@ def validate_file(file: str) -> Optional[bool]:
 @click.option('--defaults-file',
               default=path_config.config_path_file,
               show_default=True,
-              help="Read options from the given file") # type: ignore
+              help="Read options from the given file")  # type: ignore
 @click.option('--tag',
               help="Pass the tag string for each backup")
 @click.option('--show-tags',
@@ -166,7 +168,7 @@ def validate_file(file: str) -> Optional[bool]:
               is_eager=False,
               help="Print help message and exit.")
 @click.pass_context
-def all_procedure(ctx, prepare, backup, tag, show_tags,
+def all_procedure(ctx, prepare, backup, run_server, tag, show_tags,
                   verbose, log_file, log, defaults_file,
                   dry_run, log_file_max_bytes,
                   log_file_backup_count):
@@ -220,9 +222,12 @@ def all_procedure(ctx, prepare, backup, tag, show_tags,
                     backup is False and
                     verbose is False and
                     dry_run is False and
-                    show_tags is False):
+                    show_tags is False and
+                    run_server is False):
                 print_help(ctx, None, value=True)
 
+            elif run_server:
+                main.run_server()
             elif show_tags and defaults_file:
                 backup_ = Backup(config=defaults_file)
                 backup_.show_tags(backup_dir=str(backup_options.get('backup_dir')))
