@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 
 from mysql_autoxtrabackup.api.controller.controller import router
+from mysql_autoxtrabackup.utils.version import VERSION
 
 app = FastAPI()
 
@@ -27,7 +28,7 @@ def modify_openapi() -> Dict[str, Any]:
         return app.openapi_schema
     openapi_schema = get_openapi(
         title="MySQL-AutoXtrabackup",
-        version="2.0",
+        version=f"{VERSION}",
         description="Rest API doc for MySQL-AutoXtrabackup",
         routes=app.routes,
     )
