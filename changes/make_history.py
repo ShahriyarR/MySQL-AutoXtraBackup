@@ -31,7 +31,7 @@ if not bullet_list:
     print('no changes found')
     sys.exit(0)
 
-version = SourceFileLoader('version', 'pydantic/version.py').load_module()
+version = SourceFileLoader('version', 'mysql_autoxtrabackup/utils/version.py').load_module()
 chunk_title = f'v{version.VERSION} ({date.today():%Y-%m-%d})'
 new_chunk = '## {}\n\n{}\n\n'.format(chunk_title, '\n'.join(c for *_, c in sorted(bullet_list, reverse=True)))
 
