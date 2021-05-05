@@ -18,6 +18,7 @@ Welcome to MySQL-AutoXtrabackup's documentation!
    backup_tags
    advance_features
    option_reference
+   api
 
 .. automodule:: backup_backup
    :members:
@@ -33,7 +34,11 @@ Welcome to MySQL-AutoXtrabackup's documentation!
 
 .. automodule:: utils
    :members:
-   
+
+.. automodule:: api
+   :members:
+
+
 Indices and tables
 ==================
 

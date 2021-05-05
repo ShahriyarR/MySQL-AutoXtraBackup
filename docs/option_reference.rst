@@ -11,20 +11,24 @@ The command line options to use:
     Options:
       --dry-run                       Enable the dry run.
       --prepare                       Prepare/recover backups.
+      --run-server                    Start the FastAPI app for serving API
       --backup                        Take full and incremental backups.
       --version                       Version information.
       --defaults-file TEXT            Read options from the given file  [default: /
                                       home/shako/.autoxtrabackup/autoxtrabackup.cn
                                       f]
+
       --tag TEXT                      Pass the tag string for each backup
       --show-tags                     Show backup tags and exit
       -v, --verbose                   Be verbose (print to console)
       -lf, --log-file TEXT            Set log file  [default: /home/shako/.autoxtr
                                       abackup/autoxtrabackup.log]
+
       -l, --log, --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                       Set log level  [default: INFO]
       --log-file-max-bytes INTEGER    Set log file max size in bytes  [default:
                                       1073741824]
+
       --log-file-backup-count INTEGER
                                       Set log file backup count  [default: 7]
       --help                          Print help message and exit.
@@ -44,6 +48,11 @@ prepare
 --prepare
 This option is for prepare and copy-back(recover) the backup.
 
+run-server
+----------
+
+--run-server
+This option is for starting API server[Defaults are localhost and port 5555]
 
 backup
 ------

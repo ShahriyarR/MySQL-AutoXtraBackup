@@ -1,12 +1,23 @@
-from fastapi import APIRouter
-from fastapi import status
+from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
+from starlette.responses import RedirectResponse
 
 from mysql_autoxtrabackup.backup_backup.backuper import Backup
 from mysql_autoxtrabackup.backup_prepare.prepare import Prepare
 from mysql_autoxtrabackup.utils.helpers import list_available_backups
 
 router = APIRouter()
+
+
+@router.get(
+    "/",
+    tags=["MySQL-AutoXtrabackup"],
+    response_description="Home Page",
+    description="Redirecting to DOC",
+    include_in_schema=False,
+)
+async def home() -> RedirectResponse:
+    return RedirectResponse(url="/docs")
 
 
 @router.post(

@@ -22,14 +22,6 @@ backups. Then I decided to automate this process. In other words,
 preparing necessary commands for backup and prepare stage were
 automated.
 
-After a while, there was an issue, the log table was dropped on test
-server for testing our reaction speed :)
-I have decided to recover only that table(partial recovery).
-But still did a bunch of manual tasks, which was quite time consuming process. That was the reason for
-implementing partial recovery functionality. So the necessary actions
-for restoring single table was added to automate this process as well.
-[Although, this concept a bit advance, so you should know what you are doing]
-
 If you think that those reasons are not enough - Then just believe me
 you need this :)
 

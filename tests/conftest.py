@@ -1,6 +1,5 @@
 import pytest
-
-from backup_backup.backuper import Backup
+from mysql_autoxtrabackup.backup_backup.backuper import Backup
 
 bck_obj = Backup()
 
