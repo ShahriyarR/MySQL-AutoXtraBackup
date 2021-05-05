@@ -1,0 +1,1 @@
+Added new version.py file for getting the exact version from one place
