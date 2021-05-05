@@ -10,15 +10,15 @@ backups, also for preparing backups, as well as to restore. Here is project path
 
 ::
 
-    * backup_backup  -- Full and Incremental backup taker script.
-    * backup_prepare        -- Backup prepare and restore script.
-    * general_conf          -- All-in-one config file's and config reader class folder.
-    * process_runner        -- The directory for process runner script.
-    * test                  -- The directory for test things.
-    * setup.py              -- Setuptools Setup file.
-    * autoxtrabackup.py     -- Commandline Tool provider script.
-    * VagrantFile           -- The Vagrant thing for starting using this tool[will be useful to contributors].
-    * ~/.autoxtrabackup/autoxtrabackup.cnf        -- Config file will be created during setup.
+    * mysql_autoxtrabackup                       -- source directory
+    * mysql_autoxtrabackup/backup_backup         -- Full and Incremental backup taker script.
+    * mysql_autoxtrabackup/backup_prepare        -- Backup prepare and restore script.
+    * mysql_autoxtrabackup/general_conf          -- All-in-one config file's and config reader class folder.
+    * mysql_autoxtrabackup/process_runner        -- The directory for process runner script.
+    * mysql_autoxtrabackup/autoxtrabackup.py     -- Commandline Tool provider script.
+    * mysql_autoxtrabackup/api                   -- The API server written in FastAPI.
+    * tests                                      -- The directory for test things.
+    * ~/.autoxtrabackup/autoxtrabackup.cnf       -- Config file will be created during setup.
 
 
 Available Options
@@ -32,20 +32,24 @@ Available Options
     Options:
       --dry-run                       Enable the dry run.
       --prepare                       Prepare/recover backups.
+      --run-server                    Start the FastAPI app for serving API
       --backup                        Take full and incremental backups.
       --version                       Version information.
       --defaults-file TEXT            Read options from the given file  [default: /
                                       home/shako/.autoxtrabackup/autoxtrabackup.cn
                                       f]
+
       --tag TEXT                      Pass the tag string for each backup
       --show-tags                     Show backup tags and exit
       -v, --verbose                   Be verbose (print to console)
       -lf, --log-file TEXT            Set log file  [default: /home/shako/.autoxtr
                                       abackup/autoxtrabackup.log]
+
       -l, --log, --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                       Set log level  [default: INFO]
       --log-file-max-bytes INTEGER    Set log file max size in bytes  [default:
                                       1073741824]
+
       --log-file-backup-count INTEGER
                                       Set log file backup count  [default: 7]
       --help                          Print help message and exit.

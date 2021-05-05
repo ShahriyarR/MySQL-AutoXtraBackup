@@ -111,7 +111,7 @@ Taking backup:
 ::
 
 
-        $ autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log -l DEBUG \
+        $ sudo autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log -l DEBUG \
         --defaults-file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.cnf --backup --dry_run
 
 
@@ -120,7 +120,7 @@ Preparing backups:
 ::
 
 
-        $ autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log -l DEBUG \
+        $ sudo autoxtrabackup -v -lf /home/shahriyar.rzaev/autoxtrabackup_2_3_5_6.log -l DEBUG \
         --defaults-file=/home/shahriyar.rzaev/XB_TEST/server_dir/xb_2_4_ps_5_7.cnf --prepare --dry_run
 
 

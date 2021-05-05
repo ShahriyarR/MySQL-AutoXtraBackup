@@ -6,7 +6,7 @@ Backup
 
 Yes you are right, this tool is for taking backups.
 It should take care for automating this process for you.
-You can specify the backup directory in config file (default /etc/bck.conf) under [Backup] category.
+You can specify the backup directory in config file (default  ~/.autoxtrabackup/autoxtrabackup.cnf) under [Backup] category.
 So you have prepared your config and now you are ready for start.
 
 The command for taking full backup with DEBUG enabled, i.e first run of the tool.
@@ -81,7 +81,7 @@ For now let's choose 1:
 
 ::
 
-    $ sudo /home/shako/REPOS/MySQL-AutoXtraBackup/.venv/bin/autoxtrabackup --prepare -v -l DEBUG
+    $ sudo `which autoxtrabackup` --prepare -v -l DEBUG
 
 
 That's it. Your backup is ready to restore/recovery.
