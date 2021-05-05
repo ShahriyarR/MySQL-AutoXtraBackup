@@ -1,8 +1,7 @@
 # Will store necessary checks and command building actions here
 import logging
 from os.path import isfile
-from typing import Optional
-from typing import Union
+from typing import Optional, Union
 
 from mysql_autoxtrabackup.general_conf import path_config
 from mysql_autoxtrabackup.general_conf.generalops import GeneralClass

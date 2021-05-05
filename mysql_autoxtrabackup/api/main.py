@@ -1,6 +1,6 @@
-from typing import Any
-from typing import Dict
+from typing import Any, Dict, Optional
 
+import uvicorn  # type: ignore
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 
@@ -38,3 +38,13 @@ def modify_openapi() -> Dict[str, Any]:
 app.openapi = modify_openapi  # type: ignore
 
 app.include_router(router)
+
+
+def run_server(host: Optional[str] = None, port: Optional[int] = None) -> None:
+    host = host or "127.0.0.1"
+    port = port or 5555
+    uvicorn.run(app, host=host, port=port)
+
+
+if __name__ == "__main__":
+    run_server()
