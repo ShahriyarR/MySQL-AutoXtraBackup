@@ -214,7 +214,7 @@ class BackupBuilderChecker:
         self,
         recent_full_bck: Optional[str],
         inc_backup_dir: Optional[str],
-        recent_inc_bck: Union[str, None] = None,
+        recent_inc_bck: Optional[str] = None,
     ) -> str:
         xtrabackup_inc_cmd_base = (
             "{} --defaults-file={} --user={} --password={}".format(

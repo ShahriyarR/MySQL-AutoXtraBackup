@@ -118,20 +118,19 @@ class Backup:
                 "WARNING: Could not find backup_tags.txt inside given backup directory. Can't print tags."
             )
 
-    def last_full_backup_date(self) -> bool:
+    def last_full_backup_date(self, path: Optional[str] = None, full_backup_interval: Optional[float] = None) -> bool:
         """
         Check if last full backup date retired or not.
         :return: True if last full backup date older than given interval, False if it is newer.
         """
         # Finding last full backup date from dir/folder name
-        max_dir = helpers.get_latest_dir_name(
-            str(self.builder_obj.backup_options.get("full_dir"))
-        )
+        full_dir = path or str(self.builder_obj.backup_options.get("full_dir"))
+        backup_interval = full_backup_interval or str(self.builder_obj.backup_options.get("full_backup_interval"))
+        max_dir = helpers.get_latest_dir_name(full_dir)
+
         dir_date = datetime.strptime(str(max_dir), "%Y-%m-%d_%H-%M-%S")
         now = datetime.now()
-        return float((now - dir_date).total_seconds()) >= float(
-            str(self.builder_obj.backup_options.get("full_backup_interval"))
-        )
+        return float((now - dir_date).total_seconds()) >= float(backup_interval)
 
     def clean_full_backup_dir(
         self,
@@ -142,9 +141,7 @@ class Backup:
         # Keeping the latest in order not to lose everything.
         logger.info("starting clean_full_backup_dir")
         full_dir = full_dir or str(self.builder_obj.backup_options.get("full_dir"))
-        print(full_dir)
         if not os.path.isdir(full_dir):
-            print("stacked here")
             return True
         if remove_all:
             for i in os.listdir(full_dir):
@@ -157,16 +154,13 @@ class Backup:
             if i != max(os.listdir(full_dir)):
                 shutil.rmtree(rm_dir)
                 logger.info("DELETING {}".format(rm_dir))
-                print("Deleting!")
-                return True
             else:
                 logger.info("KEEPING {}".format(rm_dir))
-                print("KEEPING")
-        return None
+        return True
 
-    def clean_inc_backup_dir(self) -> Union[None, bool]:
+    def clean_inc_backup_dir(self, inc_dir: Optional[str] = None) -> Optional[bool]:
         # Deleting incremental backups after taking new fresh full backup.
-        inc_dir = str(self.builder_obj.backup_options.get("inc_dir"))
+        inc_dir = inc_dir or str(self.builder_obj.backup_options.get("inc_dir"))
         if not os.path.isdir(inc_dir):
             return True
         for i in os.listdir(inc_dir):
@@ -223,6 +217,9 @@ class Backup:
         recent_full_bck = helpers.get_latest_dir_name(
             str(self.builder_obj.backup_options.get("full_dir"))
         )
+        if not recent_full_bck:
+            raise RuntimeError("Failed to get Full backup path. Are you sure you have one?")
+
         # Get the recent incremental backup path
         recent_inc_bck = helpers.get_latest_dir_name(
             str(self.builder_obj.backup_options.get("inc_dir"))
