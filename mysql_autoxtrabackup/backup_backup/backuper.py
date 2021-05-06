@@ -118,14 +118,18 @@ class Backup:
                 "WARNING: Could not find backup_tags.txt inside given backup directory. Can't print tags."
             )
 
-    def last_full_backup_date(self, path: Optional[str] = None, full_backup_interval: Optional[float] = None) -> bool:
+    def last_full_backup_date(
+        self, path: Optional[str] = None, full_backup_interval: Optional[float] = None
+    ) -> bool:
         """
         Check if last full backup date retired or not.
         :return: True if last full backup date older than given interval, False if it is newer.
         """
         # Finding last full backup date from dir/folder name
         full_dir = path or str(self.builder_obj.backup_options.get("full_dir"))
-        backup_interval = full_backup_interval or str(self.builder_obj.backup_options.get("full_backup_interval"))
+        backup_interval = full_backup_interval or str(
+            self.builder_obj.backup_options.get("full_backup_interval")
+        )
         max_dir = helpers.get_latest_dir_name(full_dir)
 
         dir_date = datetime.strptime(str(max_dir), "%Y-%m-%d_%H-%M-%S")
@@ -218,7 +222,9 @@ class Backup:
             str(self.builder_obj.backup_options.get("full_dir"))
         )
         if not recent_full_bck:
-            raise RuntimeError("Failed to get Full backup path. Are you sure you have one?")
+            raise RuntimeError(
+                "Failed to get Full backup path. Are you sure you have one?"
+            )
 
         # Get the recent incremental backup path
         recent_inc_bck = helpers.get_latest_dir_name(

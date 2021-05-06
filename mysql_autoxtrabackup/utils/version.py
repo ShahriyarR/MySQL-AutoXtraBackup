@@ -1,3 +1,3 @@
-__all__ = 'VERSION'
+__all__ = "VERSION"
 
-VERSION = '2.0.1'
+VERSION = "2.0.2"
