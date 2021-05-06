@@ -51,13 +51,16 @@ def get_directory_size(path: str) -> int:
     return total_size
 
 
-def create_backup_directory(directory: str) -> str:
+def create_backup_directory(directory: str, forced_dir: Optional[str] = None) -> str:
     """
     Function for creating timestamped directory on given path
     :param directory: Directory path
+    :param forced_dir: Full Directory path forced to be created
     :return: Created new directory path
     """
     new_dir = os.path.join(directory, datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+    if forced_dir:
+        new_dir = os.path.join(directory, forced_dir)
     try:
         # Creating directory
         os.makedirs(new_dir)
