@@ -22,8 +22,41 @@ backups. Then I decided to automate this process. In other words,
 preparing necessary commands for backup and prepare stage were
 automated.
 
+We have nice CLI with necessary options:
+
+```
+autoxtrabackup --help
+Usage: autoxtrabackup [OPTIONS]
+
+Options:
+  --dry-run                       Enable the dry run.
+  --prepare                       Prepare/recover backups.
+  --run-server                    Start the FastAPI app for serving API
+  --backup                        Take full and incremental backups.
+  --version                       Version information.
+  --defaults-file TEXT            Read options from the given file  [default: /
+                                  home/shako/.autoxtrabackup/autoxtrabackup.cn
+                                  f]
+
+  --tag TEXT                      Pass the tag string for each backup
+  --show-tags                     Show backup tags and exit
+  -v, --verbose                   Be verbose (print to console)
+  -lf, --log-file TEXT            Set log file  [default: /home/shako/.autoxtr
+                                  abackup/autoxtrabackup.log]
+
+  -l, --log, --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Set log level  [default: INFO]
+  --log-file-max-bytes INTEGER    Set log file max size in bytes  [default:
+                                  1073741824]
+
+  --log-file-backup-count INTEGER
+                                  Set log file backup count  [default: 7]
+  --help                          Print help message and exit.
+```
+
+
 If you think, CLI is not for you. We have experimental feature where you can start API server 
-and take backups using API call.
+and take backups using API call(ATTENTION: FastAPI involved)
 
 ```
 sudo `which autoxtrabackup` --run-server
@@ -46,6 +79,7 @@ Development:
 
 Current major version is >= 2.0 - so if you want to help, please do changes on this branch and then kindly send PR :)
 I also encourage you to upgrade from older version as the code base fully updated.
+Do you have an idea, question please open an issue.
 
 Read full documentation here:
 ----------------------------------------------

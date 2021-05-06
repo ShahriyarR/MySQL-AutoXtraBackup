@@ -94,8 +94,9 @@ class Backup:
         return True
 
     @staticmethod
-    def show_tags(backup_dir: str) -> None:
-        if os.path.isfile("{}/backup_tags.txt".format(backup_dir)):
+    def show_tags(backup_dir: str, tag_file: Optional[str] = None) -> Optional[bool]:
+        tag_file = tag_file or "{}/backup_tags.txt".format(backup_dir)
+        if os.path.isfile(tag_file):
             with open("{}/backup_tags.txt".format(backup_dir), "r") as backup_tags:
                 from_file = backup_tags.read()
             column_names = "{0}\t{1}\t{2}\t{3}\t{4}\tTAG\n".format(
@@ -108,6 +109,7 @@ class Backup:
             extra_str = "{}\n".format("-" * (len(column_names) + 21))
             print(column_names + extra_str + from_file)
             logger.info(column_names + extra_str + from_file)
+            return True
         else:
             logger.warning(
                 "Could not find backup_tags.txt inside given backup directory. Can't print tags."
@@ -115,29 +117,35 @@ class Backup:
             print(
                 "WARNING: Could not find backup_tags.txt inside given backup directory. Can't print tags."
             )
+        return None
 
-    def last_full_backup_date(self) -> bool:
+    def last_full_backup_date(
+        self, path: Optional[str] = None, full_backup_interval: Optional[float] = None
+    ) -> bool:
         """
         Check if last full backup date retired or not.
         :return: True if last full backup date older than given interval, False if it is newer.
         """
         # Finding last full backup date from dir/folder name
-        max_dir = helpers.get_latest_dir_name(
-            str(self.builder_obj.backup_options.get("full_dir"))
+        full_dir = path or str(self.builder_obj.backup_options.get("full_dir"))
+        backup_interval = full_backup_interval or str(
+            self.builder_obj.backup_options.get("full_backup_interval")
         )
+        max_dir = helpers.get_latest_dir_name(full_dir)
+
         dir_date = datetime.strptime(str(max_dir), "%Y-%m-%d_%H-%M-%S")
         now = datetime.now()
-        return float((now - dir_date).total_seconds()) >= float(
-            str(self.builder_obj.backup_options.get("full_backup_interval"))
-        )
+        return float((now - dir_date).total_seconds()) >= float(backup_interval)
 
     def clean_full_backup_dir(
-        self, remove_all: Union[bool, None] = None
-    ) -> Union[None, bool]:
+        self,
+        full_dir: Optional[str] = None,
+        remove_all: Optional[bool] = None,
+    ) -> Optional[bool]:
         # Deleting old full backup after taking new full backup.
         # Keeping the latest in order not to lose everything.
         logger.info("starting clean_full_backup_dir")
-        full_dir = str(self.builder_obj.backup_options.get("full_dir"))
+        full_dir = full_dir or str(self.builder_obj.backup_options.get("full_dir"))
         if not os.path.isdir(full_dir):
             return True
         if remove_all:
@@ -155,9 +163,9 @@ class Backup:
                 logger.info("KEEPING {}".format(rm_dir))
         return True
 
-    def clean_inc_backup_dir(self) -> Union[None, bool]:
+    def clean_inc_backup_dir(self, inc_dir: Optional[str] = None) -> Optional[bool]:
         # Deleting incremental backups after taking new fresh full backup.
-        inc_dir = str(self.builder_obj.backup_options.get("inc_dir"))
+        inc_dir = inc_dir or str(self.builder_obj.backup_options.get("inc_dir"))
         if not os.path.isdir(inc_dir):
             return True
         for i in os.listdir(inc_dir):
@@ -214,6 +222,11 @@ class Backup:
         recent_full_bck = helpers.get_latest_dir_name(
             str(self.builder_obj.backup_options.get("full_dir"))
         )
+        if not recent_full_bck:
+            raise RuntimeError(
+                "Failed to get Full backup path. Are you sure you have one?"
+            )
+
         # Get the recent incremental backup path
         recent_inc_bck = helpers.get_latest_dir_name(
             str(self.builder_obj.backup_options.get("inc_dir"))
