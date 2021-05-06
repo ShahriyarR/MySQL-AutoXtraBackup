@@ -117,6 +117,7 @@ class Backup:
             print(
                 "WARNING: Could not find backup_tags.txt inside given backup directory. Can't print tags."
             )
+        return None
 
     def last_full_backup_date(
         self, path: Optional[str] = None, full_backup_interval: Optional[float] = None
