@@ -20,8 +20,8 @@ import sys
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import sphinx_rtd_theme
-from mysql_autoxtrabackup.utils.version import VERSION
 
+from mysql_autoxtrabackup.utils.version import VERSION
 
 sys.path.insert(0, os.path.abspath("../mysql_autoxtrabackup"))
 

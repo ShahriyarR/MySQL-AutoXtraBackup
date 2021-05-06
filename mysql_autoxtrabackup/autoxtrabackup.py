@@ -3,21 +3,22 @@ import logging.handlers
 import os
 import re
 import time
-import click
-import humanfriendly  # type: ignore
-import pid  # type: ignore
-
-from mysql_autoxtrabackup.backup_prepare.prepare import Prepare
-from mysql_autoxtrabackup.general_conf import path_config
-from mysql_autoxtrabackup.general_conf.generalops import GeneralClass
-from mysql_autoxtrabackup.backup_backup.backuper import Backup
-from mysql_autoxtrabackup.process_runner.process_runner import ProcessRunner
-from mysql_autoxtrabackup.api import main
-from mysql_autoxtrabackup.utils import version
 from logging.handlers import RotatingFileHandler
 from sys import exit
 from sys import platform as _platform
 from typing import Optional
+
+import click
+import humanfriendly  # type: ignore
+import pid  # type: ignore
+
+from mysql_autoxtrabackup.api import main
+from mysql_autoxtrabackup.backup_backup.backuper import Backup
+from mysql_autoxtrabackup.backup_prepare.prepare import Prepare
+from mysql_autoxtrabackup.general_conf import path_config
+from mysql_autoxtrabackup.general_conf.generalops import GeneralClass
+from mysql_autoxtrabackup.process_runner.process_runner import ProcessRunner
+from mysql_autoxtrabackup.utils import version
 
 logger = logging.getLogger("")
 destinations_hash = {
@@ -112,68 +113,85 @@ def validate_file(file: str) -> Optional[bool]:
 
 
 @click.command()
-@click.option('--dry-run', is_flag=True, help="Enable the dry run.")
-@click.option('--prepare', is_flag=True, help="Prepare/recover backups.")
-@click.option('--run-server', is_flag=True, help="Start the FastAPI app for serving API")
-@click.option('--backup',
-              is_flag=True,
-              help="Take full and incremental backups.")
-@click.option('--version',
-              is_flag=True,
-              callback=print_version,  # type: ignore
-              expose_value=False,
-              is_eager=True,
-              help="Version information.")
-@click.option('--defaults-file',
-              default=path_config.config_path_file,
-              show_default=True,
-              help="Read options from the given file")  # type: ignore
-@click.option('--tag',
-              help="Pass the tag string for each backup")
-@click.option('--show-tags',
-              is_flag=True,
-              help="Show backup tags and exit")
-@click.option('-v', '--verbose', is_flag=True,
-              help="Be verbose (print to console)")
-@click.option('-lf',
-              '--log-file',
-              default=path_config.log_file_path,
-              show_default=True,
-              help="Set log file")
-@click.option('-l',
-              '--log',
-              '--log-level',
-              default='INFO',
-              show_default=True,
-              type=click.Choice(['DEBUG',
-                                 'INFO',
-                                 'WARNING',
-                                 'ERROR',
-                                 'CRITICAL']),
-              help="Set log level")
-@click.option('--log-file-max-bytes',
-              default=1073741824,
-              show_default=True,
-              nargs=1,
-              type=int,
-              help="Set log file max size in bytes")
-@click.option('--log-file-backup-count',
-              default=7,
-              show_default=True,
-              nargs=1,
-              type=int,
-              help="Set log file backup count")
-@click.option('--help',
-              is_flag=True,
-              callback=print_help,  # type: ignore
-              expose_value=False,
-              is_eager=False,
-              help="Print help message and exit.")
+@click.option("--dry-run", is_flag=True, help="Enable the dry run.")
+@click.option("--prepare", is_flag=True, help="Prepare/recover backups.")
+@click.option(
+    "--run-server", is_flag=True, help="Start the FastAPI app for serving API"
+)
+@click.option("--backup", is_flag=True, help="Take full and incremental backups.")
+@click.option(
+    "--version",
+    is_flag=True,
+    callback=print_version,  # type: ignore
+    expose_value=False,
+    is_eager=True,
+    help="Version information.",
+)
+@click.option(
+    "--defaults-file",
+    default=path_config.config_path_file,  # type: ignore
+    show_default=True,
+    help="Read options from the given file",
+)
+@click.option("--tag", help="Pass the tag string for each backup")
+@click.option("--show-tags", is_flag=True, help="Show backup tags and exit")
+@click.option("-v", "--verbose", is_flag=True, help="Be verbose (print to console)")
+@click.option(
+    "-lf",
+    "--log-file",
+    default=path_config.log_file_path,
+    show_default=True,
+    help="Set log file",
+)
+@click.option(
+    "-l",
+    "--log",
+    "--log-level",
+    default="INFO",
+    show_default=True,
+    type=click.Choice(["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]),
+    help="Set log level",
+)
+@click.option(
+    "--log-file-max-bytes",
+    default=1073741824,
+    show_default=True,
+    nargs=1,
+    type=int,
+    help="Set log file max size in bytes",
+)
+@click.option(
+    "--log-file-backup-count",
+    default=7,
+    show_default=True,
+    nargs=1,
+    type=int,
+    help="Set log file backup count",
+)
+@click.option(
+    "--help",
+    is_flag=True,
+    callback=print_help,  # type: ignore
+    expose_value=False,
+    is_eager=False,
+    help="Print help message and exit.",
+)
 @click.pass_context
-def all_procedure(ctx, prepare, backup, run_server, tag, show_tags,
-                  verbose, log_file, log, defaults_file,
-                  dry_run, log_file_max_bytes,
-                  log_file_backup_count):
+def all_procedure(
+    ctx,
+    prepare,
+    backup,
+    run_server,
+    tag,
+    show_tags,
+    verbose,
+    log_file,
+    log,
+    defaults_file,
+    dry_run,
+    log_file_max_bytes,
+    log_file_backup_count,
+):
     options = GeneralClass(defaults_file)
     logging_options = options.logging_options
     backup_options = options.backup_options

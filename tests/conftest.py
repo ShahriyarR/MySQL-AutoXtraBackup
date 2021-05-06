@@ -1,8 +1,8 @@
 import pytest
-from mysql_autoxtrabackup.backup_backup.backuper import Backup
-from mysql_autoxtrabackup.api.main import app
 from fastapi.testclient import TestClient
 
+from mysql_autoxtrabackup.api.main import app
+from mysql_autoxtrabackup.backup_backup.backuper import Backup
 
 bck_obj = Backup()
 client = TestClient(app)
