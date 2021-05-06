@@ -94,8 +94,9 @@ class Backup:
         return True
 
     @staticmethod
-    def show_tags(backup_dir: str) -> None:
-        if os.path.isfile("{}/backup_tags.txt".format(backup_dir)):
+    def show_tags(backup_dir: str, tag_file: Optional[str] = None) -> Optional[bool]:
+        tag_file = tag_file or "{}/backup_tags.txt".format(backup_dir)
+        if os.path.isfile(tag_file):
             with open("{}/backup_tags.txt".format(backup_dir), "r") as backup_tags:
                 from_file = backup_tags.read()
             column_names = "{0}\t{1}\t{2}\t{3}\t{4}\tTAG\n".format(
@@ -108,6 +109,7 @@ class Backup:
             extra_str = "{}\n".format("-" * (len(column_names) + 21))
             print(column_names + extra_str + from_file)
             logger.info(column_names + extra_str + from_file)
+            return True
         else:
             logger.warning(
                 "Could not find backup_tags.txt inside given backup directory. Can't print tags."
@@ -132,13 +134,17 @@ class Backup:
         )
 
     def clean_full_backup_dir(
-        self, remove_all: Union[bool, None] = None
-    ) -> Union[None, bool]:
+        self,
+        full_dir: Optional[str] = None,
+        remove_all: Optional[bool] = None,
+    ) -> Optional[bool]:
         # Deleting old full backup after taking new full backup.
         # Keeping the latest in order not to lose everything.
         logger.info("starting clean_full_backup_dir")
-        full_dir = str(self.builder_obj.backup_options.get("full_dir"))
+        full_dir = full_dir or str(self.builder_obj.backup_options.get("full_dir"))
+        print(full_dir)
         if not os.path.isdir(full_dir):
+            print("stacked here")
             return True
         if remove_all:
             for i in os.listdir(full_dir):
@@ -151,9 +157,12 @@ class Backup:
             if i != max(os.listdir(full_dir)):
                 shutil.rmtree(rm_dir)
                 logger.info("DELETING {}".format(rm_dir))
+                print("Deleting!")
+                return True
             else:
                 logger.info("KEEPING {}".format(rm_dir))
-        return True
+                print("KEEPING")
+        return None
 
     def clean_inc_backup_dir(self) -> Union[None, bool]:
         # Deleting incremental backups after taking new fresh full backup.

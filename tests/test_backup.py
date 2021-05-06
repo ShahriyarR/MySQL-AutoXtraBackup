@@ -22,3 +22,24 @@ class TestBackup:
         assert os.path.isfile("{}/backup_tags.txt".format(return_bck_obj.builder_obj.backup_options.get('backup_dir')))
         with open("{}/backup_tags.txt".format(return_bck_obj.builder_obj.backup_options.get('backup_dir')), "r") as file:
             assert "My first full backup" in file.read()
+
+    def test_show_tags_with_wrong_file_name(self, return_bck_obj):
+        assert return_bck_obj.show_tags(return_bck_obj.builder_obj.backup_options.get('backup_dir'), "dummy.txt") \
+               is None
+
+    def test_show_tags_with_correct_file_name(self, return_bck_obj):
+        assert return_bck_obj.show_tags(return_bck_obj.builder_obj.backup_options.get('backup_dir')) is True
+
+    def test_clean_full_backup_dir_dummy_path(self, return_bck_obj):
+        assert return_bck_obj.clean_full_backup_dir(full_dir='NON_EXISTING_PATH_NAME') is True
+
+    def test_clean_full_backup_dir_with_remove_all(self, return_bck_obj):
+        os.makedirs('tests/DELETE_ME')
+        os.makedirs('tests/DELETE_ME/2021-05-06_11-48-31')
+        assert return_bck_obj.clean_full_backup_dir(full_dir=f'{os.path.dirname(__file__)}/DELETE_ME', remove_all=True) \
+               is True
+
+    def test_clean_full_backup_dir_real_path(self, return_bck_obj):
+        os.makedirs('tests/DELETE_ME', exist_ok=True)
+        os.makedirs('tests/DELETE_ME/2021-05-06_11-48-31', exist_ok=True)
+        assert return_bck_obj.clean_full_backup_dir(full_dir=f'{os.path.dirname(__file__)}/DELETE_ME') is True
