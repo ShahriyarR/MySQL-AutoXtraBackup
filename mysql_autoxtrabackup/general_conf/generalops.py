@@ -95,11 +95,10 @@ class GeneralClass:
         archive_max_size = self.con.get(section, "max_archive_size", fallback=None)
         if archive_max_size:
             archive_max_size = humanfriendly.parse_size(archive_max_size)
-        else:
-            if self.con.get(section, "archive_max_size", fallback=None):
-                archive_max_size = humanfriendly.parse_size(
-                    self.con.get(section, "archive_max_size", fallback=None)
-                )
+        elif self.con.get(section, "archive_max_size", fallback=None):
+            archive_max_size = humanfriendly.parse_size(
+                self.con.get(section, "archive_max_size", fallback=None)
+            )
 
         # backward compatible with old config 'max_archive_duration' and newer 'archive_max_duration'
         archive_max_duration = self.con.get(
@@ -107,11 +106,10 @@ class GeneralClass:
         )
         if archive_max_duration:
             archive_max_duration = humanfriendly.parse_timespan(archive_max_duration)
-        else:
-            if self.con.get(section, "archive_max_size", fallback=None):
-                archive_max_duration = humanfriendly.parse_timespan(
-                    self.con.get(section, "archive_max_size", fallback=None)
-                )
+        elif self.con.get(section, "archive_max_duration", fallback=None):
+            archive_max_duration = humanfriendly.parse_timespan(
+                self.con.get(section, "archive_max_duration", fallback=None)
+            )
 
         return {
             "archive_dir": self.con.get(section, "archive_dir", fallback=None),  # type: ignore

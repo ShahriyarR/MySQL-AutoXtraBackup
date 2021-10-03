@@ -7,6 +7,7 @@ from typing import Union
 from mysql_autoxtrabackup.backup_backup.backup_builder import BackupBuilderChecker
 from mysql_autoxtrabackup.general_conf import path_config
 from mysql_autoxtrabackup.general_conf.generalops import GeneralClass
+from mysql_autoxtrabackup.process_runner.errors import BackupArchiveNotConfigured
 from mysql_autoxtrabackup.process_runner.process_runner import ProcessRunner
 from mysql_autoxtrabackup.utils import helpers
 
@@ -126,6 +127,14 @@ class BackupArchive:
         archive_dir = str(self.backup_archive_options.get("archive_dir"))
         # Finding if last full backup older than the interval or more from now!
         cleanup_msg = "Removing archive {}/{} due to {}"
+        if not self.backup_archive_options.get(
+            "archive_max_duration", None
+        ) and not self.backup_archive_options.get("archive_max_size", None):
+            raise BackupArchiveNotConfigured(
+                expression="BackupArchiveNotConfigured",
+                message="You need to both set archive_max_size and archive_max_duration in config file.",
+            )
+
         for archive in helpers.sorted_ls(archive_dir):
             if "_archive" in archive:
                 archive_date = datetime.strptime(archive, "%Y-%m-%d_%H-%M-%S_archive")
