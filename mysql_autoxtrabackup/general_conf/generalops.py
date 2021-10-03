@@ -106,9 +106,9 @@ class GeneralClass:
         )
         if archive_max_duration:
             archive_max_duration = humanfriendly.parse_timespan(archive_max_duration)
-        elif self.con.get(section, "archive_max_size", fallback=None):
+        elif self.con.get(section, "archive_max_duration", fallback=None):
             archive_max_duration = humanfriendly.parse_timespan(
-                self.con.get(section, "archive_max_size", fallback=None)
+                self.con.get(section, "archive_max_duration", fallback=None)
             )
 
         return {

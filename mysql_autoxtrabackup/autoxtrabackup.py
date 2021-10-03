@@ -17,7 +17,9 @@ from mysql_autoxtrabackup.backup_backup.backuper import Backup
 from mysql_autoxtrabackup.backup_prepare.prepare import Prepare
 from mysql_autoxtrabackup.general_conf import path_config
 from mysql_autoxtrabackup.general_conf.generalops import GeneralClass
-from mysql_autoxtrabackup.general_conf.generate_default_conf import GenerateDefaultConfig
+from mysql_autoxtrabackup.general_conf.generate_default_conf import (
+    GenerateDefaultConfig,
+)
 from mysql_autoxtrabackup.process_runner.process_runner import ProcessRunner
 from mysql_autoxtrabackup.utils import version
 
@@ -137,7 +139,7 @@ def validate_file(file: str) -> Optional[bool]:
     "--generate-config-file",
     is_flag=True,
     is_eager=True,
-    help="Create a config file template in default directory"
+    help="Create a config file template in default directory",
 )
 @click.option("--tag", help="Pass the tag string for each backup")
 @click.option("--show-tags", is_flag=True, help="Show backup tags and exit")

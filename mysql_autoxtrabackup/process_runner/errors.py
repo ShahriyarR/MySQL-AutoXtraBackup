@@ -55,3 +55,14 @@ class SomethingWentWrong(Error):
         self.expression = expression
         self.message = message
         log_error(self.expression, self.message)
+
+
+class BackupArchiveNotConfigured(Error):
+    """
+    Exception raised when archive_max_size and archive_max_duration configs are not set
+    """
+
+    def __init__(self, expression: str, message: str) -> None:
+        self.expression = expression
+        self.message = message
+        log_error(self.expression, self.message)
