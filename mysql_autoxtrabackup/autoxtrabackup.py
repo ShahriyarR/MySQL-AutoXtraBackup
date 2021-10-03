@@ -17,6 +17,7 @@ from mysql_autoxtrabackup.backup_backup.backuper import Backup
 from mysql_autoxtrabackup.backup_prepare.prepare import Prepare
 from mysql_autoxtrabackup.general_conf import path_config
 from mysql_autoxtrabackup.general_conf.generalops import GeneralClass
+from mysql_autoxtrabackup.general_conf.generate_default_conf import GenerateDefaultConfig
 from mysql_autoxtrabackup.process_runner.process_runner import ProcessRunner
 from mysql_autoxtrabackup.utils import version
 
@@ -103,12 +104,11 @@ def validate_file(file: str) -> Optional[bool]:
     # filename extension should be .cnf
     pattern = re.compile(r".*\.cnf")
 
-    if pattern.match(file):
-        # Lastly the file should have all 5 required headers
-        if check_file_content(file):
-            return None
-    else:
+    if not pattern.match(file):
         raise ValueError("Invalid file extension. Expecting .cnf")
+    # Lastly the file should have all 5 required headers
+    if check_file_content(file):
+        return None
     return None
 
 
@@ -132,6 +132,12 @@ def validate_file(file: str) -> Optional[bool]:
     default=path_config.config_path_file,  # type: ignore
     show_default=True,
     help="Read options from the given file",
+)
+@click.option(
+    "--generate-config-file",
+    is_flag=True,
+    is_eager=True,
+    help="Create a config file template in default directory"
 )
 @click.option("--tag", help="Pass the tag string for each backup")
 @click.option("--show-tags", is_flag=True, help="Show backup tags and exit")
@@ -188,6 +194,7 @@ def all_procedure(
     log_file,
     log,
     defaults_file,
+    generate_config_file,
     dry_run,
     log_file_max_bytes,
     log_file_backup_count,
@@ -256,6 +263,7 @@ def all_procedure(
                 and dry_run is False
                 and show_tags is False
                 and run_server is False
+                and generate_config_file is False
             ):
                 print_help(ctx, None, value=True)
 
@@ -264,6 +272,10 @@ def all_procedure(
             elif show_tags and defaults_file:
                 backup_ = Backup(config=defaults_file)
                 backup_.show_tags(backup_dir=str(backup_options.get("backup_dir")))
+            elif generate_config_file:
+                gen_ = GenerateDefaultConfig()
+                gen_.generate_config_file()
+                logger.info(f"Default config file is generated in {defaults_file}")
             elif prepare:
                 prepare_ = Prepare(config=defaults_file, dry_run=dry_run_, tag=tag)
                 prepare_.prepare_backup_and_copy_back()
