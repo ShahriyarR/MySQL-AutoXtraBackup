@@ -16,7 +16,7 @@ class CopyBack:
         self.conf = config
         options_obj = GeneralClass(config=self.conf)
         self.command_options = options_obj.command_options
-        self.mysql_options = options_obj.backup_options
+        self.mysql_options = options_obj.mysql_options
         self.backup_options = options_obj.backup_options
 
     def shutdown_mysql(self) -> Union[None, bool, Exception]:
@@ -57,9 +57,9 @@ class CopyBack:
 
     def run_xtra_copyback(self, data_dir: Optional[str] = None) -> Optional[bool]:
         # Running Xtrabackup with --copy-back option
-        copy_back = "{} --copy-back {} --target-dir={}/{} --data_dir={}".format(
+        copy_back = "{} --copy-back {} --target-dir={}/{} --datadir={}".format(
             self.backup_options.get("backup_tool"),
-            self.backup_options.get("xtra_options"),
+            self.backup_options.get("xtra_options") or "",
             self.backup_options.get("full_dir"),
             helpers.get_latest_dir_name(str(self.backup_options.get("full_dir"))),
             self.mysql_options.get("data_dir") if data_dir is None else data_dir,
