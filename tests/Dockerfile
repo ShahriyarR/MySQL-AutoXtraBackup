@@ -29,7 +29,7 @@ RUN yum groupinstall -y "Development Tools"
 RUN yum -y install python38-devel.x86_64
 RUN yum -y install libffi
 RUN yum -y install libffi-devel
-RUN cd /opt/MySQL-AutoXtraBackup/tests && \
+RUN cd /opt/MySQL-AutoXtraBackup/tests && git pull && \
     pip3.8 install -r requirements.txt
 
 EXPOSE 8080
@@ -39,7 +39,7 @@ RUN cd /opt/MySQL-AutoXtraBackup && git pull
 RUN pip3.8 install uvicorn
 RUN pip3.8 install fastapi
 
-COPY entrypoint.sh /
-RUN chmod +x /entrypoint.sh
-ENTRYPOINT ["./entrypoint.sh"]
-#CMD ["uvicorn", "api.main:app", "--port", "8080"]
+RUN cd /opt/MySQL-AutoXtraBackup/tests && chmod +x entrypoint.sh
+ENTRYPOINT ["/opt/MySQL-AutoXtraBackup/tests/entrypoint.sh"]
+WORKDIR /opt/MySQL-AutoXtraBackup/mysql_autoxtrabackup
+CMD ["uvicorn", "api.main:app", "--port", "8080"]
