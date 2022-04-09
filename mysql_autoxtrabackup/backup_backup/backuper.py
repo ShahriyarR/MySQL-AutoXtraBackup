@@ -202,7 +202,7 @@ class Backup:
                 "- - - - You have no backups : Taking very first Full Backup! - - - -"
             )
 
-            if self.mysql_cli.mysql_run_command("flush logs") and self.full_backup():
+            if self._flush_logs_and_backup():
                 # Removing old inc backups
                 self.clean_inc_backup_dir()
 
@@ -211,7 +211,7 @@ class Backup:
                 "- - - - Your full backup is timeout : Taking new Full Backup! - - - -"
             )
 
-            if self.mysql_cli.mysql_run_command("flush logs") and self.full_backup():
+            if self._flush_logs_and_backup():
                 # Removing full backups
                 self.clean_full_backup_dir()
 
@@ -235,6 +235,9 @@ class Backup:
             self.inc_backup()
 
         return True
+
+    def _flush_logs_and_backup(self) -> bool:
+        return self.mysql_cli.mysql_run_command("flush logs") and self.full_backup()
 
     def _get_status(self, backup_type: str, backup_dir: str, xtrabackup_cmd: str):
         logger.debug(f'Starting {self.builder_obj.backup_options.get("backup_tool")}')
