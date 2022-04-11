@@ -14,10 +14,10 @@ logger = logging.getLogger(__name__)
 
 class CheckEnv:
     def __init__(
-            self,
-            config: str = path_config.config_path_file,
-            full_dir: Union[str, None] = None,
-            inc_dir: Union[str, None] = None,
+        self,
+        config: str = path_config.config_path_file,
+        full_dir: Union[str, None] = None,
+        inc_dir: Union[str, None] = None,
     ) -> None:
         self.conf = config
         options = GeneralClass(config=self.conf)
@@ -45,7 +45,7 @@ class CheckEnv:
             if self.mysql_options.get("mysql_socket"):
                 status_args += f' --socket={self.mysql_options.get("mysql_socket")}'
             elif self.mysql_options.get("mysql_host") and self.mysql_options.get(
-                    "mysql_port"
+                "mysql_port"
             ):
                 status_args += f' --host={self.mysql_options.get("mysql_host")}'
                 status_args += f' --port={self.mysql_options.get("mysql_port")}'
