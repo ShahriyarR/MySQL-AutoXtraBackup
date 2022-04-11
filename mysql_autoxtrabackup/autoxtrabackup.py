@@ -13,7 +13,7 @@ import humanfriendly  # type: ignore
 import pid  # type: ignore
 
 from mysql_autoxtrabackup.api import main
-from mysql_autoxtrabackup.backup_backup import BackupBuilderChecker
+from mysql_autoxtrabackup.backup_backup.backup_builder import BackupBuilderChecker
 from mysql_autoxtrabackup.backup_backup.backup_tags import BackupTags
 from mysql_autoxtrabackup.backup_backup.backuper import Backup
 from mysql_autoxtrabackup.backup_prepare.prepare import Prepare
@@ -248,6 +248,7 @@ def all_procedure(
             show_tags,
             tag,
             verbose,
+            options=options,
         )
 
     except (pid.PidFileAlreadyLockedError, pid.PidFileAlreadyRunningError) as error:
@@ -275,6 +276,7 @@ def _run_commands(
     show_tags,
     tag,
     verbose,
+    options,
 ):
     with pid_file:  # User PidFile for locking to single instance
         dry_run_ = dry_run
@@ -282,9 +284,9 @@ def _run_commands(
             dry_run_ = 1
             logger.warning("Dry run enabled!")
 
-        builder_obj = BackupBuilderChecker(config=defaults_file, dry_run=dry_run_)
+        builder_obj = BackupBuilderChecker(options=options)
         tagger = BackupTags(tag, builder_obj)
-        mysql_cli = MySQLClientHelper(config=defaults_file)
+        mysql_cli = MySQLClientHelper(options=options)
 
         if (
             prepare is False
@@ -312,7 +314,7 @@ def _run_commands(
             logger.info(f"Default config file is generated in {defaults_file}")
         elif prepare:
             Prepare(
-                config=defaults_file, dry_run=dry_run_, tag=tag
+                dry_run=dry_run_, tag=tag, options=options
             ).prepare_backup_and_copy_back()
         elif backup:
             Backup(

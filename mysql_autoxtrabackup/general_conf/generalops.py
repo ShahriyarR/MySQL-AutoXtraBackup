@@ -5,12 +5,15 @@ from typing import Dict, Union
 
 import humanfriendly  # type: ignore
 
-from . import path_config, GenerateDefaultConfig
+from mysql_autoxtrabackup.general_conf import path_config
+from mysql_autoxtrabackup.general_conf.generate_default_conf import (
+    GenerateDefaultConfig,
+)
 
 logger = logging.getLogger(__name__)
 
 
-def _create_default_config(config: str, missing: str) ->None:
+def _create_default_config(config: str, missing: str) -> None:
     logger.critical(f"Missing config file : {missing}")
     logger.warning("Creating default config file...")
     GenerateDefaultConfig(config=config).generate_config_file()
@@ -62,8 +65,11 @@ class GeneralClass:
             "full_dir": self.con.get(section, "backup_dir") + "/full",
             "inc_dir": self.con.get(section, "backup_dir") + "/inc",
             "backup_tool": self.con.get(section, "backup_tool"),
-            "xtra_backup": self.con.get(section, "xtra_backup", fallback=None),  # type: ignore
-            "xtra_options": self.con.get(section, "xtra_options", fallback=None),  # type: ignore
+            "xtra_backup": self.con.get(section, "xtra_backup", fallback=None),
+            "xtra_options": self.con.get(section, "xtra_options", fallback=None),
+            "xtra_prepare_options": self.con.get(
+                section, "xtra_prepare_options", fallback=None
+            ),
             "full_backup_interval": humanfriendly.parse_timespan(
                 self.con.get(section, "full_backup_interval", fallback="86400.0")
             ),

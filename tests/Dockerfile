@@ -1,6 +1,10 @@
 FROM mysql:8.0-oracle
 USER root
 WORKDIR /opt
+COPY . /opt/MySQL-AutoXtraBackup
+
+ENV MYSQL_ROOT_PASSWORD=12345
+
 RUN microdnf install yum
 RUN yum install -y git
 RUN yum install -y python38
@@ -17,29 +21,12 @@ RUN cd /opt && \
     git clone https://github.com/sstephenson/bats.git && \
     cd bats && \
     ./install.sh /usr/local
-ARG GIT_BRANCH_NAME
 EXPOSE 8080
-RUN cd /opt && \
-    git clone -b $GIT_BRANCH_NAME https://github.com/ShahriyarR/MySQL-AutoXtraBackup.git && \
-    cd /opt/MySQL-AutoXtraBackup && \
+RUN cd /opt/MySQL-AutoXtraBackup && \
     pip3.8 install -U pip && \
     pip3.8 install flit && \
-    FLIT_ROOT_INSTALL=1 flit install
+    FLIT_ROOT_INSTALL=1 flit install --symlink
 
-#RUN yum groupinstall -y "Development Tools"
-#RUN yum -y install python38-devel.x86_64
-#RUN yum -y install libffi
-#RUN yum -y install libffi-devel
-#RUN cd /opt/MySQL-AutoXtraBackup/tests && git pull && \
-#    pip3.8 install -r requirements.txt
-
-
-WORKDIR /opt/MySQL-AutoXtraBackup
-RUN cd /opt/MySQL-AutoXtraBackup && git pull
-#RUN pip3.8 install uvicorn
-#RUN pip3.8 install fastapi
-
-RUN cd /opt/MySQL-AutoXtraBackup/tests && chmod +x entrypoint.sh
-ENTRYPOINT ["/opt/MySQL-AutoXtraBackup/tests/entrypoint.sh"]
 WORKDIR /opt/MySQL-AutoXtraBackup/mysql_autoxtrabackup
-CMD ["uvicorn", "api.main:app", "--port", "8080"]
+CMD ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+#CMD ["uvicorn", "api.main:app", "--port", "8080"]

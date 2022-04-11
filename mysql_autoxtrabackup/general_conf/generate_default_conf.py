@@ -55,7 +55,8 @@ class GenerateDefaultConfig:
             config.set(section3, "pid_runtime_warning", "2 Hours")
             config.set(section3, "backup_dir", join(self.home, "XB_TEST/backup_dir"))
             config.set(section3, "backup_tool", "/usr/bin/xtrabackup")
-            config.set(section3, "#xtra_options", "--binlog-info=ON --galera-info")
+            config.set(section3, "xtra_options", "--no-server-version-check")
+            config.set(section3, "#xtra_prepare_options", "")
             config.set(section3, "#full_backup_interval", "1 day")
 
             config.write(cfg_file)

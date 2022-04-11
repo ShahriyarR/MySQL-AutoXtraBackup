@@ -1,24 +1,20 @@
 # Will store necessary checks and command building actions here
 import logging
+from dataclasses import dataclass
 from typing import Optional
 
-from mysql_autoxtrabackup.general_conf import path_config
 from mysql_autoxtrabackup.general_conf.generalops import GeneralClass
 
 logger = logging.getLogger(__name__)
 
 
+@dataclass
 class BackupBuilderChecker:
-    def __init__(
-        self,
-        config: str = path_config.config_path_file,
-        dry_run: Optional[bool] = None,
-    ) -> None:
-        self.conf = config
-        self.dry = dry_run
-        options_obj = GeneralClass(config=self.conf)
-        self.mysql_options = options_obj.mysql_options
-        self.backup_options = options_obj.backup_options
+    options: GeneralClass
+
+    def __post_init__(self):
+        self.mysql_options = self.options.mysql_options
+        self.backup_options = self.options.backup_options
 
     def general_command_builder(self) -> str:
         """

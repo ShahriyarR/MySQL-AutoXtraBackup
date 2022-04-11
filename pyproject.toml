@@ -46,6 +46,9 @@ dev = [
     "flake8 >=4.0.1",
     "pre-commit >=2.17.0"
     ]
+test = [
+    "pytest >= 7.1.1"
+]
 
 [project.urls]
 Documentation = "https://autoxtrabackup.azepug.az/"

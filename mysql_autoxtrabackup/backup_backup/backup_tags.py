@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
-from mysql_autoxtrabackup.backup_backup import BackupBuilderChecker
+from mysql_autoxtrabackup.backup_backup.backup_builder import BackupBuilderChecker
 from mysql_autoxtrabackup.utils import helpers
 
 logger = logging.getLogger(__name__)
