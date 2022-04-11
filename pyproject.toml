@@ -27,7 +27,7 @@ classifiers = [
 ]
 dynamic = ["version", "description"]
 requires-python = ">=3.8"
-requires = [
+dependencies = [
     "click >=8.0",
     "pid >=2.0",
     "humanfriendly >=2.0",

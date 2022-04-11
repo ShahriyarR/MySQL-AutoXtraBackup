@@ -25,19 +25,21 @@ RUN cd /opt && \
     pip3.8 install flit && \
     FLIT_ROOT_INSTALL=1 flit install
 
-RUN yum groupinstall -y "Development Tools"
-RUN yum -y install python38-devel.x86_64
-RUN yum -y install libffi
-RUN yum -y install libffi-devel
-RUN cd /opt/MySQL-AutoXtraBackup/tests && git pull && \
-    pip3.8 install -r requirements.txt
+#RUN yum groupinstall -y "Development Tools"
+#RUN yum -y install python38-devel.x86_64
+#RUN yum -y install libffi
+#RUN yum -y install libffi-devel
+#RUN cd /opt/MySQL-AutoXtraBackup/tests && git pull && \
+#    pip3.8 install -r requirements.txt
 
 EXPOSE 8080
 
 WORKDIR /opt/MySQL-AutoXtraBackup
 RUN cd /opt/MySQL-AutoXtraBackup && git pull
-RUN pip3.8 install uvicorn
-RUN pip3.8 install fastapi
+#RUN pip3.8 install uvicorn
+#RUN pip3.8 install fastapi
+
+RUN which uvicorn
 
 RUN cd /opt/MySQL-AutoXtraBackup/tests && chmod +x entrypoint.sh
 ENTRYPOINT ["/opt/MySQL-AutoXtraBackup/tests/entrypoint.sh"]
