@@ -5,18 +5,25 @@ from typing import Dict, Union
 
 import humanfriendly  # type: ignore
 
-from . import path_config
+from . import path_config, GenerateDefaultConfig
 
 logger = logging.getLogger(__name__)
 
 
+def _create_default_config(config: str, missing: str) ->None:
+    logger.critical(f"Missing config file : {missing}")
+    logger.warning("Creating default config file...")
+    GenerateDefaultConfig(config=config).generate_config_file()
+    logger.info(f"Default config file is generated in {config}")
+
+
 class GeneralClass:
     def __init__(self, config: str = path_config.config_path_file) -> None:
-        if isfile(config):
-            self.con = configparser.ConfigParser()
-            self.con.read(config)
-        else:
-            logger.critical(f"Missing config file : {path_config.config_path_file}")
+        if not isfile(config):
+            _create_default_config(config, missing=path_config.config_path_file)
+
+        self.con = configparser.ConfigParser()
+        self.con.read(config)
 
     @property
     def mysql_options(self) -> Dict[str, str]:

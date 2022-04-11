@@ -1,7 +1,7 @@
 version: "3.7"
 
 services:
-  api_v1:
+  autoxtrabackup:
     build:
       context: tests
       dockerfile: Dockerfile

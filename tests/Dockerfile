@@ -18,6 +18,7 @@ RUN cd /opt && \
     cd bats && \
     ./install.sh /usr/local
 ARG GIT_BRANCH_NAME
+EXPOSE 8080
 RUN cd /opt && \
     git clone -b $GIT_BRANCH_NAME https://github.com/ShahriyarR/MySQL-AutoXtraBackup.git && \
     cd /opt/MySQL-AutoXtraBackup && \
@@ -32,14 +33,11 @@ RUN cd /opt && \
 #RUN cd /opt/MySQL-AutoXtraBackup/tests && git pull && \
 #    pip3.8 install -r requirements.txt
 
-EXPOSE 8080
 
 WORKDIR /opt/MySQL-AutoXtraBackup
 RUN cd /opt/MySQL-AutoXtraBackup && git pull
 #RUN pip3.8 install uvicorn
 #RUN pip3.8 install fastapi
-
-RUN which uvicorn
 
 RUN cd /opt/MySQL-AutoXtraBackup/tests && chmod +x entrypoint.sh
 ENTRYPOINT ["/opt/MySQL-AutoXtraBackup/tests/entrypoint.sh"]
