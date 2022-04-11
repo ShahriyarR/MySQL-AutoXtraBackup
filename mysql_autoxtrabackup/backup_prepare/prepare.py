@@ -56,7 +56,9 @@ class Prepare:
         logger.info("- - - - The end of the Prepare Stage. - - - -")
         return True
 
-    def prepare_run_incremental_backups(self, found_backups: Optional[Tuple[str, str]]) -> None:
+    def prepare_run_incremental_backups(
+        self, found_backups: Optional[Tuple[str, str]]
+    ) -> None:
         logger.info("Preparing Incs: ")
         self._iterate_and_run_found_backups(
             found_backups, helpers.sorted_ls(self.inc_dir)
@@ -142,7 +144,6 @@ class Prepare:
         apply_log_only: Optional[bool] = None,
         dir_: Optional[str] = None,
     ) -> None:
-        # Prepare command
         backup_prepare_cmd = self.prepare_options.prepare_command_builder(
             full_backup=recent_bck,
             incremental=dir_,

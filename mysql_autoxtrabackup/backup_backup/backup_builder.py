@@ -27,11 +27,7 @@ class BackupBuilderChecker:
             else f" --host={self.mysql_options.get('mysql_host')} --port={self.mysql_options.get('mysql_port')}"
         )
 
-        return (
-            f"{args} {self.backup_options.get('xtra_options')}"
-            if self.backup_options.get("xtra_options")
-            else ""
-        )
+        return f"{args} {self._get_extra_options('xtra_options')}"
 
     def full_backup_command_builder(self, full_backup_dir: str) -> str:
         """
@@ -66,3 +62,7 @@ class BackupBuilderChecker:
         )
 
         return f"{xtrabackup_inc_cmd_base} --backup {self.general_command_builder()}"
+
+    def _get_extra_options(self, option: str):
+        _option = self.backup_options.get(option)
+        return f" {_option}" if _option else ""

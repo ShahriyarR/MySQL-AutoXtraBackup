@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class BackupPrepareBuilderChecker:
-
     options: GeneralClass
 
     def __post_init__(self):
@@ -64,14 +63,16 @@ class BackupPrepareBuilderChecker:
         )
 
         xtrabackup_prepare_cmd += (
-            f" {self.backup_options.get('xtra_options')}"
-            if self.backup_options.get("xtra_options")
-            else ""
-        )
-        xtrabackup_prepare_cmd += (
-            f" {self.backup_options.get('xtra_prepare_options')}"
-            if self.backup_options.get("xtra_prepare_options")
-            else ""
+            f" {self._get_extra_options('xtra_options')}"
+            f" {self._get_extra_options('xtra_prepare_options')}"
         )
 
-        return f"{xtrabackup_prepare_cmd} --apply-log-only" if apply_log_only else ""
+        return (
+            f"{xtrabackup_prepare_cmd} --apply-log-only"
+            if apply_log_only
+            else xtrabackup_prepare_cmd
+        )
+
+    def _get_extra_options(self, option: str):
+        _option = self.backup_options.get(option)
+        return f" {_option}" if _option else ""

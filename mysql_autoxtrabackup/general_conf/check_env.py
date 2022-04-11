@@ -14,10 +14,10 @@ logger = logging.getLogger(__name__)
 
 class CheckEnv:
     def __init__(
-        self,
-        config: str = path_config.config_path_file,
-        full_dir: Union[str, None] = None,
-        inc_dir: Union[str, None] = None,
+            self,
+            config: str = path_config.config_path_file,
+            full_dir: Union[str, None] = None,
+            inc_dir: Union[str, None] = None,
     ) -> None:
         self.conf = config
         options = GeneralClass(config=self.conf)
@@ -36,25 +36,19 @@ class CheckEnv:
         """
         if not options:
 
-            status_args = (
-                "{} --defaults-file={} "
-                "--user={} --password='{}' status".format(
-                    self.mysql_options.get("mysqladmin"),
-                    self.mysql_options.get("mycnf"),
-                    self.mysql_options.get("mysql_user"),
-                    self.mysql_options.get("mysql_password"),
-                )
-            )
+            status_args = f"""{self.mysql_options.get("mysqladmin")} 
+            --defaults-file={self.mysql_options.get("mycnf")} 
+            --user={self.mysql_options.get("mysql_user")} 
+            --password='{self.mysql_options.get("mysql_password")}' 
+            status"""
 
             if self.mysql_options.get("mysql_socket"):
-                status_args += " --socket={}".format(
-                    self.mysql_options.get("mysql_socket")
-                )
+                status_args += f' --socket={self.mysql_options.get("mysql_socket")}'
             elif self.mysql_options.get("mysql_host") and self.mysql_options.get(
-                "mysql_port"
+                    "mysql_port"
             ):
-                status_args += " --host={}".format(self.mysql_options.get("mysql_host"))
-                status_args += " --port={}".format(self.mysql_options.get("mysql_port"))
+                status_args += f' --host={self.mysql_options.get("mysql_host")}'
+                status_args += f' --port={self.mysql_options.get("mysql_port")}'
             else:
                 logger.critical(
                     "Neither mysql_socket nor mysql_host and mysql_port are defined in config!"
@@ -63,9 +57,7 @@ class CheckEnv:
                     "Neither mysql_socket nor mysql_host and mysql_port are defined in config!"
                 )
         else:
-            status_args = "{} {} status".format(
-                self.mysql_options.get("mysqladmin"), options
-            )
+            status_args = f'{self.mysql_options.get("mysqladmin")} {options} status'
 
         # filter out password from argument list
         filtered_args = re.sub("--password='?\w+'?", "--password='*'", status_args)
@@ -74,7 +66,7 @@ class CheckEnv:
 
         return ProcessRunner.run_command(status_args)
 
-    def check_mysql_conf(self) -> Union[bool, Exception]:
+    def check_mysql_conf(self) -> Optional[bool]:
         """
         Method for checking passed MySQL my.cnf defaults file. If it is not passed then skip this check
         :return: True on success, raise RuntimeError on error.
@@ -116,7 +108,7 @@ class CheckEnv:
         logger.error(f"FAILED: {mysqladmin} does NOT exist")
         raise RuntimeError(f"FAILED: {mysqladmin} does NOT exist")
 
-    def check_mysql_backuptool(self) -> Union[bool, Exception]:
+    def check_mysql_backup_tool(self) -> Union[bool, Exception]:
         """
         Method for checking if given backup tool path is there or not.
         :return: RuntimeError on failure, True on success
@@ -174,7 +166,7 @@ class CheckEnv:
             self.check_mysql_mysql()
             self.check_mysql_mysqladmin()
             self.check_mysql_conf()
-            self.check_mysql_backuptool()
+            self.check_mysql_backup_tool()
             self.check_mysql_backup_dir()
             self.check_mysql_full_backup_dir()
             self.check_mysql_inc_backup_dir()

@@ -1,5 +1,6 @@
 import configparser
 import logging
+from dataclasses import dataclass
 from os.path import isfile
 from typing import Dict, Union
 
@@ -20,13 +21,16 @@ def _create_default_config(config: str, missing: str) -> None:
     logger.info(f"Default config file is generated in {config}")
 
 
+@dataclass
 class GeneralClass:
-    def __init__(self, config: str = path_config.config_path_file) -> None:
-        if not isfile(config):
-            _create_default_config(config, missing=path_config.config_path_file)
+    config: str = path_config.config_path_file
+
+    def __post_init__(self):
+        if not isfile(self.config):
+            _create_default_config(self.config, missing=path_config.config_path_file)
 
         self.con = configparser.ConfigParser()
-        self.con.read(config)
+        self.con.read(self.config)
 
     @property
     def mysql_options(self) -> Dict[str, str]:
@@ -37,9 +41,9 @@ class GeneralClass:
             "mysqladmin": self.con.get(section, "mysqladmin"),
             "mysql_user": self.con.get(section, "mysql_user"),
             "mysql_password": self.con.get(section, "mysql_password"),
-            "mysql_socket": self.con.get(section, "mysql_socket", fallback=None),  # type: ignore
-            "mysql_host": self.con.get(section, "mysql_host", fallback=None),  # type: ignore
-            "mysql_port": self.con.get(section, "mysql_port", fallback=None),  # type: ignore
+            "mysql_socket": self.con.get(section, "mysql_socket", fallback=None),
+            "mysql_host": self.con.get(section, "mysql_host", fallback=None),
+            "mysql_port": self.con.get(section, "mysql_port", fallback=None),
             "data_dir": self.con.get(section, "datadir"),
         }
 
