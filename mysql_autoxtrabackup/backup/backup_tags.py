@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Optional
 
 from mysql_autoxtrabackup.backup_backup.backup_builder import BackupBuilderChecker
-from mysql_autoxtrabackup.utils import helpers
+from mysql_autoxtrabackup.common import helpers
 
 logger = logging.getLogger(__name__)
 

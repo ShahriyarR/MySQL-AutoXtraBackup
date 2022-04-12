@@ -92,8 +92,8 @@ def create_directory(path: str) -> Optional[bool]:
 def check_if_backup_prepared(type_: str, path: str) -> str:
     """
     Helper function for checking if given backup already prepared or not.
-    :param type_: Type of backup full or inc
-    :param path: path string of the backup folder
+    :param: type_: Type of backup full or inc
+    :param: path: path string of the backup folder
     :return: True if given backup is prepared, False otherwise
     """
     if type_ == "full" and os.path.isfile(f"{path}/xtrabackup_checkpoints"):
@@ -109,7 +109,7 @@ def list_available_backups(path: str) -> Dict[str, List[Dict[str, str]]]:
     Helper function for returning
     Dict of backups;
     and the statuses - if they are already prepared or not
-    :param path: General backup directory path
+    :param: path: General backup directory path
     :return: dictionary of full and incremental backups
     """
     backups = {}

@@ -14,10 +14,10 @@ from typing import Optional
 
 from mysql_autoxtrabackup.backup_backup.backup_builder import BackupBuilderChecker
 from mysql_autoxtrabackup.backup_backup.backup_tags import BackupTags
+from mysql_autoxtrabackup.common import helpers, mysql_cli
 from mysql_autoxtrabackup.general_conf.check_env import CheckEnv
 from mysql_autoxtrabackup.general_conf.generalops import GeneralClass
 from mysql_autoxtrabackup.process_runner.process_runner import ProcessRunner
-from mysql_autoxtrabackup.utils import helpers, mysql_cli
 
 logger = logging.getLogger(__name__)
 
@@ -86,15 +86,6 @@ class Backup:
         self._inc_dir = _get_inc_dir(self.builder_obj)
 
     def all_backup(self) -> bool:
-        """
-        This method at first checks full backup directory, if it is empty takes full backup.
-        If it is not empty then checks for full backup time.
-        If the recent full backup  is taken 1 day ago, it takes full backup.
-        In any other conditions it takes incremental backup.
-        """
-        # Workaround for circular import dependency error in Python
-
-        # Creating object from CheckEnv class
         check_env_obj = CheckEnv(
             options=self.options,
             full_dir=self._full_dir,
@@ -203,34 +194,35 @@ class Backup:
 
     def _run_backup(self) -> None:
         if not _get_recent_bck(self._full_dir):
-            logger.info(
-                "- - - - You have no backups : Taking very first Full Backup! - - - -"
-            )
-
-            self._flush_logs_backup_and_clean()
-
+            self._take_fresh_full_backup()
         elif self._last_full_backup_date():
-            logger.info(
-                "- - - - Your full backup is timeout : Taking new Full Backup! - - - -"
-            )
-
-            self._flush_logs_backup_and_clean(clean_full=True)
-
+            self._take_new_full_backup_after_old_expired()
         else:
+            self._take_incremental_backup()
 
-            logger.info(
-                f"- - - - You have a full backup that is less than "
-                f'{self.builder_obj.backup_options.get("full_backup_interval")} seconds old. - - - -'
-            )
+    def _take_incremental_backup(self):
+        logger.info(
+            f"- - - - You have a full backup that is less than "
+            f'{self.builder_obj.backup_options.get("full_backup_interval")} seconds old. - - - -'
+        )
+        logger.info(
+            "- - - - We will take an incremental one based on recent Full Backup - - - -"
+        )
+        time.sleep(3)
+        # Taking incremental backup
+        self._take_inc_backup()
 
-            logger.info(
-                "- - - - We will take an incremental one based on recent Full Backup - - - -"
-            )
+    def _take_new_full_backup_after_old_expired(self):
+        logger.info(
+            "- - - - Your full backup is timeout : Taking new Full Backup! - - - -"
+        )
+        self._flush_logs_backup_and_clean(clean_full=True)
 
-            time.sleep(3)
-
-            # Taking incremental backup
-            self._take_inc_backup()
+    def _take_fresh_full_backup(self):
+        logger.info(
+            "- - - - You have no backups : Taking very first Full Backup! - - - -"
+        )
+        self._flush_logs_backup_and_clean()
 
     def _flush_logs_backup_and_clean(self, clean_full: bool = False) -> None:
         if self._flush_logs_and_backup():
