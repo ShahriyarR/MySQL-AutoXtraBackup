@@ -105,6 +105,7 @@ class CheckEnv:
         :return: True on success, raise RuntimeError on error.
         """
         my_cnf = self.mysql_options.get("mycnf")
+
         if not my_cnf or my_cnf == "":
             logger.info("Skipping my.cnf check, because it is not specified")
             return True
@@ -115,14 +116,22 @@ class CheckEnv:
         logger.info("OK: MySQL configuration file exists")
         return True
 
-    def _is_all_paths_exist(self):
+    def _is_all_paths_exist(self) -> bool:
         return all(_is_path_exists(_path) for _path in self._required_dirs.values())
 
-    def _is_all_binaries_exist(self):
+    def _is_all_binaries_exist(self) -> bool:
         return all(
             _is_binary_exists(_binary_path)
             for _binary_path in self._required_binaries.values()
         )
+
+    def _is_mysql_conn_options_provided(self) -> None:
+        if not self.mysql_options.get("mysql_socket") and not (
+                self.mysql_options.get("mysql_host")
+                and self.mysql_options.get("mysql_port")
+        ):
+            logger.critical(MYSQL_CONN_MSG)
+            raise RuntimeError(MYSQL_CONN_MSG)
 
     def _build_status_check_command(self) -> str:
         self._is_mysql_conn_options_provided()
@@ -135,22 +144,14 @@ class CheckEnv:
 
         return self._append_conn_string(status_args)
 
-    def _is_mysql_conn_options_provided(self):
-        if not self.mysql_options.get("mysql_socket") and not (
-            self.mysql_options.get("mysql_host")
-            and self.mysql_options.get("mysql_port")
-        ):
-            logger.critical(MYSQL_CONN_MSG)
-            raise RuntimeError(MYSQL_CONN_MSG)
-
-    def _append_conn_string(self, status_args):
+    def _append_conn_string(self, status_args) -> str:
         status_args += (
             f' --socket={self.mysql_options.get("mysql_socket")}'
             if self.mysql_options.get("mysql_socket")
             else ""
         )
         if self.mysql_options.get("mysql_host") and self.mysql_options.get(
-            "mysql_port"
+                "mysql_port"
         ):
             status_args += f' --host={self.mysql_options.get("mysql_host")}'
             status_args += f' --port={self.mysql_options.get("mysql_port")}'

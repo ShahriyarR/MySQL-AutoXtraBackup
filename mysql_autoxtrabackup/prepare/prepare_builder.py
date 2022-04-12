@@ -3,7 +3,7 @@ import os
 from dataclasses import dataclass
 from typing import Optional, Tuple
 
-from mysql_autoxtrabackup.general_conf.generalops import GeneralClass
+from mysql_autoxtrabackup.configs.generalops import GeneralClass
 
 logger = logging.getLogger(__name__)
 
@@ -14,28 +14,6 @@ class BackupPrepareBuilderChecker:
 
     def __post_init__(self):
         self.backup_options = self.options.backup_options
-
-    @staticmethod
-    def parse_backup_tags(
-        backup_dir: Optional[str], tag_name: Optional[str]
-    ) -> Optional[Tuple[str, str]]:
-        """
-        Static Method for returning the backup directory name and backup type
-        :param: backup_dir: The backup directory path
-        :param: tag_name: The tag name to search
-        :return: Tuple of (backup directory, backup type) (2017-11-09_19-37-16, Full).
-        :raises: RuntimeError if there is no such tag inside backup_tags.txt
-        """
-        if os.path.isfile(f"{backup_dir}/backup_tags.txt"):
-            with open(f"{backup_dir}/backup_tags.txt", "r") as backup_tags:
-                f = backup_tags.readlines()
-
-            for i in f:
-                split_ = i.split("\t")
-                if tag_name == split_[-1].rstrip("'\n\r").lstrip("'"):
-                    return split_[0], split_[1]
-            raise RuntimeError("There is no such tag for backups")
-        return None
 
     def prepare_command_builder(
         self,

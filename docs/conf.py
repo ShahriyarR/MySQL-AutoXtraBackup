@@ -21,7 +21,7 @@ import sys
 #
 import sphinx_rtd_theme
 
-from mysql_autoxtrabackup.utils.version import VERSION
+from mysql_autoxtrabackup.common.version import VERSION
 
 sys.path.insert(0, os.path.abspath("../mysql_autoxtrabackup"))
 

@@ -6,8 +6,8 @@ import subprocess
 from subprocess import PIPE, STDOUT
 from typing import List, Optional
 
-from mysql_autoxtrabackup.general_conf import path_config
-from mysql_autoxtrabackup.general_conf.generalops import GeneralClass
+from mysql_autoxtrabackup.configs import path_config
+from mysql_autoxtrabackup.configs.generalops import GeneralClass
 
 logger = logging.getLogger(__name__)
 

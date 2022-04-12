@@ -12,11 +12,10 @@ from datetime import datetime
 from functools import wraps
 from typing import Optional
 
-from mysql_autoxtrabackup.backup_backup.backup_builder import BackupBuilderChecker
-from mysql_autoxtrabackup.backup_backup.backup_tags import BackupTags
+from mysql_autoxtrabackup.backup.backup_builder import BackupCommandBuilder
 from mysql_autoxtrabackup.common import helpers, mysql_cli
-from mysql_autoxtrabackup.general_conf.check_env import CheckEnv
-from mysql_autoxtrabackup.general_conf.generalops import GeneralClass
+from mysql_autoxtrabackup.configs.check_env import CheckEnv
+from mysql_autoxtrabackup.configs.generalops import GeneralClass
 from mysql_autoxtrabackup.process_runner.process_runner import ProcessRunner
 
 logger = logging.getLogger(__name__)
@@ -54,11 +53,11 @@ def _is_inc_path_exists(method):
     return wrapped
 
 
-def _get_inc_dir(builder_obj: BackupBuilderChecker) -> str:
+def _get_inc_dir(builder_obj: BackupCommandBuilder) -> str:
     return str(builder_obj.backup_options.get("inc_dir"))
 
 
-def _get_full_dir(builder_obj: BackupBuilderChecker) -> str:
+def _get_full_dir(builder_obj: BackupCommandBuilder) -> str:
     return str(builder_obj.backup_options.get("full_dir"))
 
 
@@ -72,12 +71,10 @@ def _get_recent_bck(path: str) -> str:
 
 @dataclass
 class Backup:
-    builder_obj: BackupBuilderChecker
-    tagger: BackupTags
+    builder_obj: BackupCommandBuilder
     mysql_cli: mysql_cli.MySQLClientHelper
     options: GeneralClass
     dry_run: Optional[bool] = None
-    tag: Optional[str] = None
     _full_dir: str = field(init=False)
     _inc_dir: str = field(init=False)
 
@@ -162,7 +159,7 @@ class Backup:
             full_backup_dir=full_backup_dir
         )
 
-        return self._get_status("Full", full_backup_dir, xtrabackup_cmd)
+        return self._get_status(xtrabackup_cmd)
 
     @_is_dry_run
     def _take_inc_backup(self) -> bool:
@@ -190,7 +187,7 @@ class Backup:
             recent_inc_bck=recent_inc_bck,
         )
 
-        return self._get_status("Inc", inc_backup_dir, xtrabackup_inc_cmd)
+        return self._get_status(xtrabackup_inc_cmd)
 
     def _run_backup(self) -> None:
         if not _get_recent_bck(self._full_dir):
@@ -225,7 +222,7 @@ class Backup:
         self._flush_logs_backup_and_clean()
 
     def _flush_logs_backup_and_clean(self, clean_full: bool = False) -> None:
-        if self._flush_logs_and_backup():
+        if self._flush_logs_and_take_backup():
             self._clean_backup_dirs(clean_full=clean_full)
 
     def _clean_backup_dirs(self, clean_full: bool = False) -> None:
@@ -236,20 +233,13 @@ class Backup:
         # Removing inc backups
         self._clean_inc_backup_dir()
 
-    def _flush_logs_and_backup(self) -> bool:
+    def _flush_logs_and_take_backup(self) -> bool:
         return (
             self.mysql_cli.mysql_run_command("flush logs") and self._take_full_backup()
         )
 
     def _get_status(
-        self, backup_type: str, backup_dir: str, xtrabackup_cmd: str
+        self, xtrabackup_cmd: str
     ) -> bool:
         logger.debug(f'Starting {self.builder_obj.backup_options.get("backup_tool")}')
-        status = ProcessRunner.run_command(xtrabackup_cmd)
-        status_str = "OK" if status is True else "FAILED"
-        self.tagger.add_tag(
-            backup_type=backup_type,
-            backup_size=helpers.get_folder_size(backup_dir),
-            backup_status=status_str,
-        )
-        return status
+        return ProcessRunner.run_command(xtrabackup_cmd)

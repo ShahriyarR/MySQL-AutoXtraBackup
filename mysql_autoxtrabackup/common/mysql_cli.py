@@ -3,7 +3,7 @@
 import logging
 from dataclasses import dataclass
 
-from mysql_autoxtrabackup.general_conf.generalops import GeneralClass
+from mysql_autoxtrabackup.configs.generalops import GeneralClass
 from mysql_autoxtrabackup.process_runner.process_runner import ProcessRunner
 
 logger = logging.getLogger(__name__)
