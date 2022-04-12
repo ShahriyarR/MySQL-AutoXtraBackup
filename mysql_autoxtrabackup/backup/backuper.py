@@ -238,8 +238,6 @@ class Backup:
             self.mysql_cli.mysql_run_command("flush logs") and self._take_full_backup()
         )
 
-    def _get_status(
-        self, xtrabackup_cmd: str
-    ) -> bool:
+    def _get_status(self, xtrabackup_cmd: str) -> bool:
         logger.debug(f'Starting {self.builder_obj.backup_options.get("backup_tool")}')
         return ProcessRunner.run_command(xtrabackup_cmd)

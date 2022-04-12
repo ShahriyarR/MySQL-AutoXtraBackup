@@ -19,7 +19,9 @@ from mysql_autoxtrabackup.common import version
 from mysql_autoxtrabackup.common.mysql_cli import MySQLClientHelper
 from mysql_autoxtrabackup.configs import path_config
 from mysql_autoxtrabackup.configs.generalops import GeneralClass
-from mysql_autoxtrabackup.configs.generate_default_conf import generate_config_file as generate_config
+from mysql_autoxtrabackup.configs.generate_default_conf import (
+    generate_default_config_file as generate_config,
+)
 from mysql_autoxtrabackup.prepare.prepare import Prepare
 from mysql_autoxtrabackup.process_runner.process_runner import ProcessRunner
 
@@ -188,34 +190,58 @@ def validate_file(file: str) -> None:
 )
 @click.pass_context
 def all_procedure(
-        ctx,
-        prepare,
-        backup,
-        run_server,
-        verbose,
-        log_file,
-        log,
-        defaults_file,
-        generate_config_file,
-        dry_run,
-        log_file_max_bytes,
-        log_file_backup_count,
+    prepare,
+    backup,
+    run_server,
+    verbose,
+    log_file,
+    log,
+    defaults_file,
+    generate_config_file,
+    dry_run,
+    log_file_max_bytes,
+    log_file_backup_count,
 ) -> bool:
     backup_options, logging_options, options = _get_options(defaults_file)
 
-    _set_outputs(_get_formatter(), log, log_file, log_file_backup_count, log_file_max_bytes, logging_options, verbose)
+    _set_outputs(
+        _get_formatter(),
+        log,
+        log_file,
+        log_file_backup_count,
+        log_file_max_bytes,
+        logging_options,
+        verbose,
+    )
 
     pid_file = pid.PidFile(piddir=backup_options.get("pid_dir"))
 
-    _factory(backup, backup_options, ctx, defaults_file, dry_run, generate_config_file, options, pid_file, prepare,
-             run_server, verbose)
+    _factory(
+        backup,
+        backup_options,
+        defaults_file,
+        dry_run,
+        generate_config_file,
+        options,
+        pid_file,
+        prepare,
+        run_server,
+    )
 
     _log_command_history()
     logger.info("Autoxtrabackup completed successfully!")
     return True
 
 
-def _set_outputs(formatter, log, log_file, log_file_backup_count, log_file_max_bytes, logging_options, verbose):
+def _set_outputs(
+    formatter,
+    log,
+    log_file,
+    log_file_backup_count,
+    log_file_max_bytes,
+    logging_options,
+    verbose,
+):
     _set_verbose_mode(formatter, verbose)
     _set_log_file(
         formatter, log_file, log_file_backup_count, log_file_max_bytes, logging_options
@@ -224,19 +250,26 @@ def _set_outputs(formatter, log, log_file, log_file_backup_count, log_file_max_b
     _set_log_level(log, logging_options)
 
 
-def _factory(backup, backup_options, ctx, defaults_file, dry_run, generate_config_file, options, pid_file, prepare,
-             run_server, verbose):
+def _factory(
+    backup,
+    backup_options,
+    defaults_file,
+    dry_run,
+    generate_config_file,
+    options,
+    pid_file,
+    prepare,
+    run_server,
+):
     try:
         _run_commands(
             backup,
-            ctx,
             defaults_file,
             dry_run,
             generate_config_file,
             pid_file,
             prepare,
             run_server,
-            verbose,
             options=options,
         )
 
@@ -249,33 +282,21 @@ def _factory(backup, backup_options, ctx, defaults_file, dry_run, generate_confi
 
 
 def _run_commands(
-        backup,
-        ctx,
-        defaults_file,
-        dry_run,
-        generate_config_file,
-        pid_file,
-        prepare,
-        run_server,
-        verbose,
-        options,
+    backup,
+    defaults_file,
+    dry_run,
+    generate_config_file,
+    pid_file,
+    prepare,
+    run_server,
+    options,
 ):
     with pid_file:  # User PidFile for locking to single instance
         dry_run_ = _set_dry_run(dry_run)
 
         builder_obj, mysql_cli = _instantiate_objects(options)
 
-        if (
-                prepare is False
-                and backup is False
-                and verbose is False
-                and dry_run is False
-                and run_server is False
-                and generate_config_file is False
-        ):
-            print_help(ctx, None, value=True)
-
-        elif run_server:
+        if run_server:
             main.run_server()
         elif generate_config_file:
             _generate_config_file(defaults_file)
@@ -326,7 +347,7 @@ def _log_command_history():
 def _handle_backup_pid_exception(backup_options, error, pid_file):
     pid_warning = str(backup_options.get("pid_runtime_warning"))
     if float(pid_warning) and time.time() - os.stat(pid_file.filename).st_ctime > float(
-            pid_warning
+        pid_warning
     ):
         pid.fh.seek(0)
         pid_str = pid.fh.read(16).split("\n", 1)[0].strip()
@@ -345,13 +366,14 @@ def _add_log_rotate_handler(file_handler, formatter):
 
 
 def _get_log_rotate_handler(
-        log_file: str, logging_options: Dict[str, str], max_bytes: int, backup_count: int
+    log_file: str, logging_options: Dict[str, str], max_bytes: int, backup_count: int
 ):
     return RotatingFileHandler(
         log_file,
         mode="a",
         maxBytes=max_bytes or int(str(logging_options.get("log_file_max_bytes"))),
-        backupCount=backup_count or int(str(logging_options.get("log_file_backup_count"))),
+        backupCount=backup_count
+        or int(str(logging_options.get("log_file_backup_count"))),
     )
 
 
@@ -379,7 +401,7 @@ def _set_log_level_format(formatter: logging) -> None:
 
 
 def _set_log_file(
-        formatter, log_file, log_file_backup_count, log_file_max_bytes, logging_options
+    formatter, log_file, log_file_backup_count, log_file_max_bytes, logging_options
 ):
     if log_file:
         try:

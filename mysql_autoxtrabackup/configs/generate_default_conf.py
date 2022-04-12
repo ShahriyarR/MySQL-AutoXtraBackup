@@ -54,7 +54,9 @@ def _set_backup_options(config: configparser.ConfigParser, home: str) -> None:
     config.set(section3, "#full_backup_interval", "1 day")
 
 
-def generate_config_file(config: str = path_config.config_path_file, home: str = path_config.home) -> None:
+def generate_default_config_file(
+    config: str = path_config.config_path_file, home: str = path_config.home
+) -> None:
     with contextlib.suppress(FileExistsError, OSError):
         if not exists(path_config.config_path):
             makedirs(path_config.config_path)
@@ -68,4 +70,3 @@ def generate_config_file(config: str = path_config.config_path_file, home: str =
         _set_backup_options(config, home)
 
         config.write(cfg_file)
-

@@ -1,7 +1,6 @@
 import logging
-import os
 from dataclasses import dataclass
-from typing import Optional, Tuple
+from typing import Optional
 
 from mysql_autoxtrabackup.configs.generalops import GeneralClass
 

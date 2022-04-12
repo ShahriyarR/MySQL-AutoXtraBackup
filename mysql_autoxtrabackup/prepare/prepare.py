@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def _set_apply_log_only_found_backups(
-        dir_: str, found_backups: Optional[Tuple[str, str]]
+    dir_: str, found_backups: Optional[Tuple[str, str]]
 ):
     apply_log_only = None
     if dir_ != found_backups[0]:
@@ -69,7 +69,7 @@ class Prepare:
         return ProcessRunner.run_command(cmd)
 
     def _prepare_run_incremental_backups(
-            self, found_backups: Optional[Tuple[str, str]]
+        self, found_backups: Optional[Tuple[str, str]]
     ) -> None:
         logger.info("Preparing Incs: ")
         self._iterate_and_run_found_backups(
@@ -114,10 +114,10 @@ class Prepare:
             )
 
     def _prepare_and_run(
-            self,
-            recent_bck: str,
-            apply_log_only: Optional[bool] = None,
-            dir_: Optional[str] = None,
+        self,
+        recent_bck: str,
+        apply_log_only: Optional[bool] = None,
+        dir_: Optional[str] = None,
     ) -> None:
         backup_prepare_cmd = self.prepare_options.prepare_command_builder(
             full_backup=recent_bck,
@@ -127,7 +127,7 @@ class Prepare:
         self._run_prepare_command(backup_prepare_cmd)
 
     def _iterate_and_run_found_backups(
-            self, found_backups: Optional[Tuple[str, str]], list_of_dir: List[str]
+        self, found_backups: Optional[Tuple[str, str]], list_of_dir: List[str]
     ) -> None:
         # Limit the iteration until this found backup
         for dir_ in list_of_dir[: list_of_dir.index(found_backups[0]) + 1]:

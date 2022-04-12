@@ -127,8 +127,8 @@ class CheckEnv:
 
     def _is_mysql_conn_options_provided(self) -> None:
         if not self.mysql_options.get("mysql_socket") and not (
-                self.mysql_options.get("mysql_host")
-                and self.mysql_options.get("mysql_port")
+            self.mysql_options.get("mysql_host")
+            and self.mysql_options.get("mysql_port")
         ):
             logger.critical(MYSQL_CONN_MSG)
             raise RuntimeError(MYSQL_CONN_MSG)
@@ -151,7 +151,7 @@ class CheckEnv:
             else ""
         )
         if self.mysql_options.get("mysql_host") and self.mysql_options.get(
-                "mysql_port"
+            "mysql_port"
         ):
             status_args += f' --host={self.mysql_options.get("mysql_host")}'
             status_args += f' --port={self.mysql_options.get("mysql_port")}'
