@@ -304,10 +304,10 @@ def _run_commands(
         elif show_tags and defaults_file:
 
             Backup(
-                config=defaults_file,
                 builder_obj=builder_obj,
                 tagger=tagger,
                 mysql_cli=mysql_cli,
+                options=options,
             ).tagger.show_tags(backup_dir=str(backup_options.get("backup_dir")))
         elif generate_config_file:
             GenerateDefaultConfig().generate_config_file()
@@ -318,10 +318,10 @@ def _run_commands(
             ).prepare_backup_and_copy_back()
         elif backup:
             Backup(
-                config=defaults_file,
                 builder_obj=builder_obj,
                 tagger=tagger,
                 mysql_cli=mysql_cli,
+                options=options,
                 dry_run=dry_run_,
                 tag=tag,
             ).all_backup()
