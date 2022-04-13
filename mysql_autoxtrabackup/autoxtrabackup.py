@@ -1,3 +1,4 @@
+import functools
 import logging
 import logging.handlers
 import os
@@ -190,6 +191,7 @@ def validate_file(file: str) -> None:
 )
 @click.pass_context
 def all_procedure(
+    ctx,
     prepare,
     backup,
     run_server,
@@ -296,14 +298,22 @@ def _run_commands(
 
         builder_obj, mysql_cli = _instantiate_objects(options)
 
-        if run_server:
-            main.run_server()
-        elif generate_config_file:
-            _generate_config_file(defaults_file)
-        elif prepare:
-            _prepare_backup(dry_run_, options)
-        elif backup:
-            _take_backup(builder_obj, dry_run_, mysql_cli, options)
+        _map = _build_callables_map(backup, builder_obj, defaults_file, dry_run_, generate_config_file, mysql_cli,
+                                    options, prepare, run_server)
+        for _callable in _map.values():
+            if _callable:
+                _callable()
+
+
+def _build_callables_map(backup, builder_obj, defaults_file, dry_run_, generate_config_file, mysql_cli, options,
+                         prepare, run_server):
+    return {
+        "run_server": functools.partial(main.run_server) if run_server else None,
+        "generate_config_file": functools.partial(_generate_config_file, defaults_file)
+        if generate_config_file else None,
+        "prepare": functools.partial(_prepare_backup, dry_run_, options) if prepare else None,
+        "backup": functools.partial(_take_backup, builder_obj, dry_run_, mysql_cli, options) if backup else None
+    }
 
 
 def _set_dry_run(dry_run):
