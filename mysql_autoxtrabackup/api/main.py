@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 
 from mysql_autoxtrabackup.api.controller.controller import router
-from mysql_autoxtrabackup.utils.version import VERSION
+from mysql_autoxtrabackup.common.version import VERSION
 
 app = FastAPI()
 

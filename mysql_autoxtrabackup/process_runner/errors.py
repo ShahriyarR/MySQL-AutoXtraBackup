@@ -2,11 +2,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# TODO: use these errors in the future - keeping it for future
-
 
 def log_error(expression: str, message: str) -> None:
-    logger.error("FAILED: " + expression + " " + message)
+    logger.error(f"FAILED: {expression} {message}")
 
 
 class Error(Exception):

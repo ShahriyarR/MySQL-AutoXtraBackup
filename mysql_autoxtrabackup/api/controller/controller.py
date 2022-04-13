@@ -2,9 +2,9 @@ from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
 from starlette.responses import RedirectResponse
 
-from mysql_autoxtrabackup.backup_backup.backuper import Backup
-from mysql_autoxtrabackup.backup_prepare.prepare import Prepare
-from mysql_autoxtrabackup.utils.helpers import list_available_backups
+from mysql_autoxtrabackup.backup.backuper import Backup
+from mysql_autoxtrabackup.common.helpers import list_available_backups
+from mysql_autoxtrabackup.prepare.prepare import Prepare
 
 router = APIRouter()
 

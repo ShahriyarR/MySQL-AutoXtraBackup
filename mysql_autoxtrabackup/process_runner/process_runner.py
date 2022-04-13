@@ -3,11 +3,11 @@ import logging
 import re
 import shlex
 import subprocess
-import typing
 from subprocess import PIPE, STDOUT
+from typing import List, Optional
 
-from mysql_autoxtrabackup.general_conf import path_config
-from mysql_autoxtrabackup.general_conf.generalops import GeneralClass
+from mysql_autoxtrabackup.configs import path_config
+from mysql_autoxtrabackup.configs.generalops import GeneralClass
 
 logger = logging.getLogger(__name__)
 
@@ -34,10 +34,10 @@ class ProcessHandler(GeneralClass):
         ]
 
     @property
-    def xtrabackup_history_log(self) -> typing.List[typing.List[str]]:
+    def xtrabackup_history_log(self) -> List[List[str]]:
         return self._xtrabackup_history_log
 
-    def run_command(self, command: typing.Optional[str]) -> bool:
+    def run_command(self, command: Optional[str]) -> bool:
         """
         executes a prepared command, enables real-time console & log output.
 
@@ -51,7 +51,7 @@ class ProcessHandler(GeneralClass):
         # filter out password from argument list, print command to execute
 
         filtered_command = re.sub("--password='?\w+'?", "--password='*'", command)  # type: ignore
-        logger.info("SUBPROCESS STARTING: {}".format(str(filtered_command)))
+        logger.info(f"SUBPROCESS STARTING: {str(filtered_command)}")
         subprocess_args = self.command_to_args(command_str=command)
         # start the command subprocess
         cmd_start = datetime.datetime.now()
@@ -65,20 +65,19 @@ class ProcessHandler(GeneralClass):
                     )
                 )
         logger.info(
-            "SUBPROCESS {} COMPLETED with exit code: {}".format(
-                subprocess_args[0], process.returncode
-            )
+            f"SUBPROCESS {subprocess_args[0]} COMPLETED with exit code: {process.returncode}"
         )
+
         cmd_end = datetime.datetime.now()
         self.summarize_process(subprocess_args, cmd_start, cmd_end, process.returncode)
         # return True or False.
         if process.returncode == 0:
             return True
         else:
-            raise ChildProcessError("SUBPROCESS FAILED! >> {}".format(filtered_command))
+            raise ChildProcessError(f"SUBPROCESS FAILED! >> {filtered_command}")
 
     @staticmethod
-    def command_to_args(command_str: typing.Optional[str]) -> typing.List[str]:
+    def command_to_args(command_str: Optional[str]) -> List[str]:
         """
         convert a string bash command to an arguments list, to use with subprocess
 
@@ -100,7 +99,7 @@ class ProcessHandler(GeneralClass):
             args = shlex.split(command_str)
         else:
             raise TypeError
-        logger.debug("subprocess args are: {}".format(args))
+        logger.debug(f"subprocess args are: {args}")
         return args
 
     @staticmethod
@@ -124,7 +123,7 @@ class ProcessHandler(GeneralClass):
 
     def summarize_process(
         self,
-        args: typing.List[str],
+        args: List[str],
         cmd_start: datetime.datetime,
         cmd_end: datetime.datetime,
         return_code: int,
@@ -138,12 +137,6 @@ class ProcessHandler(GeneralClass):
                 xtrabackup_function = "prepare"
             elif "--prepare" in args:
                 xtrabackup_function = "prepare/apply-log-only"
-        if not xtrabackup_function:
-            for arg in args:
-                if re.search(r"(--decrypt)=?[\w]*", arg):
-                    xtrabackup_function = "decrypt"
-                elif re.search(r"(--decompress)=?[\w]*", arg):
-                    xtrabackup_function = "decompress"
 
         if cmd_root != "pigz":
             # this will be just the pigz --version call

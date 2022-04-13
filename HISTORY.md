@@ -1,3 +1,8 @@
+## v2.0.3 (2021-10-03)
+
+* , #449 by @ShahriyarR
+* , #448 by @ShahriyarR
+
 ## v2.0.2 (2021-05-06)
 
 * Increased code coverage and did code base refactoring, #444 by @shahriyarr
