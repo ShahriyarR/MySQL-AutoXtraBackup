@@ -2,11 +2,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# TODO: use these errors in the future - keeping it for future
-
 
 def log_error(expression: str, message: str) -> None:
-    logger.error("FAILED: " + expression + " " + message)
+    logger.error(f"FAILED: {expression} {message}")
 
 
 class Error(Exception):
@@ -49,17 +47,6 @@ class IncrementalBackupFailed(Error):
 class SomethingWentWrong(Error):
     """
     Exception raised for all general failed commands.
-    """
-
-    def __init__(self, expression: str, message: str) -> None:
-        self.expression = expression
-        self.message = message
-        log_error(self.expression, self.message)
-
-
-class BackupArchiveNotConfigured(Error):
-    """
-    Exception raised when archive_max_size and archive_max_duration configs are not set
     """
 
     def __init__(self, expression: str, message: str) -> None:

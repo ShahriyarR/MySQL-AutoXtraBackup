@@ -1,7 +1,7 @@
 import os
 import shutil
 
-from mysql_autoxtrabackup.utils import helpers
+from mysql_autoxtrabackup.common import helpers
 
 
 class TestHelpers:

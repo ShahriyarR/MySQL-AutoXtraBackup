@@ -19,14 +19,11 @@ class TestBackup:
         return_bck_obj.tag = None
         # Check if the backup tag file is created and contains given string
         assert os.path.isfile(
-            "{}/backup_tags.txt".format(
-                return_bck_obj.builder_obj.backup_options.get("backup_dir")
-            )
+            f'{return_bck_obj.builder_obj.backup_options.get("backup_dir")}/backup_tags.txt'
         )
+
         with open(
-            "{}/backup_tags.txt".format(
-                return_bck_obj.builder_obj.backup_options.get("backup_dir")
-            ),
+            f'{return_bck_obj.builder_obj.backup_options.get("backup_dir")}/backup_tags.txt',
             "r",
         ) as file:
             assert "My first full backup" in file.read()
