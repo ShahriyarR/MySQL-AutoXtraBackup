@@ -28,8 +28,7 @@ async def home() -> RedirectResponse:
 )
 async def backup() -> JSONResponse:
     backup_ = Backup()
-    result = backup_.all_backup()
-    if result:
+    if result := backup_.all_backup():
         return JSONResponse(
             content={"result": "Successfully finished the backup process"},
             status_code=status.HTTP_201_CREATED,
@@ -48,8 +47,7 @@ async def backup() -> JSONResponse:
 )
 async def prepare() -> JSONResponse:
     prepare_ = Prepare()
-    result = prepare_.prepare_inc_full_backups()
-    if result:
+    if result := prepare_.prepare_inc_full_backups():
         return JSONResponse(
             content={"result": "Successfully prepared all the backups"},
             status_code=status.HTTP_200_OK,
@@ -68,10 +66,9 @@ async def prepare() -> JSONResponse:
 )
 async def backups() -> JSONResponse:
     backup_ = Backup()
-    result = list_available_backups(
+    if result := list_available_backups(
         str(backup_.builder_obj.backup_options.get("backup_dir"))
-    )
-    if result:
+    ):
         return JSONResponse(content={"backups": result}, status_code=status.HTTP_200_OK)
     return JSONResponse(content={"backups": {}}, status_code=status.HTTP_200_OK)
 
